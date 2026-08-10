@@ -1,0 +1,12 @@
+{
+  "name": "ndsolotravel",
+  "short_name": "ndsolotravel",
+  "description": "Solo travel, mountains & motorcycles.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#020617",
+  "theme_color": "#0F172A",
+  "icons": [
+    { "src": "/favicon.png", "sizes": "32x32", "type": "image/png" }
+  ]
+}

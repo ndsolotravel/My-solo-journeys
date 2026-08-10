@@ -1,0 +1,201 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+  --font-display: "Roboto", system-ui, sans-serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --shadow-elegant: 0 30px 80px -40px color-mix(in oklab, var(--primary) 40%, transparent);
+}
+
+:root {
+  --radius: 0.75rem;
+  /* #FFFFFF */
+  --background: oklch(1 0 0);
+  /* #111827 */
+  --foreground: oklch(0.218 0.034 264);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.218 0.034 264);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.218 0.034 264);
+  /* #0F172A primary */
+  --primary: oklch(0.226 0.041 264);
+  --primary-foreground: oklch(0.98 0.003 247);
+  /* #1E293B secondary */
+  --secondary: oklch(0.295 0.038 264);
+  --secondary-foreground: oklch(0.98 0.003 247);
+  --muted: oklch(0.968 0.006 247);
+  --muted-foreground: oklch(0.5 0.024 257);
+  /* #0EA5E9 accent */
+  --accent: oklch(0.715 0.157 234);
+  --accent-foreground: oklch(0.99 0.005 240);
+  /* #10B981 success */
+  --success: oklch(0.7 0.149 162);
+  --success-foreground: oklch(0.99 0.005 162);
+  --destructive: oklch(0.62 0.235 27);
+  --destructive-foreground: oklch(0.98 0.003 247);
+  --border: oklch(0.92 0.011 256);
+  --input: oklch(0.92 0.011 256);
+  --ring: oklch(0.715 0.157 234);
+}
+
+.dark {
+  /* #020617 */
+  --background: oklch(0.13 0.029 264);
+  --foreground: oklch(0.98 0.003 247);
+  --card: oklch(0.18 0.034 264);
+  --card-foreground: oklch(0.98 0.003 247);
+  --popover: oklch(0.18 0.034 264);
+  --popover-foreground: oklch(0.98 0.003 247);
+  --primary: oklch(0.93 0.013 256);
+  --primary-foreground: oklch(0.18 0.034 264);
+  --secondary: oklch(0.26 0.038 264);
+  --secondary-foreground: oklch(0.98 0.003 247);
+  --muted: oklch(0.24 0.034 264);
+  --muted-foreground: oklch(0.7 0.024 257);
+  --accent: oklch(0.715 0.157 234);
+  --accent-foreground: oklch(0.13 0.029 264);
+  --success: oklch(0.72 0.149 162);
+  --success-foreground: oklch(0.13 0.029 264);
+  --destructive: oklch(0.65 0.21 22);
+  --destructive-foreground: oklch(0.98 0.003 247);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.715 0.157 234);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, h4, h5 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+}
+
+@utility glass {
+  background: color-mix(in oklab, var(--background) 70%, transparent);
+  backdrop-filter: saturate(160%) blur(14px);
+  -webkit-backdrop-filter: saturate(160%) blur(14px);
+}
+
+@utility prose-blog {
+  & h2 { font-size: 1.875rem; margin-top: 2.5rem; margin-bottom: 1rem; font-weight: 700; }
+  & h3 { font-size: 1.5rem; margin-top: 2rem; margin-bottom: 0.75rem; font-weight: 600; }
+  & p { line-height: 1.85; margin-bottom: 1.25rem; font-size: 1.0625rem; color: var(--color-foreground); }
+  & a { color: var(--color-accent); text-decoration: underline; text-underline-offset: 3px; }
+  & blockquote { border-left: 3px solid var(--color-accent); padding-left: 1rem; font-style: italic; margin: 1.5rem 0; color: var(--color-muted-foreground); }
+  & ul, & ol { padding-left: 1.5rem; margin-bottom: 1.25rem; }
+  & li { margin-bottom: 0.5rem; }
+  & img { border-radius: var(--radius); margin: 1.5rem 0; }
+}
+
+@keyframes ken-burns {
+  0%   { transform: scale(1.05) translate3d(0, 0, 0); }
+  100% { transform: scale(1.18) translate3d(-1%, -1%, 0); }
+}
+.animate-ken-burns {
+  animation: ken-burns 11s ease-out forwards;
+  will-change: transform;
+}
+
+body {
+  top: 0 !important;
+  position: static !important;
+}
+
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* RTL support (Urdu) */
+html[dir="rtl"] {
+  font-family: "Noto Naskh Arabic", "Jameel Noori Nastaleeq", "Noto Nastaliq Urdu", var(--font-sans);
+}
+html[dir="rtl"] body { text-align: right; }
+html[dir="rtl"] .container { direction: rtl; }
+
+/* Flip common margin/padding directional utilities */
+html[dir="rtl"] .ml-1, html[dir="rtl"] .ml-2, html[dir="rtl"] .ml-3, html[dir="rtl"] .ml-4,
+html[dir="rtl"] .ml-6, html[dir="rtl"] .ml-8 { margin-left: 0; }
+html[dir="rtl"] .mr-1, html[dir="rtl"] .mr-2, html[dir="rtl"] .mr-3, html[dir="rtl"] .mr-4,
+html[dir="rtl"] .mr-6, html[dir="rtl"] .mr-8 { margin-right: 0; }
+
+html[dir="rtl"] .text-left { text-align: right !important; }
+html[dir="rtl"] .text-right { text-align: left !important; }
+
+/* Flip flex rows so navigation/header items align naturally in RTL */
+html[dir="rtl"] .flex-row { flex-direction: row-reverse; }
+
+/* Journey-in-Numbers dashboard premium card interactions */
+.jin-card {
+  transition: box-shadow 250ms ease, transform 250ms ease, border-color 250ms ease;
+  will-change: transform;
+}
+.jin-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 40px -24px rgba(15, 23, 42, 0.35);
+}
+
+/* Subtle one-shot border glow for the featured stat card */
+.jin-featured {
+  position: relative;
+  isolation: isolate;
+}
+.jin-featured::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(255, 122, 0, 0.0), rgba(255, 122, 0, 0.55), rgba(255, 122, 0, 0.0));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+  pointer-events: none;
+}
+.jin-featured.is-glowing::before { opacity: 1; }
