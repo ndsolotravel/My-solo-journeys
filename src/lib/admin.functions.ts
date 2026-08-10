@@ -28,20 +28,29 @@ export const getMyRoles = createServerFn({ method: "GET" })
 
 // ---------------- POSTS ----------------
 
-const POST_COLS =
+const BASE_POST_COLS =
   "id,title,slug,excerpt,content,cover_image,category,tags,featured,published,published_at,scheduled_at,reading_minutes,views,created_at,updated_at";
+
+const POST_COLS =
+  "id,title,slug,excerpt,content,cover_image,category,tags,featured,published,published_at,scheduled_at,reading_minutes,views,created_at,updated_at,destination_id,travel_date,seo_title,seo_description,og_image_url";
 
 export const adminListPosts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertEditor(context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data, error } = await supabaseAdmin
+    let res = await supabaseAdmin
       .from("posts")
-      .select(POST_COLS)
+      .select(`${POST_COLS},destinations(title,slug)`)
       .order("updated_at", { ascending: false });
-    if (error) throw new Error(error.message);
-    return data ?? [];
+    if (res.error) {
+      res = await supabaseAdmin
+        .from("posts")
+        .select(BASE_POST_COLS)
+        .order("updated_at", { ascending: false });
+    }
+    if (res.error) throw new Error(res.error.message);
+    return res.data ?? [];
   });
 
 export const adminGetPost = createServerFn({ method: "GET" })
@@ -50,13 +59,33 @@ export const adminGetPost = createServerFn({ method: "GET" })
   .handler(async ({ context, data }) => {
     await assertEditor(context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: row, error } = await supabaseAdmin
+    let res = await supabaseAdmin
       .from("posts")
-      .select(POST_COLS)
+      .select(`${POST_COLS},destinations(id,title,slug),post_gallery(id,image_url,alt_text,sort_order)`)
       .eq("id", data.id)
       .maybeSingle();
-    if (error) throw new Error(error.message);
-    return row;
+
+    if (res.error) {
+      res = await supabaseAdmin
+        .from("posts")
+        .select(BASE_POST_COLS)
+        .eq("id", data.id)
+        .maybeSingle();
+    }
+
+    if (res.error) throw new Error(res.error.message);
+    const row = res.data;
+    if (!row) return null;
+    const gallery = ((row as Record<string, unknown>).post_gallery ?? []) as {
+      id: string;
+      image_url: string;
+      alt_text: string | null;
+      sort_order: number;
+    }[];
+    if (Array.isArray(gallery)) {
+      gallery.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+    }
+    return { ...row, gallery };
   });
 
 const slugify = (s: string) =>
@@ -80,6 +109,21 @@ const postInputSchema = z.object({
   featured: z.boolean().default(false),
   published: z.boolean().default(false),
   scheduled_at: z.string().datetime().optional().nullable().or(z.literal("")),
+  destination_id: z.string().uuid().optional().nullable().or(z.literal("")),
+  travel_date: z.string().optional().nullable().or(z.literal("")),
+  seo_title: z.string().max(200).optional().nullable().or(z.literal("")),
+  seo_description: z.string().max(500).optional().nullable().or(z.literal("")),
+  og_image_url: z.string().url().optional().nullable().or(z.literal("")),
+  gallery: z
+    .array(
+      z.object({
+        id: z.string().optional(),
+        image_url: z.string().min(1),
+        alt_text: z.string().optional().nullable(),
+        sort_order: z.number().default(0),
+      }),
+    )
+    .optional(),
 });
 
 export const adminUpsertPost = createServerFn({ method: "POST" })
@@ -93,6 +137,9 @@ export const adminUpsertPost = createServerFn({ method: "POST" })
     const reading_minutes = Math.max(1, Math.round((data.content || "").split(/\s+/).length / 200));
     const scheduled = data.scheduled_at && data.scheduled_at !== "" ? data.scheduled_at : null;
     const cover = data.cover_image && data.cover_image !== "" ? data.cover_image : null;
+    const destination_id = data.destination_id && data.destination_id !== "" ? data.destination_id : null;
+    const travel_date = data.travel_date && data.travel_date !== "" ? data.travel_date : null;
+    const og_image_url = data.og_image_url && data.og_image_url !== "" ? data.og_image_url : null;
 
     const payload = {
       title: data.title,
@@ -108,14 +155,22 @@ export const adminUpsertPost = createServerFn({ method: "POST" })
       scheduled_at: scheduled,
       reading_minutes,
       author_id: context.userId,
+      destination_id,
+      travel_date,
+      seo_title: data.seo_title || null,
+      seo_description: data.seo_description || null,
+      og_image_url,
     };
 
-    if (data.id) {
+    let postId = data.id;
+    let postRow;
+
+    if (postId) {
       // Preserve existing published_at when republishing
       const { data: existing } = await supabaseAdmin
         .from("posts")
         .select("published_at,published")
-        .eq("id", data.id)
+        .eq("id", postId)
         .maybeSingle();
       if (existing?.published && data.published && existing.published_at) {
         payload.published_at = existing.published_at;
@@ -123,19 +178,38 @@ export const adminUpsertPost = createServerFn({ method: "POST" })
       const { data: row, error } = await supabaseAdmin
         .from("posts")
         .update(payload)
-        .eq("id", data.id)
+        .eq("id", postId)
         .select(POST_COLS)
         .single();
       if (error) throw new Error(error.message);
-      return row;
+      postRow = row;
+    } else {
+      const { data: row, error } = await supabaseAdmin
+        .from("posts")
+        .insert(payload)
+        .select(POST_COLS)
+        .single();
+      if (error) throw new Error(error.message);
+      postRow = row;
+      postId = row.id;
     }
-    const { data: row, error } = await supabaseAdmin
-      .from("posts")
-      .insert(payload)
-      .select(POST_COLS)
-      .single();
-    if (error) throw new Error(error.message);
-    return row;
+
+    // Sync post_gallery items if provided
+    if (data.gallery !== undefined && postId) {
+      await supabaseAdmin.from("post_gallery").delete().eq("post_id", postId);
+      if (data.gallery.length > 0) {
+        const galleryRows = data.gallery.map((g, idx) => ({
+          post_id: postId,
+          image_url: g.image_url,
+          alt_text: g.alt_text || null,
+          sort_order: g.sort_order ?? idx,
+        }));
+        const { error: galErr } = await supabaseAdmin.from("post_gallery").insert(galleryRows);
+        if (galErr) throw new Error(galErr.message);
+      }
+    }
+
+    return postRow;
   });
 
 export const adminDeletePost = createServerFn({ method: "POST" })

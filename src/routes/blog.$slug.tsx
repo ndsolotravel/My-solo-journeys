@@ -3,7 +3,7 @@ import { queryOptions, useQuery, useMutation, useQueryClient } from "@tanstack/r
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { Clock, Share2, ArrowLeft, Star } from "lucide-react";
+import { Clock, Share2, ArrowLeft, Star, MapPin, Calendar, Image as ImageIcon } from "lucide-react";
 import { motion } from "framer-motion";
 import { getPostBySlug } from "@/lib/posts.functions";
 import { listComments, postComment, getPostRatingStats } from "@/lib/comments.functions";
@@ -27,18 +27,19 @@ export const Route = createFileRoute("/blog/$slug")({
   },
   head: ({ loaderData, params }) => {
     const p = loaderData?.post;
-    const title = p ? `${p.title} — ndsolotravel` : "Story — ndsolotravel";
-    const desc = p?.excerpt ?? "A solo travel story from ndsolotravel.";
+    const title = p?.seo_title || (p ? `${p.title} — ndsolotravel` : "Story — ndsolotravel");
+    const desc = p?.seo_description || p?.excerpt || "A solo travel story from ndsolotravel.";
+    const image = p?.og_image_url || p?.cover_image;
     return {
       meta: [
         { title },
         { name: "description", content: desc },
-        { property: "og:title", content: p?.title ?? "ndsolotravel" },
+        { property: "og:title", content: title },
         { property: "og:description", content: desc },
         { property: "og:type", content: "article" },
         { property: "og:url", content: `/blog/${params.slug}` },
-        ...(p?.cover_image ? [{ property: "og:image", content: p.cover_image }] : []),
-        ...(p?.cover_image ? [{ name: "twitter:image", content: p.cover_image }] : []),
+        ...(image ? [{ property: "og:image", content: image }] : []),
+        ...(image ? [{ name: "twitter:image", content: image }] : []),
         { name: "twitter:card", content: "summary_large_image" },
       ],
       links: [{ rel: "canonical", href: `/blog/${params.slug}` }],
@@ -50,8 +51,8 @@ export const Route = createFileRoute("/blog/$slug")({
                 "@context": "https://schema.org",
                 "@type": "Article",
                 headline: p.title,
-                description: p.excerpt ?? undefined,
-                image: p.cover_image ?? undefined,
+                description: desc,
+                image: image ?? undefined,
                 datePublished: p.published_at ?? p.created_at,
                 articleSection: p.category,
                 keywords: p.tags?.join(", "),
@@ -91,6 +92,8 @@ function PostPage() {
   const localizedPost = useLocalizedPosts(post ? [post] : [], { includeContent: true })[0] ?? post;
   const localizedRelated = useLocalizedPosts(related);
 
+  const [activeImage, setActiveImage] = useState<string | null>(null);
+
   const t = useTranslator([
     "Stories",
     "min read",
@@ -121,6 +124,9 @@ function PostPage() {
     "Rating",
     "Review posted",
     "Traveller",
+    "Photo Gallery",
+    "Traveled on",
+    "Destination",
   ]);
 
   if (!post) return null;
@@ -130,6 +136,17 @@ function PostPage() {
     day: "numeric",
     year: "numeric",
   });
+
+  const formattedTravelDate = post.travel_date
+    ? new Date(post.travel_date).toLocaleDateString("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      })
+    : null;
+
+  const dest = post.destinations as { title: string; slug: string } | null;
+  const gallery = post.gallery ?? [];
 
   return (
     <article className="pb-24">
@@ -146,20 +163,40 @@ function PostPage() {
         )}
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/30 to-black/80" />
         <div className="absolute inset-x-0 bottom-0 mx-auto max-w-3xl px-4 pb-12 text-white sm:px-6">
-          <Link
-            to="/blog"
-            className="inline-flex items-center gap-2 text-xs text-white/80 hover:text-white"
-          >
-            <ArrowLeft className="h-3 w-3" /> {t("Stories")}
-          </Link>
+          <div className="flex flex-wrap items-center gap-3">
+            <Link
+              to="/blog"
+              className="inline-flex items-center gap-2 text-xs text-white/80 hover:text-white"
+            >
+              <ArrowLeft className="h-3 w-3" /> {t("Stories")}
+            </Link>
+            {dest && (
+              <Link
+                to="/destinations/$slug"
+                params={{ slug: dest.slug }}
+                className="inline-flex items-center gap-1 rounded-full bg-accent/20 backdrop-blur-md px-3 py-1 text-xs font-medium text-amber-300 hover:bg-accent/30 transition-colors"
+              >
+                <MapPin className="h-3 w-3" /> {dest.title}
+              </Link>
+            )}
+          </div>
+
           <p className="mt-4 text-xs uppercase tracking-[0.2em] text-accent">
             {localizedPost.category}
           </p>
           <h1 className="mt-3 font-display text-3xl font-bold leading-tight sm:text-5xl">
             {localizedPost.title}
           </h1>
-          <div className="mt-5 flex items-center gap-4 text-xs text-white/80">
+          <div className="mt-5 flex flex-wrap items-center gap-4 text-xs text-white/80">
             <span>{date}</span>
+            {formattedTravelDate && (
+              <>
+                <span aria-hidden>·</span>
+                <span className="inline-flex items-center gap-1 text-amber-200">
+                  <Calendar className="h-3 w-3" /> {t("Traveled on")} {formattedTravelDate}
+                </span>
+              </>
+            )}
             <span aria-hidden>·</span>
             <span className="inline-flex items-center gap-1">
               <Clock className="h-3 w-3" /> {post.reading_minutes} {t("min read")}
@@ -178,6 +215,50 @@ function PostPage() {
         <div className="prose-blog mt-8">
           <ReactMarkdown>{localizedPost.content}</ReactMarkdown>
         </div>
+
+        {/* Multi-Photo Gallery Grid */}
+        {gallery.length > 0 && (
+          <section className="mt-14 rounded-2xl border border-border bg-card p-6 shadow-sm">
+            <h3 className="font-display text-xl font-bold flex items-center gap-2 mb-4">
+              <ImageIcon className="h-5 w-5 text-accent" /> {t("Photo Gallery")}
+            </h3>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {gallery.map((item, idx) => (
+                <motion.div
+                  key={item.id || idx}
+                  whileHover={{ scale: 1.02 }}
+                  onClick={() => setActiveImage(item.image_url)}
+                  className="group relative cursor-pointer overflow-hidden rounded-xl border border-border bg-muted/30 aspect-4/3"
+                >
+                  <img
+                    src={item.image_url}
+                    alt={item.alt_text || `${localizedPost.title} photo ${idx + 1}`}
+                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                  {item.alt_text && (
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100 line-clamp-2">
+                      {item.alt_text}
+                    </div>
+                  )}
+                </motion.div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Modal Lightbox */}
+        {activeImage && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 backdrop-blur-xs"
+            onClick={() => setActiveImage(null)}
+          >
+            <img
+              src={activeImage}
+              alt="Zoomed photo"
+              className="max-h-[90vh] max-w-[90vw] rounded-xl object-contain shadow-2xl"
+            />
+          </div>
+        )}
 
         {post.tags?.length > 0 && (
           <div className="mt-10 flex flex-wrap gap-2">

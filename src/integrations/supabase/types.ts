@@ -161,16 +161,21 @@ export type Database = {
           content: string
           cover_image: string | null
           created_at: string
+          destination_id: string | null
           excerpt: string | null
           featured: boolean
           id: string
+          og_image_url: string | null
           published: boolean
           published_at: string | null
           reading_minutes: number
           scheduled_at: string | null
+          seo_description: string | null
+          seo_title: string | null
           slug: string
           tags: string[]
           title: string
+          travel_date: string | null
           updated_at: string
           views: number
         }
@@ -180,16 +185,21 @@ export type Database = {
           content?: string
           cover_image?: string | null
           created_at?: string
+          destination_id?: string | null
           excerpt?: string | null
           featured?: boolean
           id?: string
+          og_image_url?: string | null
           published?: boolean
           published_at?: string | null
           reading_minutes?: number
           scheduled_at?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
           slug: string
           tags?: string[]
           title: string
+          travel_date?: string | null
           updated_at?: string
           views?: number
         }
@@ -199,20 +209,68 @@ export type Database = {
           content?: string
           cover_image?: string | null
           created_at?: string
+          destination_id?: string | null
           excerpt?: string | null
           featured?: boolean
           id?: string
+          og_image_url?: string | null
           published?: boolean
           published_at?: string | null
           reading_minutes?: number
           scheduled_at?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
           slug?: string
           tags?: string[]
           title?: string
+          travel_date?: string | null
           updated_at?: string
           views?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "posts_destination_id_fkey"
+            columns: ["destination_id"]
+            isOneToOne: false
+            referencedRelation: "destinations"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      post_gallery: {
+        Row: {
+          alt_text: string | null
+          created_at: string
+          id: string
+          image_url: string
+          post_id: string
+          sort_order: number
+        }
+        Insert: {
+          alt_text?: string | null
+          created_at?: string
+          id?: string
+          image_url: string
+          post_id: string
+          sort_order?: number
+        }
+        Update: {
+          alt_text?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string
+          post_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_gallery_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       profiles: {
         Row: {
