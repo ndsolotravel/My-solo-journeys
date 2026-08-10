@@ -6,15 +6,24 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/_authenticated/admin")({
   ssr: false,
   beforeLoad: async () => {
+    let roles: string[] = [];
     try {
-      const roles = await getMyRoles();
-      if (!roles.includes("admin") && !roles.includes("editor")) {
-        throw redirect({ to: "/" });
-      }
-      return { roles };
-    } catch (e) {
-      throw redirect({ to: "/" });
+      roles = await getMyRoles();
+    } catch {
+      throw redirect({
+        to: "/auth",
+        search: { redirect: "/admin" },
+      });
     }
+
+    if (!roles.includes("admin") && !roles.includes("editor")) {
+      throw redirect({
+        to: "/auth",
+        search: { redirect: "/admin", error: "unauthorized_admin" },
+      });
+    }
+
+    return { roles };
   },
   head: () => ({
     meta: [
