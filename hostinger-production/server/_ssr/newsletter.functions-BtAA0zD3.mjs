@@ -82,26 +82,46 @@ const sendContact = createServerFn({
   const ip = getRequestHeader("cf-connecting-ip") || getRequestHeader("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
   const ipHash = await sha256(`ndsolo:${ip}`);
   const since = new Date(Date.now() - 10 * 60 * 1e3).toISOString();
-  const {
-    count
-  } = await supabaseAdmin.from("contact_messages").select("id", {
-    count: "exact",
-    head: true
-  }).eq("ip_hash", ipHash).gte("created_at", since);
-  if ((count ?? 0) >= 3) {
-    throw new Error("Too many messages. Please try again in a few minutes.");
+  try {
+    const {
+      count,
+      error: countError
+    } = await supabaseAdmin.from("contact_messages").select("id", {
+      count: "exact",
+      head: true
+    }).eq("ip_hash", ipHash).gte("created_at", since);
+    if (!countError && (count ?? 0) >= 3) {
+      throw new Error("Too many messages. Please try again in a few minutes.");
+    }
+  } catch (err) {
+    if (err?.message?.includes("Too many messages")) {
+      throw err;
+    }
   }
   const subject = data.subject?.trim() || null;
-  const {
-    error
-  } = await supabaseAdmin.from("contact_messages").insert({
+  const fullPayload = {
     name: data.name,
     email: data.email.toLowerCase(),
     subject,
     message: data.message,
     ip_hash: ipHash,
     status: "new"
-  });
+  };
+  let {
+    error
+  } = await supabaseAdmin.from("contact_messages").insert(fullPayload);
+  if (error && (error.code === "PGRST204" || error.message?.includes("schema cache"))) {
+    const fallbackPayload = {
+      name: data.name,
+      email: data.email.toLowerCase(),
+      message: data.message
+    };
+    if (subject && !error.message?.includes("subject")) {
+      fallbackPayload.subject = subject;
+    }
+    const retry = await supabaseAdmin.from("contact_messages").insert(fallbackPayload);
+    error = retry.error;
+  }
   if (error) throw new Error(error.message);
   return {
     ok: true

@@ -32,7 +32,7 @@ async function sha256(input: string) {
 export const sendContact = createServerFn({ method: "POST" })
   .inputValidator((input) => contactSchema.parse(input))
   .handler(async ({ data }) => {
-    // Honeypot: silently accept then drop
+    // Honeypot: silently accept then drop bot submissions
     if (data.website && data.website.length > 0) {
       return { ok: true };
     }
@@ -46,24 +46,50 @@ export const sendContact = createServerFn({ method: "POST" })
       "unknown";
     const ipHash = await sha256(`ndsolo:${ip}`);
     const since = new Date(Date.now() - 10 * 60 * 1000).toISOString();
-    const { count } = await supabaseAdmin
-      .from("contact_messages")
-      .select("id", { count: "exact", head: true })
-      .eq("ip_hash", ipHash)
-      .gte("created_at", since);
-    if ((count ?? 0) >= 3) {
-      throw new Error("Too many messages. Please try again in a few minutes.");
+
+    try {
+      const { count, error: countError } = await supabaseAdmin
+        .from("contact_messages")
+        .select("id", { count: "exact", head: true })
+        .eq("ip_hash", ipHash)
+        .gte("created_at", since);
+
+      if (!countError && (count ?? 0) >= 3) {
+        throw new Error("Too many messages. Please try again in a few minutes.");
+      }
+    } catch (err: any) {
+      if (err?.message?.includes("Too many messages")) {
+        throw err;
+      }
+      // If ip_hash column is not yet in schema cache, ignore count error during check
     }
 
     const subject = data.subject?.trim() || null;
-    const { error } = await supabaseAdmin.from("contact_messages").insert({
+    const fullPayload: Record<string, any> = {
       name: data.name,
       email: data.email.toLowerCase(),
       subject,
       message: data.message,
       ip_hash: ipHash,
       status: "new",
-    });
+    };
+
+    let { error } = await supabaseAdmin.from("contact_messages").insert(fullPayload);
+
+    // Fallback: If PostgREST returns schema error (PGRST204) for missing optional columns
+    if (error && (error.code === "PGRST204" || error.message?.includes("schema cache"))) {
+      const fallbackPayload: Record<string, any> = {
+        name: data.name,
+        email: data.email.toLowerCase(),
+        message: data.message,
+      };
+      if (subject && !error.message?.includes("subject")) {
+        fallbackPayload.subject = subject;
+      }
+      const retry = await supabaseAdmin.from("contact_messages").insert(fallbackPayload);
+      error = retry.error;
+    }
+
     if (error) throw new Error(error.message);
 
     return { ok: true };
