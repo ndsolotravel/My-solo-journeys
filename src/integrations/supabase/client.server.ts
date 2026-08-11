@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import ws from 'ws';
 import type { Database } from './types';
 
 const DEFAULT_SUPABASE_URL = "https://mqoybarqgzzvillignbr.supabase.co";
@@ -22,7 +23,11 @@ function createSupabaseAdminClient() {
       storage: undefined,
       persistSession: false,
       autoRefreshToken: false,
-    }
+    },
+    realtime: {
+      transport: ws,
+      WebSocket: ws,
+    },
   });
 }
 
