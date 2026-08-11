@@ -467,7 +467,7 @@ const attentionMarkers = {
 const disable = {
   null: []
 };
-const defaultConstructs = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const defaultConstructs = /* @__PURE__ */ Object.freeze({
   __proto__: null,
   attentionMarkers,
   contentInitial,
@@ -478,7 +478,7 @@ const defaultConstructs = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.d
   insideSpan,
   string,
   text
-}, Symbol.toStringTag, { value: "Module" }));
+});
 function createTokenizer(parser, initialize, from) {
   let point = {
     _bufferIndex: -1,

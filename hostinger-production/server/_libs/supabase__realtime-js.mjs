@@ -1,4 +1,3 @@
-import { g as global } from "./unenv.mjs";
 import { P as Presence, S as Socket } from "./supabase__phoenix.mjs";
 class WebSocketFactory {
   /**

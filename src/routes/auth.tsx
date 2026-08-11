@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { getMyRoles } from "@/lib/admin.functions";
-import { lovable } from "@/integrations/lovable";
 import { toast } from "sonner";
 import { ShieldAlert, Info, KeyRound, CheckCircle2 } from "lucide-react";
 import logoPath from "@/assets/ndsolo-travel-logo.png";
@@ -122,16 +121,17 @@ function AuthPage() {
 
   async function onGoogle() {
     setLoading(true);
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}${redirectTarget ? redirectTarget : "/"}`,
+      },
     });
-    if (result.error) {
-      toast.error("Google sign-in failed");
+    if (error) {
+      toast.error("Google sign-in failed: " + error.message);
       setLoading(false);
       return;
     }
-    if (result.redirected) return;
-    navigate({ to: redirectTarget ? (redirectTarget as "/admin") : "/" });
   }
 
   return (

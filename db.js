@@ -21,8 +21,13 @@ try {
   console.error("Error reading .env:", e);
 }
 
-const supabaseUrl = envVars.SUPABASE_URL || envVars.VITE_SUPABASE_URL || 'https://mqoybarqgzzvillignbr.supabase.co';
-const supabaseKey = envVars.SUPABASE_PUBLISHABLE_KEY || envVars.VITE_SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_quAPYI3nYdGK50erwAPnfg_YJWBq2u5';
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || envVars.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || envVars.SUPABASE_URL;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || envVars.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || envVars.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+  console.error("Missing Supabase credentials in environment or .env file.");
+  process.exit(1);
+}
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -35,7 +40,7 @@ async function fetchTableData() {
   if (error) {
     console.error("Error fetching data from 'posts':", error);
   } else {
-    console.log(`Successfully fetched ${data.length} records from 'posts':`);
+    console.log(`Successfully fetched ${data?.length ?? 0} records from 'posts':`);
     console.log(data);
   }
 }

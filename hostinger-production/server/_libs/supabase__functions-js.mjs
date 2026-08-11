@@ -1,4 +1,4 @@
-import { _ as __awaiter } from "./tslib.mjs";
+import { __awaiter } from "tslib";
 const resolveFetch = (customFetch) => {
   if (customFetch) {
     return (...args) => customFetch(...args);

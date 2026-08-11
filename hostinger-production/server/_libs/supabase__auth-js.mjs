@@ -1,4 +1,4 @@
-import { a as __rest } from "./tslib.mjs";
+import { __rest } from "tslib";
 const version = "2.108.1";
 const AUTO_REFRESH_TICK_DURATION_MS = 30 * 1e3;
 const AUTO_REFRESH_TICK_THRESHOLD = 3;

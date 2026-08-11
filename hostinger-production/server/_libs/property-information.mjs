@@ -69,7 +69,7 @@ const commaOrSpaceSeparated = increment();
 function increment() {
   return 2 ** ++powers;
 }
-const types = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const types = /* @__PURE__ */ Object.freeze({
   __proto__: null,
   boolean,
   booleanish,
@@ -78,7 +78,7 @@ const types = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePropert
   number,
   overloadedBoolean,
   spaceSeparated
-}, Symbol.toStringTag, { value: "Module" }));
+});
 const checks = (
   /** @type {ReadonlyArray<keyof typeof types>} */
   Object.keys(types)

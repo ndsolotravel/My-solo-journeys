@@ -1,7 +1,6 @@
 import { r as reactExports, j as jsxRuntimeExports } from "./react.mjs";
 import { i as isHTMLElement, g as getFeatureDefinitions, s as setFeatureDefinitions, a as isMotionValue, b as isControllingVariants, c as isVariantLabel, d as isForcedMotionValue, e as buildHTMLStyles, f as buildSVGAttrs, h as isSVGTag, r as resolveMotionValue, j as isVariantNode, k as isAnimationControls, l as resolveVariantFromProps, m as scrapeMotionValuesFromProps, n as scrapeMotionValuesFromProps$1, o as optimizedAppearDataAttribute, S as SVGVisualElement, H as HTMLVisualElement, F as Feature, p as createAnimationState, q as resolveVariant, t as isPrimaryPointer, u as addDomEvent, v as frameData, w as frame, x as cancelFrame, y as mixNumber, z as calcLength, A as createBox, B as eachAxis, C as measurePageBox, D as convertBoxToBoundingBox, E as convertBoundingBoxToBox, G as addValueToWillChange, I as animateMotionValue, J as setDragLock, K as resize, L as percent, M as isElementTextInput, N as microtask, O as globalProjectionState, P as HTMLProjectionNode, Q as hover, R as press } from "./motion-dom.mjs";
 import { p as pipe, s as secondsToMilliseconds, m as millisecondsToSeconds, a as progress, c as clamp, n as noop } from "./motion-utils.mjs";
-import "./unenv.mjs";
 const LayoutGroupContext = reactExports.createContext({});
 function useConstant(init) {
   const ref = reactExports.useRef(null);

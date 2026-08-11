@@ -1,4 +1,3 @@
-import { Buffer } from "node:buffer";
 import { I as IcebergRestCatalog } from "./iceberg-js.mjs";
 function _typeof(o) {
   "@babel/helpers - typeof";

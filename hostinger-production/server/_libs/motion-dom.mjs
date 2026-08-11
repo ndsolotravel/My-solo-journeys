@@ -1,5 +1,4 @@
 import { M as MotionGlobalConfig, n as noop, c as clamp, p as pipe, m as millisecondsToSeconds, s as secondsToMilliseconds, v as velocityPerSecond, i as invariant, a as progress, b as isEasingArray, e as easingDefinitionToFunction, d as easeInOut, f as memo, g as isBezierDefinition, h as circInOut, j as backInOut, k as anticipate, S as SubscriptionManager, l as isNumericalString, o as isZeroValueString, q as isObject, r as circOut, t as addUniqueItem, u as removeItem } from "./motion-utils.mjs";
-import { p as performance } from "./unenv.mjs";
 const stepsOrder = [
   "setup",
   // Compute

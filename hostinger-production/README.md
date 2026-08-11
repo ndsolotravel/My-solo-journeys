@@ -6,17 +6,13 @@ This directory contains the production build deployment package for **NDSOLOTRAV
 ## Hostinger Node.js Configuration
 
 - **Node.js Version**: `>= 20.x`
-- **Application Startup File**: `server/index.mjs`
-- **Start Command**: `npm start` (or `node server/index.mjs`)
+- **Application Root**: `/` (or domain app root)
+- **Build Command**: `npm run build`
+- **Start Command**: `npm start` (which runs `node server.js`)
+- **Entry Point**: `server.js` or `.output/server/index.mjs`
 
-## Steps to Deploy on Hostinger
+## Environment Variables required in Hostinger:
 
-1. **Upload Files**: Upload the contents of `hostinger-production/` to your domain's application directory on Hostinger.
-2. **Environment Variables**: Add the following keys in Hostinger's Node.js Environment Variable Settings:
-   - `VITE_SUPABASE_PROJECT_ID`
-   - `VITE_SUPABASE_PUBLISHABLE_KEY`
-   - `VITE_SUPABASE_URL`
-   - `SUPABASE_PROJECT_ID`
-   - `SUPABASE_PUBLISHABLE_KEY`
-   - `SUPABASE_URL`
-3. **Run Application**: Start the Node.js application from the Hostinger Control Panel.
+- `NEXT_PUBLIC_SUPABASE_URL`: `https://mqoybarqgzzvillignbr.supabase.co`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: `sb_publishable_quAPYI3nYdGK50erwAPnfg_YJWBq2u5`
+- (Optional) `SUPABASE_SERVICE_ROLE_KEY`: for privileged server-side operations

@@ -1,15 +1,11 @@
 import { H as HTTPError, t as toRequest } from "../_libs/h3.mjs";
-import "../_libs/unenv.mjs";
-
-
-
 import "../_libs/rou3.mjs";
 import "../_libs/srvx.mjs";
-
-
-
-
-
+import "node:http";
+import "node:stream";
+import "node:stream/promises";
+import "node:https";
+import "node:http2";
 function fetchViteEnv(viteEnvName, input, init) {
   const envs = globalThis.__nitro_vite_envs__ || {};
   const viteEnv = envs[viteEnvName];

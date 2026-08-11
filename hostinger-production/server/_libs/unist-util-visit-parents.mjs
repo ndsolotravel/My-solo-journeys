@@ -1,6 +1,6 @@
 import { c as convert } from "./unist-util-is.mjs";
 function color(d) {
-  return d;
+  return "\x1B[33m" + d + "\x1B[39m";
 }
 const empty = [];
 const CONTINUE = true;

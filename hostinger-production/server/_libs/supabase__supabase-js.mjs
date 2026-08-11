@@ -1,4 +1,3 @@
-import process from "node:process";
 import { P as PostgrestClient } from "./supabase__postgrest-js.mjs";
 import { R as RealtimeClient } from "./supabase__realtime-js.mjs";
 import { S as StorageClient } from "./supabase__storage-js.mjs";
