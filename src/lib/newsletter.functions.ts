@@ -3,7 +3,11 @@ import { getRequestHeader } from "@tanstack/react-start/server";
 import { z } from "zod";
 
 export const subscribe = createServerFn({ method: "POST" })
-  .inputValidator((input) => z.object({ email: z.string().email() }).parse(input))
+  .inputValidator((input: any) => {
+    const raw = input?.data ? input.data : input;
+    const email = typeof raw?.email === "string" ? raw.email.trim() : "";
+    return z.object({ email: z.string().email("Please enter a valid email address.") }).parse({ email });
+  })
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin
@@ -14,10 +18,10 @@ export const subscribe = createServerFn({ method: "POST" })
   });
 
 const contactSchema = z.object({
-  name: z.string().trim().min(1).max(120),
-  email: z.string().trim().email().max(320),
+  name: z.string().trim().min(1, "Please enter your name.").max(120),
+  email: z.string().trim().email("Please enter a valid email address.").max(320),
   subject: z.string().trim().max(200).optional().default(""),
-  message: z.string().trim().min(1).max(5000),
+  message: z.string().trim().min(1, "Please enter your message.").max(5000),
   // Honeypot — bots fill all fields; humans never see it
   website: z.string().max(0).optional().default(""),
 });
@@ -30,7 +34,17 @@ async function sha256(input: string) {
 }
 
 export const sendContact = createServerFn({ method: "POST" })
-  .inputValidator((input) => contactSchema.parse(input))
+  .inputValidator((input: any) => {
+    const raw = input?.data ? input.data : input;
+    const payload = {
+      name: typeof raw?.name === "string" ? raw.name.trim() : "",
+      email: typeof raw?.email === "string" ? raw.email.trim() : "",
+      subject: typeof raw?.subject === "string" ? raw.subject.trim() : "",
+      message: typeof raw?.message === "string" ? raw.message.trim() : "",
+      website: typeof raw?.website === "string" ? raw.website.trim() : "",
+    };
+    return contactSchema.parse(payload);
+  })
   .handler(async ({ data }) => {
     // Honeypot: silently accept then drop bot submissions
     if (data.website && data.website.length > 0) {
@@ -61,7 +75,6 @@ export const sendContact = createServerFn({ method: "POST" })
       if (err?.message?.includes("Too many messages")) {
         throw err;
       }
-      // If ip_hash column is not yet in schema cache, ignore count error during check
     }
 
     const subject = data.subject?.trim() || null;
@@ -76,7 +89,7 @@ export const sendContact = createServerFn({ method: "POST" })
 
     let { error } = await supabaseAdmin.from("contact_messages").insert(fullPayload);
 
-    // Fallback: If PostgREST returns schema error (PGRST204) for missing optional columns
+    // Fallback: If PostgREST returns schema error (PGRST204) for missing optional columns before migration
     if (error && (error.code === "PGRST204" || error.message?.includes("schema cache"))) {
       const fallbackPayload: Record<string, any> = {
         name: data.name,

@@ -1,0 +1,160 @@
+import { c as createServerRpc } from "./createServerRpc-wV0Vk4NU.mjs";
+import { c as createServerFn, b as getRequestHeader } from "./server-7Z2Wk8DL.mjs";
+import "../_libs/seroval.mjs";
+import "../_libs/react.mjs";
+import { o as objectType, s as stringType } from "../_libs/zod.mjs";
+import "node:async_hooks";
+import "../_libs/h3-v2.mjs";
+import "../_libs/rou3.mjs";
+import "../_libs/srvx.mjs";
+import "node:http";
+import "node:stream";
+import "node:stream/promises";
+import "node:https";
+import "node:http2";
+import "../_libs/tanstack__router-core.mjs";
+import "../_libs/tanstack__history.mjs";
+import "../_libs/cookie-es.mjs";
+import "../_libs/seroval-plugins.mjs";
+import "node:stream/web";
+import "../_libs/tanstack__react-router.mjs";
+import "../_libs/react-dom.mjs";
+import "util";
+import "crypto";
+import "async_hooks";
+import "stream";
+import "../_libs/isbot.mjs";
+const subscribe_createServerFn_handler = createServerRpc({
+  id: "47788b7666be982aca3ef5f15a2fcc6897f28fce0ebb29e9fb1da0ab79c42b13",
+  name: "subscribe",
+  filename: "src/lib/newsletter.functions.ts"
+}, (opts) => subscribe.__executeServer(opts));
+const subscribe = createServerFn({
+  method: "POST"
+}).inputValidator((input) => {
+  const raw = input?.data ? input.data : input;
+  const email = typeof raw?.email === "string" ? raw.email.trim() : "";
+  return objectType({
+    email: stringType().email("Please enter a valid email address.")
+  }).parse({
+    email
+  });
+}).handler(subscribe_createServerFn_handler, async ({
+  data
+}) => {
+  const {
+    supabaseAdmin
+  } = await import("./client.server-Dke3QHTZ.mjs");
+  const {
+    error
+  } = await supabaseAdmin.from("subscribers").insert({
+    email: data.email.toLowerCase()
+  });
+  if (error && !error.message.includes("duplicate")) throw new Error(error.message);
+  return {
+    ok: true
+  };
+});
+const contactSchema = objectType({
+  name: stringType().trim().min(1, "Please enter your name.").max(120),
+  email: stringType().trim().email("Please enter a valid email address.").max(320),
+  subject: stringType().trim().max(200).optional().default(""),
+  message: stringType().trim().min(1, "Please enter your message.").max(5e3),
+  // Honeypot — bots fill all fields; humans never see it
+  website: stringType().max(0).optional().default("")
+});
+async function sha256(input) {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(input));
+  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+const sendContact_createServerFn_handler = createServerRpc({
+  id: "ca369ea727ea5123aa5fee3fbc329cf735853eecfa76d8574d642a4ea46deb77",
+  name: "sendContact",
+  filename: "src/lib/newsletter.functions.ts"
+}, (opts) => sendContact.__executeServer(opts));
+const sendContact = createServerFn({
+  method: "POST"
+}).inputValidator((input) => {
+  const raw = input?.data ? input.data : input;
+  const payload = {
+    name: typeof raw?.name === "string" ? raw.name.trim() : "",
+    email: typeof raw?.email === "string" ? raw.email.trim() : "",
+    subject: typeof raw?.subject === "string" ? raw.subject.trim() : "",
+    message: typeof raw?.message === "string" ? raw.message.trim() : "",
+    website: typeof raw?.website === "string" ? raw.website.trim() : ""
+  };
+  return contactSchema.parse(payload);
+}).handler(sendContact_createServerFn_handler, async ({
+  data
+}) => {
+  if (data.website && data.website.length > 0) {
+    return {
+      ok: true
+    };
+  }
+  const {
+    supabaseAdmin
+  } = await import("./client.server-Dke3QHTZ.mjs");
+  const ip = getRequestHeader("cf-connecting-ip") || getRequestHeader("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const ipHash = await sha256(`ndsolo:${ip}`);
+  const since = new Date(Date.now() - 10 * 60 * 1e3).toISOString();
+  try {
+    const {
+      count,
+      error: countError
+    } = await supabaseAdmin.from("contact_messages").select("id", {
+      count: "exact",
+      head: true
+    }).eq("ip_hash", ipHash).gte("created_at", since);
+    if (!countError && (count ?? 0) >= 3) {
+      throw new Error("Too many messages. Please try again in a few minutes.");
+    }
+  } catch (err) {
+    if (err?.message?.includes("Too many messages")) {
+      throw err;
+    }
+  }
+  const subject = data.subject?.trim() || null;
+  const fullPayload = {
+    name: data.name,
+    email: data.email.toLowerCase(),
+    subject,
+    message: data.message,
+    ip_hash: ipHash,
+    status: "new"
+  };
+  let {
+    error
+  } = await supabaseAdmin.from("contact_messages").insert(fullPayload);
+  if (error && (error.code === "PGRST204" || error.message?.includes("schema cache"))) {
+    const fallbackPayload = {
+      name: data.name,
+      email: data.email.toLowerCase(),
+      message: data.message
+    };
+    if (subject && !error.message?.includes("subject")) {
+      fallbackPayload.subject = subject;
+    }
+    const retry = await supabaseAdmin.from("contact_messages").insert(fallbackPayload);
+    error = retry.error;
+  }
+  if (error) throw new Error(error.message);
+  return {
+    ok: true
+  };
+});
+const sendContactReply_createServerFn_handler = createServerRpc({
+  id: "2c4583f12bce21ae798f1680d431270090538471e946cd081e4b8d8460ec2b1a",
+  name: "sendContactReply",
+  filename: "src/lib/newsletter.functions.ts"
+}, (opts) => sendContactReply.__executeServer(opts));
+const sendContactReply = createServerFn({
+  method: "POST"
+}).handler(sendContactReply_createServerFn_handler, async () => ({
+  ok: true
+}));
+export {
+  sendContactReply_createServerFn_handler,
+  sendContact_createServerFn_handler,
+  subscribe_createServerFn_handler
+};

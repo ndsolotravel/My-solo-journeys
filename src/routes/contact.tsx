@@ -55,18 +55,64 @@ function ContactPage() {
     "TikTok",
     "Message sent. I'll reply when I'm back from the trail.",
     "Could not send. Try again.",
+    "Please enter your name.",
+    "Please enter a valid email address.",
+    "Please enter your message.",
   ]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+
+    const name = form.name.trim();
+    const email = form.email.trim();
+    const subject = form.subject.trim();
+    const message = form.message.trim();
+    const website = form.website.trim();
+
+    if (!name) {
+      toast.error(t("Please enter your name."));
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) {
+      toast.error(t("Please enter a valid email address."));
+      return;
+    }
+
+    if (!message) {
+      toast.error(t("Please enter your message."));
+      return;
+    }
+
     setLoading(true);
     try {
-      await sendFn({ data: form });
+      await sendFn({
+        data: {
+          name,
+          email,
+          subject,
+          message,
+          website,
+        },
+      });
       toast.success(t("Message sent. I'll reply when I'm back from the trail."));
       setForm({ name: "", email: "", subject: "", message: "", website: "" });
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : t("Could not send. Try again.");
-      toast.error(msg);
+    } catch (err: any) {
+      let errorMsg = t("Could not send. Try again.");
+      if (err instanceof Error && err.message) {
+        try {
+          const parsed = JSON.parse(err.message);
+          if (Array.isArray(parsed) && parsed[0]?.message) {
+            errorMsg = parsed[0].message;
+          } else {
+            errorMsg = err.message;
+          }
+        } catch {
+          errorMsg = err.message;
+        }
+      }
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -105,52 +151,80 @@ function ContactPage() {
         <div className="grid gap-12 lg:grid-cols-[2fr_1fr]">
           <form onSubmit={onSubmit} className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label htmlFor="contact-name" className="sr-only">
+                  {t("Name")}
+                </label>
+                <input
+                  id="contact-name"
+                  name="name"
+                  required
+                  maxLength={120}
+                  placeholder={t("Name")}
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  className={inp}
+                />
+              </div>
+              <div>
+                <label htmlFor="contact-email" className="sr-only">
+                  {t("Email")}
+                </label>
+                <input
+                  id="contact-email"
+                  name="email"
+                  required
+                  type="email"
+                  maxLength={320}
+                  placeholder={t("Email")}
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  className={inp}
+                />
+              </div>
+            </div>
+            <div>
+              <label htmlFor="contact-subject" className="sr-only">
+                {t("Subject (optional)")}
+              </label>
               <input
-                required
-                maxLength={120}
-                placeholder={t("Name")}
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className={inp}
-              />
-              <input
-                required
-                type="email"
-                maxLength={320}
-                placeholder={t("Email")}
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                id="contact-subject"
+                name="subject"
+                maxLength={200}
+                placeholder={t("Subject (optional)")}
+                value={form.subject}
+                onChange={(e) => setForm({ ...form, subject: e.target.value })}
                 className={inp}
               />
             </div>
-            <input
-              maxLength={200}
-              placeholder={t("Subject (optional)")}
-              value={form.subject}
-              onChange={(e) => setForm({ ...form, subject: e.target.value })}
-              className={inp}
-            />
-            <textarea
-              required
-              rows={6}
-              maxLength={5000}
-              placeholder={t("Your message…")}
-              value={form.message}
-              onChange={(e) => setForm({ ...form, message: e.target.value })}
-              className={inp}
-            />
+            <div>
+              <label htmlFor="contact-message" className="sr-only">
+                {t("Your message…")}
+              </label>
+              <textarea
+                id="contact-message"
+                name="message"
+                required
+                rows={6}
+                maxLength={5000}
+                placeholder={t("Your message…")}
+                value={form.message}
+                onChange={(e) => setForm({ ...form, message: e.target.value })}
+                className={inp}
+              />
+            </div>
             {/* Honeypot — hidden from humans, bots fill it */}
             <div className="absolute -left-[9999px] h-0 w-0 overflow-hidden" aria-hidden="true">
-              <label>
-                Website
-                <input
-                  type="text"
-                  tabIndex={-1}
-                  autoComplete="off"
-                  value={form.website}
-                  onChange={(e) => setForm({ ...form, website: e.target.value })}
-                />
-              </label>
+              <label htmlFor="contact-website">Website</label>
+              <input
+                id="contact-website"
+                name="website"
+                type="text"
+                tabIndex={-1}
+                autoComplete="off"
+                value={form.website}
+                onChange={(e) => setForm({ ...form, website: e.target.value })}
+              />
             </div>
 
             <button
