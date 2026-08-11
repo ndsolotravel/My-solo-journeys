@@ -1,0 +1,11 @@
+{
+  "name": "ndsolotravel-production",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server/index.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
