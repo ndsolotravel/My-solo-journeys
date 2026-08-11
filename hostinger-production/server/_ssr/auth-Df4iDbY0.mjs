@@ -1,7 +1,7 @@
 import { r as reactExports, j as jsxRuntimeExports } from "../_libs/react.mjs";
 import { f as useNavigate, L as Link } from "../_libs/tanstack__react-router.mjs";
 import { s as supabase } from "./client-dXvyh-Hq.mjs";
-import { R as Route$g, g as getMyRoles, l as logoPath } from "./router-Cq47PyuW.mjs";
+import { R as Route$g, g as getMyRoles, l as logoPath } from "./router-BVcMoAWo.mjs";
 import { t as toast } from "../_libs/sonner.mjs";
 import "./server-7Z2Wk8DL.mjs";
 import "../_libs/seroval.mjs";
@@ -29,7 +29,7 @@ import "tslib";
 import "../_libs/supabase__functions-js.mjs";
 import "../_libs/tanstack__query-core.mjs";
 import "../_libs/tanstack__react-query.mjs";
-import "./auth-middleware-7J1GkVFt.mjs";
+import "./auth-middleware-pliCjlCu.mjs";
 import "../_libs/zod.mjs";
 import "node:async_hooks";
 import "../_libs/h3-v2.mjs";

@@ -1,6 +1,6 @@
 import { r as reactExports, j as jsxRuntimeExports } from "../_libs/react.mjs";
 import { b as useQuery, c as useMutation } from "../_libs/tanstack__react-query.mjs";
-import { a as useServerFn, y as adminUpsertPost, n as adminUploadImage, j as adminListDestinations, C as CATEGORIES } from "./router-Cq47PyuW.mjs";
+import { a as useServerFn, y as adminUpsertPost, n as adminUploadImage, j as adminListDestinations, C as CATEGORIES } from "./router-BVcMoAWo.mjs";
 import { f as useNavigate } from "../_libs/tanstack__react-router.mjs";
 import { t as toast } from "../_libs/sonner.mjs";
 import { d as LoaderCircle, z as Image, P as Plus, W as ArrowUp, Z as ArrowDown, O as Trash2, G as Globe, f as MapPin, _ as Upload, $ as ExternalLink, a0 as Save, a1 as Bold, a2 as Italic, a3 as Heading2, a4 as List, a5 as Link, a6 as PenLine, m as Eye, X } from "../_libs/lucide-react.mjs";

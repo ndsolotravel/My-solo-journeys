@@ -48,7 +48,7 @@ const listPosts = createServerFn({
 }) => {
   const {
     supabaseAdmin
-  } = await import("./client.server-DqQoPrz8.mjs");
+  } = await import("./client.server-CAtMrQFk.mjs");
   const buildQuery = (selectCols) => {
     let q = supabaseAdmin.from("posts").select(selectCols, {
       count: "exact"
@@ -94,7 +94,7 @@ const getPostBySlug = createServerFn({
 }) => {
   const {
     supabaseAdmin
-  } = await import("./client.server-DqQoPrz8.mjs");
+  } = await import("./client.server-CAtMrQFk.mjs");
   let postRes = await supabaseAdmin.from("posts").select(`${FULL_POST_COLUMNS},destinations(title,slug),post_gallery(id,image_url,alt_text,sort_order)`).eq("slug", data.slug).eq("published", true).maybeSingle();
   if (postRes.error) {
     postRes = await supabaseAdmin.from("posts").select(BASE_POST_COLUMNS).eq("slug", data.slug).eq("published", true).maybeSingle();
@@ -136,7 +136,7 @@ const listAllPostSlugs = createServerFn({
 }).handler(listAllPostSlugs_createServerFn_handler, async () => {
   const {
     supabaseAdmin
-  } = await import("./client.server-DqQoPrz8.mjs");
+  } = await import("./client.server-CAtMrQFk.mjs");
   const {
     data,
     error

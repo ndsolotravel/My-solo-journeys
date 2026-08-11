@@ -38,7 +38,7 @@ const subscribe = createServerFn({
 }) => {
   const {
     supabaseAdmin
-  } = await import("./client.server-DqQoPrz8.mjs");
+  } = await import("./client.server-CAtMrQFk.mjs");
   const {
     error
   } = await supabaseAdmin.from("subscribers").insert({
@@ -78,7 +78,7 @@ const sendContact = createServerFn({
   }
   const {
     supabaseAdmin
-  } = await import("./client.server-DqQoPrz8.mjs");
+  } = await import("./client.server-CAtMrQFk.mjs");
   const ip = getRequestHeader("cf-connecting-ip") || getRequestHeader("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
   const ipHash = await sha256(`ndsolo:${ip}`);
   const since = new Date(Date.now() - 10 * 60 * 1e3).toISOString();

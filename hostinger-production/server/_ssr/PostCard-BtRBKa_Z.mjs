@@ -1,6 +1,6 @@
 import { j as jsxRuntimeExports } from "../_libs/react.mjs";
 import { L as Link } from "../_libs/tanstack__react-router.mjs";
-import { u as useTranslator } from "./router-Cq47PyuW.mjs";
+import { u as useTranslator } from "./router-BVcMoAWo.mjs";
 import { m as motion } from "../_libs/framer-motion.mjs";
 import { v as Clock, w as ArrowUpRight } from "../_libs/lucide-react.mjs";
 function formatDate(d) {

@@ -1,5 +1,5 @@
 import { r as reactExports } from "../_libs/react.mjs";
-import { d as useTranslationStore } from "./router-Cq47PyuW.mjs";
+import { d as useTranslationStore } from "./router-BVcMoAWo.mjs";
 function contentParagraphs(content) {
   return content.split(/\n\s*\n/).filter(Boolean);
 }

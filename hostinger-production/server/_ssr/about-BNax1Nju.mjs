@@ -1,5 +1,5 @@
 import { r as reactExports, j as jsxRuntimeExports } from "../_libs/react.mjs";
-import { u as useTranslator } from "./router-Cq47PyuW.mjs";
+import { u as useTranslator } from "./router-BVcMoAWo.mjs";
 import "../_libs/sonner.mjs";
 import "./server-7Z2Wk8DL.mjs";
 import "../_libs/seroval.mjs";
@@ -28,7 +28,7 @@ import "../_libs/iceberg-js.mjs";
 import "../_libs/supabase__auth-js.mjs";
 import "tslib";
 import "../_libs/supabase__functions-js.mjs";
-import "./auth-middleware-7J1GkVFt.mjs";
+import "./auth-middleware-pliCjlCu.mjs";
 import "../_libs/lucide-react.mjs";
 import "../_libs/zod.mjs";
 import "node:async_hooks";

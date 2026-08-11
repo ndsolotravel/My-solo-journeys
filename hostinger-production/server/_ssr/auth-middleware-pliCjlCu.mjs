@@ -1,18 +1,11 @@
 import { a as createMiddleware, g as getRequest } from "./server-7Z2Wk8DL.mjs";
 import { c as createClient } from "../_libs/supabase__supabase-js.mjs";
+const DEFAULT_SUPABASE_URL = "https://mqoybarqgzzvillignbr.supabase.co";
+const DEFAULT_SUPABASE_ANON_KEY = "sb_publishable_quAPYI3nYdGK50erwAPnfg_YJWBq2u5";
 const requireSupabaseAuth = createMiddleware({ type: "function" }).server(
   async ({ next }) => {
-    const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
-    const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
-    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-      const missing = [
-        ...!SUPABASE_URL ? ["NEXT_PUBLIC_SUPABASE_URL"] : [],
-        ...!SUPABASE_ANON_KEY ? ["NEXT_PUBLIC_SUPABASE_ANON_KEY"] : []
-      ];
-      const message = `Missing Supabase environment variable(s): ${missing.join(", ")}. Please configure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.`;
-      console.error(`[Supabase Auth Middleware] ${message}`);
-      throw new Error(message);
-    }
+    const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || DEFAULT_SUPABASE_URL;
+    const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || DEFAULT_SUPABASE_ANON_KEY;
     const request = getRequest();
     if (!request?.headers) {
       throw new Error("Unauthorized: No request headers available");

@@ -38,7 +38,7 @@ const listComments = createServerFn({
 }) => {
   const {
     supabaseAdmin
-  } = await import("./client.server-DqQoPrz8.mjs");
+  } = await import("./client.server-CAtMrQFk.mjs");
   const {
     data: rows,
     error
@@ -76,7 +76,7 @@ const getPostRatingStats = createServerFn({
 }) => {
   const {
     supabaseAdmin
-  } = await import("./client.server-DqQoPrz8.mjs");
+  } = await import("./client.server-CAtMrQFk.mjs");
   const {
     data: rows,
     error
@@ -135,7 +135,7 @@ const postComment = createServerFn({
   recentSubmissions.set(key, now);
   const {
     supabaseAdmin
-  } = await import("./client.server-DqQoPrz8.mjs");
+  } = await import("./client.server-CAtMrQFk.mjs");
   const {
     error
   } = await supabaseAdmin.from("comments").insert({

@@ -39,7 +39,7 @@ const searchSite = createServerFn({
 }) => {
   const {
     supabaseAdmin
-  } = await import("./client.server-DqQoPrz8.mjs");
+  } = await import("./client.server-CAtMrQFk.mjs");
   const term = `%${data.q.replace(/[%_]/g, "")}%`;
   const [posts, dests] = await Promise.all([supabaseAdmin.from("posts").select("id,title,slug,excerpt,category,tags").eq("published", true).or(`title.ilike.${term},excerpt.ilike.${term},content.ilike.${term},category.ilike.${term}`).limit(data.limit), supabaseAdmin.from("destinations").select("id,title,slug,country,region,description").eq("published", true).or(`title.ilike.${term},country.ilike.${term},region.ilike.${term},description.ilike.${term}`).limit(data.limit)]);
   const postResults = (posts.data ?? []).map((p) => ({

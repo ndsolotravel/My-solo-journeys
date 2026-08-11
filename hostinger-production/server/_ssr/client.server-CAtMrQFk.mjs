@@ -8,17 +8,8 @@ import "../_libs/supabase__auth-js.mjs";
 import "tslib";
 import "../_libs/supabase__functions-js.mjs";
 function createSupabaseAdminClient() {
-  const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-  const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
-  if (!SUPABASE_URL || !SUPABASE_KEY) {
-    const missing = [
-      ...!SUPABASE_URL ? ["NEXT_PUBLIC_SUPABASE_URL / SUPABASE_URL"] : [],
-      ...!SUPABASE_KEY ? ["SUPABASE_SERVICE_ROLE_KEY / NEXT_PUBLIC_SUPABASE_ANON_KEY"] : []
-    ];
-    const message = `Missing Supabase environment variable(s): ${missing.join(", ")}. Please configure your environment.`;
-    console.error(`[Supabase Admin] ${message}`);
-    throw new Error(message);
-  }
+  const SUPABASE_URL = (typeof process !== "undefined" ? process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL : void 0) || "https://mqoybarqgzzvillignbr.supabase.co";
+  const SUPABASE_KEY = (typeof process !== "undefined" ? process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY : void 0) || "sb_publishable_quAPYI3nYdGK50erwAPnfg_YJWBq2u5";
   return createClient(SUPABASE_URL, SUPABASE_KEY, {
     auth: {
       storage: void 0,

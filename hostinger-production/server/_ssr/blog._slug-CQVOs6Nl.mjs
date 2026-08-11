@@ -1,6 +1,6 @@
 import { j as jsxRuntimeExports } from "../_libs/react.mjs";
 import { L as Link } from "../_libs/tanstack__react-router.mjs";
-import { u as useTranslator } from "./router-Cq47PyuW.mjs";
+import { u as useTranslator } from "./router-BVcMoAWo.mjs";
 import "../_libs/sonner.mjs";
 import "./server-7Z2Wk8DL.mjs";
 import "../_libs/seroval.mjs";
@@ -29,7 +29,7 @@ import "../_libs/iceberg-js.mjs";
 import "../_libs/supabase__auth-js.mjs";
 import "tslib";
 import "../_libs/supabase__functions-js.mjs";
-import "./auth-middleware-7J1GkVFt.mjs";
+import "./auth-middleware-pliCjlCu.mjs";
 import "../_libs/zod.mjs";
 import "node:async_hooks";
 import "../_libs/h3-v2.mjs";
@@ -39,17 +39,18 @@ import "node:http";
 import "node:stream/promises";
 import "node:https";
 import "node:http2";
-function DestinationNotFound() {
-  const t = useTranslator(["Destination not found", "All destinations"]);
+function PostNotFound() {
+  const t = useTranslator(["Story not found", "This trail has been moved or doesn't exist.", "Back to all stories"]);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mx-auto max-w-2xl px-4 py-24 text-center", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "font-display text-3xl font-bold", children: t("Destination not found") }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(Link, { to: "/destinations", className: "mt-6 inline-flex items-center gap-2 text-sm text-accent", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "font-display text-3xl font-bold", children: t("Story not found") }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-2 text-muted-foreground", children: t("This trail has been moved or doesn't exist.") }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Link, { to: "/blog", className: "mt-6 inline-flex items-center gap-2 text-sm text-accent", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowLeft, { className: "h-4 w-4" }),
       " ",
-      t("All destinations")
+      t("Back to all stories")
     ] })
   ] });
 }
 export {
-  DestinationNotFound as notFoundComponent
+  PostNotFound as notFoundComponent
 };

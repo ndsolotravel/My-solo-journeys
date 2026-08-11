@@ -6,7 +6,7 @@ import { j as jsxRuntimeExports, r as reactExports } from "../_libs/react.mjs";
 import { T as Toaster, t as toast } from "../_libs/sonner.mjs";
 import { c as createServerFn, T as TSS_SERVER_FUNCTION, d as getServerFnById } from "./server-7Z2Wk8DL.mjs";
 import { s as supabase } from "./client-dXvyh-Hq.mjs";
-import { r as requireSupabaseAuth } from "./auth-middleware-7J1GkVFt.mjs";
+import { r as requireSupabaseAuth } from "./auth-middleware-pliCjlCu.mjs";
 import { S as Search, U as User, L as LogOut, X, M as Menu, I as Instagram, Y as Youtube, T as Twitter, F as Facebook, a as Linkedin, b as Sun, c as Moon, G as Globe, d as LoaderCircle, C as CircleAlert, e as FileText, f as MapPin } from "../_libs/lucide-react.mjs";
 import { o as objectType, s as stringType, n as numberType, e as enumType, b as booleanType, a as arrayType, l as literalType } from "../_libs/zod.mjs";
 import "../_libs/react-dom.mjs";
@@ -1546,7 +1546,7 @@ const qo$1 = queryOptions({
   queryKey: ["gallery"],
   queryFn: () => listGallery()
 });
-const $$splitComponentImporter$k = () => import("./gallery-D6F4EfVA.mjs");
+const $$splitComponentImporter$k = () => import("./gallery-CHCcrPW3.mjs");
 const Route$l = createFileRoute("/gallery")({
   head: () => ({
     meta: [{
@@ -1585,7 +1585,7 @@ const Route$j = createFileRoute("/dashboard")({
   },
   component: lazyRouteComponent($$splitComponentImporter$i, "component")
 });
-const $$splitComponentImporter$h = () => import("./contact-CSZP2ecH.mjs");
+const $$splitComponentImporter$h = () => import("./contact-CdVSuwJI.mjs");
 const Route$i = createFileRoute("/contact")({
   head: () => ({
     meta: [{
@@ -1614,7 +1614,7 @@ const $$splitComponentImporter$g = () => import("./blog-9Hd3AP52.mjs");
 const Route$h = createFileRoute("/blog")({
   component: lazyRouteComponent($$splitComponentImporter$g, "component")
 });
-const $$splitComponentImporter$f = () => import("./auth-DD_NEcNl.mjs");
+const $$splitComponentImporter$f = () => import("./auth-Df4iDbY0.mjs");
 const authSearchSchema = objectType({
   redirect: stringType().optional(),
   error: stringType().optional()
@@ -1641,7 +1641,7 @@ const Route$g = createFileRoute("/auth")({
   }),
   component: lazyRouteComponent($$splitComponentImporter$f, "component")
 });
-const $$splitComponentImporter$e = () => import("./about-DBIVfNfu.mjs");
+const $$splitComponentImporter$e = () => import("./about-BNax1Nju.mjs");
 const Route$f = createFileRoute("/about")({
   head: () => ({
     meta: [{
@@ -1744,7 +1744,7 @@ const motoQO = queryOptions({
     }
   })
 });
-const $$splitComponentImporter$c = () => import("./index-C74Z8TpO.mjs");
+const $$splitComponentImporter$c = () => import("./index-BNyrlfUS.mjs");
 const Route$d = createFileRoute("/")({
   head: () => ({
     meta: [{
@@ -1784,7 +1784,7 @@ const destQO = queryOptions({
   queryKey: ["destinations"],
   queryFn: () => listDestinations()
 });
-const $$splitComponentImporter$b = () => import("./destinations.index-CEF9lvVA.mjs");
+const $$splitComponentImporter$b = () => import("./destinations.index-DJWkcJwh.mjs");
 const Route$c = createFileRoute("/destinations/")({
   head: () => ({
     meta: [{
@@ -1821,7 +1821,7 @@ const blogQO = (params) => queryOptions({
     }
   })
 });
-const $$splitComponentImporter$a = () => import("./blog.index-Bciw4VtZ.mjs");
+const $$splitComponentImporter$a = () => import("./blog.index-CkRQnWet.mjs");
 const searchSchema = objectType({
   category: stringType().optional(),
   tag: stringType().optional(),
@@ -1865,7 +1865,7 @@ const Route$b = createFileRoute("/blog/")({
   },
   component: lazyRouteComponent($$splitComponentImporter$a, "component")
 });
-const $$splitNotFoundComponentImporter$1 = () => import("./destinations._slug-BocRNKv4.mjs");
+const $$splitNotFoundComponentImporter$1 = () => import("./destinations._slug-BxW8_PrL.mjs");
 const qo = (slug) => queryOptions({
   queryKey: ["destination", slug],
   queryFn: () => getDestinationBySlug({
@@ -1912,8 +1912,8 @@ const Route$a = createFileRoute("/destinations/$slug")({
   }),
   notFoundComponent: lazyRouteComponent($$splitNotFoundComponentImporter$1, "notFoundComponent")
 });
-const $$splitNotFoundComponentImporter = () => import("./blog._slug-DMrRLpZ7.mjs");
-const $$splitComponentImporter$9 = () => import("./blog._slug-CRfVy8eu.mjs");
+const $$splitNotFoundComponentImporter = () => import("./blog._slug-CQVOs6Nl.mjs");
+const $$splitComponentImporter$9 = () => import("./blog._slug-BQtKK4nU.mjs");
 const postQO = (slug) => queryOptions({
   queryKey: ["post", slug],
   queryFn: () => getPostBySlug({
@@ -2145,31 +2145,31 @@ const Route$7 = createFileRoute("/_authenticated/account")({
   }),
   component: lazyRouteComponent($$splitComponentImporter$7, "component")
 });
-const $$splitComponentImporter$6 = () => import("./admin.index-BGy9o-zu.mjs");
+const $$splitComponentImporter$6 = () => import("./admin.index-02SLS0tB.mjs");
 const Route$6 = createFileRoute("/_authenticated/admin/")({
   component: lazyRouteComponent($$splitComponentImporter$6, "component")
 });
-const $$splitComponentImporter$5 = () => import("./admin.messages-C-gI1KWb.mjs");
+const $$splitComponentImporter$5 = () => import("./admin.messages-Ddxc6F9s.mjs");
 const Route$5 = createFileRoute("/_authenticated/admin/messages")({
   component: lazyRouteComponent($$splitComponentImporter$5, "component")
 });
-const $$splitComponentImporter$4 = () => import("./admin.destinations-czzy9ONc.mjs");
+const $$splitComponentImporter$4 = () => import("./admin.destinations-UYGQTsj6.mjs");
 const Route$4 = createFileRoute("/_authenticated/admin/destinations")({
   component: lazyRouteComponent($$splitComponentImporter$4, "component")
 });
-const $$splitComponentImporter$3 = () => import("./admin.comments-4QA2pz3M.mjs");
+const $$splitComponentImporter$3 = () => import("./admin.comments-Ca96BI3b.mjs");
 const Route$3 = createFileRoute("/_authenticated/admin/comments")({
   component: lazyRouteComponent($$splitComponentImporter$3, "component")
 });
-const $$splitComponentImporter$2 = () => import("./admin.posts.index-BmpbQjK6.mjs");
+const $$splitComponentImporter$2 = () => import("./admin.posts.index-CRGTIiyb.mjs");
 const Route$2 = createFileRoute("/_authenticated/admin/posts/")({
   component: lazyRouteComponent($$splitComponentImporter$2, "component")
 });
-const $$splitComponentImporter$1 = () => import("./admin.posts.new-CSQDhwta.mjs");
+const $$splitComponentImporter$1 = () => import("./admin.posts.new-B_8DTjET.mjs");
 const Route$1 = createFileRoute("/_authenticated/admin/posts/new")({
   component: lazyRouteComponent($$splitComponentImporter$1, "component")
 });
-const $$splitComponentImporter = () => import("./admin.posts._id-NlnKat9-.mjs");
+const $$splitComponentImporter = () => import("./admin.posts._id-Dq9RA3bR.mjs");
 const Route = createFileRoute("/_authenticated/admin/posts/$id")({
   component: lazyRouteComponent($$splitComponentImporter, "component")
 });

@@ -1,7 +1,7 @@
 import { r as reactExports, j as jsxRuntimeExports } from "../_libs/react.mjs";
-import { u as useTranslator, q as qo$1 } from "./router-Cq47PyuW.mjs";
+import { u as useTranslator, q as qo$1 } from "./router-BVcMoAWo.mjs";
 import { a as useSuspenseQuery } from "../_libs/tanstack__react-query.mjs";
-import { u as useLocalizedGallery } from "./useLocalized-Bkw6Q8NE.mjs";
+import { u as useLocalizedGallery } from "./useLocalized-Dsy5n-hi.mjs";
 import "../_libs/sonner.mjs";
 import "./server-7Z2Wk8DL.mjs";
 import "../_libs/seroval.mjs";
@@ -30,7 +30,7 @@ import "../_libs/iceberg-js.mjs";
 import "../_libs/supabase__auth-js.mjs";
 import "tslib";
 import "../_libs/supabase__functions-js.mjs";
-import "./auth-middleware-7J1GkVFt.mjs";
+import "./auth-middleware-pliCjlCu.mjs";
 import "../_libs/zod.mjs";
 import "node:async_hooks";
 import "../_libs/h3-v2.mjs";

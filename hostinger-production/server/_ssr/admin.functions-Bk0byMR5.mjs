@@ -1,6 +1,6 @@
 import { c as createServerRpc } from "./createServerRpc-wV0Vk4NU.mjs";
 import { c as createServerFn } from "./server-7Z2Wk8DL.mjs";
-import { r as requireSupabaseAuth } from "./auth-middleware-7J1GkVFt.mjs";
+import { r as requireSupabaseAuth } from "./auth-middleware-pliCjlCu.mjs";
 import "../_libs/seroval.mjs";
 import "../_libs/react.mjs";
 import { o as objectType, s as stringType, a as arrayType, n as numberType, l as literalType, b as booleanType, e as enumType } from "../_libs/zod.mjs";
@@ -37,7 +37,7 @@ import "../_libs/supabase__functions-js.mjs";
 async function assertEditor(userId) {
   const {
     supabaseAdmin
-  } = await import("./client.server-DqQoPrz8.mjs");
+  } = await import("./client.server-CAtMrQFk.mjs");
   const {
     data: rows
   } = await supabaseAdmin.from("user_roles").select("role").eq("user_id", userId);
@@ -59,7 +59,7 @@ const getMyRoles = createServerFn({
 }) => {
   const {
     supabaseAdmin
-  } = await import("./client.server-DqQoPrz8.mjs");
+  } = await import("./client.server-CAtMrQFk.mjs");
   const {
     data
   } = await supabaseAdmin.from("user_roles").select("role").eq("user_id", context.userId);
@@ -80,7 +80,7 @@ const adminListPosts = createServerFn({
   await assertEditor(context.userId);
   const {
     supabaseAdmin
-  } = await import("./client.server-DqQoPrz8.mjs");
+  } = await import("./client.server-CAtMrQFk.mjs");
   let res = await supabaseAdmin.from("posts").select(`${POST_COLS},destinations(title,slug)`).order("updated_at", {
     ascending: false
   });
@@ -108,7 +108,7 @@ const adminGetPost = createServerFn({
   await assertEditor(context.userId);
   const {
     supabaseAdmin
-  } = await import("./client.server-DqQoPrz8.mjs");
+  } = await import("./client.server-CAtMrQFk.mjs");
   let res = await supabaseAdmin.from("posts").select(`${POST_COLS},destinations(id,title,slug),post_gallery(id,image_url,alt_text,sort_order)`).eq("id", data.id).maybeSingle();
   if (res.error) {
     res = await supabaseAdmin.from("posts").select(BASE_POST_COLS).eq("id", data.id).maybeSingle();
@@ -164,7 +164,7 @@ const adminUpsertPost = createServerFn({
   await assertEditor(context.userId);
   const {
     supabaseAdmin
-  } = await import("./client.server-DqQoPrz8.mjs");
+  } = await import("./client.server-CAtMrQFk.mjs");
   const slug = data.slug && data.slug.trim() || slugify(data.title);
   const reading_minutes = Math.max(1, Math.round((data.content || "").split(/\s+/).length / 200));
   const scheduled = data.scheduled_at && data.scheduled_at !== "" ? data.scheduled_at : null;
@@ -249,7 +249,7 @@ const adminDeletePost = createServerFn({
   await assertEditor(context.userId);
   const {
     supabaseAdmin
-  } = await import("./client.server-DqQoPrz8.mjs");
+  } = await import("./client.server-CAtMrQFk.mjs");
   const {
     error
   } = await supabaseAdmin.from("posts").delete().eq("id", data.id);
@@ -275,7 +275,7 @@ const adminTogglePublish = createServerFn({
   await assertEditor(context.userId);
   const {
     supabaseAdmin
-  } = await import("./client.server-DqQoPrz8.mjs");
+  } = await import("./client.server-CAtMrQFk.mjs");
   const {
     error
   } = await supabaseAdmin.from("posts").update({
@@ -311,7 +311,7 @@ const adminListDestinations = createServerFn({
   await assertEditor(context.userId);
   const {
     supabaseAdmin
-  } = await import("./client.server-DqQoPrz8.mjs");
+  } = await import("./client.server-CAtMrQFk.mjs");
   const {
     data,
     error
@@ -335,7 +335,7 @@ const adminUpsertDestination = createServerFn({
   await assertEditor(context.userId);
   const {
     supabaseAdmin
-  } = await import("./client.server-DqQoPrz8.mjs");
+  } = await import("./client.server-CAtMrQFk.mjs");
   const slug = data.slug && data.slug.trim() || slugify(data.title);
   const payload = {
     title: data.title,
@@ -377,7 +377,7 @@ const adminDeleteDestination = createServerFn({
   await assertEditor(context.userId);
   const {
     supabaseAdmin
-  } = await import("./client.server-DqQoPrz8.mjs");
+  } = await import("./client.server-CAtMrQFk.mjs");
   const {
     error
   } = await supabaseAdmin.from("destinations").delete().eq("id", data.id);
@@ -399,7 +399,7 @@ const adminListComments = createServerFn({
   await assertEditor(context.userId);
   const {
     supabaseAdmin
-  } = await import("./client.server-DqQoPrz8.mjs");
+  } = await import("./client.server-CAtMrQFk.mjs");
   const {
     data,
     error
@@ -425,7 +425,7 @@ const adminDeleteComment = createServerFn({
   await assertEditor(context.userId);
   const {
     supabaseAdmin
-  } = await import("./client.server-DqQoPrz8.mjs");
+  } = await import("./client.server-CAtMrQFk.mjs");
   const {
     error
   } = await supabaseAdmin.from("comments").delete().eq("id", data.id);
@@ -447,7 +447,7 @@ const adminListMessages = createServerFn({
   await assertEditor(context.userId);
   const {
     supabaseAdmin
-  } = await import("./client.server-DqQoPrz8.mjs");
+  } = await import("./client.server-CAtMrQFk.mjs");
   const {
     data,
     error
@@ -474,7 +474,7 @@ const adminUpdateMessageStatus = createServerFn({
   await assertEditor(context.userId);
   const {
     supabaseAdmin
-  } = await import("./client.server-DqQoPrz8.mjs");
+  } = await import("./client.server-CAtMrQFk.mjs");
   const {
     error
   } = await supabaseAdmin.from("contact_messages").update({
@@ -501,7 +501,7 @@ const adminDeleteMessage = createServerFn({
   await assertEditor(context.userId);
   const {
     supabaseAdmin
-  } = await import("./client.server-DqQoPrz8.mjs");
+  } = await import("./client.server-CAtMrQFk.mjs");
   const {
     error
   } = await supabaseAdmin.from("contact_messages").delete().eq("id", data.id);
@@ -523,7 +523,7 @@ const adminAnalytics = createServerFn({
   await assertEditor(context.userId);
   const {
     supabaseAdmin
-  } = await import("./client.server-DqQoPrz8.mjs");
+  } = await import("./client.server-CAtMrQFk.mjs");
   const [posts, comments, subs, msgs, top] = await Promise.all([supabaseAdmin.from("posts").select("id,published,scheduled_at,views", {
     count: "exact"
   }), supabaseAdmin.from("comments").select("id,rating", {
@@ -573,7 +573,7 @@ const adminUploadImage = createServerFn({
   if (!data.contentType.startsWith("image/")) throw new Error("Only image uploads allowed");
   const {
     supabaseAdmin
-  } = await import("./client.server-DqQoPrz8.mjs");
+  } = await import("./client.server-CAtMrQFk.mjs");
   const buf = Buffer.from(data.base64, "base64");
   if (buf.byteLength > 8 * 1024 * 1024) throw new Error("Max 8 MB");
   const ext = (data.filename.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "");

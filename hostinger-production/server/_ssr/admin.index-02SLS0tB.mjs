@@ -1,7 +1,7 @@
 import { j as jsxRuntimeExports } from "../_libs/react.mjs";
 import { L as Link } from "../_libs/tanstack__react-router.mjs";
 import { b as useQuery } from "../_libs/tanstack__react-query.mjs";
-import { a as useServerFn, e as adminAnalytics } from "./router-Cq47PyuW.mjs";
+import { a as useServerFn, e as adminAnalytics } from "./router-BVcMoAWo.mjs";
 import "../_libs/sonner.mjs";
 import "./server-7Z2Wk8DL.mjs";
 import "../_libs/seroval.mjs";
@@ -29,7 +29,7 @@ import "../_libs/iceberg-js.mjs";
 import "../_libs/supabase__auth-js.mjs";
 import "tslib";
 import "../_libs/supabase__functions-js.mjs";
-import "./auth-middleware-7J1GkVFt.mjs";
+import "./auth-middleware-pliCjlCu.mjs";
 import "../_libs/zod.mjs";
 import "node:async_hooks";
 import "../_libs/h3-v2.mjs";

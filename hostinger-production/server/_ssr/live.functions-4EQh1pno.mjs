@@ -40,7 +40,7 @@ const pingVisitor = createServerFn({
 }) => {
   const {
     supabaseAdmin
-  } = await import("./client.server-DqQoPrz8.mjs");
+  } = await import("./client.server-CAtMrQFk.mjs");
   const {
     error: upErr
   } = await supabaseAdmin.from("visitor_sessions").upsert({
@@ -70,7 +70,7 @@ const getLiveVisitorCount = createServerFn({
 async function countLive() {
   const {
     supabaseAdmin
-  } = await import("./client.server-DqQoPrz8.mjs");
+  } = await import("./client.server-CAtMrQFk.mjs");
   try {
     await supabaseAdmin.rpc("cleanup_stale_visitor_sessions");
   } catch {

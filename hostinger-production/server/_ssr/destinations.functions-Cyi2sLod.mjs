@@ -34,7 +34,7 @@ const listDestinations = createServerFn({
 }).handler(listDestinations_createServerFn_handler, async () => {
   const {
     supabaseAdmin
-  } = await import("./client.server-DqQoPrz8.mjs");
+  } = await import("./client.server-CAtMrQFk.mjs");
   const {
     data,
     error
@@ -58,7 +58,7 @@ const getDestinationBySlug = createServerFn({
 }) => {
   const {
     supabaseAdmin
-  } = await import("./client.server-DqQoPrz8.mjs");
+  } = await import("./client.server-CAtMrQFk.mjs");
   const {
     data: row,
     error

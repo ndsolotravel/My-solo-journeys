@@ -1,28 +1,21 @@
-// Server-side Supabase client with service role key (or fallback key).
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
+const DEFAULT_SUPABASE_URL = "https://mqoybarqgzzvillignbr.supabase.co";
+const DEFAULT_SUPABASE_ANON_KEY = "sb_publishable_quAPYI3nYdGK50erwAPnfg_YJWBq2u5";
+
 function createSupabaseAdminClient() {
   const SUPABASE_URL =
-    process.env.NEXT_PUBLIC_SUPABASE_URL ||
-    process.env.SUPABASE_URL ||
-    process.env.VITE_SUPABASE_URL;
+    (typeof process !== 'undefined' ? process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL : undefined) ||
+    import.meta.env.NEXT_PUBLIC_SUPABASE_URL ||
+    import.meta.env.VITE_SUPABASE_URL ||
+    DEFAULT_SUPABASE_URL;
 
   const SUPABASE_KEY =
-    process.env.SUPABASE_SERVICE_ROLE_KEY ||
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-    process.env.VITE_SUPABASE_ANON_KEY ||
-    process.env.SUPABASE_ANON_KEY;
-
-  if (!SUPABASE_URL || !SUPABASE_KEY) {
-    const missing = [
-      ...(!SUPABASE_URL ? ['NEXT_PUBLIC_SUPABASE_URL / SUPABASE_URL'] : []),
-      ...(!SUPABASE_KEY ? ['SUPABASE_SERVICE_ROLE_KEY / NEXT_PUBLIC_SUPABASE_ANON_KEY'] : []),
-    ];
-    const message = `Missing Supabase environment variable(s): ${missing.join(', ')}. Please configure your environment.`;
-    console.error(`[Supabase Admin] ${message}`);
-    throw new Error(message);
-  }
+    (typeof process !== 'undefined' ? process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY : undefined) ||
+    import.meta.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    import.meta.env.VITE_SUPABASE_ANON_KEY ||
+    DEFAULT_SUPABASE_ANON_KEY;
 
   return createClient<Database>(SUPABASE_URL, SUPABASE_KEY, {
     auth: {
