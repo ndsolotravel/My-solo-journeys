@@ -15,7 +15,6 @@ export default defineConfig({
     }),
     nitro({
       preset: "node-server",
-      ignore: ["**/server.js", "**/db.js"],
     }),
     react(),
   ],

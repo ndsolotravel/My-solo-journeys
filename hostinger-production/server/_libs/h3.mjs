@@ -298,29 +298,6 @@ function callMiddleware(event, middleware, handler, index = 0) {
 function isUnhandledResponse(val) {
   return val === void 0 || val === kNotFound;
 }
-function toMiddleware(input) {
-  let h = input.handler || input;
-  let isFunction = typeof h === "function";
-  if (!isFunction && typeof input?.fetch === "function") {
-    isFunction = true;
-    h = function _fetchHandler(event) {
-      return input.fetch(event.req);
-    };
-  }
-  if (!isFunction) return function noopMiddleware(event, next) {
-    return next();
-  };
-  if (h.length === 2) return h;
-  return function _middlewareHandler(event, next) {
-    const res = h(event);
-    return typeof res?.then === "function" ? res.then((r) => {
-      return is404(r) ? next() : r;
-    }) : is404(res) ? next() : res;
-  };
-}
-function is404(val) {
-  return isUnhandledResponse(val) || val?.status === 404 && val instanceof Response;
-}
 function toRequest(input, options) {
   if (typeof input === "string") {
     let url = input;
@@ -424,10 +401,8 @@ var H3Core = class {
 export {
   HTTPError as H,
   toEventHandler as a,
-  toMiddleware as b,
-  callMiddleware as c,
+  defineLazyEventHandler as b,
+  H3Core as c,
   defineHandler as d,
-  defineLazyEventHandler as e,
-  H3Core as f,
   toRequest as t
 };
