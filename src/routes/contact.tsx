@@ -239,10 +239,10 @@ function ContactPage() {
           <aside className="space-y-4 rounded-3xl bg-muted/40 p-6">
             <h2 className="font-display text-lg font-bold">{t("Elsewhere")}</h2>
             <a
-              href="mailto:contact@ndsolo.com"
+              href="mailto:contact@ndsolotravel.com"
               className="flex items-center gap-3 text-sm hover:text-accent"
             >
-              <Mail className="h-4 w-4" /> contact@ndsolo.com
+              <Mail className="h-4 w-4" /> contact@ndsolotravel.com
             </a>
             <a
               href={SITE.socials.instagram}
