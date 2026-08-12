@@ -1,9 +1,10 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import { queryOptions } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import { getDestinationBySlug } from "@/lib/destinations.functions";
 import { useLocalizedDestinations } from "@/lib/translate/useLocalized";
 import { useTranslator, useT } from "@/lib/translate/store";
+import { PostCard } from "@/components/blog/PostCard";
 
 const qo = (slug: string) =>
   queryOptions({
@@ -31,6 +32,7 @@ export const Route = createFileRoute("/destinations/$slug")({
     links: [{ rel: "canonical", href: `/destinations/${params.slug}` }],
   }),
   notFoundComponent: DestinationNotFound,
+  component: DestinationPage,
 });
 
 function DestinationNotFound() {
@@ -49,8 +51,9 @@ function DestinationPage() {
   const d = Route.useLoaderData();
   const localized = useLocalizedDestinations([d ?? ({} as never)]).at(0) ?? d;
   const t = useT;
+  const trans = useTranslator(["Stories & Guides", "Explore", "View all stories", "No stories published for this destination yet.", "Browse all blog posts"]);
   return (
-    <article>
+    <article className="min-h-screen">
       <div className="relative h-[60vh] min-h-[420px] w-full overflow-hidden">
         {d.featured_image && (
           <img
@@ -71,9 +74,43 @@ function DestinationPage() {
           <h1 className="mt-3 font-display text-4xl font-bold sm:text-6xl">{localized.title}</h1>
         </div>
       </div>
+      
       <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
         <p className="text-lg leading-relaxed text-muted-foreground">{localized.description}</p>
       </div>
+
+      <section className="border-t border-border/60 bg-muted/20 py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-accent">
+                {trans("Stories & Guides")}
+              </p>
+              <h2 className="mt-1 font-display text-3xl font-bold">
+                {trans("Explore")} {localized.title}
+              </h2>
+            </div>
+            <Link to="/blog" className="text-sm font-medium text-accent hover:underline">
+              {trans("View all stories")} →
+            </Link>
+          </div>
+
+          {d.posts && d.posts.length > 0 ? (
+            <div className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+              {d.posts.map((p, i) => (
+                <PostCard key={p.id} post={p} index={i} />
+              ))}
+            </div>
+          ) : (
+            <div className="mt-8 rounded-2xl border border-border bg-card p-8 text-center text-muted-foreground">
+              <p>{trans("No stories published for this destination yet.")}</p>
+              <Link to="/blog" className="mt-4 inline-block text-sm font-medium text-accent hover:underline">
+                {trans("Browse all blog posts")}
+              </Link>
+            </div>
+          )}
+        </div>
+      </section>
     </article>
   );
 }

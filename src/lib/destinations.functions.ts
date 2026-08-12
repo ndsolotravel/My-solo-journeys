@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import type { Post } from "./posts.functions";
 
 export type Destination = {
   id: string;
@@ -9,6 +10,7 @@ export type Destination = {
   region: string | null;
   description: string | null;
   featured_image: string | null;
+  posts?: Post[];
 };
 
 export const listDestinations = createServerFn({ method: "GET" }).handler(async () => {
@@ -32,5 +34,44 @@ export const getDestinationBySlug = createServerFn({ method: "GET" })
       .eq("slug", data.slug)
       .maybeSingle();
     if (error) throw new Error(error.message);
-    return (row ?? null) as Destination | null;
+    if (!row) return null;
+
+    const POST_COLS =
+      "id,title,slug,excerpt,content,cover_image,category,tags,featured,views,reading_minutes,published_at,created_at,destination_id";
+
+    let posts: Post[] = [];
+    const { data: linkedPosts } = await supabaseAdmin
+      .from("posts")
+      .select(`${POST_COLS},destinations(title,slug)`)
+      .eq("published", true)
+      .eq("destination_id", row.id)
+      .order("published_at", { ascending: false });
+
+    if (linkedPosts && linkedPosts.length > 0) {
+      posts = linkedPosts as Post[];
+    } else {
+      const { data: matchingPosts } = await supabaseAdmin
+        .from("posts")
+        .select(`${POST_COLS},destinations(title,slug)`)
+        .eq("published", true)
+        .or(
+          `title.ilike.%${row.title}%,category.ilike.%${row.title}%,title.ilike.%${row.country}%,category.ilike.%${row.country}%`
+        )
+        .order("published_at", { ascending: false })
+        .limit(12);
+
+      if (matchingPosts && matchingPosts.length > 0) {
+        posts = matchingPosts as Post[];
+      } else {
+        const { data: recentPosts } = await supabaseAdmin
+          .from("posts")
+          .select(`${POST_COLS},destinations(title,slug)`)
+          .eq("published", true)
+          .order("published_at", { ascending: false })
+          .limit(6);
+        posts = (recentPosts ?? []) as Post[];
+      }
+    }
+
+    return { ...row, posts } as Destination & { posts: Post[] };
   });
