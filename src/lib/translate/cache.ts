@@ -28,6 +28,16 @@ function load() {
   }
 }
 
+let persistTimer: ReturnType<typeof setTimeout> | null = null;
+
+function schedulePersist() {
+  if (persistTimer) return;
+  persistTimer = setTimeout(() => {
+    persistTimer = null;
+    persist();
+  }, 250);
+}
+
 function persist() {
   if (typeof window === "undefined" || !memory) return;
   try {
@@ -83,5 +93,5 @@ export function setCached(lang: string, text: string, value: string) {
       memory!.delete(k);
     }
   }
-  persist();
+  schedulePersist();
 }

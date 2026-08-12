@@ -6,11 +6,11 @@
  */
 
 const ENDPOINT = "https://translate.googleapis.com/translate_a/single";
-const TIMEOUT_MS = 12000;
-const MAX_LINES_PER_REQUEST = 35;
-const MAX_CHARS_PER_REQUEST = 2500;
-const MAX_CONCURRENT_REQUESTS = 3;
-const MAX_RETRIES = 3;
+const TIMEOUT_MS = 6000;
+const MAX_LINES_PER_REQUEST = 45;
+const MAX_CHARS_PER_REQUEST = 3500;
+const MAX_CONCURRENT_REQUESTS = 4;
+const MAX_RETRIES = 2;
 const NL_MARKER = " __NL__ ";
 
 export class TranslationRequestError extends Error {
@@ -146,7 +146,7 @@ export async function requestTranslations(
     let lastErr: Error | null = null;
     for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
       if (attempt > 0) {
-        const delay = Math.min(500 * Math.pow(2, attempt - 1), 3000);
+        const delay = Math.min(200 * Math.pow(1.5, attempt - 1), 600);
         await new Promise((r) => setTimeout(r, delay));
       }
       try {

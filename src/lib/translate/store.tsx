@@ -8,6 +8,7 @@ import {
 } from "react";
 import { requestTranslations } from "./gtx";
 import { getCached, getLangCache, setCached } from "./cache";
+import { getDictionaryTranslation, UI_DICTIONARY } from "./dictionary";
 
 export const LANGUAGES = [
   { code: "en", label: "English" },
@@ -82,6 +83,12 @@ function createStore(): TranslationStore {
 
   const preloadLang = (targetLang: string) => {
     if (targetLang === "en") return;
+    const dict = UI_DICTIONARY[targetLang];
+    if (dict) {
+      for (const [text, value] of Object.entries(dict)) {
+        resolved.set(ctxKey(targetLang, text), value);
+      }
+    }
     const map = getLangCache(targetLang);
     map.forEach((value, text) => {
       resolved.set(ctxKey(targetLang, text), value);
@@ -186,6 +193,13 @@ function createStore(): TranslationStore {
       if (!text) continue;
       const k = ctxKey(targetLang, text);
       if (resolved.has(k) || inFlight.has(k) || failed.has(k)) continue;
+
+      const dictValue = getDictionaryTranslation(targetLang, text);
+      if (dictValue) {
+        resolved.set(k, dictValue);
+        continue;
+      }
+
       const cached = getCached(targetLang, text);
       if (cached) {
         resolved.set(k, cached);
@@ -209,6 +223,11 @@ function createStore(): TranslationStore {
     const k = ctxKey(targetLang, text);
     const v = resolved.get(k);
     if (v) return v;
+    const dictValue = getDictionaryTranslation(targetLang, text);
+    if (dictValue) {
+      resolved.set(k, dictValue);
+      return dictValue;
+    }
     const cached = getCached(targetLang, text);
     if (cached) {
       resolved.set(k, cached);
