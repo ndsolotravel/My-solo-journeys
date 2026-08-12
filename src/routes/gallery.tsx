@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { listGallery } from "@/lib/gallery.functions";
 import { useLocalizedGallery } from "@/lib/translate/useLocalized";
 import { useTranslator } from "@/lib/translate/store";
@@ -25,21 +26,47 @@ export const Route = createFileRoute("/gallery")({
   component: GalleryPage,
 });
 
+const pageTurnVariants = {
+  enter: (direction: number) => ({
+    rotateY: direction > 0 ? 70 : -70,
+    opacity: 0,
+    scale: 0.9,
+  }),
+  center: {
+    rotateY: 0,
+    opacity: 1,
+    scale: 1,
+    transition: {
+      duration: 0.38,
+      ease: [0.16, 1, 0.3, 1],
+    },
+  },
+  exit: (direction: number) => ({
+    rotateY: direction > 0 ? -70 : 70,
+    opacity: 0,
+    scale: 0.9,
+    transition: {
+      duration: 0.3,
+      ease: [0.7, 0, 0.84, 0],
+    },
+  }),
+};
+
 function GalleryPage() {
   const { data: rawItems } = useSuspenseQuery(qo);
   const items = useLocalizedGallery(rawItems);
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [[activeIndex, direction], setActiveState] = useState<[number | null, number]>([null, 0]);
 
   const active = activeIndex !== null ? items[activeIndex] : null;
 
   const handlePrev = () => {
     if (activeIndex === null || items.length === 0) return;
-    setActiveIndex((prev) => (prev === null ? null : (prev - 1 + items.length) % items.length));
+    setActiveState(([curr]) => (curr === null ? [null, 0] : [(curr - 1 + items.length) % items.length, -1]));
   };
 
   const handleNext = () => {
     if (activeIndex === null || items.length === 0) return;
-    setActiveIndex((prev) => (prev === null ? null : (prev + 1) % items.length));
+    setActiveState(([curr]) => (curr === null ? [null, 0] : [(curr + 1) % items.length, 1]));
   };
 
   useEffect(() => {
@@ -47,7 +74,7 @@ function GalleryPage() {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowLeft") handlePrev();
       if (e.key === "ArrowRight") handleNext();
-      if (e.key === "Escape") setActiveIndex(null);
+      if (e.key === "Escape") setActiveState([null, 0]);
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
@@ -101,7 +128,7 @@ function GalleryPage() {
             <button
               key={g.id}
               type="button"
-              onClick={() => setActiveIndex(idx)}
+              onClick={() => setActiveState([idx, 0])}
               className="group relative mb-4 block w-full overflow-hidden rounded-2xl bg-muted transition-transform duration-300 hover:scale-[1.02] focus:outline-hidden focus:ring-2 focus:ring-accent"
             >
               <img
@@ -122,7 +149,7 @@ function GalleryPage() {
         {/* Modal Lightbox */}
         {active && activeIndex !== null && (
           <div
-            onClick={() => setActiveIndex(null)}
+            onClick={() => setActiveState([null, 0])}
             className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-3 sm:p-6 backdrop-blur-md transition-all duration-300"
           >
             {/* Top Bar: Counter & Close */}
@@ -137,23 +164,32 @@ function GalleryPage() {
               aria-label={t("Close")}
               onClick={(e) => {
                 e.stopPropagation();
-                setActiveIndex(null);
+                setActiveState([null, 0]);
               }}
               className="absolute right-4 top-4 sm:right-6 sm:top-6 z-[102] flex h-11 w-11 items-center justify-center rounded-full bg-black/75 text-white border border-white/20 backdrop-blur-md hover:bg-black/95 hover:text-white transition-all hover:scale-110 active:scale-95 cursor-pointer shadow-lg"
             >
               <X className="h-6 w-6" />
             </button>
 
-            {/* Active Image Container with Overlay Arrow Buttons */}
+            {/* Active Image Container with 3D Page Turn Animation */}
             <div
-              className="relative flex max-h-[85vh] max-w-[95vw] sm:max-w-[90vw] items-center justify-center overflow-hidden rounded-2xl shadow-2xl bg-black/40"
+              className="relative flex max-h-[85vh] max-w-[95vw] sm:max-w-[90vw] items-center justify-center overflow-hidden rounded-2xl shadow-2xl bg-black/40 [perspective:1200px]"
               onClick={(e) => e.stopPropagation()}
             >
-              <img
-                src={active.image_url}
-                alt={active.caption ?? ""}
-                className="max-h-[85vh] max-w-[95vw] sm:max-w-[90vw] rounded-2xl object-contain select-none"
-              />
+              <AnimatePresence initial={false} custom={direction} mode="wait">
+                <motion.img
+                  key={active.id || activeIndex}
+                  src={active.image_url}
+                  alt={active.caption ?? ""}
+                  custom={direction}
+                  variants={pageTurnVariants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  className="max-h-[85vh] max-w-[95vw] sm:max-w-[90vw] rounded-2xl object-contain select-none shadow-2xl"
+                  style={{ backfaceVisibility: "hidden" }}
+                />
+              </AnimatePresence>
 
               {/* Left Arrow Button - OVER THE IMAGE */}
               {items.length > 1 && (

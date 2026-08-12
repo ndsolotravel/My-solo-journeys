@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { Clock, Share2, ArrowLeft, Star, MapPin, Calendar, Image as ImageIcon, X, ChevronLeft, ChevronRight } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { getPostBySlug } from "@/lib/posts.functions";
 import { listComments, postComment, getPostRatingStats } from "@/lib/comments.functions";
 import { PostCard } from "@/components/blog/PostCard";
@@ -86,25 +86,51 @@ function PostNotFound() {
   );
 }
 
+const pageTurnVariants = {
+  enter: (direction: number) => ({
+    rotateY: direction > 0 ? 70 : -70,
+    opacity: 0,
+    scale: 0.9,
+  }),
+  center: {
+    rotateY: 0,
+    opacity: 1,
+    scale: 1,
+    transition: {
+      duration: 0.38,
+      ease: [0.16, 1, 0.3, 1],
+    },
+  },
+  exit: (direction: number) => ({
+    rotateY: direction > 0 ? -70 : 70,
+    opacity: 0,
+    scale: 0.9,
+    transition: {
+      duration: 0.3,
+      ease: [0.7, 0, 0.84, 0],
+    },
+  }),
+};
+
 function PostPage() {
   const { post, related } = Route.useLoaderData();
 
   const localizedPost = useLocalizedPosts(post ? [post] : [], { includeContent: true })[0] ?? post;
   const localizedRelated = useLocalizedPosts(related);
 
-  const [activeImageIndex, setActiveImageIndex] = useState<number | null>(null);
+  const [[activeImageIndex, direction], setActiveImageState] = useState<[number | null, number]>([null, 0]);
 
   const gallery = post?.gallery ?? [];
   const activeItem = activeImageIndex !== null ? gallery[activeImageIndex] : null;
 
   const handlePrevImage = () => {
     if (activeImageIndex === null || gallery.length === 0) return;
-    setActiveImageIndex((prev) => (prev === null ? null : (prev - 1 + gallery.length) % gallery.length));
+    setActiveImageState(([curr]) => (curr === null ? [null, 0] : [(curr - 1 + gallery.length) % gallery.length, -1]));
   };
 
   const handleNextImage = () => {
     if (activeImageIndex === null || gallery.length === 0) return;
-    setActiveImageIndex((prev) => (prev === null ? null : (prev + 1) % gallery.length));
+    setActiveImageState(([curr]) => (curr === null ? [null, 0] : [(curr + 1) % gallery.length, 1]));
   };
 
   useEffect(() => {
@@ -112,7 +138,7 @@ function PostPage() {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowLeft") handlePrevImage();
       if (e.key === "ArrowRight") handleNextImage();
-      if (e.key === "Escape") setActiveImageIndex(null);
+      if (e.key === "Escape") setActiveImageState([null, 0]);
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
@@ -250,7 +276,7 @@ function PostPage() {
                 <motion.div
                   key={item.id || idx}
                   whileHover={{ scale: 1.02 }}
-                  onClick={() => setActiveImageIndex(idx)}
+                  onClick={() => setActiveImageState([idx, 0])}
                   className="group relative cursor-pointer overflow-hidden rounded-xl border border-border bg-muted/30 aspect-4/3"
                 >
                   <img
@@ -273,7 +299,7 @@ function PostPage() {
         {activeItem && activeImageIndex !== null && (
           <div
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 p-3 sm:p-6 backdrop-blur-md transition-all duration-300"
-            onClick={() => setActiveImageIndex(null)}
+            onClick={() => setActiveImageState([null, 0])}
           >
             {/* Top Bar: Counter & Close */}
             <div className="absolute left-4 top-4 sm:left-6 sm:top-6 z-[52]">
@@ -287,23 +313,32 @@ function PostPage() {
               aria-label={t("Close")}
               onClick={(e) => {
                 e.stopPropagation();
-                setActiveImageIndex(null);
+                setActiveImageState([null, 0]);
               }}
               className="absolute right-4 top-4 sm:right-6 sm:top-6 z-[52] flex h-11 w-11 items-center justify-center rounded-full bg-black/75 text-white border border-white/20 backdrop-blur-md hover:bg-black/95 hover:text-white transition-all hover:scale-110 active:scale-95 cursor-pointer shadow-lg"
             >
               <X className="h-6 w-6" />
             </button>
 
-            {/* Active Image Container with Overlay Arrow Buttons */}
+            {/* Active Image Container with Overlay Arrow Buttons and 3D Page Turn Animation */}
             <div
-              className="relative flex max-h-[85vh] max-w-[95vw] sm:max-w-[90vw] items-center justify-center overflow-hidden rounded-2xl shadow-2xl bg-black/40"
+              className="relative flex max-h-[85vh] max-w-[95vw] sm:max-w-[90vw] items-center justify-center overflow-hidden rounded-2xl shadow-2xl bg-black/40 [perspective:1200px]"
               onClick={(e) => e.stopPropagation()}
             >
-              <img
-                src={activeItem.image_url}
-                alt={activeItem.alt_text || "Zoomed photo"}
-                className="max-h-[85vh] max-w-[95vw] sm:max-w-[90vw] rounded-2xl object-contain select-none"
-              />
+              <AnimatePresence initial={false} custom={direction} mode="wait">
+                <motion.img
+                  key={activeItem.id || activeImageIndex}
+                  src={activeItem.image_url}
+                  alt={activeItem.alt_text || "Zoomed photo"}
+                  custom={direction}
+                  variants={pageTurnVariants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  className="max-h-[85vh] max-w-[95vw] sm:max-w-[90vw] rounded-2xl object-contain select-none shadow-2xl"
+                  style={{ backfaceVisibility: "hidden" }}
+                />
+              </AnimatePresence>
 
               {/* Left Arrow Button - OVER THE IMAGE */}
               {gallery.length > 1 && (
