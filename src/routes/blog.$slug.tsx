@@ -3,7 +3,7 @@ import { queryOptions, useQuery, useMutation, useQueryClient } from "@tanstack/r
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { Clock, Share2, ArrowLeft, Star, MapPin, Calendar, Image as ImageIcon } from "lucide-react";
+import { Clock, Share2, ArrowLeft, Star, MapPin, Calendar, Image as ImageIcon, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { getPostBySlug } from "@/lib/posts.functions";
 import { listComments, postComment, getPostRatingStats } from "@/lib/comments.functions";
@@ -92,7 +92,31 @@ function PostPage() {
   const localizedPost = useLocalizedPosts(post ? [post] : [], { includeContent: true })[0] ?? post;
   const localizedRelated = useLocalizedPosts(related);
 
-  const [activeImage, setActiveImage] = useState<string | null>(null);
+  const [activeImageIndex, setActiveImageIndex] = useState<number | null>(null);
+
+  const gallery = post?.gallery ?? [];
+  const activeItem = activeImageIndex !== null ? gallery[activeImageIndex] : null;
+
+  const handlePrevImage = () => {
+    if (activeImageIndex === null || gallery.length === 0) return;
+    setActiveImageIndex((prev) => (prev === null ? null : (prev - 1 + gallery.length) % gallery.length));
+  };
+
+  const handleNextImage = () => {
+    if (activeImageIndex === null || gallery.length === 0) return;
+    setActiveImageIndex((prev) => (prev === null ? null : (prev + 1) % gallery.length));
+  };
+
+  useEffect(() => {
+    if (activeImageIndex === null) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") handlePrevImage();
+      if (e.key === "ArrowRight") handleNextImage();
+      if (e.key === "Escape") setActiveImageIndex(null);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [activeImageIndex, gallery.length]);
 
   const t = useTranslator([
     "Stories",
@@ -146,7 +170,6 @@ function PostPage() {
     : null;
 
   const dest = post.destinations as { title: string; slug: string } | null;
-  const gallery = post.gallery ?? [];
 
   return (
     <article className="pb-24">
@@ -227,7 +250,7 @@ function PostPage() {
                 <motion.div
                   key={item.id || idx}
                   whileHover={{ scale: 1.02 }}
-                  onClick={() => setActiveImage(item.image_url)}
+                  onClick={() => setActiveImageIndex(idx)}
                   className="group relative cursor-pointer overflow-hidden rounded-xl border border-border bg-muted/30 aspect-4/3"
                 >
                   <img
@@ -247,16 +270,83 @@ function PostPage() {
         )}
 
         {/* Modal Lightbox */}
-        {activeImage && (
+        {activeItem && activeImageIndex !== null && (
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 backdrop-blur-xs"
-            onClick={() => setActiveImage(null)}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 p-4 backdrop-blur-md transition-all duration-300"
+            onClick={() => setActiveImageIndex(null)}
           >
-            <img
-              src={activeImage}
-              alt="Zoomed photo"
-              className="max-h-[90vh] max-w-[90vw] rounded-xl object-contain shadow-2xl"
-            />
+            {/* Top Bar: Counter & Close */}
+            <div className="absolute left-4 top-4 sm:left-6 sm:top-6 z-[52]">
+              <span className="rounded-full bg-white/10 px-3.5 py-1.5 text-xs sm:text-sm font-medium text-white/90 border border-white/10 backdrop-blur-md">
+                {activeImageIndex + 1} / {gallery.length}
+              </span>
+            </div>
+
+            <button
+              type="button"
+              aria-label={t("Close")}
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveImageIndex(null);
+              }}
+              className="absolute right-4 top-4 sm:right-6 sm:top-6 z-[52] rounded-full bg-white/10 p-2.5 text-white/90 border border-white/10 backdrop-blur-md hover:bg-white/20 hover:text-white transition-all hover:scale-110 active:scale-95 cursor-pointer"
+            >
+              <X className="h-5 w-5 sm:h-6 sm:w-6" />
+            </button>
+
+            {/* Previous Arrow Button */}
+            {gallery.length > 1 && (
+              <button
+                type="button"
+                aria-label="Previous photo"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handlePrevImage();
+                }}
+                className="absolute left-2 sm:left-6 md:left-8 z-[52] rounded-full bg-black/60 p-3 sm:p-4 text-white border border-white/20 backdrop-blur-md shadow-2xl hover:bg-black/80 hover:scale-110 active:scale-95 transition-all cursor-pointer"
+              >
+                <ChevronLeft className="h-6 w-6 sm:h-8 sm:w-8" />
+              </button>
+            )}
+
+            {/* Active Image */}
+            <div
+              className="relative max-h-[85vh] max-w-[90vw] overflow-hidden rounded-2xl shadow-2xl flex items-center justify-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img
+                src={activeItem.image_url}
+                alt={activeItem.alt_text || "Zoomed photo"}
+                className="max-h-[85vh] max-w-[90vw] rounded-2xl object-contain select-none"
+              />
+            </div>
+
+            {/* Next Arrow Button */}
+            {gallery.length > 1 && (
+              <button
+                type="button"
+                aria-label="Next photo"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleNextImage();
+                }}
+                className="absolute right-2 sm:right-6 md:right-8 z-[52] rounded-full bg-black/60 p-3 sm:p-4 text-white border border-white/20 backdrop-blur-md shadow-2xl hover:bg-black/80 hover:scale-110 active:scale-95 transition-all cursor-pointer"
+              >
+                <ChevronRight className="h-6 w-6 sm:h-8 sm:w-8" />
+              </button>
+            )}
+
+            {/* Bottom Caption */}
+            {activeItem.alt_text && (
+              <div
+                className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-[52] max-w-lg w-[90vw] text-center"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <p className="inline-block rounded-2xl bg-black/70 px-5 py-2.5 text-xs sm:text-sm text-white/90 border border-white/10 backdrop-blur-md shadow-lg">
+                  {activeItem.alt_text}
+                </p>
+              </div>
+            )}
           </div>
         )}
 

@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { X } from "lucide-react";
-import { listGallery, type GalleryItem } from "@/lib/gallery.functions";
+import { useState, useEffect } from "react";
+import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { listGallery } from "@/lib/gallery.functions";
 import { useLocalizedGallery } from "@/lib/translate/useLocalized";
 import { useTranslator } from "@/lib/translate/store";
 
@@ -28,13 +28,38 @@ export const Route = createFileRoute("/gallery")({
 function GalleryPage() {
   const { data: rawItems } = useSuspenseQuery(qo);
   const items = useLocalizedGallery(rawItems);
-  const [active, setActive] = useState<GalleryItem | null>(null);
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+
+  const active = activeIndex !== null ? items[activeIndex] : null;
+
+  const handlePrev = () => {
+    if (activeIndex === null) return;
+    setActiveIndex((prev) => (prev === null ? null : (prev - 1 + items.length) % items.length));
+  };
+
+  const handleNext = () => {
+    if (activeIndex === null) return;
+    setActiveIndex((prev) => (prev === null ? null : (prev + 1) % items.length));
+  };
+
+  useEffect(() => {
+    if (activeIndex === null) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") handlePrev();
+      if (e.key === "ArrowRight") handleNext();
+      if (e.key === "Escape") setActiveIndex(null);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [activeIndex, items.length]);
 
   const t = useTranslator([
     "Photography",
     "The light, the cold, the patience.",
     "A thousand sunrises above 4,000 metres.",
     "Close",
+    "Previous photo",
+    "Next photo",
   ]);
 
   return (
@@ -71,12 +96,12 @@ function GalleryPage() {
         </header>
 
         <div className="mt-12 columns-1 gap-4 sm:columns-2 lg:columns-3">
-          {items.map((g) => (
+          {items.map((g, idx) => (
             <button
               key={g.id}
               type="button"
-              onClick={() => setActive(g)}
-              className="mb-4 block w-full overflow-hidden rounded-2xl bg-muted"
+              onClick={() => setActiveIndex(idx)}
+              className="mb-4 block w-full overflow-hidden rounded-2xl bg-muted transition-transform duration-300 hover:scale-[1.02] focus:outline-hidden focus:ring-2 focus:ring-accent"
             >
               <img
                 src={g.image_url}
@@ -88,28 +113,82 @@ function GalleryPage() {
           ))}
         </div>
 
-        {active && (
+        {active && activeIndex !== null && (
           <div
-            onClick={() => setActive(null)}
-            className="fixed inset-0 z-[70] flex items-center justify-center bg-black/90 p-4"
+            onClick={() => setActiveIndex(null)}
+            className="fixed inset-0 z-[70] flex items-center justify-center bg-black/95 p-4 backdrop-blur-md transition-all duration-300"
           >
+            {/* Top Bar: Counter & Close */}
+            <div className="absolute left-4 top-4 sm:left-6 sm:top-6 z-[72]">
+              <span className="rounded-full bg-white/10 px-3.5 py-1.5 text-xs sm:text-sm font-medium text-white/90 border border-white/10 backdrop-blur-md">
+                {activeIndex + 1} / {items.length}
+              </span>
+            </div>
+
             <button
               type="button"
               aria-label={t("Close")}
-              onClick={() => setActive(null)}
-              className="absolute right-4 top-4 rounded-full bg-white/10 p-2 text-white"
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveIndex(null);
+              }}
+              className="absolute right-4 top-4 sm:right-6 sm:top-6 z-[72] rounded-full bg-white/10 p-2.5 text-white/90 border border-white/10 backdrop-blur-md hover:bg-white/20 hover:text-white transition-all hover:scale-110 active:scale-95 cursor-pointer"
             >
-              <X className="h-5 w-5" />
+              <X className="h-5 w-5 sm:h-6 sm:w-6" />
             </button>
-            <img
-              src={active.image_url}
-              alt={active.caption ?? ""}
-              className="max-h-[90vh] max-w-[95vw] rounded-2xl"
-            />
+
+            {/* Previous Arrow Button */}
+            {items.length > 1 && (
+              <button
+                type="button"
+                aria-label={t("Previous photo")}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handlePrev();
+                }}
+                className="absolute left-2 sm:left-6 md:left-8 z-[72] rounded-full bg-black/60 p-3 sm:p-4 text-white border border-white/20 backdrop-blur-md shadow-2xl hover:bg-black/80 hover:scale-110 active:scale-95 transition-all cursor-pointer"
+              >
+                <ChevronLeft className="h-6 w-6 sm:h-8 sm:w-8" />
+              </button>
+            )}
+
+            {/* Active Image */}
+            <div
+              className="relative max-h-[85vh] max-w-[90vw] overflow-hidden rounded-2xl shadow-2xl flex items-center justify-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img
+                src={active.image_url}
+                alt={active.caption ?? ""}
+                className="max-h-[85vh] max-w-[90vw] rounded-2xl object-contain select-none"
+              />
+            </div>
+
+            {/* Next Arrow Button */}
+            {items.length > 1 && (
+              <button
+                type="button"
+                aria-label={t("Next photo")}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleNext();
+                }}
+                className="absolute right-2 sm:right-6 md:right-8 z-[72] rounded-full bg-black/60 p-3 sm:p-4 text-white border border-white/20 backdrop-blur-md shadow-2xl hover:bg-black/80 hover:scale-110 active:scale-95 transition-all cursor-pointer"
+              >
+                <ChevronRight className="h-6 w-6 sm:h-8 sm:w-8" />
+              </button>
+            )}
+
+            {/* Bottom Caption */}
             {active.caption && (
-              <p className="absolute bottom-6 left-1/2 -translate-x-1/2 rounded-full bg-black/50 px-4 py-2 text-sm text-white">
-                {active.caption}
-              </p>
+              <div
+                className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-[72] max-w-lg w-[90vw] text-center"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <p className="inline-block rounded-2xl bg-black/70 px-5 py-2.5 text-xs sm:text-sm text-white/90 border border-white/10 backdrop-blur-md shadow-lg">
+                  {active.caption}
+                </p>
+              </div>
             )}
           </div>
         )}
