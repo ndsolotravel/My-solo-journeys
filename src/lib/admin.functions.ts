@@ -2,13 +2,25 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-async function assertEditor(userId: string) {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data: rows } = await supabaseAdmin
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", userId);
-  const roles = (rows ?? []).map((r) => r.role);
+async function assertEditor(userId: string, client?: any) {
+  let roles: string[] = [];
+
+  if (client && typeof client.from === "function") {
+    const { data } = await client.from("user_roles").select("role").eq("user_id", userId);
+    if (data && data.length > 0) {
+      roles = data.map((r: { role: string }) => r.role);
+    }
+  }
+
+  if (roles.length === 0) {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rows } = await supabaseAdmin
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId);
+    roles = (rows ?? []).map((r) => r.role);
+  }
+
   if (!roles.includes("admin") && !roles.includes("editor")) {
     throw new Error("Forbidden");
   }
@@ -18,12 +30,27 @@ async function assertEditor(userId: string) {
 export const getMyRoles = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data } = await supabaseAdmin
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", context.userId);
-    return (data ?? []).map((r) => r.role as string);
+    let roles: string[] = [];
+    if (context.supabase) {
+      const { data } = await context.supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", context.userId);
+      if (data && data.length > 0) {
+        roles = data.map((r) => r.role as string);
+      }
+    }
+    if (roles.length === 0) {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data } = await supabaseAdmin
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", context.userId);
+      if (data) {
+        roles = data.map((r) => r.role as string);
+      }
+    }
+    return roles;
   });
 
 // ---------------- POSTS ----------------
@@ -37,7 +64,7 @@ const POST_COLS =
 export const adminListPosts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await assertEditor(context.userId);
+    await assertEditor(context.userId, context.supabase);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     let res = await supabaseAdmin
       .from("posts")
@@ -57,7 +84,7 @@ export const adminGetPost = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ context, data }) => {
-    await assertEditor(context.userId);
+    await assertEditor(context.userId, context.supabase);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     let res = await supabaseAdmin
       .from("posts")
@@ -130,7 +157,7 @@ export const adminUpsertPost = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i) => postInputSchema.parse(i))
   .handler(async ({ context, data }) => {
-    await assertEditor(context.userId);
+    await assertEditor(context.userId, context.supabase);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const slug = (data.slug && data.slug.trim()) || slugify(data.title);
@@ -216,7 +243,7 @@ export const adminDeletePost = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ context, data }) => {
-    await assertEditor(context.userId);
+    await assertEditor(context.userId, context.supabase);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("posts").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -227,7 +254,7 @@ export const adminTogglePublish = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i) => z.object({ id: z.string().uuid(), published: z.boolean() }).parse(i))
   .handler(async ({ context, data }) => {
-    await assertEditor(context.userId);
+    await assertEditor(context.userId, context.supabase);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin
       .from("posts")
@@ -257,7 +284,7 @@ const destInputSchema = z.object({
 export const adminListDestinations = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await assertEditor(context.userId);
+    await assertEditor(context.userId, context.supabase);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
       .from("destinations")
@@ -271,7 +298,7 @@ export const adminUpsertDestination = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i) => destInputSchema.parse(i))
   .handler(async ({ context, data }) => {
-    await assertEditor(context.userId);
+    await assertEditor(context.userId, context.supabase);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const slug = (data.slug && data.slug.trim()) || slugify(data.title);
     const payload = {
@@ -297,7 +324,7 @@ export const adminDeleteDestination = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ context, data }) => {
-    await assertEditor(context.userId);
+    await assertEditor(context.userId, context.supabase);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("destinations").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -309,7 +336,7 @@ export const adminDeleteDestination = createServerFn({ method: "POST" })
 export const adminListComments = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await assertEditor(context.userId);
+    await assertEditor(context.userId, context.supabase);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
       .from("comments")
@@ -324,7 +351,7 @@ export const adminDeleteComment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ context, data }) => {
-    await assertEditor(context.userId);
+    await assertEditor(context.userId, context.supabase);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("comments").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -336,7 +363,7 @@ export const adminDeleteComment = createServerFn({ method: "POST" })
 export const adminListMessages = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await assertEditor(context.userId);
+    await assertEditor(context.userId, context.supabase);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
       .from("contact_messages")
@@ -358,7 +385,7 @@ export const adminUpdateMessageStatus = createServerFn({ method: "POST" })
       .parse(i),
   )
   .handler(async ({ context, data }) => {
-    await assertEditor(context.userId);
+    await assertEditor(context.userId, context.supabase);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin
       .from("contact_messages")
@@ -372,7 +399,7 @@ export const adminDeleteMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ context, data }) => {
-    await assertEditor(context.userId);
+    await assertEditor(context.userId, context.supabase);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("contact_messages").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -384,7 +411,7 @@ export const adminDeleteMessage = createServerFn({ method: "POST" })
 export const adminAnalytics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await assertEditor(context.userId);
+    await assertEditor(context.userId, context.supabase);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const [posts, comments, subs, msgs, top] = await Promise.all([
       supabaseAdmin.from("posts").select("id,published,scheduled_at,views", { count: "exact" }),
@@ -429,7 +456,7 @@ export const adminUploadImage = createServerFn({ method: "POST" })
       .parse(i),
   )
   .handler(async ({ context, data }) => {
-    await assertEditor(context.userId);
+    await assertEditor(context.userId, context.supabase);
     if (!data.contentType.startsWith("image/")) throw new Error("Only image uploads allowed");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const buf = Buffer.from(data.base64, "base64");
