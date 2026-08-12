@@ -289,7 +289,7 @@ function HomePage() {
   return (
     <div>
       {/* Hero */}
-      <section className="relative h-[100svh] overflow-hidden">
+      <section className="relative h-[100svh] min-h-[580px] overflow-hidden">
         <HeroSlider
           slides={[
             {
@@ -306,12 +306,12 @@ function HomePage() {
             },
           ]}
         />
-        <div className="pointer-events-none relative mx-auto flex h-[100svh] max-w-7xl flex-col justify-end px-4 pb-20 pt-32 sm:px-6 lg:px-8">
+        <div className="pointer-events-none relative mx-auto flex h-[100svh] min-h-[580px] max-w-7xl flex-col justify-end px-4 pb-10 pt-24 sm:px-6 sm:pb-20 sm:pt-32 lg:px-8">
           <motion.span
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="inline-flex w-fit items-center rounded-full border border-white/30 bg-white/10 px-4 py-1.5 text-xs uppercase tracking-[0.2em] text-white backdrop-blur"
+            className="mt-6 sm:mt-0 inline-flex w-fit items-center rounded-full border border-white/30 bg-white/10 px-4 py-1.5 text-xs uppercase tracking-[0.2em] text-white backdrop-blur"
           >
             {t("Solo · Slow · Cinematic")}
           </motion.span>
