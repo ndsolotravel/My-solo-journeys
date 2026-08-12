@@ -52,6 +52,8 @@ export const sendContact = createServerFn({ method: "POST" })
       return { ok: true };
     }
 
+    console.log(`[sendContact] Processing submission from: ${data.name} <${data.email}>`);
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     // Rate-limit by IP hash: max 3 submissions per 10 minutes
@@ -105,9 +107,9 @@ export const sendContact = createServerFn({ method: "POST" })
     }
 
     if (error) {
-      console.error("[sendContact] Database storage error:", error.message);
+      console.error("[sendContact] Supabase contact_messages insert notice:", error.message);
     } else {
-      console.log(`[sendContact] Saved visitor message from ${data.name} <${data.email}> to Supabase contact_messages.`);
+      console.log(`[sendContact] Successfully stored message in Supabase contact_messages.`);
     }
 
     // ALWAYS dispatch email notification to recipient (ndsolotravel@gmail.com)
@@ -118,11 +120,15 @@ export const sendContact = createServerFn({ method: "POST" })
       message: data.message,
     });
 
-    if (error && emailResult?.provider === "none") {
-      throw new Error(`Message delivery error: ${error.message}`);
+    if (!emailResult.sent) {
+      console.error(`[sendContact] Email delivery failed: ${emailResult.reason}`);
+      throw new Error(
+        `Your message was received and saved, but email notification could not be delivered to ndsolotravel@gmail.com (${emailResult.reason}). Please try again later or email us directly at ndsolotravel@gmail.com.`
+      );
     }
 
-    return { ok: true, emailStatus: emailResult?.provider };
+    console.log(`[sendContact] Complete contact flow SUCCESS via ${emailResult.provider} (ID: ${emailResult.id})`);
+    return { ok: true, provider: emailResult.provider, messageId: emailResult.id };
   });
 
 const DEFAULT_RECIPIENT = "ndsolotravel@gmail.com";
@@ -132,14 +138,15 @@ async function notifyRecipientByEmail(msg: {
   email: string;
   subject: string | null;
   message: string;
-}) {
+}): Promise<{ sent: boolean; provider: string; id?: string; reason?: string }> {
   const recipient = process.env.CONTACT_NOTIFICATION_EMAIL || process.env.NOTIFICATION_EMAIL || DEFAULT_RECIPIENT;
   const emailSubject = `New Contact Message from ${msg.name}${msg.subject ? `: ${msg.subject}` : ""}`;
 
   const htmlContent = `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 24px; max-width: 600px; margin: 0 auto; color: #1e293b; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px;">
       <h2 style="color: #0f172a; margin-top: 0; font-size: 20px; font-weight: 700;">New Contact Form Message</h2>
-      <p style="margin: 8px 0; font-size: 14px;"><strong>From:</strong> ${msg.name} (&lt;<a href="mailto:${msg.email}" style="color: #2563eb;">${msg.email}</a>&gt;)</p>
+      <p style="margin: 8px 0; font-size: 14px;"><strong>Visitor Name:</strong> ${msg.name}</p>
+      <p style="margin: 8px 0; font-size: 14px;"><strong>Visitor Email:</strong> <a href="mailto:${msg.email}" style="color: #2563eb;">${msg.email}</a></p>
       <p style="margin: 8px 0; font-size: 14px;"><strong>Subject:</strong> ${msg.subject || "N/A"}</p>
       <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
       <div style="background-color: #f8fafc; padding: 16px; border-radius: 8px; font-size: 15px; white-space: pre-wrap; line-height: 1.6; color: #334155;">${msg.message}</div>
@@ -153,10 +160,11 @@ async function notifyRecipientByEmail(msg: {
   const smtpUser = process.env.SMTP_USER || process.env.SMTP_USERNAME;
   const smtpPass = process.env.SMTP_PASS || process.env.SMTP_PASSWORD;
   const smtpPort = Number(process.env.SMTP_PORT) || 465;
-  const smtpFrom = process.env.SMTP_FROM || (smtpUser ? `NDSOLOTRAVEL <${smtpUser}>` : `NDSOLOTRAVEL <${recipient}>`);
+  const smtpFrom = process.env.SMTP_FROM || (smtpUser ? `NDSOLOTRAVEL <${smtpUser}>` : `NDSOLOTRAVEL <contact@ndsolotravel.com>`);
 
   if (smtpHost && smtpUser && smtpPass) {
     try {
+      console.log(`[sendContact] Initiating SMTP connection to ${smtpHost}:${smtpPort}...`);
       const transporter = nodemailer.createTransport({
         host: smtpHost,
         port: smtpPort,
@@ -175,10 +183,11 @@ async function notifyRecipientByEmail(msg: {
         html: htmlContent,
       });
 
-      console.log(`[sendContact] SMTP email successfully delivered to ${recipient} (Message ID: ${info.messageId})`);
-      return { ok: true, provider: "smtp", messageId: info.messageId };
+      console.log(`[sendContact] SMTP email ACCEPTED for ${recipient} (Message ID: ${info.messageId})`);
+      return { sent: true, provider: "smtp", id: info.messageId };
     } catch (err: any) {
-      console.error(`[sendContact] SMTP delivery to ${recipient} failed:`, err?.message || err);
+      console.error(`[sendContact] SMTP delivery attempt failed:`, err?.message || err);
+      // Fall through to test API provider if available
     }
   }
 
@@ -186,6 +195,7 @@ async function notifyRecipientByEmail(msg: {
   const resendApiKey = process.env.RESEND_API_KEY;
   if (resendApiKey) {
     try {
+      console.log(`[sendContact] Initiating Resend API dispatch to ${recipient}...`);
       const fromAddress = process.env.RESEND_FROM_EMAIL || "NDSOLOTRAVEL Contact <onboarding@resend.dev>";
       const res = await fetch("https://api.resend.com/emails", {
         method: "POST",
@@ -204,23 +214,27 @@ async function notifyRecipientByEmail(msg: {
 
       const resData = await res.json();
       if (!res.ok) {
-        console.error(`[sendContact] Resend API rejected email:`, resData);
-        throw new Error(`Resend API error: ${resData.message || JSON.stringify(resData)}`);
+        console.error(`[sendContact] Resend API rejected email delivery:`, resData);
+        return { sent: false, provider: "resend", reason: `Resend API error: ${resData.message || JSON.stringify(resData)}` };
       }
 
-      console.log(`[sendContact] Resend email accepted for ${recipient} (ID: ${resData.id})`);
-      return { ok: true, provider: "resend", id: resData.id };
+      console.log(`[sendContact] Resend email ACCEPTED for ${recipient} (ID: ${resData.id})`);
+      return { sent: true, provider: "resend", id: resData.id };
     } catch (err: any) {
-      console.error(`[sendContact] Resend delivery to ${recipient} failed:`, err?.message || err);
-      throw err;
+      console.error(`[sendContact] Resend API delivery attempt failed:`, err?.message || err);
+      return { sent: false, provider: "resend", reason: err?.message || "Resend network error" };
     }
   }
 
-  // 3. If no email provider env vars set: log explicit notice
+  // 3. If no email provider env vars set
   console.warn(
-    `[sendContact] Visitor message from ${msg.name} (${msg.email}) saved to Supabase. To deliver email notifications directly to ${recipient}, please set Hostinger SMTP (SMTP_HOST, SMTP_USER, SMTP_PASS) or RESEND_API_KEY in Hostinger environment variable settings.`
+    `[sendContact] No active email provider configured (SMTP_HOST/SMTP_USER/SMTP_PASS or RESEND_API_KEY missing). Notification to ${recipient} was not dispatched.`
   );
-  return { ok: true, provider: "none" };
+  return {
+    sent: false,
+    provider: "none",
+    reason: "No email server credentials or API key configured in Hostinger environment variables (SMTP_HOST or RESEND_API_KEY)",
+  };
 }
 
 export const sendContactReply = createServerFn({ method: "POST" })
