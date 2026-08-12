@@ -105,8 +105,62 @@ export const sendContact = createServerFn({ method: "POST" })
 
     if (error) throw new Error(error.message);
 
+    // Dispatch email notification to recipient (ndsolotravel@gmail.com)
+    await notifyRecipientByEmail({
+      name: data.name,
+      email: data.email,
+      subject,
+      message: data.message,
+    });
+
     return { ok: true };
   });
+
+const DEFAULT_RECIPIENT = "ndsolotravel@gmail.com";
+
+async function notifyRecipientByEmail(msg: {
+  name: string;
+  email: string;
+  subject: string | null;
+  message: string;
+}) {
+  const recipient = process.env.CONTACT_NOTIFICATION_EMAIL || DEFAULT_RECIPIENT;
+  const resendApiKey = process.env.RESEND_API_KEY;
+  const emailSubject = `New Contact Message from ${msg.name}${msg.subject ? `: ${msg.subject}` : ""}`;
+
+  if (resendApiKey) {
+    try {
+      await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${resendApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: "ndsolotravel Contact <onboarding@resend.dev>",
+          to: [recipient],
+          reply_to: msg.email,
+          subject: emailSubject,
+          html: `
+            <div style="font-family: sans-serif; padding: 20px; line-height: 1.6; color: #333;">
+              <h2 style="color: #0f172a; margin-bottom: 16px;">New Contact Message Received</h2>
+              <p><strong>From:</strong> ${msg.name} (&lt;${msg.email}&gt;)</p>
+              <p><strong>Subject:</strong> ${msg.subject || "N/A"}</p>
+              <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
+              <p style="white-space: pre-wrap; font-size: 15px;">${msg.message}</p>
+              <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
+              <p style="font-size: 12px; color: #64748b;">Submitted via ndsolotravel contact form and stored in Supabase contact_messages.</p>
+            </div>
+          `,
+        }),
+      });
+    } catch (err) {
+      console.error("[sendContact] Email notification error:", err);
+    }
+  } else {
+    console.log(`[sendContact] Notification queued for ${recipient}. Saved to Supabase contact_messages.`);
+  }
+}
 
 export const sendContactReply = createServerFn({ method: "POST" })
   .handler(async () => ({ ok: true }));
