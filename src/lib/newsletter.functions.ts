@@ -112,7 +112,7 @@ export const sendContact = createServerFn({ method: "POST" })
       console.log(`[sendContact] Successfully stored message in Supabase contact_messages.`);
     }
 
-    // ALWAYS dispatch email notification to recipient (ndsolotravel@gmail.com)
+    // ALWAYS dispatch email notification to recipient (contact@ndsolotravel.com)
     const emailResult = await notifyRecipientByEmail({
       name: data.name,
       email: data.email,
@@ -123,7 +123,7 @@ export const sendContact = createServerFn({ method: "POST" })
     if (!emailResult.sent) {
       console.error(`[sendContact] Email delivery failed: ${emailResult.reason}`);
       throw new Error(
-        `Your message was received and saved, but email notification could not be delivered to ndsolotravel@gmail.com (${emailResult.reason}). Please try again later or email us directly at ndsolotravel@gmail.com.`
+        `Your message was received and saved, but email notification could not be delivered to contact@ndsolotravel.com (${emailResult.reason}). Please try again later or email us directly at contact@ndsolotravel.com.`
       );
     }
 
@@ -131,7 +131,7 @@ export const sendContact = createServerFn({ method: "POST" })
     return { ok: true, provider: emailResult.provider, messageId: emailResult.id };
   });
 
-const DEFAULT_RECIPIENT = "ndsolotravel@gmail.com";
+const DEFAULT_RECIPIENT = "contact@ndsolotravel.com";
 
 async function notifyRecipientByEmail(msg: {
   name: string;
