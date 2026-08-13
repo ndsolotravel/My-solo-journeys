@@ -17,8 +17,12 @@ export function NewsletterForm({ dark = false }: { dark?: boolean }) {
       await subscribeFn({ data: { email } });
       toast.success(t("Subscribed. Welcome aboard."));
       setEmail("");
-    } catch {
-      toast.error(t("Could not subscribe. Try again."));
+    } catch (err: any) {
+      let msg = t("Could not subscribe. Try again.");
+      if (err instanceof Error && err.message) {
+        msg = err.message;
+      }
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
