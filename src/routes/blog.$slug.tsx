@@ -10,7 +10,7 @@ import { listComments, postComment, getPostRatingStats } from "@/lib/comments.fu
 import { PostCard } from "@/components/blog/PostCard";
 import { ReadingProgress } from "@/components/blog/ReadingProgress";
 import { toast } from "sonner";
-import { useTranslations } from "@/lib/translate/store";
+import { useTranslations, useLanguage } from "@/lib/translate/store";
 
 const postQO = (slug: string) =>
   queryOptions({
@@ -108,8 +108,23 @@ const pageTurnVariants = {
 
 function PostPage() {
   const { post, related } = Route.useLoaderData();
+  const { lang } = useLanguage();
 
-  const localizedPost = post;
+  const localizedPost = useMemo(() => {
+    if (!post) return null;
+    if (lang === "en") return post;
+    const t = post.post_translations?.find((x) => x.language_code === lang);
+    if (!t) return post;
+    return {
+      ...post,
+      title: t.title || post.title,
+      excerpt: t.excerpt || post.excerpt,
+      content: t.content || post.content,
+      seo_title: t.seo_title || post.seo_title,
+      seo_description: t.seo_description || post.seo_description,
+    };
+  }, [post, lang]);
+
   const localizedRelated = related;
 
   const [[activeImageIndex, direction], setActiveImageState] = useState<[number | null, number]>([null, 0]);
@@ -138,7 +153,7 @@ function PostPage() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [activeImageIndex, gallery.length]);
 
-  if (!post) return null;
+  if (!post || !localizedPost) return null;
 
   const date = new Date(post.published_at ?? post.created_at).toLocaleDateString("en-US", {
     month: "long",

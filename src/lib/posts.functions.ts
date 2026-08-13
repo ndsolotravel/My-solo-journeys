@@ -29,6 +29,14 @@ export type Post = {
   seo_description?: string | null;
   og_image_url?: string | null;
   gallery?: PostGalleryItem[];
+  post_translations?: {
+    language_code: string;
+    title: string;
+    excerpt: string | null;
+    content: string;
+    seo_title: string | null;
+    seo_description: string | null;
+  }[];
 };
 
 const BASE_POST_COLUMNS =
@@ -76,7 +84,7 @@ export const listPosts = createServerFn({ method: "GET" })
     };
 
     // Try full query first with destination relation, fallback to basic columns if schema not migrated yet
-    let res = await buildQuery(`${FULL_POST_COLUMNS},destinations(title,slug)`);
+    let res = await buildQuery(`${FULL_POST_COLUMNS},destinations(title,slug),post_translations(language_code,title,excerpt)`);
     if (res.error) {
       res = await buildQuery(BASE_POST_COLUMNS);
     }
@@ -92,7 +100,7 @@ export const getPostBySlug = createServerFn({ method: "GET" })
 
     let postRes = await supabaseAdmin
       .from("posts")
-      .select(`${FULL_POST_COLUMNS},destinations(title,slug),post_gallery(id,image_url,alt_text,sort_order)`)
+      .select(`${FULL_POST_COLUMNS},destinations(title,slug),post_gallery(id,image_url,alt_text,sort_order),post_translations(language_code,title,excerpt,content,seo_title,seo_description)`)
       .eq("slug", data.slug)
       .eq("published", true)
       .maybeSingle();
