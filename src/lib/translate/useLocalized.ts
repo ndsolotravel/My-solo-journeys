@@ -60,7 +60,7 @@ export function useLocalizedPosts(posts: Post[], options?: { includeContent?: bo
     if (lang === "en") return posts;
     const get = (t: string) => store.get(lang, t) ?? t;
     return posts.map((p) => localizePost(p, lang, get, includeContent));
-  }, [posts, lang, store, includeContent]);
+  }, [posts, lang, store, store.version, includeContent]);
 }
 
 function localizeDestination(d: Destination, get: (text: string) => string): Destination {
@@ -101,7 +101,7 @@ export function useLocalizedDestinations(list: Destination[]): Destination[] {
     if (lang === "en") return list;
     const get = (t: string) => store.get(lang, t) ?? t;
     return list.map((d) => localizeDestination(d, get));
-  }, [list, lang, store]);
+  }, [list, lang, store, store.version]);
 }
 
 function collectGalleryTexts(items: GalleryItem[]): string[] {
@@ -135,7 +135,7 @@ export function useLocalizedGallery(items: GalleryItem[]): GalleryItem[] {
       caption: g.caption ? get(g.caption) || g.caption : null,
       category: g.category ? get(g.category) || g.category : null,
     }));
-  }, [items, lang, store]);
+  }, [items, lang, store, store.version]);
 }
 
 /**

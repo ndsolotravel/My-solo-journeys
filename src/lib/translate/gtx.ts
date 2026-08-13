@@ -6,10 +6,10 @@
  */
 
 const ENDPOINT = "https://translate.googleapis.com/translate_a/single";
-const TIMEOUT_MS = 6000;
-const MAX_LINES_PER_REQUEST = 45;
-const MAX_CHARS_PER_REQUEST = 3500;
-const MAX_CONCURRENT_REQUESTS = 4;
+const TIMEOUT_MS = 20000;
+const MAX_LINES_PER_REQUEST = 90;
+const MAX_CHARS_PER_REQUEST = 11000;
+const MAX_CONCURRENT_REQUESTS = 6;
 const MAX_RETRIES = 2;
 const NL_MARKER = " __NL__ ";
 
