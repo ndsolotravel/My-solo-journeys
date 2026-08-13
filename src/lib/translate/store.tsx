@@ -232,13 +232,12 @@ function createStore(): TranslationStore {
   };
 
   const setLang = (next: string) => {
-    if (next === lang) {
-      if (next !== "en") retryFailedTexts();
-      return;
-    }
+    if (!LANGUAGES.some((l) => l.code === next)) return;
     lang = next;
     try {
-      window.localStorage.setItem(LANG_STORAGE_KEY, next);
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem(LANG_STORAGE_KEY, next);
+      }
     } catch {
       // storage unavailable
     }
@@ -276,6 +275,24 @@ const TranslationContext = createContext<TranslationStore | null>(null);
 
 export function TranslationProvider({ children }: { children: ReactNode }) {
   const store = useMemo(() => createStore(), []);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = window.localStorage.getItem(LANG_STORAGE_KEY);
+        if (saved && LANGUAGES.some((l) => l.code === saved)) {
+          if (saved !== store.lang) {
+            store.setLang(saved);
+          } else {
+            applyDirection(saved);
+          }
+        }
+      } catch {
+        // storage issues
+      }
+    }
+  }, [store]);
+
   return <TranslationContext.Provider value={store}>{children}</TranslationContext.Provider>;
 }
 
@@ -307,7 +324,9 @@ export function useT(text: string): string {
   const translated = store.get(lang, text);
 
   useEffect(() => {
-    store.register(lang, [text]);
+    if (lang !== "en" && text) {
+      store.register(lang, [text]);
+    }
   }, [store, lang, text]);
 
   return translated ?? text;
@@ -316,7 +335,14 @@ export function useT(text: string): string {
 export function useTranslations(): (text: string) => string {
   const store = useStore();
   const lang = store.lang;
-  return (text: string) => store.get(lang, text) ?? text;
+  return (text: string) => {
+    if (!text || lang === "en") return text;
+    const v = store.get(lang, text);
+    if (!v) {
+      store.register(lang, [text]);
+    }
+    return v ?? text;
+  };
 }
 
 export function useTranslator(staticTexts: readonly string[]): (text: string) => string {
