@@ -15,6 +15,7 @@ import { Toaster } from "sonner";
 import appCss from "../styles.css?url";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { ScrollToTop } from "@/components/layout/ScrollToTop";
 import { supabase } from "@/integrations/supabase/client";
 import { TranslationProvider, useT, LANGUAGES } from "@/lib/translate/store";
 
@@ -167,6 +168,7 @@ function RootComponent() {
           <Footer />
         </div>
         <Toaster position="top-center" richColors />
+        <ScrollToTop />
         <TitleTranslator />
       </QueryClientProvider>
     </TranslationProvider>
