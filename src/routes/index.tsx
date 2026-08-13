@@ -30,6 +30,7 @@ import { NewsletterForm } from "../components/layout/NewsletterForm";
 import { HeroSlider } from "../components/layout/HeroSlider";
 import { CATEGORIES } from "../lib/site";
 import { useActiveVisitors } from "@/hooks/use-active-visitors";
+import { useTranslations } from "@/lib/translate/store";
 
 const postsQO = queryOptions({
   queryKey: ["home", "posts"],
@@ -132,6 +133,7 @@ const JOURNEY_CARDS = [
 ] as const;
 
 function HomePage() {
+  const t = useTranslations();
   const { data: postsData } = useSuspenseQuery(postsQO);
   const { data: featuredData } = useSuspenseQuery(featuredQO);
   const { data: destinationsData } = useSuspenseQuery(destQO);
