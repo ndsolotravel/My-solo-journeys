@@ -2,8 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Search, X, FileText, MapPin, Loader2 } from "lucide-react";
 import { searchSite, type SearchResult } from "@/lib/search.functions";
+import { useTranslations } from "@/lib/translate/store";
 
 export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const t = useTranslations();
   const [q, setQ] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
@@ -60,7 +62,7 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
       onClick={onClose}
       role="dialog"
       aria-modal="true"
-      aria-label="Search"
+      aria-label={t("Search")}
     >
       <div
         className="w-full max-w-2xl overflow-hidden rounded-2xl border border-border bg-background shadow-2xl"
@@ -72,13 +74,13 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
             ref={inputRef}
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Search stories, trails and destinations"
+            placeholder={t("Search stories…")}
             className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
           />
           {loading && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
           <button
             onClick={onClose}
-            aria-label="Close search"
+            aria-label={t("Close")}
             className="text-muted-foreground hover:text-foreground"
           >
             <X className="h-4 w-4" />
@@ -87,17 +89,18 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
         <div className="max-h-[60vh] overflow-y-auto">
           {q.trim() && !loading && results.length === 0 && (
             <p className="px-4 py-10 text-center text-sm text-muted-foreground">
-              No matches for "{q}".
+              {t("No stories match that filter yet.")}
             </p>
           )}
           {!q.trim() && (
             <p className="px-4 py-10 text-center text-sm text-muted-foreground">
-              Search across articles, destinations, categories and tags.
+              {t("Search stories…")}
             </p>
           )}
           {results.length > 0 && (
             <ul className="py-2">
               {results.map((r) => (
+
                 <li key={`${r.kind}-${r.id}`}>
                   <button
                     onClick={() => go(r)}

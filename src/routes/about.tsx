@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import portraitAsset from "@/assets/ndsolotravel-portrait.jpeg.asset.json";
+import { useTranslations } from "@/lib/translate/store";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -37,6 +38,8 @@ const BIO = [
 ];
 
 function AboutPage() {
+  const t = useTranslations();
+
   return (
     <>
       <section className="relative h-[45vh] min-h-[280px] w-full overflow-hidden">

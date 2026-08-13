@@ -5,6 +5,7 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import { Map as MapIcon, LayoutGrid } from "lucide-react";
 import { listDestinations } from "../lib/destinations.functions";
 import { AdSlot } from "@/components/ads/AdSlot";
+import { useTranslations } from "@/lib/translate/store";
 
 const DestinationsMap = lazy(() =>
   import("@/components/destinations/DestinationsMap").then((m) => ({ default: m.DestinationsMap })),
@@ -35,9 +36,11 @@ export const Route = createFileRoute("/destinations/")({
 });
 
 function DestinationsPage() {
+  const t = useTranslations();
   const { data: destinationsData } = useSuspenseQuery(destQO);
   const destinations = destinationsData;
   const [view, setView] = useState<"map" | "grid">("grid");
+
 
   // Smooth-scroll to the interactive map anchor when arriving with that hash.
   useEffect(() => {

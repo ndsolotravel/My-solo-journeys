@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { listGallery } from "@/lib/gallery.functions";
+import { useTranslations } from "@/lib/translate/store";
 
 const qo = queryOptions({ queryKey: ["gallery"], queryFn: () => listGallery() });
 
@@ -51,9 +52,11 @@ const pageTurnVariants = {
 };
 
 function GalleryPage() {
+  const t = useTranslations();
   const { data: rawItems } = useSuspenseQuery(qo);
   const items = rawItems;
   const [[activeIndex, direction], setActiveState] = useState<[number | null, number]>([null, 0]);
+
 
   const active = activeIndex !== null ? items[activeIndex] : null;
 
@@ -191,7 +194,7 @@ function GalleryPage() {
                   }}
                   className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 z-50 flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full bg-black/75 hover:bg-black/95 text-white border-2 border-white/40 shadow-2xl backdrop-blur-md transition-all hover:scale-110 active:scale-95 cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-accent"
                 >
-                  <ChevronLeft className="h-7 w-7 sm:h-8 sm:w-8 text-white drop-shadow-md" />
+                  <ChevronLeft className="h-7 w-7 sm:h-8 sm:w-8 text-white drop-shadow-md rtl:rotate-180" />
                 </button>
               )}
 
@@ -206,7 +209,7 @@ function GalleryPage() {
                   }}
                   className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 z-50 flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full bg-black/75 hover:bg-black/95 text-white border-2 border-white/40 shadow-2xl backdrop-blur-md transition-all hover:scale-110 active:scale-95 cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-accent"
                 >
-                  <ChevronRight className="h-7 w-7 sm:h-8 sm:w-8 text-white drop-shadow-md" />
+                  <ChevronRight className="h-7 w-7 sm:h-8 sm:w-8 text-white drop-shadow-md rtl:rotate-180" />
                 </button>
               )}
             </div>

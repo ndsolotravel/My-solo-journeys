@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Clock, ArrowUpRight } from "lucide-react";
 import type { Post } from "@/lib/posts.functions";
+import { useTranslations } from "@/lib/translate/store";
 
 function formatDate(d: string | null) {
   if (!d) return "";
@@ -13,6 +14,7 @@ function formatDate(d: string | null) {
 }
 
 export function PostCard({ post, index = 0 }: { post: Post; index?: number }) {
+  const t = useTranslations();
   return (
     <motion.article
       initial={{ opacity: 0, y: 20 }}
@@ -31,9 +33,9 @@ export function PostCard({ post, index = 0 }: { post: Post; index?: number }) {
               className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
           )}
-          <div className="absolute left-3 top-3">
+          <div className="absolute left-3 top-3 rtl:left-auto rtl:right-3">
             <span className="rounded-full bg-background/90 px-3 py-1 text-xs font-medium text-foreground">
-              {post.category}
+              {t(post.category)}
             </span>
           </div>
         </div>
@@ -42,7 +44,7 @@ export function PostCard({ post, index = 0 }: { post: Post; index?: number }) {
           <span aria-hidden>·</span>
           <span className="inline-flex items-center gap-1">
             <Clock className="h-3 w-3" />
-            {post.reading_minutes} min read
+            {post.reading_minutes} {t("min read")}
           </span>
         </div>
         <h3 className="mt-1.5 font-display text-xl font-semibold leading-snug group-hover:text-accent transition-colors">
@@ -52,10 +54,11 @@ export function PostCard({ post, index = 0 }: { post: Post; index?: number }) {
           <p className="mt-1.5 line-clamp-2 text-sm text-muted-foreground">{post.excerpt}</p>
         )}
         <span className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-foreground">
-          Read story
-          <ArrowUpRight className="h-3 w-3 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+          {t("Read story")}
+          <ArrowUpRight className="h-3 w-3 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 rtl:scale-x-[-1]" />
         </span>
       </Link>
     </motion.article>
   );
 }
+

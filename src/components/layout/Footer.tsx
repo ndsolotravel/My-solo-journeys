@@ -2,6 +2,8 @@ import { Link } from "@tanstack/react-router";
 import { Instagram, Youtube, Twitter, Linkedin, Facebook } from "lucide-react";
 import { SITE } from "@/lib/site";
 import { NewsletterForm } from "./NewsletterForm";
+import { LanguageSelector } from "./LanguageSelector";
+import { useTranslations } from "@/lib/translate/store";
 import logoPath from "@/assets/ndsolo-travel-logo.png";
 
 function TikTokIcon({ className }: { className?: string }) {
@@ -13,6 +15,7 @@ function TikTokIcon({ className }: { className?: string }) {
 }
 
 export function Footer() {
+  const t = useTranslations();
   const year = new Date().getFullYear();
 
   return (
@@ -28,7 +31,7 @@ export function Footer() {
               />
             </Link>
             <p className="mt-3 max-w-sm text-sm text-secondary-foreground/70">
-              {SITE.description}
+              {t(SITE.description)}
             </p>
             <div className="mt-5 flex gap-3">
               <a
@@ -78,41 +81,44 @@ export function Footer() {
                 <TikTokIcon className="h-4 w-4" />
               </a>
             </div>
+            <div className="mt-6">
+              <LanguageSelector />
+            </div>
           </div>
           <div>
-            <h4 className="text-sm font-semibold uppercase tracking-wider">Explore</h4>
+            <h4 className="text-sm font-semibold uppercase tracking-wider">{t("Explore")}</h4>
             <ul className="mt-4 space-y-2 text-sm text-secondary-foreground/70">
               <li>
                 <Link to="/blog" className="hover:text-accent">
-                  Stories
+                  {t("Stories")}
                 </Link>
               </li>
               <li>
                 <Link to="/destinations" className="hover:text-accent">
-                  Destinations
+                  {t("Destinations")}
                 </Link>
               </li>
               <li>
                 <Link to="/gallery" className="hover:text-accent">
-                  Gallery
+                  {t("Gallery")}
                 </Link>
               </li>
               <li>
                 <Link to="/about" className="hover:text-accent">
-                  About
+                  {t("About")}
                 </Link>
               </li>
               <li>
                 <Link to="/contact" className="hover:text-accent">
-                  Contact
+                  {t("Contact")}
                 </Link>
               </li>
             </ul>
           </div>
           <div>
-            <h4 className="text-sm font-semibold uppercase tracking-wider">Newsletter</h4>
+            <h4 className="text-sm font-semibold uppercase tracking-wider">{t("Newsletter")}</h4>
             <p className="mt-3 text-sm text-secondary-foreground/70">
-              Stories from the road. No spam, ever.
+              {t("Stories from the road. No spam, ever.")}
             </p>
             <div className="mt-4">
               <NewsletterForm dark />
@@ -120,10 +126,11 @@ export function Footer() {
           </div>
         </div>
         <div className="mt-12 flex flex-col gap-3 border-t border-white/10 pt-6 text-xs text-secondary-foreground/60 sm:flex-row sm:items-center sm:justify-between">
-          <p>© {year} {SITE.name}. All stories made on the move.</p>
-          <p>Built for solo travellers, by a solo traveller.</p>
+          <p>© {year} {SITE.name}. {t("All stories made on the move.")}</p>
+          <p>{t("Built for solo travellers, by a solo traveller.")}</p>
         </div>
       </div>
     </footer>
   );
 }
+

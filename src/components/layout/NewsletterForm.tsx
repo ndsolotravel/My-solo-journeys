@@ -2,8 +2,10 @@ import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { subscribe } from "@/lib/newsletter.functions";
 import { toast } from "sonner";
+import { useTranslations } from "@/lib/translate/store";
 
 export function NewsletterForm({ dark = false }: { dark?: boolean }) {
+  const t = useTranslations();
   const subscribeFn = useServerFn(subscribe);
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
@@ -13,10 +15,10 @@ export function NewsletterForm({ dark = false }: { dark?: boolean }) {
     setLoading(true);
     try {
       await subscribeFn({ data: { email } });
-      toast.success("Subscribed. Welcome aboard.");
+      toast.success(t("Subscribed. Welcome aboard."));
       setEmail("");
     } catch {
-      toast.error("Could not subscribe. Try again.");
+      toast.error(t("Could not subscribe. Try again."));
     } finally {
       setLoading(false);
     }
@@ -29,7 +31,7 @@ export function NewsletterForm({ dark = false }: { dark?: boolean }) {
       <input
         type="email"
         required
-        placeholder="you@summit.com"
+        placeholder={t("Enter your email")}
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         className={`${base} ${
@@ -43,8 +45,9 @@ export function NewsletterForm({ dark = false }: { dark?: boolean }) {
         disabled={loading}
         className="rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-accent-foreground hover:opacity-90 transition disabled:opacity-50"
       >
-        {loading ? "…" : "Subscribe"}
+        {loading ? "…" : t("Subscribe")}
       </button>
     </form>
   );
 }
+

@@ -3,10 +3,12 @@ import { useEffect, useState } from "react";
 import { Menu, X, Search, User, LogOut } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import { SearchDialog } from "./SearchDialog";
+import { LanguageSelector } from "./LanguageSelector";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
+import { useTranslations } from "@/lib/translate/store";
 import logoPath from "@/assets/ndsolo-travel-logo.png";
 
 const LINKS = [
@@ -19,6 +21,7 @@ const LINKS = [
 ] as const;
 
 export function Header() {
+  const t = useTranslations();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -43,10 +46,10 @@ export function Header() {
       setSignedIn(false);
       setIsStaff(false);
       setOpen(false);
-      toast.success("Signed out");
+      toast.success(t("Signed out"));
       navigate({ to: "/auth", replace: true });
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Sign out failed");
+      toast.error(e instanceof Error ? e.message : t("Sign out failed"));
     }
   }
 
@@ -139,7 +142,7 @@ export function Header() {
                         : "text-muted-foreground hover:text-[#FF7A00]"
                   }`}
                 >
-                  {l.label}
+                  {t(l.label)}
                   {active && (
                     <span
                       aria-hidden
@@ -153,9 +156,10 @@ export function Header() {
             })}
           </nav>
           <div className="flex items-center gap-2">
+            <LanguageSelector />
             <button
               onClick={() => setSearchOpen(true)}
-              aria-label="Search"
+              aria-label={t("Search")}
               className={`inline-flex h-9 w-9 items-center justify-center rounded-full border transition-colors ${
                 overHero
                   ? "border-white/30 text-white hover:bg-white/10"
@@ -176,12 +180,12 @@ export function Header() {
                     : "border-border hover:border-accent"
                 }`}
               >
-                Admin
+                {t("Admin")}
               </Link>
             )}
             <Link
               to={signedIn ? "/account" : "/auth"}
-              aria-label={signedIn ? "Account" : "Sign in"}
+              aria-label={signedIn ? t("Account") : t("Sign in")}
               className={`hidden sm:inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-medium transition ${
                 overHero
                   ? "bg-white text-foreground hover:bg-white/90"
@@ -189,14 +193,14 @@ export function Header() {
               }`}
             >
               {signedIn ? <User className="h-3.5 w-3.5" /> : null}
-              {signedIn ? "Account" : "Sign in"}
+              {signedIn ? t("Account") : t("Sign in")}
             </Link>
             {signedIn && (
               <button
                 type="button"
                 onClick={handleSignOut}
-                aria-label="Sign out"
-                title="Sign out"
+                aria-label={t("Sign out")}
+                title={t("Sign out")}
                 className={`hidden sm:inline-flex h-9 w-9 items-center justify-center rounded-full border transition-colors ${
                   overHero
                     ? "border-white/30 text-white hover:bg-white/10"
@@ -208,7 +212,7 @@ export function Header() {
             )}
             <button
               onClick={() => setOpen((v) => !v)}
-              aria-label="Menu"
+              aria-label={t("Menu")}
               aria-expanded={open}
               className={`md:hidden inline-flex h-9 w-9 items-center justify-center rounded-full border ${
                 overHero ? "border-white/30 text-white" : "border-border"
@@ -229,18 +233,20 @@ export function Header() {
         />
       )}
       <aside
-        className={`md:hidden fixed top-0 right-0 z-[70] h-dvh w-[82%] max-w-sm bg-background border-l border-border shadow-2xl transition-transform duration-300 ${
-          open ? "translate-x-0" : "translate-x-full"
+        className={`md:hidden fixed top-0 right-0 z-[70] h-dvh w-[82%] max-w-sm bg-background border-l border-border shadow-2xl transition-transform duration-300 rtl:right-auto rtl:left-0 rtl:border-l-0 rtl:border-r ${
+          open
+            ? "translate-x-0"
+            : "translate-x-full rtl:-translate-x-full"
         }`}
         aria-hidden={!open}
       >
         <div className="flex items-center justify-between px-5 py-4 border-b border-border">
           <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-            Menu
+            {t("Menu")}
           </span>
           <button
             onClick={() => setOpen(false)}
-            aria-label="Close menu"
+            aria-label={t("Close menu")}
             className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border"
           >
             <X className="h-4 w-4" />
@@ -266,7 +272,7 @@ export function Header() {
                     : "text-foreground hover:bg-muted hover:text-[#FF7A00]"
                 }`}
               >
-                {l.label}
+                {t(l.label)}
               </Link>
             );
           })}
@@ -279,11 +285,11 @@ export function Header() {
             }}
             className="flex w-full items-center gap-2 rounded-full border border-border px-4 py-2 text-sm hover:bg-muted"
           >
-            <Search className="h-4 w-4" /> Search
+            <Search className="h-4 w-4" /> {t("Search")}
           </button>
           <div className="flex items-center justify-between">
             <span className="text-xs uppercase tracking-wider text-muted-foreground">
-              Theme
+              {t("Theme")}
             </span>
             <ThemeToggle />
           </div>
@@ -293,7 +299,7 @@ export function Header() {
               onClick={() => setOpen(false)}
               className="block w-full rounded-full border border-border px-4 py-2 text-center text-sm font-medium hover:border-accent"
             >
-              Admin
+              {t("Admin")}
             </Link>
           )}
           <Link
@@ -301,7 +307,7 @@ export function Header() {
             onClick={() => setOpen(false)}
             className="block w-full rounded-full bg-foreground px-4 py-2 text-center text-sm font-medium text-background"
           >
-            {signedIn ? "Account" : "Sign in"}
+            {signedIn ? t("Account") : t("Sign in")}
           </Link>
           {signedIn && (
             <button
@@ -309,11 +315,12 @@ export function Header() {
               onClick={handleSignOut}
               className="flex w-full items-center justify-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-medium hover:bg-muted"
             >
-              <LogOut className="h-4 w-4" /> Sign out
+              <LogOut className="h-4 w-4" /> {t("Sign out")}
             </button>
           )}
         </div>
       </aside>
+
 
       <SearchDialog open={searchOpen} onClose={() => setSearchOpen(false)} />
     </>

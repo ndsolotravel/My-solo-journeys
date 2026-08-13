@@ -16,6 +16,7 @@ import appCss from "../styles.css?url";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { supabase } from "@/integrations/supabase/client";
+import { TranslationProvider, useT, LANGUAGES } from "@/lib/translate/store";
 
 function NotFoundComponent() {
   return (
@@ -99,6 +100,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "manifest", href: "/manifest.webmanifest" },
       { rel: "icon", href: "/favicon.png", type: "image/png" },
       { rel: "apple-touch-icon", href: "/favicon.png" },
+      ...LANGUAGES.map((l) => ({
+        rel: "alternate",
+        hrefLang: l.code,
+        href: "https://ndsolotravel.com",
+      })),
+      { rel: "alternate", hrefLang: "x-default", href: "https://ndsolotravel.com" },
     ],
     scripts: [
       {
@@ -150,15 +157,29 @@ function RootComponent() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isHome = pathname === "/";
   return (
-    <QueryClientProvider client={queryClient}>
-      <div className="flex min-h-screen flex-col">
-        <Header />
-        <main className={`flex-1 ${isHome ? "" : "pt-16"}`}>
-          <Outlet />
-        </main>
-        <Footer />
-      </div>
-      <Toaster position="top-center" richColors />
-    </QueryClientProvider>
+    <TranslationProvider>
+      <QueryClientProvider client={queryClient}>
+        <div className="flex min-h-screen flex-col">
+          <Header />
+          <main className={`flex-1 ${isHome ? "" : "pt-16"}`}>
+            <Outlet />
+          </main>
+          <Footer />
+        </div>
+        <Toaster position="top-center" richColors />
+        <TitleTranslator />
+      </QueryClientProvider>
+    </TranslationProvider>
   );
 }
+
+function TitleTranslator() {
+  const title = typeof document === "undefined" ? "" : document.title;
+  const translated = useT(title);
+  useEffect(() => {
+    if (typeof document === "undefined" || !translated || translated === title) return;
+    document.title = translated;
+  }, [translated, title]);
+  return null;
+}
+

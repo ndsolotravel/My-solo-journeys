@@ -6,6 +6,7 @@ import { z } from "zod";
 import { listPosts } from "@/lib/posts.functions";
 import { PostCard } from "@/components/blog/PostCard";
 import { CATEGORIES } from "@/lib/site";
+import { useTranslations } from "@/lib/translate/store";
 
 const searchSchema = z.object({
   category: z.string().optional(),
@@ -45,6 +46,7 @@ export const Route = createFileRoute("/blog/")({
 });
 
 function BlogIndex() {
+  const t = useTranslations();
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
   const { data } = useSuspenseQuery(
@@ -52,6 +54,7 @@ function BlogIndex() {
   );
   const posts = data.posts;
   const [q, setQ] = useState(search.q ?? "");
+
 
   return (
     <>

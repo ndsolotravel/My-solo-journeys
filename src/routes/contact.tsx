@@ -5,6 +5,7 @@ import { Mail, Instagram, Youtube, Facebook, Linkedin } from "lucide-react";
 import { sendContact } from "@/lib/newsletter.functions";
 import { toast } from "sonner";
 import { SITE } from "@/lib/site";
+import { useTranslations } from "@/lib/translate/store";
 
 function TikTokIcon({ className }: { className?: string }) {
   return (
@@ -32,9 +33,11 @@ export const Route = createFileRoute("/contact")({
 });
 
 function ContactPage() {
+  const t = useTranslations();
   const sendFn = useServerFn(sendContact);
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "", website: "" });
   const [loading, setLoading] = useState(false);
+
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
