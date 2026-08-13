@@ -4,19 +4,6 @@
 
 @custom-variant dark (&:is(.dark *));
 
-@font-face {
-  font-family: "Gullying";
-  src: local("Gullying"),
-       local("Gullying Regular"),
-       url("/fonts/Gullying.woff2") format("woff2"),
-       url("/fonts/Gullying.woff") format("woff"),
-       url("/fonts/Gullying.ttf") format("truetype"),
-       url("/fonts/gullying.ttf") format("truetype");
-  font-weight: 400 900;
-  font-style: normal;
-  font-display: swap;
-}
-
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
