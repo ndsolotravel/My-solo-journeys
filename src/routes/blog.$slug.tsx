@@ -10,6 +10,7 @@ import { listComments, postComment, getPostRatingStats } from "@/lib/comments.fu
 import { PostCard } from "@/components/blog/PostCard";
 import { ReadingProgress } from "@/components/blog/ReadingProgress";
 import { toast } from "sonner";
+import { useTranslations } from "@/lib/translate/store";
 
 const postQO = (slug: string) =>
   queryOptions({
@@ -379,6 +380,7 @@ function PostPage() {
 }
 
 function ShareBar({ title }: { title: string }) {
+  const t = useTranslations();
   const [url, setUrl] = useState("");
   useEffect(() => setUrl(window.location.href), []);
   const enc = encodeURIComponent(url);
@@ -386,7 +388,7 @@ function ShareBar({ title }: { title: string }) {
   return (
     <div className="mt-10 flex items-center gap-3 border-y border-border py-4">
       <Share2 className="h-4 w-4 text-muted-foreground" />
-      <span className="text-xs text-muted-foreground">Share</span>
+      <span className="text-xs text-muted-foreground">{t("Share")}</span>
       <a
         href={`https://twitter.com/intent/tweet?url=${enc}&text=${tt}`}
         target="_blank"
@@ -415,11 +417,11 @@ function ShareBar({ title }: { title: string }) {
         type="button"
         onClick={() => {
           navigator.clipboard.writeText(url);
-          toast.success("Link copied");
+          toast.success(t("Link copied"));
         }}
         className="ml-auto text-xs text-muted-foreground hover:text-accent"
       >
-        Copy link
+        {t("Copy link")}
       </button>
     </div>
   );
@@ -472,6 +474,7 @@ function StarPicker({ value, onChange }: { value: number; onChange: (n: number) 
 }
 
 function CommentsSection({ postId }: { postId: string }) {
+  const t = useTranslations();
   const listFn = useServerFn(listComments);
   const postFn = useServerFn(postComment);
   const statsFn = useServerFn(getPostRatingStats);
@@ -507,16 +510,16 @@ function CommentsSection({ postId }: { postId: string }) {
     onSuccess: () => {
       setText("");
       setRating(0);
-      toast.success("Review posted");
+      toast.success(t("Post review"));
       qc.invalidateQueries({ queryKey: ["comments", postId] });
       qc.invalidateQueries({ queryKey: ["rating-stats", postId] });
     },
-    onError: (e: Error) => toast.error(e.message || "Could not post review"),
+    onError: (e: Error) => toast.error(e.message || t("Could not post review")),
   });
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!text.trim()) return toast.error("Please write a review");
+    if (!text.trim()) return toast.error(t("Please write a review"));
     const now = Date.now();
     if (now - submittedAt < 4000) return;
     setSubmittedAt(now);
@@ -526,13 +529,13 @@ function CommentsSection({ postId }: { postId: string }) {
   return (
     <section className="mt-12">
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <h3 className="font-display text-2xl font-bold">Reviews & Comments</h3>
+        <h3 className="font-display text-2xl font-bold">{t("Reviews & Comments")}</h3>
         {stats && stats.count > 0 && (
           <div className="flex items-center gap-3">
             <StarDisplay value={stats.average} size={18} />
             <span className="text-sm text-muted-foreground">
               {stats.average.toFixed(1)} · {stats.count}{" "}
-              {stats.count === 1 ? "rating" : "ratings"}
+              {stats.count === 1 ? t("rating") : t("ratings")}
             </span>
           </div>
         )}
@@ -540,14 +543,14 @@ function CommentsSection({ postId }: { postId: string }) {
 
       <form onSubmit={onSubmit} className="mt-6 rounded-2xl border border-border bg-muted/20 p-5">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <label className="text-sm font-medium">Your rating</label>
+          <label className="text-sm font-medium">{t("Your rating")}</label>
           <StarPicker value={rating} onChange={setRating} />
         </div>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Name (optional)"
+            placeholder={t("Name (optional)")}
             maxLength={80}
             className="rounded-xl border border-border bg-background px-4 py-2.5 text-sm outline-none focus:border-accent"
           />
@@ -555,7 +558,7 @@ function CommentsSection({ postId }: { postId: string }) {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email (optional, not shown)"
+            placeholder={t("Email (optional, not shown)")}
             maxLength={255}
             className="rounded-xl border border-border bg-background px-4 py-2.5 text-sm outline-none focus:border-accent"
           />
@@ -565,7 +568,7 @@ function CommentsSection({ postId }: { postId: string }) {
           onChange={(e) => setText(e.target.value)}
           rows={3}
           maxLength={2000}
-          placeholder="Share your thoughts…"
+          placeholder={t("Share your thoughts…")}
           className="mt-3 w-full rounded-xl border border-border bg-background p-4 text-sm outline-none focus:border-accent"
           required
         />
@@ -582,14 +585,14 @@ function CommentsSection({ postId }: { postId: string }) {
         />
         <div className="mt-3 flex items-center justify-between gap-3">
           <p className="text-xs text-muted-foreground">
-            No account needed. Email is private.
+            {t("No account needed. Email is private.")}
           </p>
           <button
             type="submit"
             disabled={mut.isPending || !text.trim()}
             className="rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background transition hover:opacity-90 disabled:opacity-50"
           >
-            {mut.isPending ? "…" : "Post review"}
+            {mut.isPending ? "…" : t("Post review")}
           </button>
         </div>
       </form>

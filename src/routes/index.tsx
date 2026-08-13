@@ -182,27 +182,27 @@ function HomePage() {
   const stats = [
     {
       icon: Globe2,
-      label: "Countries Visited",
+      label: t("Countries Visited"),
       value: Math.max(countries, 1),
       suffix: "",
       featured: false,
     },
     {
       icon: Bike,
-      label: "Solo Motorcycle Trips",
+      label: t("Solo Motorcycle Trips"),
       value: Math.max(motoCount, 12),
       suffix: "",
       featured: false,
     },
     {
       icon: Camera,
-      label: "Photos Captured",
+      label: t("Photos Captured"),
       value: Math.max(photosCount, 248),
       suffix: "",
       featured: false,
     },
-    { icon: RouteIcon, label: "Kilometres Travelled", value: 18420, suffix: " km", featured: true },
-    { icon: Calendar, label: "Days on the Road", value: 142, suffix: "", featured: false },
+    { icon: RouteIcon, label: t("Kilometres Travelled"), value: 18420, suffix: " km", featured: true },
+    { icon: Calendar, label: t("Days on the Road"), value: 142, suffix: "", featured: false },
   ];
   const journeyRef = useGsapReveal<HTMLDivElement>();
 
@@ -233,7 +233,7 @@ function HomePage() {
             transition={{ duration: 0.6 }}
             className="mt-6 sm:mt-0 inline-flex w-fit items-center rounded-full border border-white/30 bg-white/10 px-4 py-1.5 text-xs uppercase tracking-[0.2em] text-white backdrop-blur"
           >
-            Solo · Slow · Cinematic
+            {t("Solo · Slow · Cinematic")}
           </motion.span>
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
@@ -241,8 +241,8 @@ function HomePage() {
             transition={{ duration: 0.8, delay: 0.1 }}
             className="mt-6 max-w-4xl font-display text-5xl font-bold leading-[1.05] text-white sm:text-6xl lg:text-7xl"
           >
-            Stories from the high places{" "}
-            <span className="text-accent">most people only fly over.</span>
+            {t("Stories from the high places")}{" "}
+            <span className="text-accent">{t("most people only fly over.")}</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 30 }}
@@ -250,7 +250,7 @@ function HomePage() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="mt-5 max-w-2xl text-base text-white/80 sm:text-lg"
           >
-            Solo expeditions, motorcycle journeys and trekking diaries from Pakistan, the Karakoram and the world's wildest borders.
+            {t("Solo expeditions, motorcycle journeys and trekking diaries from Pakistan, the Karakoram and the world's wildest borders.")}
           </motion.p>
 
           {/* Hero search */}
@@ -266,15 +266,15 @@ function HomePage() {
               value={heroQuery}
               onChange={(e) => setHeroQuery(e.target.value)}
               type="search"
-              placeholder="Search stories, trails and destinations"
-              aria-label="Search stories, trails and destinations"
+              placeholder={t("Search stories, trails and destinations")}
+              aria-label={t("Search stories, trails and destinations")}
               className="flex-1 bg-transparent px-2 py-2 text-sm text-white placeholder:text-white/70 outline-none"
             />
             <button
               type="submit"
               className="rounded-full bg-white px-4 py-2 text-xs font-medium text-foreground hover:bg-white/90"
             >
-              Search
+              {t("Search")}
             </button>
           </motion.form>
 
@@ -288,13 +288,13 @@ function HomePage() {
               to="/blog"
               className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-medium text-foreground hover:bg-white/90"
             >
-              Read the stories <ArrowRight className="h-4 w-4" />
+              {t("Read the stories")} <ArrowRight className="h-4 w-4 rtl:rotate-180" />
             </Link>
             <Link
               to="/destinations"
               className="inline-flex items-center gap-2 rounded-full border border-white/30 px-6 py-3 text-sm font-medium text-white hover:bg-white/10"
             >
-              Explore destinations
+              {t("Explore destinations")}
             </Link>
           </motion.div>
         </div>
@@ -309,17 +309,17 @@ function HomePage() {
         <div ref={journeyRef} className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-10 max-w-2xl">
             <p data-reveal="heading" className="text-xs uppercase tracking-[0.2em] text-accent">
-              By the numbers
+              {t("By the numbers")}
             </p>
             <h2
               data-reveal="heading"
               id="journey-numbers-heading"
               className="mt-1 font-display text-3xl font-bold sm:text-4xl"
             >
-              Journey in numbers
+              {t("Journey in numbers")}
             </h2>
             <p data-reveal="heading" className="mt-3 text-sm text-muted-foreground">
-              A quiet tally of countries crossed, trips ridden and photographs made along the way.
+              {t("A quiet tally of countries crossed, trips ridden and photographs made along the way.")}
             </p>
           </div>
 
@@ -351,7 +351,7 @@ function HomePage() {
                 className="jin-card group rounded-2xl border border-border bg-background p-5 hover:border-[#FF7A00]/40"
               >
                 <div className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.2em] text-accent">
-                  <Bike className="h-3 w-3" /> Latest trip
+                  <Bike className="h-3 w-3" /> {t("Latest trip")}
                 </div>
                 <div className="mt-2 line-clamp-2 font-display text-base font-semibold group-hover:text-accent">
                   {latestMoto.title}
@@ -366,7 +366,7 @@ function HomePage() {
                 className="jin-card group rounded-2xl border border-border bg-background p-5 hover:border-[#FF7A00]/40"
               >
                 <div className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.2em] text-accent">
-                  <MapPin className="h-3 w-3" /> Recent destination
+                  <MapPin className="h-3 w-3" /> {t("Recent destination")}
                 </div>
                 <div className="mt-2 line-clamp-2 font-display text-base font-semibold group-hover:text-accent">
                   {latestDest.title}
@@ -380,7 +380,7 @@ function HomePage() {
               className="jin-card group rounded-2xl border border-border bg-background p-5 hover:border-[#FF7A00]/40"
             >
               <div className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.2em] text-accent">
-                <RouteIcon className="h-3 w-3" /> Longest journey
+                <RouteIcon className="h-3 w-3" /> {t("Longest journey")}
               </div>
               <div className="mt-2 font-display text-base font-semibold group-hover:text-accent">
                 Karakoram Highway · 1,840 km
@@ -393,7 +393,7 @@ function HomePage() {
                 className="jin-card group rounded-2xl border border-border bg-background p-5 hover:border-[#FF7A00]/40"
               >
                 <div className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.2em] text-accent">
-                  <Camera className="h-3 w-3" /> Latest photo
+                  <Camera className="h-3 w-3" /> {t("Latest photo")}
                 </div>
                 <div className="mt-2 line-clamp-2 font-display text-base font-semibold group-hover:text-accent">
                   {latestPhotoCaption || "From the gallery"}

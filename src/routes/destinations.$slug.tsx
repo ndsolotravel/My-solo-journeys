@@ -3,6 +3,7 @@ import { queryOptions } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import { getDestinationBySlug } from "@/lib/destinations.functions";
 import { PostCard } from "@/components/blog/PostCard";
+import { useTranslations } from "@/lib/translate/store";
 
 const qo = (slug: string) =>
   queryOptions({
@@ -34,11 +35,12 @@ export const Route = createFileRoute("/destinations/$slug")({
 });
 
 function DestinationNotFound() {
+  const t = useTranslations();
   return (
     <div className="mx-auto max-w-2xl px-4 py-24 text-center">
-      <h1 className="font-display text-3xl font-bold">Destination not found</h1>
+      <h1 className="font-display text-3xl font-bold">{t("Destination not found")}</h1>
       <Link to="/destinations" className="mt-6 inline-flex items-center gap-2 text-sm text-accent">
-        <ArrowLeft className="h-4 w-4" /> All destinations
+        <ArrowLeft className="h-4 w-4 rtl:rotate-180" /> {t("Destinations")}
       </Link>
     </div>
   );
@@ -46,6 +48,7 @@ function DestinationNotFound() {
 
 function DestinationPage() {
   const d = Route.useLoaderData();
+  const t = useTranslations();
   return (
     <article className="min-h-screen">
       <div className="relative h-[60vh] min-h-[420px] w-full overflow-hidden">
@@ -59,7 +62,7 @@ function DestinationPage() {
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-black/80" />
         <div className="absolute inset-x-0 bottom-0 mx-auto max-w-4xl px-4 pb-12 text-white sm:px-6">
           <Link to="/destinations" className="text-xs text-white/80 hover:text-white">
-            <ArrowLeft className="mr-1 inline h-3 w-3" /> Destinations
+            <ArrowLeft className="mr-1 inline h-3 w-3 rtl:rotate-180" /> {t("Destinations")}
           </Link>
           <p className="mt-4 text-xs uppercase tracking-[0.2em] text-accent">
             {d.country}
@@ -78,14 +81,14 @@ function DestinationPage() {
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-accent">
-                Stories & Guides
+                {t("Stories & Guides")}
               </p>
               <h2 className="mt-1 font-display text-3xl font-bold">
-                Explore {d.title}
+                {t("Explore")} {d.title}
               </h2>
             </div>
             <Link to="/blog" className="text-sm font-medium text-accent hover:underline">
-              View all stories →
+              {t("Back to all stories")} →
             </Link>
           </div>
 
@@ -97,9 +100,9 @@ function DestinationPage() {
             </div>
           ) : (
             <div className="mt-8 rounded-2xl border border-border bg-card p-8 text-center text-muted-foreground">
-              <p>No stories published for this destination yet.</p>
+              <p>{t("No stories match that filter yet.")}</p>
               <Link to="/blog" className="mt-4 inline-block text-sm font-medium text-accent hover:underline">
-                Browse all blog posts
+                {t("Back to all stories")}
               </Link>
             </div>
           )}
