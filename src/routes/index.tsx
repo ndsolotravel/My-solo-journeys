@@ -213,7 +213,7 @@ function HomePage() {
   return (
     <div>
       {/* Hero */}
-      <section className="relative h-[100svh] min-h-[580px] overflow-hidden">
+      <section className="relative min-h-[max(100svh,580px)] overflow-hidden">
         <HeroSlider
           slides={[
             {
@@ -230,7 +230,7 @@ function HomePage() {
             },
           ]}
         />
-        <div className="pointer-events-none relative mx-auto flex h-[100svh] min-h-[580px] max-w-7xl flex-col justify-end px-4 pb-10 pt-24 sm:px-6 sm:pb-20 sm:pt-32 lg:px-8">
+        <div className="pointer-events-none relative mx-auto flex min-h-[max(100svh,580px)] max-w-7xl flex-col justify-end px-4 pb-10 pt-24 sm:px-6 sm:pb-20 sm:pt-32 lg:px-8">
           <motion.span
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
