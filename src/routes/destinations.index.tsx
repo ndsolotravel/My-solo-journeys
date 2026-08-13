@@ -158,12 +158,13 @@ function DestinationsPage() {
                       params={{ slug: d.slug }}
                       className="group block"
                     >
-                      <div className="relative aspect-[4/5] overflow-hidden rounded-3xl">
+                      <div className="relative aspect-[16/10] sm:aspect-[4/5] overflow-hidden rounded-3xl">
                         {d.featured_image && (
                           <img
                             src={d.featured_image}
                             alt={d.title}
-                            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                            loading="lazy"
+                            className="h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
                           />
                         )}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/85 to-transparent" />

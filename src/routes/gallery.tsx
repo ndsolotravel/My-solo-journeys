@@ -127,9 +127,9 @@ function GalleryPage() {
                 src={g.image_url}
                 alt={g.caption ?? ""}
                 loading="lazy"
-                className="aspect-[16/9] w-full object-cover transition-transform duration-700 hover:scale-105"
+                className="aspect-[16/10] sm:aspect-auto w-full object-cover object-center transition-transform duration-700 hover:scale-105"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 flex items-end p-4">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
                 {g.caption && (
                   <span className="text-xs font-medium text-white line-clamp-1">{t(g.caption)}</span>
                 )}

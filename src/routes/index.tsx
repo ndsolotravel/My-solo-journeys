@@ -345,20 +345,31 @@ function HomePage() {
             ))}
           </div>
 
-          {/* Compact travel summary */}
+          {/* Compact travel summary — Rich Photo Cards on Mobile & Desktop */}
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {latestMoto && (
               <Link
                 data-reveal="info"
                 to="/blog/$slug"
                 params={{ slug: latestMoto.slug }}
-                className="jin-card group rounded-2xl border border-border bg-background p-5 hover:border-[#FF7A00]/40"
+                className="jin-card group relative block overflow-hidden rounded-2xl border border-border shadow-sm transition-all duration-300 hover:border-[#FF7A00]/50 hover:shadow-md aspect-[16/10] sm:aspect-[4/3] lg:aspect-auto lg:min-h-[160px]"
               >
-                <div className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.2em] text-accent">
-                  <Bike className="h-3 w-3" /> {t("Latest trip")}
-                </div>
-                <div className="mt-2 line-clamp-2 font-display text-base font-semibold group-hover:text-accent">
-                  {latestMoto.title}
+                <img
+                  src={latestMoto.cover_image || "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=800&q=75"}
+                  alt={latestMoto.title}
+                  loading="lazy"
+                  className="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20" />
+                <div className="relative flex h-full flex-col justify-between p-5 text-white">
+                  <div className="inline-flex w-fit items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-[10px] uppercase tracking-[0.2em] text-accent backdrop-blur-md border border-white/10">
+                    <Bike className="h-3 w-3" /> {t("Latest trip")}
+                  </div>
+                  <div className="mt-4">
+                    <h3 className="line-clamp-2 font-display text-base font-semibold text-white group-hover:text-accent transition-colors">
+                      {latestMoto.title}
+                    </h3>
+                  </div>
                 </div>
               </Link>
             )}
@@ -367,13 +378,27 @@ function HomePage() {
                 data-reveal="info"
                 to="/destinations/$slug"
                 params={{ slug: latestDest.slug }}
-                className="jin-card group rounded-2xl border border-border bg-background p-5 hover:border-[#FF7A00]/40"
+                className="jin-card group relative block overflow-hidden rounded-2xl border border-border shadow-sm transition-all duration-300 hover:border-[#FF7A00]/50 hover:shadow-md aspect-[16/10] sm:aspect-[4/3] lg:aspect-auto lg:min-h-[160px]"
               >
-                <div className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.2em] text-accent">
-                  <MapPin className="h-3 w-3" /> {t("Recent destination")}
-                </div>
-                <div className="mt-2 line-clamp-2 font-display text-base font-semibold group-hover:text-accent">
-                  {latestDest.title}
+                <img
+                  src={latestDest.featured_image || "https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=800&q=75"}
+                  alt={latestDest.title}
+                  loading="lazy"
+                  className="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20" />
+                <div className="relative flex h-full flex-col justify-between p-5 text-white">
+                  <div className="inline-flex w-fit items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-[10px] uppercase tracking-[0.2em] text-accent backdrop-blur-md border border-white/10">
+                    <MapPin className="h-3 w-3" /> {t("Recent destination")}
+                  </div>
+                  <div className="mt-4">
+                    <h3 className="line-clamp-2 font-display text-base font-semibold text-white group-hover:text-accent transition-colors">
+                      {latestDest.title}
+                    </h3>
+                    <p className="mt-1 text-xs text-white/70">
+                      {latestDest.country}{latestDest.region ? ` · ${latestDest.region}` : ""}
+                    </p>
+                  </div>
                 </div>
               </Link>
             )}
@@ -381,26 +406,49 @@ function HomePage() {
               data-reveal="info"
               to="/destinations"
               hash="interactive-map"
-              className="jin-card group rounded-2xl border border-border bg-background p-5 hover:border-[#FF7A00]/40"
+              className="jin-card group relative block overflow-hidden rounded-2xl border border-border shadow-sm transition-all duration-300 hover:border-[#FF7A00]/50 hover:shadow-md aspect-[16/10] sm:aspect-[4/3] lg:aspect-auto lg:min-h-[160px]"
             >
-              <div className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.2em] text-accent">
-                <RouteIcon className="h-3 w-3" /> {t("Longest journey")}
-              </div>
-              <div className="mt-2 font-display text-base font-semibold group-hover:text-accent">
-                Karakoram Highway · 1,840 km
+              <img
+                src="https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=800&q=75"
+                alt="Karakoram Highway"
+                loading="lazy"
+                className="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20" />
+              <div className="relative flex h-full flex-col justify-between p-5 text-white">
+                <div className="inline-flex w-fit items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-[10px] uppercase tracking-[0.2em] text-accent backdrop-blur-md border border-white/10">
+                  <RouteIcon className="h-3 w-3" /> {t("Longest journey")}
+                </div>
+                <div className="mt-4">
+                  <h3 className="font-display text-base font-semibold text-white group-hover:text-accent transition-colors">
+                    Karakoram Highway
+                  </h3>
+                  <p className="mt-1 text-xs text-white/70">1,840 km · Solo Motorcycle Route</p>
+                </div>
               </div>
             </Link>
             {latestPhoto && (
               <Link
                 data-reveal="info"
                 to="/gallery"
-                className="jin-card group rounded-2xl border border-border bg-background p-5 hover:border-[#FF7A00]/40"
+                className="jin-card group relative block overflow-hidden rounded-2xl border border-border shadow-sm transition-all duration-300 hover:border-[#FF7A00]/50 hover:shadow-md aspect-[16/10] sm:aspect-[4/3] lg:aspect-auto lg:min-h-[160px]"
               >
-                <div className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.2em] text-accent">
-                  <Camera className="h-3 w-3" /> {t("Latest photo")}
-                </div>
-                <div className="mt-2 line-clamp-2 font-display text-base font-semibold group-hover:text-accent">
-                  {latestPhotoCaption || "From the gallery"}
+                <img
+                  src={latestPhoto.image_url || "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&q=75"}
+                  alt={latestPhotoCaption || "Gallery photo"}
+                  loading="lazy"
+                  className="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20" />
+                <div className="relative flex h-full flex-col justify-between p-5 text-white">
+                  <div className="inline-flex w-fit items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-[10px] uppercase tracking-[0.2em] text-accent backdrop-blur-md border border-white/10">
+                    <Camera className="h-3 w-3" /> {t("Latest photo")}
+                  </div>
+                  <div className="mt-4">
+                    <h3 className="line-clamp-2 font-display text-base font-semibold text-white group-hover:text-accent transition-colors">
+                      {latestPhotoCaption || "From the gallery"}
+                    </h3>
+                  </div>
                 </div>
               </Link>
             )}
@@ -731,12 +779,13 @@ function HomePage() {
                   transition={{ duration: 0.5, delay: i * 0.05 }}
                 >
                   <Link to="/destinations/$slug" params={{ slug: d.slug }} className="group block">
-                    <div className="relative aspect-[3/4] overflow-hidden rounded-2xl">
+                    <div className="relative aspect-[16/10] sm:aspect-[3/4] overflow-hidden rounded-2xl">
                       {d.featured_image && (
                         <img
                           src={d.featured_image}
                           alt={d.title}
-                          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                          loading="lazy"
+                          className="h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
                         />
                       )}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
