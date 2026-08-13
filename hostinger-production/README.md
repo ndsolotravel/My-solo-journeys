@@ -8,8 +8,8 @@ This directory contains the production build deployment package for **NDSOLOTRAV
 - **Node.js Version**: `>= 20.x`
 - **Application Root**: `/` (or domain app root)
 - **Build Command**: `npm run build`
-- **Start Command**: `npm start` (which runs `node server.js`)
-- **Entry Point**: `server.js` or `.output/server/index.mjs`
+- **Start Command**: `npm start` (or `node server.cjs`)
+- **Entry Point**: `server.cjs` or `.output/server/index.mjs`
 
 ## Environment Variables required in Hostinger:
 
