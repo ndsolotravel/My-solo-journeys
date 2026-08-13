@@ -92,7 +92,7 @@ const pageTurnVariants = {
     scale: 1,
     transition: {
       duration: 0.38,
-      ease: [0.16, 1, 0.3, 1],
+      ease: [0.16, 1, 0.3, 1] as const,
     },
   },
   exit: (direction: number) => ({
@@ -101,7 +101,7 @@ const pageTurnVariants = {
     scale: 0.9,
     transition: {
       duration: 0.3,
-      ease: [0.7, 0, 0.84, 0],
+      ease: [0.7, 0, 0.84, 0] as const,
     },
   }),
 };
