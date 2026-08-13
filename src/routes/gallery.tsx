@@ -4,8 +4,6 @@ import { useState, useEffect } from "react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { listGallery } from "@/lib/gallery.functions";
-import { useLocalizedGallery } from "@/lib/translate/useLocalized";
-import { useTranslator } from "@/lib/translate/store";
 
 const qo = queryOptions({ queryKey: ["gallery"], queryFn: () => listGallery() });
 
@@ -54,7 +52,7 @@ const pageTurnVariants = {
 
 function GalleryPage() {
   const { data: rawItems } = useSuspenseQuery(qo);
-  const items = useLocalizedGallery(rawItems);
+  const items = rawItems;
   const [[activeIndex, direction], setActiveState] = useState<[number | null, number]>([null, 0]);
 
   const active = activeIndex !== null ? items[activeIndex] : null;
@@ -80,15 +78,6 @@ function GalleryPage() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [activeIndex, items.length]);
 
-  const t = useTranslator([
-    "Photography",
-    "The light, the cold, the patience.",
-    "A thousand sunrises above 4,000 metres.",
-    "Close",
-    "Previous photo",
-    "Next photo",
-  ]);
-
   return (
     <>
       <section className="relative h-[45vh] min-h-[280px] w-full overflow-hidden">
@@ -100,12 +89,12 @@ function GalleryPage() {
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/70" />
         <div className="absolute inset-0 flex items-end">
           <div className="mx-auto w-full max-w-7xl px-4 pb-10 sm:px-6 lg:px-8">
-            <p className="text-xs uppercase tracking-[0.2em] text-accent">{t("Photography")}</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-accent">Photography</p>
             <h1 className="mt-2 font-display text-4xl font-bold leading-tight text-white sm:text-5xl">
-              {t("The light, the cold, the patience.")}
+              The light, the cold, the patience.
             </h1>
             <p className="mt-3 max-w-xl text-sm text-white/80">
-              {t("A thousand sunrises above 4,000 metres.")}
+              A thousand sunrises above 4,000 metres.
             </p>
           </div>
         </div>
@@ -113,12 +102,12 @@ function GalleryPage() {
 
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <header className="max-w-3xl sr-only">
-          <p className="text-xs uppercase tracking-[0.2em] text-accent">{t("Photography")}</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-accent">Photography</p>
           <h1 className="mt-2 font-display text-4xl font-bold leading-tight sm:text-5xl">
-            {t("The light, the cold, the patience.")}
+            The light, the cold, the patience.
           </h1>
           <p className="mt-4 text-muted-foreground">
-            {t("A thousand sunrises above 4,000 metres.")}
+            A thousand sunrises above 4,000 metres.
           </p>
         </header>
 

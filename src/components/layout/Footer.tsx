@@ -3,25 +3,6 @@ import { Instagram, Youtube, Twitter, Linkedin, Facebook } from "lucide-react";
 import { SITE } from "@/lib/site";
 import { NewsletterForm } from "./NewsletterForm";
 import logoPath from "@/assets/ndsolo-travel-logo.png";
-import { useMemo } from "react";
-import { useTranslator } from "@/lib/translate/store";
-
-const FOOTER_TEXTS = [
-  "Explore",
-  "Stories",
-  "Destinations",
-  "Gallery",
-  "About",
-  "Contact",
-  "Newsletter",
-  "Stories from the road. No spam, ever.",
-  "Instagram",
-  "YouTube",
-  "X",
-  "Facebook",
-  "LinkedIn",
-  "TikTok",
-] as const;
 
 function TikTokIcon({ className }: { className?: string }) {
   return (
@@ -32,17 +13,7 @@ function TikTokIcon({ className }: { className?: string }) {
 }
 
 export function Footer() {
-  const footerTexts = useMemo(() => [...FOOTER_TEXTS], []);
-  const t = useTranslator(footerTexts);
   const year = new Date().getFullYear();
-  const bottomTexts = useMemo(
-    () => [
-      `© ${year} ${SITE.name}. All stories made on the move.`,
-      "Built for solo travellers, by a solo traveller.",
-    ],
-    [year],
-  );
-  const bottomT = useTranslator(bottomTexts);
 
   return (
     <footer className="mt-24 border-t border-border bg-secondary text-secondary-foreground">
@@ -57,12 +28,12 @@ export function Footer() {
               />
             </Link>
             <p className="mt-3 max-w-sm text-sm text-secondary-foreground/70">
-              {t(SITE.description)}
+              {SITE.description}
             </p>
             <div className="mt-5 flex gap-3">
               <a
                 href={SITE.socials.instagram}
-                aria-label={t("Instagram")}
+                aria-label="Instagram"
                 className="inline-flex h-9 w-9 items-center justify-center rounded-full text-white transition-transform duration-200 hover:scale-110"
                 style={{
                   background:
@@ -73,35 +44,35 @@ export function Footer() {
               </a>
               <a
                 href={SITE.socials.youtube}
-                aria-label={t("YouTube")}
+                aria-label="YouTube"
                 className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#FF0000] text-white transition-transform duration-200 hover:scale-110"
               >
                 <Youtube className="h-4 w-4" />
               </a>
               <a
                 href={SITE.socials.twitter}
-                aria-label={t("X")}
+                aria-label="X"
                 className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-black text-white transition-transform duration-200 hover:scale-110"
               >
                 <Twitter className="h-4 w-4" />
               </a>
               <a
                 href={SITE.socials.facebook}
-                aria-label={t("Facebook")}
+                aria-label="Facebook"
                 className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#1877F2] text-white transition-transform duration-200 hover:scale-110"
               >
                 <Facebook className="h-4 w-4" />
               </a>
               <a
                 href={SITE.socials.linkedin}
-                aria-label={t("LinkedIn")}
+                aria-label="LinkedIn"
                 className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#0A66C2] text-white transition-transform duration-200 hover:scale-110"
               >
                 <Linkedin className="h-4 w-4" />
               </a>
               <a
                 href={SITE.socials.tiktok}
-                aria-label={t("TikTok")}
+                aria-label="TikTok"
                 className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-black text-white transition-transform duration-200 hover:scale-110"
               >
                 <TikTokIcon className="h-4 w-4" />
@@ -109,39 +80,39 @@ export function Footer() {
             </div>
           </div>
           <div>
-            <h4 className="text-sm font-semibold uppercase tracking-wider">{t("Explore")}</h4>
+            <h4 className="text-sm font-semibold uppercase tracking-wider">Explore</h4>
             <ul className="mt-4 space-y-2 text-sm text-secondary-foreground/70">
               <li>
                 <Link to="/blog" className="hover:text-accent">
-                  {t("Stories")}
+                  Stories
                 </Link>
               </li>
               <li>
                 <Link to="/destinations" className="hover:text-accent">
-                  {t("Destinations")}
+                  Destinations
                 </Link>
               </li>
               <li>
                 <Link to="/gallery" className="hover:text-accent">
-                  {t("Gallery")}
+                  Gallery
                 </Link>
               </li>
               <li>
                 <Link to="/about" className="hover:text-accent">
-                  {t("About")}
+                  About
                 </Link>
               </li>
               <li>
                 <Link to="/contact" className="hover:text-accent">
-                  {t("Contact")}
+                  Contact
                 </Link>
               </li>
             </ul>
           </div>
           <div>
-            <h4 className="text-sm font-semibold uppercase tracking-wider">{t("Newsletter")}</h4>
+            <h4 className="text-sm font-semibold uppercase tracking-wider">Newsletter</h4>
             <p className="mt-3 text-sm text-secondary-foreground/70">
-              {t("Stories from the road. No spam, ever.")}
+              Stories from the road. No spam, ever.
             </p>
             <div className="mt-4">
               <NewsletterForm dark />
@@ -149,8 +120,8 @@ export function Footer() {
           </div>
         </div>
         <div className="mt-12 flex flex-col gap-3 border-t border-white/10 pt-6 text-xs text-secondary-foreground/60 sm:flex-row sm:items-center sm:justify-between">
-          <p>{bottomT(bottomTexts[0])}</p>
-          <p>{bottomT(bottomTexts[1])}</p>
+          <p>© {year} {SITE.name}. All stories made on the move.</p>
+          <p>Built for solo travellers, by a solo traveller.</p>
         </div>
       </div>
     </footer>

@@ -29,11 +29,6 @@ import { PostCardSkeleton, DestinationCardSkeleton } from "../components/blog/Sk
 import { NewsletterForm } from "../components/layout/NewsletterForm";
 import { HeroSlider } from "../components/layout/HeroSlider";
 import { CATEGORIES } from "../lib/site";
-import { useLocalizedPosts } from "@/lib/translate/useLocalized";
-import { useLocalizedDestinations } from "@/lib/translate/useLocalized";
-import { useLocalizedGallery } from "@/lib/translate/useLocalized";
-import { useLocalizedText } from "@/lib/translate/useLocalized";
-import { useTranslator } from "@/lib/translate/store";
 import { useActiveVisitors } from "@/hooks/use-active-visitors";
 
 const postsQO = queryOptions({
@@ -145,94 +140,19 @@ function HomePage() {
   const { data: galleryData } = useSuspenseQuery(galleryQO);
   const { data: motoData } = useSuspenseQuery(motoQO);
 
-  const featuredList = useLocalizedPosts(featuredData.posts);
-  const latest = useLocalizedPosts(postsData.posts);
-  const popularPosts = useLocalizedPosts(popular.data?.posts ?? []);
-  const guidePosts = useLocalizedPosts(guides.data?.posts ?? []);
-  const destinations = useLocalizedDestinations(destinationsData);
-  const gallery = useLocalizedGallery(galleryData ?? []);
+  const featuredList = featuredData.posts;
+  const latest = postsData.posts;
+  const popularPosts = popular.data?.posts ?? [];
+  const guidePosts = guides.data?.posts ?? [];
+  const destinations = destinationsData;
+  const gallery = galleryData ?? [];
 
   const featured = featuredList[0] ?? featuredData.posts[0];
-  const motoPosts = useLocalizedPosts(motoData?.posts ?? []);
+  const motoPosts = motoData?.posts ?? [];
   const latestMoto = motoPosts[0] ?? null;
   const latestDest = destinations[0];
   const latestPhoto = gallery[0] ?? (galleryData ?? [])[0];
-  const latestPhotoCaption = useLocalizedText(latestPhoto?.caption ?? null);
-
-  const t = useTranslator([
-    "Solo · Slow · Cinematic",
-    "Stories from the high places ",
-    "most people only fly over.",
-    "Solo expeditions, motorcycle journeys and trekking diaries from Pakistan, the Karakoram and the world's wildest borders.",
-    "Search stories, trails and destinations",
-    "Search",
-    "Read the stories",
-    "Explore destinations",
-    "By the numbers",
-    "Journey in numbers",
-    "A quiet tally of countries crossed, trips ridden and photographs made along the way.",
-    "Countries Visited",
-    "Solo Motorcycle Trips",
-    "Photos Captured",
-    "Kilometres Travelled",
-    " km",
-    "Days on the Road",
-    "Latest trip",
-    "Recent destination",
-    "Longest journey",
-    "Karakoram Highway · 1,840 km",
-    "Latest photo",
-    "From the gallery",
-    "Get the next dispatch",
-    "One email when a new expedition story drops. No spam, no algorithm noise.",
-    "All stories →",
-    "All destinations →",
-    "View all →",
-    "All guides →",
-    "Featured",
-    "The latest expedition",
-    "Browse by category",
-    "What others are reading",
-    "Popular this month",
-    "From the road",
-    "Latest stories",
-    "Plan your trip",
-    "Travel guides",
-    "Practical, no-fluff guides to logistics, gear, costs and the small details that make a trip work.",
-    "Start here",
-    "Start your journey",
-    "Three places to begin — pick the journey that pulls you in.",
-    "Where the road runs out.",
-    "Honest country guides, trekking routes and the maps I wish I'd had before I left.",
-    "Explore",
-    "Discover visited destinations, motorcycle routes and stories from the road.",
-    "Map View",
-    "Grid View",
-    "Sponsored",
-    "Advertisement",
-    "Live Traffic Analytics",
-    "Website Hit Counter & Analytics",
-    "Real-time reader activity, page hits, and engagement across stories and field guides.",
-    "Updated real-time · 99.9% uptime",
-    "Total Page Hits",
-    "+1,240 page views this week",
-    "Unique Readers",
-    "Across 64 countries",
-    "Stories Read",
-    "Avg. reading time: 4.8 min",
-    "Live Now",
-    "active readers",
-    "Reading stories right now",
-    "Solo Travel",
-    "Motorcycle Journeys",
-    "Trekking Guides",
-    "Diaries, lessons and practical notes from travelling alone — the slow way.",
-    "Karakoram, Deosai and beyond — long rides, route notes and machine prep.",
-    "Step-by-step trekking guides, gear, altitude advice and trip planning.",
-    "Featured destinations",
-    "min read",
-    "Read the full story",
-  ]);
+  const latestPhotoCaption = latestPhoto?.caption || latestPhoto?.title || "";
   const [heroQuery, setHeroQuery] = useState("");
   const navigate = useNavigate();
 
@@ -313,7 +233,7 @@ function HomePage() {
             transition={{ duration: 0.6 }}
             className="mt-6 sm:mt-0 inline-flex w-fit items-center rounded-full border border-white/30 bg-white/10 px-4 py-1.5 text-xs uppercase tracking-[0.2em] text-white backdrop-blur"
           >
-            {t("Solo · Slow · Cinematic")}
+            Solo · Slow · Cinematic
           </motion.span>
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
@@ -321,8 +241,8 @@ function HomePage() {
             transition={{ duration: 0.8, delay: 0.1 }}
             className="mt-6 max-w-4xl font-display text-5xl font-bold leading-[1.05] text-white sm:text-6xl lg:text-7xl"
           >
-            {t("Stories from the high places ")}
-            <span className="text-accent">{t("most people only fly over.")}</span>
+            Stories from the high places{" "}
+            <span className="text-accent">most people only fly over.</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 30 }}
@@ -330,9 +250,7 @@ function HomePage() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="mt-5 max-w-2xl text-base text-white/80 sm:text-lg"
           >
-            {t(
-              "Solo expeditions, motorcycle journeys and trekking diaries from Pakistan, the Karakoram and the world's wildest borders.",
-            )}
+            Solo expeditions, motorcycle journeys and trekking diaries from Pakistan, the Karakoram and the world's wildest borders.
           </motion.p>
 
           {/* Hero search */}
@@ -348,15 +266,15 @@ function HomePage() {
               value={heroQuery}
               onChange={(e) => setHeroQuery(e.target.value)}
               type="search"
-              placeholder={t("Search stories, trails and destinations")}
-              aria-label={t("Search stories, trails and destinations")}
+              placeholder="Search stories, trails and destinations"
+              aria-label="Search stories, trails and destinations"
               className="flex-1 bg-transparent px-2 py-2 text-sm text-white placeholder:text-white/70 outline-none"
             />
             <button
               type="submit"
               className="rounded-full bg-white px-4 py-2 text-xs font-medium text-foreground hover:bg-white/90"
             >
-              {t("Search")}
+              Search
             </button>
           </motion.form>
 
@@ -370,13 +288,13 @@ function HomePage() {
               to="/blog"
               className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-medium text-foreground hover:bg-white/90"
             >
-              {t("Read the stories")} <ArrowRight className="h-4 w-4" />
+              Read the stories <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
               to="/destinations"
               className="inline-flex items-center gap-2 rounded-full border border-white/30 px-6 py-3 text-sm font-medium text-white hover:bg-white/10"
             >
-              {t("Explore destinations")}
+              Explore destinations
             </Link>
           </motion.div>
         </div>
@@ -391,19 +309,17 @@ function HomePage() {
         <div ref={journeyRef} className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-10 max-w-2xl">
             <p data-reveal="heading" className="text-xs uppercase tracking-[0.2em] text-accent">
-              {t("By the numbers")}
+              By the numbers
             </p>
             <h2
               data-reveal="heading"
               id="journey-numbers-heading"
               className="mt-1 font-display text-3xl font-bold sm:text-4xl"
             >
-              {t("Journey in numbers")}
+              Journey in numbers
             </h2>
             <p data-reveal="heading" className="mt-3 text-sm text-muted-foreground">
-              {t(
-                "A quiet tally of countries crossed, trips ridden and photographs made along the way.",
-              )}
+              A quiet tally of countries crossed, trips ridden and photographs made along the way.
             </p>
           </div>
 
@@ -418,9 +334,9 @@ function HomePage() {
                   <s.icon className="h-4 w-4" />
                 </div>
                 <div className="mt-4 font-display text-2xl font-bold sm:text-3xl">
-                  <CountUp end={s.value} suffix={s.suffix ? t(s.suffix) : undefined} />
+                  <CountUp end={s.value} suffix={s.suffix} />
                 </div>
-                <div className="mt-1 text-xs text-muted-foreground">{t(s.label)}</div>
+                <div className="mt-1 text-xs text-muted-foreground">{s.label}</div>
               </div>
             ))}
           </div>
@@ -435,7 +351,7 @@ function HomePage() {
                 className="jin-card group rounded-2xl border border-border bg-background p-5 hover:border-[#FF7A00]/40"
               >
                 <div className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.2em] text-accent">
-                  <Bike className="h-3 w-3" /> {t("Latest trip")}
+                  <Bike className="h-3 w-3" /> Latest trip
                 </div>
                 <div className="mt-2 line-clamp-2 font-display text-base font-semibold group-hover:text-accent">
                   {latestMoto.title}
@@ -450,7 +366,7 @@ function HomePage() {
                 className="jin-card group rounded-2xl border border-border bg-background p-5 hover:border-[#FF7A00]/40"
               >
                 <div className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.2em] text-accent">
-                  <MapPin className="h-3 w-3" /> {t("Recent destination")}
+                  <MapPin className="h-3 w-3" /> Recent destination
                 </div>
                 <div className="mt-2 line-clamp-2 font-display text-base font-semibold group-hover:text-accent">
                   {latestDest.title}
@@ -464,10 +380,10 @@ function HomePage() {
               className="jin-card group rounded-2xl border border-border bg-background p-5 hover:border-[#FF7A00]/40"
             >
               <div className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.2em] text-accent">
-                <RouteIcon className="h-3 w-3" /> {t("Longest journey")}
+                <RouteIcon className="h-3 w-3" /> Longest journey
               </div>
               <div className="mt-2 font-display text-base font-semibold group-hover:text-accent">
-                {t("Karakoram Highway · 1,840 km")}
+                Karakoram Highway · 1,840 km
               </div>
             </Link>
             {latestPhoto && (
@@ -477,10 +393,10 @@ function HomePage() {
                 className="jin-card group rounded-2xl border border-border bg-background p-5 hover:border-[#FF7A00]/40"
               >
                 <div className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.2em] text-accent">
-                  <Camera className="h-3 w-3" /> {t("Latest photo")}
+                  <Camera className="h-3 w-3" /> Latest photo
                 </div>
                 <div className="mt-2 line-clamp-2 font-display text-base font-semibold group-hover:text-accent">
-                  {latestPhotoCaption || t("From the gallery")}
+                  {latestPhotoCaption || "From the gallery"}
                 </div>
               </Link>
             )}
@@ -502,23 +418,21 @@ function HomePage() {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
                 </span>
-                {t("Live Traffic Analytics")}
+                Live Traffic Analytics
               </div>
               <h2
                 id="hit-counter-heading"
                 className="font-display text-3xl font-bold tracking-tight sm:text-4xl"
               >
-                {t("Website Hit Counter & Analytics")}
+                Website Hit Counter & Analytics
               </h2>
               <p className="mt-2.5 max-w-xl text-sm text-muted-foreground">
-                {t(
-                  "Real-time reader activity, page hits, and engagement across stories and field guides.",
-                )}
+                Real-time reader activity, page hits, and engagement across stories and field guides.
               </p>
             </div>
             <div className="flex w-fit items-center gap-2 rounded-full border border-border bg-background/70 px-4 py-2.5 text-xs text-muted-foreground backdrop-blur-sm">
               <span className="h-2 w-2 rounded-full bg-emerald-500" />
-              {t("Updated real-time · 99.9% uptime")}
+              Updated real-time · 99.9% uptime
             </div>
           </div>
 
@@ -527,7 +441,7 @@ function HomePage() {
             <div className="group rounded-2xl border border-border/80 bg-background p-5 shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-md">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  {t("Total Page Hits")}
+                  Total Page Hits
                 </span>
                 <div className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-accent/10 text-accent transition-transform group-hover:scale-110">
                   <Eye className="h-4 w-4" />
@@ -537,7 +451,7 @@ function HomePage() {
                 <CountUp end={48290} suffix="+" />
               </div>
               <p className="mt-1 text-[11px] text-muted-foreground">
-                {t("+1,240 page views this week")}
+                +1,240 page views this week
               </p>
             </div>
 
@@ -545,7 +459,7 @@ function HomePage() {
             <div className="group rounded-2xl border border-border/80 bg-background p-5 shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-md">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  {t("Unique Readers")}
+                  Unique Readers
                 </span>
                 <div className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-accent/10 text-accent transition-transform group-hover:scale-110">
                   <Users className="h-4 w-4" />
@@ -554,14 +468,14 @@ function HomePage() {
               <div className="mt-3 font-display text-3xl font-bold">
                 <CountUp end={18450} suffix="+" />
               </div>
-              <p className="mt-1 text-[11px] text-muted-foreground">{t("Across 64 countries")}</p>
+              <p className="mt-1 text-[11px] text-muted-foreground">Across 64 countries</p>
             </div>
 
             {/* Stories Read */}
             <div className="group rounded-2xl border border-border/80 bg-background p-5 shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-md">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  {t("Stories Read")}
+                  Stories Read
                 </span>
                 <div className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-accent/10 text-accent transition-transform group-hover:scale-110">
                   <BookOpen className="h-4 w-4" />
@@ -571,7 +485,7 @@ function HomePage() {
                 <CountUp end={34120} suffix="+" />
               </div>
               <p className="mt-1 text-[11px] text-muted-foreground">
-                {t("Avg. reading time: 4.8 min")}
+                Avg. reading time: 4.8 min
               </p>
             </div>
 
@@ -579,7 +493,7 @@ function HomePage() {
             <div className="group rounded-2xl border border-border/80 bg-background p-5 shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-md">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  {t("Live Now")}
+                  Live Now
                 </span>
                 <div className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 transition-transform group-hover:scale-110 dark:text-emerald-400">
                   <Activity className="h-4 w-4" />
@@ -588,12 +502,12 @@ function HomePage() {
               <div className="mt-3 flex items-baseline gap-2 font-display text-3xl font-bold text-emerald-600 dark:text-emerald-400">
                 <LiveNowNumber />
                 <span className="text-xs font-normal text-muted-foreground">
-                  {t("active readers")}
+                  active readers
                 </span>
               </div>
               <p className="mt-1 flex items-center gap-1.5 text-[11px] text-muted-foreground">
                 <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
-                {t("Reading stories right now")}
+                Reading stories right now
               </p>
             </div>
           </div>
@@ -603,12 +517,12 @@ function HomePage() {
       {/* Start Your Journey */}
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
         <div className="mb-10 max-w-2xl">
-          <p className="text-xs uppercase tracking-[0.2em] text-accent">{t("Start here")}</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-accent">Start here</p>
           <h2 className="mt-1 font-display text-3xl font-bold sm:text-4xl">
-            {t("Start your journey")}
+            Start your journey
           </h2>
           <p className="mt-3 text-sm text-muted-foreground">
-            {t("Three places to begin — pick the journey that pulls you in.")}
+            Three places to begin — pick the journey that pulls you in.
           </p>
         </div>
         <div className="grid gap-6 md:grid-cols-3">
@@ -632,10 +546,10 @@ function HomePage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 p-6 text-white">
                   <Icon className="h-5 w-5 text-accent" />
-                  <h3 className="mt-3 font-display text-2xl font-semibold">{t(c.title)}</h3>
-                  <p className="mt-2 text-sm text-white/80">{t(c.body)}</p>
+                  <h3 className="mt-3 font-display text-2xl font-semibold">{c.title}</h3>
+                  <p className="mt-2 text-sm text-white/80">{c.body}</p>
                   <span className="mt-4 inline-flex items-center gap-1 text-xs font-medium">
-                    {t("Explore")}
+                    Explore
                     <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
                   </span>
                 </div>
@@ -650,13 +564,13 @@ function HomePage() {
         <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
           <div className="mb-8 flex items-end justify-between gap-4">
             <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-accent">{t("Featured")}</p>
+              <p className="text-xs uppercase tracking-[0.2em] text-accent">Featured</p>
               <h2 className="mt-1 font-display text-3xl font-bold sm:text-4xl">
-                {t("The latest expedition")}
+                The latest expedition
               </h2>
             </div>
             <Link to="/blog" className="text-sm text-muted-foreground hover:text-foreground">
-              {t("All stories →")}
+              All stories →
             </Link>
           </div>
           <Link
@@ -675,14 +589,14 @@ function HomePage() {
             </div>
             <div className="flex flex-col justify-center">
               <span className="text-xs font-medium uppercase tracking-wider text-accent">
-                {featured.category} · {featured.reading_minutes} {t("min read")}
+                {featured.category} · {featured.reading_minutes} min read
               </span>
               <h3 className="mt-3 font-display text-3xl font-bold leading-tight sm:text-4xl group-hover:text-accent transition-colors">
                 {featured.title}
               </h3>
               <p className="mt-4 text-base text-muted-foreground">{featured.excerpt}</p>
               <span className="mt-6 inline-flex items-center gap-2 text-sm font-medium">
-                {t("Read the full story")}
+                Read the full story
                 <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
               </span>
             </div>
@@ -693,7 +607,7 @@ function HomePage() {
       {/* Categories */}
       <section className="border-y border-border bg-muted/30 py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="font-display text-2xl font-bold sm:text-3xl">{t("Browse by category")}</h2>
+          <h2 className="font-display text-2xl font-bold sm:text-3xl">Browse by category</h2>
           <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
             {CATEGORIES.slice(0, 12).map((c) => {
               const Icon = CAT_ICONS[c] ?? Compass;
@@ -705,7 +619,7 @@ function HomePage() {
                   className="group flex items-center gap-2 rounded-full border border-border bg-background px-4 py-3 text-xs font-medium hover:border-accent hover:text-accent transition"
                 >
                   <Icon className="h-4 w-4" />
-                  <span className="truncate">{t(c)}</span>
+                  <span className="truncate">{c}</span>
                 </Link>
               );
             })}
@@ -718,14 +632,14 @@ function HomePage() {
         <div className="mb-10 flex items-end justify-between">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-accent">
-              {t("What others are reading")}
+              What others are reading
             </p>
             <h2 className="mt-1 font-display text-3xl font-bold sm:text-4xl">
-              {t("Popular this month")}
+              Popular this month
             </h2>
           </div>
           <Link to="/blog" className="text-sm text-muted-foreground hover:text-foreground">
-            {t("All stories →")}
+            All stories →
           </Link>
         </div>
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
@@ -739,13 +653,13 @@ function HomePage() {
       <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
         <div className="mb-10 flex items-end justify-between">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-accent">{t("From the road")}</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-accent">From the road</p>
             <h2 className="mt-1 font-display text-3xl font-bold sm:text-4xl">
-              {t("Latest stories")}
+              Latest stories
             </h2>
           </div>
           <Link to="/blog" className="text-sm text-muted-foreground hover:text-foreground">
-            {t("View all →")}
+            View all →
           </Link>
         </div>
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
@@ -761,15 +675,13 @@ function HomePage() {
           <div className="mb-10 flex items-end justify-between gap-4">
             <div>
               <p className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-accent">
-                <BookOpen className="h-3.5 w-3.5" /> {t("Plan your trip")}
+                <BookOpen className="h-3.5 w-3.5" /> Plan your trip
               </p>
               <h2 className="mt-1 font-display text-3xl font-bold sm:text-4xl">
-                {t("Travel guides")}
+                Travel guides
               </h2>
               <p className="mt-2 max-w-xl text-sm text-muted-foreground">
-                {t(
-                  "Practical, no-fluff guides to logistics, gear, costs and the small details that make a trip work.",
-                )}
+                Practical, no-fluff guides to logistics, gear, costs and the small details that make a trip work.
               </p>
             </div>
             <Link
@@ -777,7 +689,7 @@ function HomePage() {
               search={{ category: "Travel Tips" } as any}
               className="text-sm text-muted-foreground hover:text-foreground"
             >
-              {t("All guides →")}
+              All guides →
             </Link>
           </div>
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
@@ -793,14 +705,14 @@ function HomePage() {
         <div className="mb-10 flex items-end justify-between">
           <div>
             <p className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-accent">
-              <MapIcon className="h-3.5 w-3.5" /> {t("Where")}
+              <MapIcon className="h-3.5 w-3.5" /> Where
             </p>
             <h2 className="mt-1 font-display text-3xl font-bold sm:text-4xl">
-              {t("Featured destinations")}
+              Featured destinations
             </h2>
           </div>
           <Link to="/destinations" className="text-sm text-muted-foreground hover:text-foreground">
-            {t("All destinations →")}
+            All destinations →
           </Link>
         </div>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -841,10 +753,10 @@ function HomePage() {
       {/* Newsletter */}
       <section className="mx-auto max-w-3xl px-4 pb-24 pt-8 text-center sm:px-6">
         <h2 className="font-display text-3xl font-bold sm:text-4xl">
-          {t("Get the next dispatch")}
+          Get the next dispatch
         </h2>
         <p className="mt-3 text-muted-foreground">
-          {t("One email when a new expedition story drops. No spam, no algorithm noise.")}
+          One email when a new expedition story drops. No spam, no algorithm noise.
         </p>
         <div className="mx-auto mt-6 max-w-md">
           <NewsletterForm />

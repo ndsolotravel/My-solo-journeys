@@ -4,8 +4,6 @@ import { motion } from "framer-motion";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { Map as MapIcon, LayoutGrid } from "lucide-react";
 import { listDestinations } from "../lib/destinations.functions";
-import { useLocalizedDestinations } from "@/lib/translate/useLocalized";
-import { useTranslator } from "@/lib/translate/store";
 import { AdSlot } from "@/components/ads/AdSlot";
 
 const DestinationsMap = lazy(() =>
@@ -38,20 +36,8 @@ export const Route = createFileRoute("/destinations/")({
 
 function DestinationsPage() {
   const { data: destinationsData } = useSuspenseQuery(destQO);
-  const destinations = useLocalizedDestinations(destinationsData);
+  const destinations = destinationsData;
   const [view, setView] = useState<"map" | "grid">("grid");
-
-  const t = useTranslator([
-    "Destinations",
-    "Where the road runs out.",
-    "Honest country guides, trekking routes and the maps I wish I'd had before I left.",
-    "Explore",
-    "Discover visited destinations, motorcycle routes and stories from the road.",
-    "Map View",
-    "Grid View",
-    "Sponsored",
-    "Advertisement",
-  ]);
 
   // Smooth-scroll to the interactive map anchor when arriving with that hash.
   useEffect(() => {

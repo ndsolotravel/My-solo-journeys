@@ -9,8 +9,6 @@ import { getPostBySlug } from "@/lib/posts.functions";
 import { listComments, postComment, getPostRatingStats } from "@/lib/comments.functions";
 import { PostCard } from "@/components/blog/PostCard";
 import { ReadingProgress } from "@/components/blog/ReadingProgress";
-import { useLocalizedPosts } from "@/lib/translate/useLocalized";
-import { useTranslator } from "@/lib/translate/store";
 import { toast } from "sonner";
 
 const postQO = (slug: string) =>
@@ -68,19 +66,14 @@ export const Route = createFileRoute("/blog/$slug")({
 });
 
 function PostNotFound() {
-  const t = useTranslator([
-    "Story not found",
-    "This trail has been moved or doesn't exist.",
-    "Back to all stories",
-  ]);
   return (
     <div className="mx-auto max-w-2xl px-4 py-24 text-center">
-      <h1 className="font-display text-3xl font-bold">{t("Story not found")}</h1>
+      <h1 className="font-display text-3xl font-bold">Story not found</h1>
       <p className="mt-2 text-muted-foreground">
-        {t("This trail has been moved or doesn't exist.")}
+        This trail has been moved or doesn't exist.
       </p>
       <Link to="/blog" className="mt-6 inline-flex items-center gap-2 text-sm text-accent">
-        <ArrowLeft className="h-4 w-4" /> {t("Back to all stories")}
+        <ArrowLeft className="h-4 w-4" /> Back to all stories
       </Link>
     </div>
   );
@@ -115,8 +108,8 @@ const pageTurnVariants = {
 function PostPage() {
   const { post, related } = Route.useLoaderData();
 
-  const localizedPost = useLocalizedPosts(post ? [post] : [], { includeContent: true })[0] ?? post;
-  const localizedRelated = useLocalizedPosts(related);
+  const localizedPost = post;
+  const localizedRelated = related;
 
   const [[activeImageIndex, direction], setActiveImageState] = useState<[number | null, number]>([null, 0]);
 
@@ -143,41 +136,6 @@ function PostPage() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [activeImageIndex, gallery.length]);
-
-  const t = useTranslator([
-    "Stories",
-    "min read",
-    "Keep reading",
-    "Story not found",
-    "This trail has been moved or doesn't exist.",
-    "Back to all stories",
-    "Reviews & Comments",
-    "rating",
-    "ratings",
-    "Your rating",
-    "Name (optional)",
-    "Email (optional, not shown)",
-    "Share your thoughts…",
-    "No account needed. Email is private.",
-    "Post review",
-    "Posting…",
-    "Be the first to leave a review.",
-    "Could not post review",
-    "Please write a review",
-    "Share",
-    "Facebook",
-    "LinkedIn",
-    "Copy link",
-    "Link copied",
-    "Reviews & Comments",
-    "Your rating",
-    "Rating",
-    "Review posted",
-    "Traveller",
-    "Photo Gallery",
-    "Traveled on",
-    "Destination",
-  ]);
 
   if (!post) return null;
 
@@ -217,7 +175,7 @@ function PostPage() {
               to="/blog"
               className="inline-flex items-center gap-2 text-xs text-white/80 hover:text-white"
             >
-              <ArrowLeft className="h-3 w-3" /> {t("Stories")}
+              <ArrowLeft className="h-3 w-3" /> Stories
             </Link>
             {dest && (
               <Link
@@ -242,13 +200,13 @@ function PostPage() {
               <>
                 <span aria-hidden>·</span>
                 <span className="inline-flex items-center gap-1 text-amber-200">
-                  <Calendar className="h-3 w-3" /> {t("Traveled on")} {formattedTravelDate}
+                  <Calendar className="h-3 w-3" /> Traveled on {formattedTravelDate}
                 </span>
               </>
             )}
             <span aria-hidden>·</span>
             <span className="inline-flex items-center gap-1">
-              <Clock className="h-3 w-3" /> {post.reading_minutes} {t("min read")}
+              <Clock className="h-3 w-3" /> {post.reading_minutes} min read
             </span>
           </div>
         </div>
@@ -269,7 +227,7 @@ function PostPage() {
         {gallery.length > 0 && (
           <section className="mt-14 rounded-2xl border border-border bg-card p-6 shadow-sm">
             <h3 className="font-display text-xl font-bold flex items-center gap-2 mb-4">
-              <ImageIcon className="h-5 w-5 text-accent" /> {t("Photo Gallery")}
+              <ImageIcon className="h-5 w-5 text-accent" /> Photo Gallery
             </h3>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {gallery.map((item, idx) => (
@@ -310,7 +268,7 @@ function PostPage() {
 
             <button
               type="button"
-              aria-label={t("Close")}
+              aria-label="Close"
               onClick={(e) => {
                 e.stopPropagation();
                 setActiveImageState([null, 0]);
@@ -394,21 +352,21 @@ function PostPage() {
                 search={{ tag }}
                 className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground hover:border-accent hover:text-accent"
               >
-                #{t(tag)}
+                #{tag}
               </Link>
             ))}
           </div>
         )}
 
-        <ShareBar title={localizedPost.title} t={t} />
+        <ShareBar title={localizedPost.title} />
 
-        <CommentsSection postId={post.id} t={t} />
+        <CommentsSection postId={post.id} />
       </div>
 
       {/* Related */}
       {localizedRelated.length > 0 && (
         <div className="mx-auto mt-20 max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="font-display text-2xl font-bold">{t("Keep reading")}</h2>
+          <h2 className="font-display text-2xl font-bold">Keep reading</h2>
           <div className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {localizedRelated.map((p, i: number) => (
               <PostCard key={p.id} post={p} index={i} />
@@ -420,7 +378,7 @@ function PostPage() {
   );
 }
 
-function ShareBar({ title, t }: { title: string; t: (text: string) => string }) {
+function ShareBar({ title }: { title: string }) {
   const [url, setUrl] = useState("");
   useEffect(() => setUrl(window.location.href), []);
   const enc = encodeURIComponent(url);
@@ -428,7 +386,7 @@ function ShareBar({ title, t }: { title: string; t: (text: string) => string }) 
   return (
     <div className="mt-10 flex items-center gap-3 border-y border-border py-4">
       <Share2 className="h-4 w-4 text-muted-foreground" />
-      <span className="text-xs text-muted-foreground">{t("Share")}</span>
+      <span className="text-xs text-muted-foreground">Share</span>
       <a
         href={`https://twitter.com/intent/tweet?url=${enc}&text=${tt}`}
         target="_blank"
@@ -443,7 +401,7 @@ function ShareBar({ title, t }: { title: string; t: (text: string) => string }) 
         rel="noreferrer"
         className="text-xs hover:text-accent"
       >
-        {t("Facebook")}
+        Facebook
       </a>
       <a
         href={`https://www.linkedin.com/sharing/share-offsite/?url=${enc}`}
@@ -451,17 +409,17 @@ function ShareBar({ title, t }: { title: string; t: (text: string) => string }) 
         rel="noreferrer"
         className="text-xs hover:text-accent"
       >
-        {t("LinkedIn")}
+        LinkedIn
       </a>
       <button
         type="button"
         onClick={() => {
           navigator.clipboard.writeText(url);
-          toast.success(t("Link copied"));
+          toast.success("Link copied");
         }}
         className="ml-auto text-xs text-muted-foreground hover:text-accent"
       >
-        {t("Copy link")}
+        Copy link
       </button>
     </div>
   );
@@ -513,7 +471,7 @@ function StarPicker({ value, onChange }: { value: number; onChange: (n: number) 
   );
 }
 
-function CommentsSection({ postId, t }: { postId: string; t: (text: string) => string }) {
+function CommentsSection({ postId }: { postId: string }) {
   const listFn = useServerFn(listComments);
   const postFn = useServerFn(postComment);
   const statsFn = useServerFn(getPostRatingStats);
@@ -549,16 +507,16 @@ function CommentsSection({ postId, t }: { postId: string; t: (text: string) => s
     onSuccess: () => {
       setText("");
       setRating(0);
-      toast.success(t("Review posted"));
+      toast.success("Review posted");
       qc.invalidateQueries({ queryKey: ["comments", postId] });
       qc.invalidateQueries({ queryKey: ["rating-stats", postId] });
     },
-    onError: (e: Error) => toast.error(e.message || t("Could not post review")),
+    onError: (e: Error) => toast.error(e.message || "Could not post review"),
   });
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!text.trim()) return toast.error(t("Please write a review"));
+    if (!text.trim()) return toast.error("Please write a review");
     const now = Date.now();
     if (now - submittedAt < 4000) return;
     setSubmittedAt(now);
@@ -568,13 +526,13 @@ function CommentsSection({ postId, t }: { postId: string; t: (text: string) => s
   return (
     <section className="mt-12">
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <h3 className="font-display text-2xl font-bold">{t("Reviews & Comments")}</h3>
+        <h3 className="font-display text-2xl font-bold">Reviews & Comments</h3>
         {stats && stats.count > 0 && (
           <div className="flex items-center gap-3">
             <StarDisplay value={stats.average} size={18} />
             <span className="text-sm text-muted-foreground">
               {stats.average.toFixed(1)} · {stats.count}{" "}
-              {stats.count === 1 ? t("rating") : t("ratings")}
+              {stats.count === 1 ? "rating" : "ratings"}
             </span>
           </div>
         )}
@@ -582,14 +540,14 @@ function CommentsSection({ postId, t }: { postId: string; t: (text: string) => s
 
       <form onSubmit={onSubmit} className="mt-6 rounded-2xl border border-border bg-muted/20 p-5">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <label className="text-sm font-medium">{t("Your rating")}</label>
+          <label className="text-sm font-medium">Your rating</label>
           <StarPicker value={rating} onChange={setRating} />
         </div>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder={t("Name (optional)")}
+            placeholder="Name (optional)"
             maxLength={80}
             className="rounded-xl border border-border bg-background px-4 py-2.5 text-sm outline-none focus:border-accent"
           />
@@ -597,7 +555,7 @@ function CommentsSection({ postId, t }: { postId: string; t: (text: string) => s
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder={t("Email (optional, not shown)")}
+            placeholder="Email (optional, not shown)"
             maxLength={255}
             className="rounded-xl border border-border bg-background px-4 py-2.5 text-sm outline-none focus:border-accent"
           />
@@ -607,7 +565,7 @@ function CommentsSection({ postId, t }: { postId: string; t: (text: string) => s
           onChange={(e) => setText(e.target.value)}
           rows={3}
           maxLength={2000}
-          placeholder={t("Share your thoughts…")}
+          placeholder="Share your thoughts…"
           className="mt-3 w-full rounded-xl border border-border bg-background p-4 text-sm outline-none focus:border-accent"
           required
         />
@@ -624,21 +582,21 @@ function CommentsSection({ postId, t }: { postId: string; t: (text: string) => s
         />
         <div className="mt-3 flex items-center justify-between gap-3">
           <p className="text-xs text-muted-foreground">
-            {t("No account needed. Email is private.")}
+            No account needed. Email is private.
           </p>
           <button
             type="submit"
             disabled={mut.isPending || !text.trim()}
             className="rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background transition hover:opacity-90 disabled:opacity-50"
           >
-            {mut.isPending ? "…" : t("Post review")}
+            {mut.isPending ? "…" : "Post review"}
           </button>
         </div>
       </form>
 
       <div className="mt-8 space-y-6">
         {(comments ?? []).map((c, i) => {
-          const displayName = c.guest_name || c.author?.username || t("Traveller");
+          const displayName = c.guest_name || c.author?.username || "Traveller";
           return (
             <motion.div
               key={c.id}
@@ -670,7 +628,7 @@ function CommentsSection({ postId, t }: { postId: string; t: (text: string) => s
           );
         })}
         {comments && comments.length === 0 && (
-          <p className="text-sm text-muted-foreground">{t("Be the first to leave a review.")}</p>
+          <p className="text-sm text-muted-foreground">Be the first to leave a review.</p>
         )}
       </div>
     </section>

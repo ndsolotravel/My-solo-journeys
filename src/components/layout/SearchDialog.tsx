@@ -1,8 +1,7 @@
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Search, X, FileText, MapPin, Loader2 } from "lucide-react";
 import { searchSite, type SearchResult } from "@/lib/search.functions";
-import { useTranslator } from "@/lib/translate/store";
 
 export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [q, setQ] = useState("");
@@ -10,18 +9,6 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
   const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
-
-  const staticTexts = useMemo(
-    () => [
-      "Search stories, trails and destinations",
-      "Search",
-      "Close search",
-      "Search across articles, destinations, categories and tags.",
-      `No matches for "${q}".`,
-    ],
-    [q],
-  );
-  const t = useTranslator(staticTexts);
 
   useEffect(() => {
     if (open) setTimeout(() => inputRef.current?.focus(), 30);
@@ -59,9 +46,6 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
     return () => clearTimeout(timer);
   }, [q]);
 
-  const resultTitles = results.map((r) => r.title);
-  const rt = useTranslator(resultTitles);
-
   if (!open) return null;
 
   const go = (r: SearchResult) => {
@@ -76,7 +60,7 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
       onClick={onClose}
       role="dialog"
       aria-modal="true"
-      aria-label={t("Search")}
+      aria-label="Search"
     >
       <div
         className="w-full max-w-2xl overflow-hidden rounded-2xl border border-border bg-background shadow-2xl"
@@ -88,13 +72,13 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
             ref={inputRef}
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder={t("Search stories, trails and destinations")}
+            placeholder="Search stories, trails and destinations"
             className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
           />
           {loading && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
           <button
             onClick={onClose}
-            aria-label={t("Close search")}
+            aria-label="Close search"
             className="text-muted-foreground hover:text-foreground"
           >
             <X className="h-4 w-4" />
@@ -103,12 +87,12 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
         <div className="max-h-[60vh] overflow-y-auto">
           {q.trim() && !loading && results.length === 0 && (
             <p className="px-4 py-10 text-center text-sm text-muted-foreground">
-              {t(`No matches for "${q}".`)}
+              No matches for "{q}".
             </p>
           )}
           {!q.trim() && (
             <p className="px-4 py-10 text-center text-sm text-muted-foreground">
-              {t("Search across articles, destinations, categories and tags.")}
+              Search across articles, destinations, categories and tags.
             </p>
           )}
           {results.length > 0 && (
@@ -125,11 +109,11 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
                       <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
                     )}
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium">{rt(r.title)}</p>
+                      <p className="truncate text-sm font-medium">{r.title}</p>
                       <p className="truncate text-xs text-muted-foreground">
                         {r.kind === "post"
-                          ? rt(r.category) + (r.excerpt ? ` · ${rt(r.excerpt)}` : "")
-                          : `${rt(r.country)}${r.region ? ` · ${rt(r.region)}` : ""}`}
+                          ? `Story · ${r.category ?? "Article"}`
+                          : `Destination · ${r.country ?? "Travel"}`}
                       </p>
                     </div>
                   </button>

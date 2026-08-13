@@ -16,7 +16,6 @@ import appCss from "../styles.css?url";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { supabase } from "@/integrations/supabase/client";
-import { TranslationProvider, useT } from "@/lib/translate/store";
 
 function NotFoundComponent() {
   return (
@@ -151,28 +150,15 @@ function RootComponent() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isHome = pathname === "/";
   return (
-    <TranslationProvider>
-      <QueryClientProvider client={queryClient}>
-        <div className="flex min-h-screen flex-col">
-          <Header />
-          <main className={`flex-1 ${isHome ? "" : "pt-16"}`}>
-            <Outlet />
-          </main>
-          <Footer />
-        </div>
-        <Toaster position="top-center" richColors />
-        <TitleTranslator />
-      </QueryClientProvider>
-    </TranslationProvider>
+    <QueryClientProvider client={queryClient}>
+      <div className="flex min-h-screen flex-col">
+        <Header />
+        <main className={`flex-1 ${isHome ? "" : "pt-16"}`}>
+          <Outlet />
+        </main>
+        <Footer />
+      </div>
+      <Toaster position="top-center" richColors />
+    </QueryClientProvider>
   );
-}
-
-function TitleTranslator() {
-  const title = typeof document === "undefined" ? "" : document.title;
-  const translated = useT(title);
-  useEffect(() => {
-    if (typeof document === "undefined" || !translated || translated === title) return;
-    document.title = translated;
-  }, [translated, title]);
-  return null;
 }

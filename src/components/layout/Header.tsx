@@ -1,15 +1,13 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Menu, X, Search, User, LogOut } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
-import { LanguageSelector } from "./LanguageSelector";
 import { SearchDialog } from "./SearchDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import logoPath from "@/assets/ndsolo-travel-logo.png";
-import { useTranslator } from "@/lib/translate/store";
 
 const LINKS = [
   { to: "/", label: "Home" },
@@ -18,26 +16,6 @@ const LINKS = [
   { to: "/gallery", label: "Gallery" },
   { to: "/about", label: "About" },
   { to: "/contact", label: "Contact" },
-] as const;
-
-const HEADER_TEXTS = [
-  "Home",
-  "Stories",
-  "Destinations",
-  "Gallery",
-  "About",
-  "Contact",
-  "Search",
-  "Admin",
-  "Account",
-  "Sign in",
-  "Sign out",
-  "Menu",
-  "Close menu",
-  "Language",
-  "Theme",
-  "Signed out",
-  "Sign out failed",
 ] as const;
 
 export function Header() {
@@ -49,8 +27,6 @@ export function Header() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const headerTexts = useMemo(() => [...HEADER_TEXTS], []);
-  const t = useTranslator(headerTexts);
 
   async function handleSignOut() {
     try {
@@ -67,10 +43,10 @@ export function Header() {
       setSignedIn(false);
       setIsStaff(false);
       setOpen(false);
-      toast.success(t("Signed out"));
+      toast.success("Signed out");
       navigate({ to: "/auth", replace: true });
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t("Sign out failed"));
+      toast.error(e instanceof Error ? e.message : "Sign out failed");
     }
   }
 
@@ -163,7 +139,7 @@ export function Header() {
                         : "text-muted-foreground hover:text-[#FF7A00]"
                   }`}
                 >
-                  {t(l.label)}
+                  {l.label}
                   {active && (
                     <span
                       aria-hidden
@@ -179,7 +155,7 @@ export function Header() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setSearchOpen(true)}
-              aria-label={t("Search")}
+              aria-label="Search"
               className={`inline-flex h-9 w-9 items-center justify-center rounded-full border transition-colors ${
                 overHero
                   ? "border-white/30 text-white hover:bg-white/10"
@@ -190,7 +166,6 @@ export function Header() {
             </button>
             <div className="hidden sm:flex items-center gap-2">
               <ThemeToggle />
-              <LanguageSelector />
             </div>
             {isStaff && (
               <Link
@@ -201,12 +176,12 @@ export function Header() {
                     : "border-border hover:border-accent"
                 }`}
               >
-                {t("Admin")}
+                Admin
               </Link>
             )}
             <Link
               to={signedIn ? "/account" : "/auth"}
-              aria-label={signedIn ? t("Account") : t("Sign in")}
+              aria-label={signedIn ? "Account" : "Sign in"}
               className={`hidden sm:inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-medium transition ${
                 overHero
                   ? "bg-white text-foreground hover:bg-white/90"
@@ -214,14 +189,14 @@ export function Header() {
               }`}
             >
               {signedIn ? <User className="h-3.5 w-3.5" /> : null}
-              {signedIn ? t("Account") : t("Sign in")}
+              {signedIn ? "Account" : "Sign in"}
             </Link>
             {signedIn && (
               <button
                 type="button"
                 onClick={handleSignOut}
-                aria-label={t("Sign out")}
-                title={t("Sign out")}
+                aria-label="Sign out"
+                title="Sign out"
                 className={`hidden sm:inline-flex h-9 w-9 items-center justify-center rounded-full border transition-colors ${
                   overHero
                     ? "border-white/30 text-white hover:bg-white/10"
@@ -233,7 +208,7 @@ export function Header() {
             )}
             <button
               onClick={() => setOpen((v) => !v)}
-              aria-label={t("Menu")}
+              aria-label="Menu"
               aria-expanded={open}
               className={`md:hidden inline-flex h-9 w-9 items-center justify-center rounded-full border ${
                 overHero ? "border-white/30 text-white" : "border-border"
@@ -261,11 +236,11 @@ export function Header() {
       >
         <div className="flex items-center justify-between px-5 py-4 border-b border-border">
           <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-            {t("Menu")}
+            Menu
           </span>
           <button
             onClick={() => setOpen(false)}
-            aria-label={t("Close menu")}
+            aria-label="Close menu"
             className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border"
           >
             <X className="h-4 w-4" />
@@ -291,7 +266,7 @@ export function Header() {
                     : "text-foreground hover:bg-muted hover:text-[#FF7A00]"
                 }`}
               >
-                {t(l.label)}
+                {l.label}
               </Link>
             );
           })}
@@ -304,17 +279,11 @@ export function Header() {
             }}
             className="flex w-full items-center gap-2 rounded-full border border-border px-4 py-2 text-sm hover:bg-muted"
           >
-            <Search className="h-4 w-4" /> {t("Search")}
+            <Search className="h-4 w-4" /> Search
           </button>
           <div className="flex items-center justify-between">
             <span className="text-xs uppercase tracking-wider text-muted-foreground">
-              {t("Language")}
-            </span>
-            <LanguageSelector />
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-xs uppercase tracking-wider text-muted-foreground">
-              {t("Theme")}
+              Theme
             </span>
             <ThemeToggle />
           </div>
@@ -324,7 +293,7 @@ export function Header() {
               onClick={() => setOpen(false)}
               className="block w-full rounded-full border border-border px-4 py-2 text-center text-sm font-medium hover:border-accent"
             >
-              {t("Admin")}
+              Admin
             </Link>
           )}
           <Link
@@ -332,7 +301,7 @@ export function Header() {
             onClick={() => setOpen(false)}
             className="block w-full rounded-full bg-foreground px-4 py-2 text-center text-sm font-medium text-background"
           >
-            {signedIn ? t("Account") : t("Sign in")}
+            {signedIn ? "Account" : "Sign in"}
           </Link>
           {signedIn && (
             <button
@@ -340,7 +309,7 @@ export function Header() {
               onClick={handleSignOut}
               className="flex w-full items-center justify-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-medium hover:bg-muted"
             >
-              <LogOut className="h-4 w-4" /> {t("Sign out")}
+              <LogOut className="h-4 w-4" /> Sign out
             </button>
           )}
         </div>

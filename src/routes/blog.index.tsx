@@ -5,8 +5,6 @@ import { Search } from "lucide-react";
 import { z } from "zod";
 import { listPosts } from "@/lib/posts.functions";
 import { PostCard } from "@/components/blog/PostCard";
-import { useLocalizedPosts } from "@/lib/translate/useLocalized";
-import { useTranslator } from "@/lib/translate/store";
 import { CATEGORIES } from "@/lib/site";
 
 const searchSchema = z.object({
@@ -52,19 +50,8 @@ function BlogIndex() {
   const { data } = useSuspenseQuery(
     blogQO({ category: search.category, tag: search.tag, search: search.q }),
   );
-  const posts = useLocalizedPosts(data.posts);
+  const posts = data.posts;
   const [q, setQ] = useState(search.q ?? "");
-
-  const t = useTranslator([
-    "The Journal",
-    "Stories from the road, the trail, and the saddle.",
-    "Search stories…",
-    "All",
-    "No stories match that filter yet.",
-    "story",
-    "stories",
-    "published so far.",
-  ]);
 
   return (
     <>

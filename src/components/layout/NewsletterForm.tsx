@@ -2,30 +2,21 @@ import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { subscribe } from "@/lib/newsletter.functions";
 import { toast } from "sonner";
-import { useTranslator } from "@/lib/translate/store";
-
-const NEWSLETTER_TEXTS = [
-  "you@summit.com",
-  "Subscribe",
-  "Subscribed. Welcome aboard.",
-  "Could not subscribe. Try again.",
-] as const;
 
 export function NewsletterForm({ dark = false }: { dark?: boolean }) {
   const subscribeFn = useServerFn(subscribe);
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const t = useTranslator([...NEWSLETTER_TEXTS]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     try {
       await subscribeFn({ data: { email } });
-      toast.success(t("Subscribed. Welcome aboard."));
+      toast.success("Subscribed. Welcome aboard.");
       setEmail("");
     } catch {
-      toast.error(t("Could not subscribe. Try again."));
+      toast.error("Could not subscribe. Try again.");
     } finally {
       setLoading(false);
     }
@@ -38,7 +29,7 @@ export function NewsletterForm({ dark = false }: { dark?: boolean }) {
       <input
         type="email"
         required
-        placeholder={t("you@summit.com")}
+        placeholder="you@summit.com"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         className={`${base} ${
@@ -52,7 +43,7 @@ export function NewsletterForm({ dark = false }: { dark?: boolean }) {
         disabled={loading}
         className="rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-accent-foreground hover:opacity-90 transition disabled:opacity-50"
       >
-        {loading ? "…" : t("Subscribe")}
+        {loading ? "…" : "Subscribe"}
       </button>
     </form>
   );
