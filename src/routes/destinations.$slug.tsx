@@ -65,15 +65,15 @@ function DestinationPage() {
             <ArrowLeft className="mr-1 inline h-3 w-3 rtl:rotate-180" /> {t("Destinations")}
           </Link>
           <p className="mt-4 text-xs uppercase tracking-[0.2em] text-accent">
-            {d.country}
-            {d.region ? ` · ${d.region}` : ""}
+            {t(d.country)}
+            {d.region ? ` · ${t(d.region)}` : ""}
           </p>
-          <h1 className="mt-3 font-display text-4xl font-bold sm:text-6xl">{d.title}</h1>
+          <h1 className="mt-3 font-display text-4xl font-bold sm:text-6xl">{t(d.title)}</h1>
         </div>
       </div>
       
       <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
-        <p className="text-lg leading-relaxed text-muted-foreground">{d.description}</p>
+        <p className="text-lg leading-relaxed text-muted-foreground">{t(d.description)}</p>
       </div>
 
       <section className="border-t border-border/60 bg-muted/20 py-16">

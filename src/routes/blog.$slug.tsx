@@ -109,21 +109,33 @@ const pageTurnVariants = {
 function PostPage() {
   const { post, related } = Route.useLoaderData();
   const { lang } = useLanguage();
+  const t = useTranslations();
 
   const localizedPost = useMemo(() => {
     if (!post) return null;
     if (lang === "en") return post;
-    const t = post.post_translations?.find((x) => x.language_code === lang);
-    if (!t) return post;
+    const dbTrans = post.post_translations?.find((x) => x.language_code === lang);
+    if (dbTrans) {
+      return {
+        ...post,
+        title: dbTrans.title || post.title,
+        excerpt: dbTrans.excerpt || post.excerpt,
+        content: dbTrans.content || post.content,
+        category: dbTrans.category || post.category,
+        seo_title: dbTrans.seo_title || post.seo_title,
+        seo_description: dbTrans.seo_description || post.seo_description,
+      };
+    }
     return {
       ...post,
-      title: t.title || post.title,
-      excerpt: t.excerpt || post.excerpt,
-      content: t.content || post.content,
-      seo_title: t.seo_title || post.seo_title,
-      seo_description: t.seo_description || post.seo_description,
+      title: t(post.title),
+      excerpt: post.excerpt ? t(post.excerpt) : post.excerpt,
+      content: post.content ? t(post.content) : post.content,
+      category: t(post.category),
+      seo_title: post.seo_title ? t(post.seo_title) : post.seo_title,
+      seo_description: post.seo_description ? t(post.seo_description) : post.seo_description,
     };
-  }, [post, lang]);
+  }, [post, lang, t]);
 
   const localizedRelated = related;
 
@@ -191,7 +203,7 @@ function PostPage() {
               to="/blog"
               className="inline-flex items-center gap-2 text-xs text-white/80 hover:text-white"
             >
-              <ArrowLeft className="h-3 w-3" /> Stories
+              <ArrowLeft className="h-3 w-3" /> {t("Stories")}
             </Link>
             {dest && (
               <Link
@@ -199,13 +211,13 @@ function PostPage() {
                 params={{ slug: dest.slug }}
                 className="inline-flex items-center gap-1 rounded-full bg-accent/20 backdrop-blur-md px-3 py-1 text-xs font-medium text-amber-300 hover:bg-accent/30 transition-colors"
               >
-                <MapPin className="h-3 w-3" /> {dest.title}
+                <MapPin className="h-3 w-3" /> {t(dest.title)}
               </Link>
             )}
           </div>
 
           <p className="mt-4 text-xs uppercase tracking-[0.2em] text-accent">
-            {localizedPost.category}
+            {t(localizedPost.category)}
           </p>
           <h1 className="mt-3 font-display text-3xl font-bold leading-tight sm:text-5xl">
             {localizedPost.title}
@@ -216,13 +228,13 @@ function PostPage() {
               <>
                 <span aria-hidden>·</span>
                 <span className="inline-flex items-center gap-1 text-amber-200">
-                  <Calendar className="h-3 w-3" /> Traveled on {formattedTravelDate}
+                  <Calendar className="h-3 w-3" /> {t("Traveled on")} {formattedTravelDate}
                 </span>
               </>
             )}
             <span aria-hidden>·</span>
             <span className="inline-flex items-center gap-1">
-              <Clock className="h-3 w-3" /> {post.reading_minutes} min read
+              <Clock className="h-3 w-3" /> {post.reading_minutes} {t("min read")}
             </span>
           </div>
         </div>
@@ -230,7 +242,7 @@ function PostPage() {
 
       {/* Body */}
       <div className="mx-auto mt-12 max-w-3xl px-4 sm:px-6">
-        {post.excerpt && (
+        {localizedPost.excerpt && (
           <p className="font-display text-xl leading-relaxed text-muted-foreground">
             {localizedPost.excerpt}
           </p>
@@ -243,7 +255,7 @@ function PostPage() {
         {gallery.length > 0 && (
           <section className="mt-14 rounded-2xl border border-border bg-card p-6 shadow-sm">
             <h3 className="font-display text-xl font-bold flex items-center gap-2 mb-4">
-              <ImageIcon className="h-5 w-5 text-accent" /> Photo Gallery
+              <ImageIcon className="h-5 w-5 text-accent" /> {t("Photo Gallery")}
             </h3>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {gallery.map((item, idx) => (
@@ -382,7 +394,7 @@ function PostPage() {
       {/* Related */}
       {localizedRelated.length > 0 && (
         <div className="mx-auto mt-20 max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="font-display text-2xl font-bold">Keep reading</h2>
+          <h2 className="font-display text-2xl font-bold">{t("Keep reading")}</h2>
           <div className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {localizedRelated.map((p, i: number) => (
               <PostCard key={p.id} post={p} index={i} />

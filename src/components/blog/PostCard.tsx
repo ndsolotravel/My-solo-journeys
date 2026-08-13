@@ -21,13 +21,19 @@ export function PostCard({ post, index = 0 }: { post: Post; index?: number }) {
   const localizedPost = useMemo(() => {
     if (lang === "en") return post;
     const translation = post.post_translations?.find((x) => x.language_code === lang);
-    if (!translation) return post;
+    if (translation) {
+      return {
+        ...post,
+        title: translation.title || post.title,
+        excerpt: translation.excerpt || post.excerpt,
+      };
+    }
     return {
       ...post,
-      title: translation.title || post.title,
-      excerpt: translation.excerpt || post.excerpt,
+      title: t(post.title),
+      excerpt: post.excerpt ? t(post.excerpt) : post.excerpt,
     };
-  }, [post, lang]);
+  }, [post, lang, t]);
 
   return (
     <motion.article

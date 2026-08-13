@@ -51,16 +51,16 @@ function AboutPage() {
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/70" />
         <div className="absolute inset-0 flex items-end">
           <div className="mx-auto w-full max-w-7xl px-4 pb-10 sm:px-6 lg:px-8">
-            <p className="text-xs uppercase tracking-[0.2em] text-accent">About</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-accent">{t("About")}</p>
             <h1 className="mt-2 font-display text-4xl font-bold leading-tight text-white sm:text-5xl">
-              Solo, slow, and almost always uphill.
+              {t("Solo, slow, and almost always uphill.")}
             </h1>
           </div>
         </div>
       </section>
 
       <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6">
-        <h2 className="sr-only">Solo, slow, and almost always uphill.</h2>
+        <h2 className="sr-only">{t("Solo, slow, and almost always uphill.")}</h2>
 
         <div className="mt-10 grid gap-12 lg:grid-cols-[1fr_2fr]">
           <img
@@ -70,28 +70,28 @@ function AboutPage() {
           />
           <div className="space-y-5 text-base leading-relaxed text-muted-foreground">
             {BIO.map((p) => (
-              <p key={p}>{p}</p>
+              <p key={p}>{t(p)}</p>
             ))}
           </div>
         </div>
 
         <section className="mt-20">
-          <h2 className="font-display text-2xl font-bold">The journey so far</h2>
+          <h2 className="font-display text-2xl font-bold">{t("The journey so far")}</h2>
           <ol className="mt-8 space-y-6 border-l-2 border-border pl-6">
             {TIMELINE.map((item) => (
               <li key={item.year} className="relative">
                 <span className="absolute -left-[31px] top-1.5 h-3 w-3 rounded-full bg-accent" />
                 <p className="font-display text-sm font-bold text-accent">{item.year}</p>
-                <p className="mt-1 text-muted-foreground">{item.text}</p>
+                <p className="mt-1 text-muted-foreground">{t(item.text)}</p>
               </li>
             ))}
           </ol>
         </section>
 
         <section className="mt-20 rounded-3xl bg-muted/40 p-8">
-          <h2 className="font-display text-2xl font-bold">Travel philosophy</h2>
+          <h2 className="font-display text-2xl font-bold">{t("Travel philosophy")}</h2>
           <p className="mt-4 text-lg italic leading-relaxed text-muted-foreground">
-            Solo travel is where the journey becomes the destination
+            {t("Solo travel is where the journey becomes the destination")}
           </p>
         </section>
       </div>

@@ -111,12 +111,12 @@ function ContactPage() {
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/70" />
         <div className="absolute inset-0 flex items-end">
           <div className="mx-auto w-full max-w-7xl px-4 pb-10 sm:px-6 lg:px-8">
-            <p className="text-xs uppercase tracking-[0.2em] text-accent">Contact</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-accent">{t("Contact")}</p>
             <h1 className="mt-2 font-display text-4xl font-bold leading-tight text-white sm:text-5xl">
-              Say hello.
+              {t("Say hello.")}
             </h1>
             <p className="mt-3 max-w-xl text-sm text-white/80">
-              Got a destination to discover, a story to share, or an adventure in mind? Whether it’s a collaboration, a travel tip, or simply a great story from the road, the inbox is always open.
+              {t("Got a destination to discover, a story to share, or an adventure in mind? Whether it’s a collaboration, a travel tip, or simply a great story from the road, the inbox is always open.")}
             </p>
           </div>
         </div>
@@ -137,7 +137,7 @@ function ContactPage() {
                   name="name"
                   required
                   maxLength={120}
-                  placeholder="Name"
+                  placeholder={t("Name")}
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   className={inp}
@@ -153,7 +153,7 @@ function ContactPage() {
                   required
                   type="email"
                   maxLength={320}
-                  placeholder="Email"
+                  placeholder={t("Email")}
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                   className={inp}
@@ -168,7 +168,7 @@ function ContactPage() {
                 id="contact-subject"
                 name="subject"
                 maxLength={200}
-                placeholder="Subject (optional)"
+                placeholder={t("Subject (optional)")}
                 value={form.subject}
                 onChange={(e) => setForm({ ...form, subject: e.target.value })}
                 className={inp}
@@ -184,7 +184,7 @@ function ContactPage() {
                 required
                 rows={6}
                 maxLength={5000}
-                placeholder="Your message…"
+                placeholder={t("Your message…")}
                 value={form.message}
                 onChange={(e) => setForm({ ...form, message: e.target.value })}
                 className={inp}
@@ -209,12 +209,12 @@ function ContactPage() {
               disabled={loading}
               className="rounded-full bg-foreground px-6 py-3 text-sm font-medium text-background hover:opacity-90 disabled:opacity-50"
             >
-              {loading ? "Sending…" : "Send message"}
+              {loading ? t("Sending…") : t("Send message")}
             </button>
           </form>
 
           <aside className="space-y-4 rounded-3xl bg-muted/40 p-6">
-            <h2 className="font-display text-lg font-bold">Elsewhere</h2>
+            <h2 className="font-display text-lg font-bold">{t("Elsewhere")}</h2>
             <a
               href="mailto:contact@ndsolotravel.com"
               className="flex items-center gap-3 text-sm hover:text-accent"

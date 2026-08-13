@@ -92,12 +92,12 @@ function GalleryPage() {
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/70" />
         <div className="absolute inset-0 flex items-end">
           <div className="mx-auto w-full max-w-7xl px-4 pb-10 sm:px-6 lg:px-8">
-            <p className="text-xs uppercase tracking-[0.2em] text-accent">Photography</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-accent">{t("Photography")}</p>
             <h1 className="mt-2 font-display text-4xl font-bold leading-tight text-white sm:text-5xl">
-              The light, the cold, the patience.
+              {t("The light, the cold, the patience.")}
             </h1>
             <p className="mt-3 max-w-xl text-sm text-white/80">
-              A thousand sunrises above 4,000 metres.
+              {t("A thousand sunrises above 4,000 metres.")}
             </p>
           </div>
         </div>
@@ -105,12 +105,12 @@ function GalleryPage() {
 
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <header className="max-w-3xl sr-only">
-          <p className="text-xs uppercase tracking-[0.2em] text-accent">Photography</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-accent">{t("Photography")}</p>
           <h1 className="mt-2 font-display text-4xl font-bold leading-tight sm:text-5xl">
-            The light, the cold, the patience.
+            {t("The light, the cold, the patience.")}
           </h1>
           <p className="mt-4 text-muted-foreground">
-            A thousand sunrises above 4,000 metres.
+            {t("A thousand sunrises above 4,000 metres.")}
           </p>
         </header>
 
@@ -131,7 +131,7 @@ function GalleryPage() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 flex items-end p-4">
                 {g.caption && (
-                  <span className="text-xs font-medium text-white line-clamp-1">{g.caption}</span>
+                  <span className="text-xs font-medium text-white line-clamp-1">{t(g.caption)}</span>
                 )}
               </div>
             </button>
@@ -221,7 +221,7 @@ function GalleryPage() {
                 onClick={(e) => e.stopPropagation()}
               >
                 <p className="inline-block rounded-2xl bg-black/80 px-5 py-2.5 text-xs sm:text-sm font-medium text-white border border-white/20 backdrop-blur-md shadow-xl">
-                  {active.caption}
+                  {t(active.caption)}
                 </p>
               </div>
             )}

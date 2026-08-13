@@ -169,13 +169,13 @@ function DestinationsPage() {
                         <div className="absolute inset-0 bg-gradient-to-t from-black/85 to-transparent" />
                         <div className="absolute inset-x-0 bottom-0 p-6 text-white">
                           <p className="text-xs uppercase tracking-wider text-white/70">
-                            {d.country}
-                            {d.region ? ` · ${d.region}` : ""}
+                            {t(d.country)}
+                            {d.region ? ` · ${t(d.region)}` : ""}
                           </p>
-                          <h2 className="mt-2 font-display text-2xl font-semibold">{d.title}</h2>
+                          <h2 className="mt-2 font-display text-2xl font-semibold">{t(d.title)}</h2>
                           {d.description && (
                             <p className="mt-2 line-clamp-2 text-sm text-white/80">
-                              {d.description}
+                              {t(d.description)}
                             </p>
                           )}
                         </div>

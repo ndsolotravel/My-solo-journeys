@@ -591,15 +591,15 @@ function HomePage() {
             </div>
             <div className="flex flex-col justify-center">
               <span className="text-xs font-medium uppercase tracking-wider text-accent">
-                {featured.category} · {featured.reading_minutes} min read
+                {t(featured.category)} · {featured.reading_minutes} {t("min read")}
               </span>
               <h3 className="mt-3 font-display text-3xl font-bold leading-tight sm:text-4xl group-hover:text-accent transition-colors">
-                {featured.title}
+                {t(featured.title)}
               </h3>
-              <p className="mt-4 text-base text-muted-foreground">{featured.excerpt}</p>
+              <p className="mt-4 text-base text-muted-foreground">{t(featured.excerpt)}</p>
               <span className="mt-6 inline-flex items-center gap-2 text-sm font-medium">
-                Read the full story
-                <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                {t("Read the full story")}
+                <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 rtl:rotate-180" />
               </span>
             </div>
           </Link>
@@ -740,10 +740,10 @@ function HomePage() {
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
                       <div className="absolute inset-x-0 bottom-0 p-5 text-white">
                         <p className="text-xs uppercase tracking-wider text-white/70">
-                          {d.country}
-                          {d.region ? ` · ${d.region}` : ""}
+                          {t(d.country)}
+                          {d.region ? ` · ${t(d.region)}` : ""}
                         </p>
-                        <h3 className="mt-1 font-display text-xl font-semibold">{d.title}</h3>
+                        <h3 className="mt-1 font-display text-xl font-semibold">{t(d.title)}</h3>
                       </div>
                     </div>
                   </Link>
