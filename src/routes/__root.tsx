@@ -134,7 +134,7 @@ function RootShell({ children }: { children: ReactNode }) {
       </head>
       <body>
         <ScriptOnce>
-          {`(()=>{try{const t=localStorage.getItem('theme');const d=t?t==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;if(d)document.documentElement.classList.add('dark');const l=localStorage.getItem('ndsolo_lang');if(l){document.documentElement.lang=l;if(['fa','ar','ur'].includes(l))document.documentElement.dir='rtl';}}catch(e){}})()`}
+          {`(()=>{try{const t=localStorage.getItem('theme');const d=t?t==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;if(d)document.documentElement.classList.add('dark');}catch(e){}})()`}
         </ScriptOnce>
         {children}
         <Scripts />

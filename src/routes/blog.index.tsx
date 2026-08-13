@@ -37,8 +37,8 @@ export const Route = createFileRoute("/blog/")({
     ],
     links: [{ rel: "canonical", href: "/blog" }],
   }),
-  loader: ({ context, deps }) => {
-    context.queryClient.ensureQueryData(
+  loader: async ({ context, deps }) => {
+    await context.queryClient.ensureQueryData(
       blogQO({ category: deps.category, tag: deps.tag, search: deps.q }),
     );
   },

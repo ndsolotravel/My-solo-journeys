@@ -85,14 +85,16 @@ export const Route = createFileRoute("/")({
     ],
     links: [{ rel: "canonical", href: "/" }],
   }),
-  loader: ({ context }) => {
-    context.queryClient.ensureQueryData(postsQO);
-    context.queryClient.ensureQueryData(featuredQO);
-    context.queryClient.ensureQueryData(destQO);
-    context.queryClient.ensureQueryData(popularQO);
-    context.queryClient.ensureQueryData(guidesQO);
-    context.queryClient.ensureQueryData(galleryQO);
-    context.queryClient.ensureQueryData(motoQO);
+  loader: async ({ context }) => {
+    await Promise.all([
+      context.queryClient.ensureQueryData(postsQO),
+      context.queryClient.ensureQueryData(featuredQO),
+      context.queryClient.ensureQueryData(destQO),
+      context.queryClient.ensureQueryData(popularQO),
+      context.queryClient.ensureQueryData(guidesQO),
+      context.queryClient.ensureQueryData(galleryQO),
+      context.queryClient.ensureQueryData(motoQO),
+    ]);
   },
   component: HomePage,
 });

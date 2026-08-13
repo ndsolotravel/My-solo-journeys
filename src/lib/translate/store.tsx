@@ -8,7 +8,7 @@ import {
 } from "react";
 import { getCached, getLangCache, setCached } from "./cache";
 import { getDictionaryTranslation, UI_DICTIONARY } from "./dictionary";
-import { requestTranslations } from "./gtx";
+import { translateTexts } from "./translate.functions";
 
 export interface LanguageOption {
   code: string;
@@ -35,6 +35,7 @@ export const LANGUAGES: LanguageOption[] = [
 ];
 
 export const LANG_STORAGE_KEY = "ndsolo_lang";
+export const LANG_COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 year
 
 export function isRtlLang(code: string): boolean {
   return LANGUAGES.some((l) => l.code === code && l.rtl);
@@ -59,15 +60,52 @@ export interface TranslationStore {
   retryFailed: () => void;
 }
 
-function getInitialLang(): string {
-  if (typeof window === "undefined") return "en";
+function readCookie(header: string, name: string): string | null {
+  const pattern = new RegExp(`(?:^|;\\s*)${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}=([^;]*)`);
+  const match = header.match(pattern);
+  if (!match) return null;
   try {
-    const saved = window.localStorage.getItem(LANG_STORAGE_KEY);
-    if (saved && LANGUAGES.some((l) => l.code === saved)) return saved;
+    return decodeURIComponent(match[1]);
   } catch {
-    // Ignore storage issues
+    return match[1];
   }
-  return "en";
+}
+
+const SERVER_EVENT_STORAGE_KEY = Symbol.for("tanstack-start:event-storage");
+
+/**
+ * Reads a request cookie during SSR without importing the node-only
+ * `@tanstack/start-server-core` module into the client bundle. TanStack Start
+ * stores the per-request H3 event in an AsyncLocalStorage reachable on
+ * `globalThis[Symbol.for("tanstack-start:event-storage")]`.
+ */
+function readRequestCookie(name: string): string | null {
+  try {
+    const storage = (
+      globalThis as Record<
+        symbol,
+        | { getStore?: () => { h3Event?: { headers?: Headers; req?: { headers?: Headers } } } | undefined }
+        | undefined
+      >
+    )[SERVER_EVENT_STORAGE_KEY];
+    const store = storage?.getStore?.();
+    const headers = store?.h3Event?.headers ?? store?.h3Event?.req?.headers;
+    const cookieHeader = headers?.get?.("cookie");
+    if (!cookieHeader) return null;
+    return readCookie(cookieHeader, name);
+  } catch {
+    return null;
+  }
+}
+
+function getInitialLang(): string {
+  // The selected language is stored in a cookie (set by setLang on the
+  // client), so the server and the client agree during hydration and there is
+  // no post-hydration language switch that could race React's hydration pass.
+  if (typeof window !== "undefined") {
+    return readCookie(document.cookie, LANG_STORAGE_KEY) ?? "en";
+  }
+  return readRequestCookie(LANG_STORAGE_KEY) ?? "en";
 }
 
 function createStore(): TranslationStore {
@@ -106,16 +144,38 @@ function createStore(): TranslationStore {
     listeners.forEach((fn) => fn());
   };
 
+  // The first flush is always triggered by `register()` calls made during the
+  // initial hydration render. React 19 hydrates the tree concurrently, yielding
+  // between render passes, so an immediate bump() there re-renders components
+  // (e.g. LanguageSelector's activeRequests "translating" state) *while* the
+  // hydration pass is still walking the DOM -> React #418 mismatch. Defer the
+  // first flush by a fixed delay so hydration is guaranteed to have committed;
+  // user-initiated flushes afterwards use the fast microtask path.
+  let firstFlushPending = true;
+
   const scheduleFlush = () => {
     if (flushScheduled) return;
     flushScheduled = true;
-    queueMicrotask(() => {
-      flushScheduled = false;
-      runFlush();
-    });
+    if (firstFlushPending) {
+      firstFlushPending = false;
+      if (typeof window !== "undefined") {
+        window.setTimeout(() => {
+          flushScheduled = false;
+          runFlush();
+        }, 1000);
+      } else {
+        flushScheduled = false;
+      }
+    } else {
+      queueMicrotask(() => {
+        flushScheduled = false;
+        runFlush();
+      });
+    }
   };
 
   const runFlush = async () => {
+    if (typeof window === "undefined") return;
     for (const [targetLang, texts] of [...pending.entries()]) {
       if (!texts.size) continue;
       const batch = [...texts];
@@ -130,11 +190,11 @@ function createStore(): TranslationStore {
       bump();
 
       try {
-        const result = await requestTranslations(batchForFetch, targetLang);
+        const result = await translateTexts({ data: { lang: targetLang, texts: batchForFetch } });
         keys.forEach((k) => {
           const idx = k.indexOf("\u0001");
           const text = k.slice(idx + 1);
-          const value = result.get(text);
+          const value = result[text];
           if (value) {
             resolved.set(k, value);
             setCached(targetLang, text, value);
@@ -237,6 +297,7 @@ function createStore(): TranslationStore {
     try {
       if (typeof window !== "undefined") {
         window.localStorage.setItem(LANG_STORAGE_KEY, next);
+        document.cookie = `${LANG_STORAGE_KEY}=${encodeURIComponent(next)}; path=/; max-age=${LANG_COOKIE_MAX_AGE}; samesite=lax`;
       }
     } catch {
       // storage unavailable
@@ -256,13 +317,21 @@ function createStore(): TranslationStore {
     return () => listeners.delete(fn);
   };
 
-  applyDirection(lang);
-
   return {
-    lang,
-    error,
-    activeRequests,
-    version,
+    // Live getters (not captured values) so subscribers always observe the
+    // current lang/version/error/activeRequests and React re-renders on bump().
+    get lang() {
+      return lang;
+    },
+    get error() {
+      return error;
+    },
+    get activeRequests() {
+      return activeRequests;
+    },
+    get version() {
+      return version;
+    },
     subscribe,
     get,
     register,
@@ -278,18 +347,9 @@ export function TranslationProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      try {
-        const saved = window.localStorage.getItem(LANG_STORAGE_KEY);
-        if (saved && LANGUAGES.some((l) => l.code === saved)) {
-          if (saved !== store.lang) {
-            store.setLang(saved);
-          } else {
-            applyDirection(saved);
-          }
-        }
-      } catch {
-        // storage issues
-      }
+      // The initial language already comes from the cookie, so no state change
+      // is needed after hydration. Just sync the <html> dir/lang attributes.
+      applyDirection(store.lang);
     }
   }, [store]);
 
