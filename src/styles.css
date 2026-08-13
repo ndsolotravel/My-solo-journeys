@@ -45,7 +45,7 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-ring-offset-background: var(--background);
-  --font-display: "Gullying", "Roboto", system-ui, sans-serif;
+  --font-display: "Roboto", system-ui, sans-serif;
   --font-sans: "Inter", system-ui, sans-serif;
   --shadow-elegant: 0 30px 80px -40px color-mix(in oklab, var(--primary) 40%, transparent);
 }
