@@ -18,6 +18,7 @@ import { Footer } from "@/components/layout/Footer";
 import { ScrollToTop } from "@/components/layout/ScrollToTop";
 import { supabase } from "@/integrations/supabase/client";
 import { TranslationProvider, useT, LANGUAGES } from "@/lib/translate/store";
+import { usePageAnalytics } from "@/hooks/use-page-analytics";
 
 function NotFoundComponent() {
   return (
@@ -170,9 +171,15 @@ function RootComponent() {
         <Toaster position="top-center" richColors />
         <ScrollToTop />
         <TitleTranslator />
+        <PageAnalyticsTracker pathname={pathname} />
       </QueryClientProvider>
     </TranslationProvider>
   );
+}
+
+function PageAnalyticsTracker({ pathname }: { pathname: string }) {
+  usePageAnalytics(pathname);
+  return null;
 }
 
 function TitleTranslator() {

@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { FileText, Eye, MessageSquare, Mail, Users } from "lucide-react";
+import { FileText, Eye, MessageSquare, Mail, Users, BarChart3, Activity, ArrowRight } from "lucide-react";
 import { adminAnalytics } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
@@ -14,8 +14,18 @@ function AdminDashboard() {
 
   return (
     <div>
-      <h1 className="font-display text-3xl font-bold">Dashboard</h1>
-      <p className="mt-1 text-sm text-muted-foreground">Overview of your content and audience.</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="font-display text-3xl font-bold">Dashboard</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Overview of your content and audience.</p>
+        </div>
+        <Link
+          to="/admin/analytics"
+          className="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-xs font-semibold text-accent-foreground hover:opacity-90 transition shadow-xs"
+        >
+          <BarChart3 className="h-4 w-4" /> Live Analytics Dashboard <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
+      </div>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Stat icon={FileText} label="Posts" value={data?.posts} sub={`${data?.published ?? 0} published`} loading={isLoading} />

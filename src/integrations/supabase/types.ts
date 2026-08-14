@@ -317,21 +317,74 @@ export type Database = {
         }
         Relationships: []
       }
+      page_views: {
+        Row: {
+          id: number
+          session_id: string
+          path: string
+          title: string | null
+          referrer: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: number
+          session_id: string
+          path?: string
+          title?: string | null
+          referrer?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: number
+          session_id?: string
+          path?: string
+          title?: string | null
+          referrer?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "page_views_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "visitor_sessions"
+            referencedColumns: ["session_id"]
+          }
+        ]
+      }
       visitor_sessions: {
         Row: {
           session_id: string
           last_active_at: string
           created_at: string
+          device_type: string | null
+          browser: string | null
+          os: string | null
+          country: string | null
+          referrer_source: string | null
+          entry_page: string | null
         }
         Insert: {
           session_id: string
           last_active_at?: string
           created_at?: string
+          device_type?: string | null
+          browser?: string | null
+          os?: string | null
+          country?: string | null
+          referrer_source?: string | null
+          entry_page?: string | null
         }
         Update: {
           session_id?: string
           last_active_at?: string
           created_at?: string
+          device_type?: string | null
+          browser?: string | null
+          os?: string | null
+          country?: string | null
+          referrer_source?: string | null
+          entry_page?: string | null
         }
         Relationships: []
       }

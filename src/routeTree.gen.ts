@@ -30,6 +30,7 @@ import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAdminMessagesRouteImport } from './routes/_authenticated/admin.messages'
 import { Route as AuthenticatedAdminDestinationsRouteImport } from './routes/_authenticated/admin.destinations'
 import { Route as AuthenticatedAdminCommentsRouteImport } from './routes/_authenticated/admin.comments'
+import { Route as AuthenticatedAdminAnalyticsRouteImport } from './routes/_authenticated/admin.analytics'
 import { Route as AuthenticatedAdminPostsIndexRouteImport } from './routes/_authenticated/admin.posts.index'
 import { Route as AuthenticatedAdminPostsNewRouteImport } from './routes/_authenticated/admin.posts.new'
 import { Route as AuthenticatedAdminPostsIdRouteImport } from './routes/_authenticated/admin.posts.$id'
@@ -141,6 +142,12 @@ const AuthenticatedAdminCommentsRoute =
     path: '/comments',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminAnalyticsRoute =
+  AuthenticatedAdminAnalyticsRouteImport.update({
+    id: '/analytics',
+    path: '/analytics',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminPostsIndexRoute =
   AuthenticatedAdminPostsIndexRouteImport.update({
     id: '/posts/',
@@ -177,6 +184,7 @@ export interface FileRoutesByFullPath {
   '/destinations/$slug': typeof DestinationsSlugRoute
   '/blog/': typeof BlogIndexRoute
   '/destinations/': typeof DestinationsIndexRoute
+  '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/comments': typeof AuthenticatedAdminCommentsRoute
   '/admin/destinations': typeof AuthenticatedAdminDestinationsRoute
   '/admin/messages': typeof AuthenticatedAdminMessagesRoute
@@ -199,6 +207,7 @@ export interface FileRoutesByTo {
   '/destinations/$slug': typeof DestinationsSlugRoute
   '/blog': typeof BlogIndexRoute
   '/destinations': typeof DestinationsIndexRoute
+  '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/comments': typeof AuthenticatedAdminCommentsRoute
   '/admin/destinations': typeof AuthenticatedAdminDestinationsRoute
   '/admin/messages': typeof AuthenticatedAdminMessagesRoute
@@ -226,6 +235,7 @@ export interface FileRoutesById {
   '/destinations/$slug': typeof DestinationsSlugRoute
   '/blog/': typeof BlogIndexRoute
   '/destinations/': typeof DestinationsIndexRoute
+  '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/_authenticated/admin/comments': typeof AuthenticatedAdminCommentsRoute
   '/_authenticated/admin/destinations': typeof AuthenticatedAdminDestinationsRoute
   '/_authenticated/admin/messages': typeof AuthenticatedAdminMessagesRoute
@@ -253,6 +263,7 @@ export interface FileRouteTypes {
     | '/destinations/$slug'
     | '/blog/'
     | '/destinations/'
+    | '/admin/analytics'
     | '/admin/comments'
     | '/admin/destinations'
     | '/admin/messages'
@@ -275,6 +286,7 @@ export interface FileRouteTypes {
     | '/destinations/$slug'
     | '/blog'
     | '/destinations'
+    | '/admin/analytics'
     | '/admin/comments'
     | '/admin/destinations'
     | '/admin/messages'
@@ -301,6 +313,7 @@ export interface FileRouteTypes {
     | '/destinations/$slug'
     | '/blog/'
     | '/destinations/'
+    | '/_authenticated/admin/analytics'
     | '/_authenticated/admin/comments'
     | '/_authenticated/admin/destinations'
     | '/_authenticated/admin/messages'
@@ -473,6 +486,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCommentsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/analytics': {
+      id: '/_authenticated/admin/analytics'
+      path: '/analytics'
+      fullPath: '/admin/analytics'
+      preLoaderRoute: typeof AuthenticatedAdminAnalyticsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/posts/': {
       id: '/_authenticated/admin/posts/'
       path: '/posts'
@@ -498,6 +518,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminAnalyticsRoute: typeof AuthenticatedAdminAnalyticsRoute
   AuthenticatedAdminCommentsRoute: typeof AuthenticatedAdminCommentsRoute
   AuthenticatedAdminDestinationsRoute: typeof AuthenticatedAdminDestinationsRoute
   AuthenticatedAdminMessagesRoute: typeof AuthenticatedAdminMessagesRoute
@@ -508,6 +529,7 @@ interface AuthenticatedAdminRouteChildren {
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminAnalyticsRoute: AuthenticatedAdminAnalyticsRoute,
   AuthenticatedAdminCommentsRoute: AuthenticatedAdminCommentsRoute,
   AuthenticatedAdminDestinationsRoute: AuthenticatedAdminDestinationsRoute,
   AuthenticatedAdminMessagesRoute: AuthenticatedAdminMessagesRoute,
