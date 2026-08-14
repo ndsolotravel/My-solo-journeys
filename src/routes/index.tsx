@@ -156,7 +156,7 @@ function HomePage() {
   const latestMoto = motoPosts[0] ?? null;
   const latestDest = destinations[0];
   const latestPhoto = gallery[0] ?? (galleryData ?? [])[0];
-  const latestPhotoCaption = latestPhoto?.caption || latestPhoto?.title || "";
+  const latestPhotoCaption = latestPhoto?.caption || "";
   const [heroQuery, setHeroQuery] = useState("");
   const navigate = useNavigate();
 
@@ -212,7 +212,7 @@ function HomePage() {
 
   return (
     <div>
-      {/* Hero */}
+      {/* 1. Hero */}
       <section className="relative min-h-[max(100svh,580px)] overflow-hidden">
         <HeroSlider
           slides={[
@@ -276,7 +276,7 @@ function HomePage() {
             />
             <button
               type="submit"
-              className="rounded-full bg-white px-4 py-2 text-xs font-medium text-foreground hover:bg-white/90"
+              className="rounded-full bg-white px-4 py-2 text-xs font-medium text-foreground hover:bg-white/90 cursor-pointer"
             >
               {t("Search")}
             </button>
@@ -290,13 +290,13 @@ function HomePage() {
           >
             <Link
               to="/blog"
-              className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-medium text-foreground hover:bg-white/90"
+              className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-medium text-foreground hover:bg-white/90 transition-colors"
             >
               {t("Read the stories")} <ArrowRight className="h-4 w-4 rtl:rotate-180" />
             </Link>
             <Link
               to="/destinations"
-              className="inline-flex items-center gap-2 rounded-full border border-white/30 px-6 py-3 text-sm font-medium text-white hover:bg-white/10"
+              className="inline-flex items-center gap-2 rounded-full border border-white/30 px-6 py-3 text-sm font-medium text-white hover:bg-white/10 transition-colors"
             >
               {t("Explore destinations")}
             </Link>
@@ -304,11 +304,103 @@ function HomePage() {
         </div>
       </section>
 
-      {/* Journey in Numbers */}
+      {/* 2. Choose Your Journey (Start your journey) */}
+      <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+        <div className="mb-10 max-w-2xl">
+          <p className="text-xs uppercase tracking-[0.2em] text-accent">{t("Start here")}</p>
+          <h2 className="mt-1 font-display text-3xl font-bold sm:text-4xl">
+            {t("Choose Your Journey")}
+          </h2>
+          <p className="mt-3 text-sm text-muted-foreground">
+            {t("Three pathways into the wild — pick the route that pulls you in.")}
+          </p>
+        </div>
+        <div className="grid gap-6 md:grid-cols-3">
+          {JOURNEY_CARDS.map((c) => {
+            const Icon = c.icon;
+            return (
+              <Link
+                key={c.title}
+                to={c.to}
+                search={c.search as any}
+                className="group relative block overflow-hidden rounded-2xl border border-border"
+              >
+                <div className="aspect-[4/5] w-full overflow-hidden">
+                  <img
+                    src={c.img}
+                    alt={c.title}
+                    loading="lazy"
+                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                  />
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 p-6 text-white">
+                  <Icon className="h-5 w-5 text-accent" />
+                  <h3 className="mt-3 font-display text-2xl font-semibold">{t(c.title)}</h3>
+                  <p className="mt-2 text-sm text-white/80">{t(c.body)}</p>
+                  <span className="mt-4 inline-flex items-center gap-1 text-xs font-medium text-accent">
+                    {t("Explore")}
+                    <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1 rtl:rotate-180" />
+                  </span>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* 3. Featured Expedition */}
+      {featured && (
+        <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
+          <div className="mb-8 flex items-end justify-between gap-4">
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-accent">{t("Featured")}</p>
+              <h2 className="mt-1 font-display text-3xl font-bold sm:text-4xl">
+                {t("The latest expedition")}
+              </h2>
+            </div>
+            <Link to="/blog" className="text-sm text-muted-foreground hover:text-foreground">
+              {t("All stories")} →
+            </Link>
+          </div>
+          <Link
+            to="/blog/$slug"
+            params={{ slug: featured.slug }}
+            className="group grid gap-8 lg:grid-cols-2 rounded-3xl border border-border bg-card p-4 sm:p-6 transition-all duration-300 hover:border-accent/40 shadow-sm"
+          >
+            <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-muted">
+              {featured.cover_image && (
+                <img
+                  src={featured.cover_image}
+                  alt={featured.title}
+                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                />
+              )}
+            </div>
+            <div className="flex flex-col justify-center py-2">
+              <span className="text-xs font-medium uppercase tracking-wider text-accent">
+                {featured.category ? t(featured.category) : ""} · {featured.reading_minutes} {t("min read")}
+              </span>
+              <h3 className="mt-3 font-display text-3xl font-bold leading-tight sm:text-4xl group-hover:text-accent transition-colors">
+                {t(featured.title)}
+              </h3>
+              {featured.excerpt && (
+                <p className="mt-4 text-base text-muted-foreground line-clamp-3">{t(featured.excerpt)}</p>
+              )}
+              <span className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-accent">
+                {t("Read the full story")}
+                <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 rtl:rotate-180" />
+              </span>
+            </div>
+          </Link>
+        </section>
+      )}
+
+      {/* 4. Journey in Numbers */}
       <section
         id="journey-in-numbers"
         aria-labelledby="journey-numbers-heading"
-        className="scroll-mt-24 border-b border-border bg-muted/20 py-20"
+        className="scroll-mt-24 border-y border-border bg-muted/20 py-20"
       >
         <div ref={journeyRef} className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-10 max-w-2xl">
@@ -345,7 +437,7 @@ function HomePage() {
             ))}
           </div>
 
-          {/* Compact travel summary — Rich Photo Cards on Mobile & Desktop */}
+          {/* Compact travel summary — Rich Photo Cards */}
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {latestMoto && (
               <Link
@@ -456,262 +548,17 @@ function HomePage() {
         </div>
       </section>
 
-      {/* Hit Counter Section - Directly below Journey in Numbers */}
-      <section
-        id="hit-counter"
-        aria-labelledby="hit-counter-heading"
-        className="border-b border-border bg-slate-100/90 dark:bg-muted/30 py-16 sm:py-20 transition-colors"
-      >
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mb-10 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-            <div>
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/80 px-3.5 py-1 text-xs font-medium text-accent shadow-sm backdrop-blur-sm">
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
-                </span>
-                Live Traffic Analytics
-              </div>
-              <h2
-                id="hit-counter-heading"
-                className="font-display text-3xl font-bold tracking-tight sm:text-4xl"
-              >
-                Website Hit Counter & Analytics
-              </h2>
-              <p className="mt-2.5 max-w-xl text-sm text-muted-foreground">
-                Real-time reader activity, page hits, and engagement across stories and field guides.
-              </p>
-            </div>
-            <div className="flex w-fit items-center gap-2 rounded-full border border-border bg-background/70 px-4 py-2.5 text-xs text-muted-foreground backdrop-blur-sm">
-              <span className="h-2 w-2 rounded-full bg-emerald-500" />
-              Updated real-time · 99.9% uptime
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {/* Total Hits */}
-            <div className="group rounded-2xl border border-border/80 bg-background p-5 shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-md">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Total Page Hits
-                </span>
-                <div className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-accent/10 text-accent transition-transform group-hover:scale-110">
-                  <Eye className="h-4 w-4" />
-                </div>
-              </div>
-              <div className="mt-3 font-display text-3xl font-bold">
-                <CountUp end={48290} suffix="+" />
-              </div>
-              <p className="mt-1 text-[11px] text-muted-foreground">
-                +1,240 page views this week
-              </p>
-            </div>
-
-            {/* Unique Visitors */}
-            <div className="group rounded-2xl border border-border/80 bg-background p-5 shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-md">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Unique Readers
-                </span>
-                <div className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-accent/10 text-accent transition-transform group-hover:scale-110">
-                  <Users className="h-4 w-4" />
-                </div>
-              </div>
-              <div className="mt-3 font-display text-3xl font-bold">
-                <CountUp end={18450} suffix="+" />
-              </div>
-              <p className="mt-1 text-[11px] text-muted-foreground">Across 64 countries</p>
-            </div>
-
-            {/* Stories Read */}
-            <div className="group rounded-2xl border border-border/80 bg-background p-5 shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-md">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Stories Read
-                </span>
-                <div className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-accent/10 text-accent transition-transform group-hover:scale-110">
-                  <BookOpen className="h-4 w-4" />
-                </div>
-              </div>
-              <div className="mt-3 font-display text-3xl font-bold">
-                <CountUp end={34120} suffix="+" />
-              </div>
-              <p className="mt-1 text-[11px] text-muted-foreground">
-                Avg. reading time: 4.8 min
-              </p>
-            </div>
-
-            {/* Live Active Readers */}
-            <div className="group rounded-2xl border border-border/80 bg-background p-5 shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-md">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Live Now
-                </span>
-                <div className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 transition-transform group-hover:scale-110 dark:text-emerald-400">
-                  <Activity className="h-4 w-4" />
-                </div>
-              </div>
-              <div className="mt-3 flex items-baseline gap-2 font-display text-3xl font-bold text-emerald-600 dark:text-emerald-400">
-                <LiveNowNumber />
-                <span className="text-xs font-normal text-muted-foreground">
-                  active readers
-                </span>
-              </div>
-              <p className="mt-1 flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
-                Reading stories right now
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Start Your Journey */}
-      <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-        <div className="mb-10 max-w-2xl">
-          <p className="text-xs uppercase tracking-[0.2em] text-accent">Start here</p>
-          <h2 className="mt-1 font-display text-3xl font-bold sm:text-4xl">
-            Start your journey
-          </h2>
-          <p className="mt-3 text-sm text-muted-foreground">
-            Three places to begin — pick the journey that pulls you in.
-          </p>
-        </div>
-        <div className="grid gap-6 md:grid-cols-3">
-          {JOURNEY_CARDS.map((c) => {
-            const Icon = c.icon;
-            return (
-              <Link
-                key={c.title}
-                to={c.to}
-                search={c.search as any}
-                className="group relative block overflow-hidden rounded-2xl border border-border"
-              >
-                <div className="aspect-[4/5] w-full overflow-hidden">
-                  <img
-                    src={c.img}
-                    alt={c.title}
-                    loading="lazy"
-                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
-                  />
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
-                <div className="absolute inset-x-0 bottom-0 p-6 text-white">
-                  <Icon className="h-5 w-5 text-accent" />
-                  <h3 className="mt-3 font-display text-2xl font-semibold">{c.title}</h3>
-                  <p className="mt-2 text-sm text-white/80">{c.body}</p>
-                  <span className="mt-4 inline-flex items-center gap-1 text-xs font-medium">
-                    Explore
-                    <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
-                  </span>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* Featured */}
-      {featured && (
-        <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-          <div className="mb-8 flex items-end justify-between gap-4">
-            <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-accent">Featured</p>
-              <h2 className="mt-1 font-display text-3xl font-bold sm:text-4xl">
-                The latest expedition
-              </h2>
-            </div>
-            <Link to="/blog" className="text-sm text-muted-foreground hover:text-foreground">
-              All stories →
-            </Link>
-          </div>
-          <Link
-            to="/blog/$slug"
-            params={{ slug: featured.slug }}
-            className="group grid gap-8 lg:grid-cols-2"
-          >
-            <div className="aspect-[4/3] overflow-hidden rounded-3xl bg-muted">
-              {featured.cover_image && (
-                <img
-                  src={featured.cover_image}
-                  alt={featured.title}
-                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-                />
-              )}
-            </div>
-            <div className="flex flex-col justify-center">
-              <span className="text-xs font-medium uppercase tracking-wider text-accent">
-                {t(featured.category)} · {featured.reading_minutes} {t("min read")}
-              </span>
-              <h3 className="mt-3 font-display text-3xl font-bold leading-tight sm:text-4xl group-hover:text-accent transition-colors">
-                {t(featured.title)}
-              </h3>
-              <p className="mt-4 text-base text-muted-foreground">{t(featured.excerpt)}</p>
-              <span className="mt-6 inline-flex items-center gap-2 text-sm font-medium">
-                {t("Read the full story")}
-                <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 rtl:rotate-180" />
-              </span>
-            </div>
-          </Link>
-        </section>
-      )}
-
-      {/* Categories */}
-      <section className="border-y border-border bg-muted/30 py-16">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="font-display text-2xl font-bold sm:text-3xl">Browse by category</h2>
-          <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-            {CATEGORIES.slice(0, 12).map((c) => {
-              const Icon = CAT_ICONS[c] ?? Compass;
-              return (
-                <Link
-                  key={c}
-                  to="/blog"
-                  search={{ category: c }}
-                  className="group flex items-center gap-2 rounded-full border border-border bg-background px-4 py-3 text-xs font-medium hover:border-accent hover:text-accent transition"
-                >
-                  <Icon className="h-4 w-4" />
-                  <span className="truncate">{c}</span>
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Popular this month */}
+      {/* 5. Latest Stories */}
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
         <div className="mb-10 flex items-end justify-between">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-accent">
-              What others are reading
-            </p>
+            <p className="text-xs uppercase tracking-[0.2em] text-accent">{t("From the road")}</p>
             <h2 className="mt-1 font-display text-3xl font-bold sm:text-4xl">
-              Popular this month
+              {t("Latest stories")}
             </h2>
           </div>
           <Link to="/blog" className="text-sm text-muted-foreground hover:text-foreground">
-            All stories →
-          </Link>
-        </div>
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {popular.isLoading
-            ? Array.from({ length: 3 }).map((_, i) => <PostCardSkeleton key={i} />)
-            : popularPosts.map((p, i) => <PostCard key={p.id} post={p} index={i} />)}
-        </div>
-      </section>
-
-      {/* Latest posts */}
-      <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
-        <div className="mb-10 flex items-end justify-between">
-          <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-accent">From the road</p>
-            <h2 className="mt-1 font-display text-3xl font-bold sm:text-4xl">
-              Latest stories
-            </h2>
-          </div>
-          <Link to="/blog" className="text-sm text-muted-foreground hover:text-foreground">
-            View all →
+            {t("View all")} →
           </Link>
         </div>
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
@@ -721,115 +568,121 @@ function HomePage() {
         </div>
       </section>
 
-      {/* Travel Guides — separated from personal expedition stories */}
+      {/* 6. Featured Destinations */}
       <section className="border-t border-border bg-muted/20 py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mb-10 flex items-end justify-between gap-4">
+          <div className="mb-10 flex items-end justify-between">
             <div>
               <p className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-accent">
-                <BookOpen className="h-3.5 w-3.5" /> Plan your trip
+                <MapIcon className="h-3.5 w-3.5" /> {t("Where")}
               </p>
               <h2 className="mt-1 font-display text-3xl font-bold sm:text-4xl">
-                Travel guides
+                {t("Featured destinations")}
               </h2>
-              <p className="mt-2 max-w-xl text-sm text-muted-foreground">
-                Practical, no-fluff guides to logistics, gear, costs and the small details that make a trip work.
-              </p>
             </div>
-            <Link
-              to="/blog"
-              search={{ category: "Travel Tips" } as any}
-              className="text-sm text-muted-foreground hover:text-foreground"
-            >
-              All guides →
+            <Link to="/destinations" className="text-sm text-muted-foreground hover:text-foreground">
+              {t("All destinations")} →
             </Link>
           </div>
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {guides.isLoading
-              ? Array.from({ length: 3 }).map((_, i) => <PostCardSkeleton key={i} />)
-              : guidePosts.slice(0, 3).map((p, i) => <PostCard key={p.id} post={p} index={i} />)}
-          </div>
-        </div>
-      </section>
-
-      {/* Destinations */}
-      <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-        <div className="mb-10 flex items-end justify-between">
-          <div>
-            <p className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-accent">
-              <MapIcon className="h-3.5 w-3.5" /> Where
-            </p>
-            <h2 className="mt-1 font-display text-3xl font-bold sm:text-4xl">
-              Featured destinations
-            </h2>
-          </div>
-          <Link to="/destinations" className="text-sm text-muted-foreground hover:text-foreground">
-            All destinations →
-          </Link>
-        </div>
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {destinations.length === 0
-            ? Array.from({ length: 4 }).map((_, i) => <DestinationCardSkeleton key={i} />)
-            : destinations.slice(0, 8).map((d, i) => (
-                <motion.div
-                  key={d.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-50px" }}
-                  transition={{ duration: 0.5, delay: i * 0.05 }}
-                >
-                  <Link to="/destinations/$slug" params={{ slug: d.slug }} className="group block">
-                    <div className="relative aspect-[16/10] sm:aspect-[3/4] overflow-hidden rounded-2xl">
-                      {d.featured_image && (
-                        <img
-                          src={d.featured_image}
-                          alt={d.title}
-                          loading="lazy"
-                          className="h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
-                        />
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
-                      <div className="absolute inset-x-0 bottom-0 p-5 text-white">
-                        <p className="text-xs uppercase tracking-wider text-white/70">
-                          {t(d.country)}
-                          {d.region ? ` · ${t(d.region)}` : ""}
-                        </p>
-                        <h3 className="mt-1 font-display text-xl font-semibold">{t(d.title)}</h3>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {destinations.length === 0
+              ? Array.from({ length: 4 }).map((_, i) => <DestinationCardSkeleton key={i} />)
+              : destinations.slice(0, 8).map((d, i) => (
+                  <motion.div
+                    key={d.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-50px" }}
+                    transition={{ duration: 0.5, delay: i * 0.05 }}
+                  >
+                    <Link to="/destinations/$slug" params={{ slug: d.slug }} className="group block">
+                      <div className="relative aspect-[16/10] sm:aspect-[3/4] overflow-hidden rounded-2xl">
+                        {d.featured_image && (
+                          <img
+                            src={d.featured_image}
+                            alt={d.title}
+                            loading="lazy"
+                            className="h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                          />
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+                        <div className="absolute inset-x-0 bottom-0 p-5 text-white">
+                          <p className="text-xs uppercase tracking-wider text-white/70">
+                            {t(d.country)}
+                            {d.region ? ` · ${t(d.region)}` : ""}
+                          </p>
+                          <h3 className="mt-1 font-display text-xl font-semibold">{t(d.title)}</h3>
+                        </div>
                       </div>
-                    </div>
-                  </Link>
-                </motion.div>
-              ))}
+                    </Link>
+                  </motion.div>
+                ))}
+          </div>
         </div>
       </section>
 
-      {/* Newsletter */}
+      {/* 7. Photography / Gallery Section */}
+      {gallery.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+          <div className="mb-10 flex items-end justify-between">
+            <div>
+              <p className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-accent">
+                <Camera className="h-3.5 w-3.5" /> {t("Visual journal")}
+              </p>
+              <h2 className="mt-1 font-display text-3xl font-bold sm:text-4xl">
+                {t("Photography")}
+              </h2>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {t("Moments captured in silence above 4,000 metres.")}
+              </p>
+            </div>
+            <Link to="/gallery" className="text-sm text-muted-foreground hover:text-foreground">
+              {t("Full gallery")} →
+            </Link>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {gallery.slice(0, 6).map((item, idx) => (
+              <motion.div
+                key={item.id || idx}
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: idx * 0.05 }}
+              >
+                <Link
+                  to="/gallery"
+                  className="group relative block aspect-[4/3] overflow-hidden rounded-2xl border border-border bg-muted"
+                >
+                  <img
+                    src={item.image_url}
+                    alt={item.caption || "Expedition photograph"}
+                    loading="lazy"
+                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 flex items-end p-4">
+                    {item.caption && (
+                      <p className="text-xs font-medium text-white line-clamp-2">{t(item.caption)}</p>
+                    )}
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* 8. Newsletter */}
       <section className="mx-auto max-w-3xl px-4 pb-24 pt-8 text-center sm:px-6">
         <h2 className="font-display text-3xl font-bold sm:text-4xl">
-          Get the next dispatch
+          {t("Get the next dispatch")}
         </h2>
         <p className="mt-3 text-muted-foreground">
-          One email when a new expedition story drops. No spam, no algorithm noise.
+          {t("One email when a new expedition story drops. No spam, no algorithm noise.")}
         </p>
         <div className="mx-auto mt-6 max-w-md">
           <NewsletterForm />
         </div>
       </section>
     </div>
-  );
-}
-
-function LiveNowNumber() {
-  const count = useActiveVisitors();
-  // Render 0 during SSR/first paint to avoid hydration mismatch, then show the
-  // live number as it arrives (no full page reload — it just re-renders).
-  const [display, setDisplay] = useState(0);
-  useEffect(() => {
-    setDisplay(count);
-  }, [count]);
-  return (
-    <span className="tabular-nums" suppressHydrationWarning>
-      {display.toLocaleString()}
-    </span>
   );
 }

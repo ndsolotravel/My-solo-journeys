@@ -3,12 +3,13 @@ import { queryOptions, useQuery, useMutation, useQueryClient } from "@tanstack/r
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { Clock, Share2, ArrowLeft, Star, MapPin, Calendar, Image as ImageIcon, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { Clock, Share2, ArrowLeft, Star, MapPin, Calendar, Image as ImageIcon, X, ChevronLeft, ChevronRight, User, List, ArrowRight as ArrowRightIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { getPostBySlug } from "@/lib/posts.functions";
+import { getPostBySlug, type Post } from "@/lib/posts.functions";
 import { listComments, postComment, getPostRatingStats } from "@/lib/comments.functions";
 import { PostCard } from "@/components/blog/PostCard";
 import { ReadingProgress } from "@/components/blog/ReadingProgress";
+import { NewsletterForm } from "@/components/layout/NewsletterForm";
 import { toast } from "sonner";
 import { useTranslations, useLanguage } from "@/lib/translate/store";
 
@@ -114,7 +115,7 @@ function PostPage() {
   const localizedPost = useMemo(() => {
     if (!post) return null;
     if (lang === "en") return post;
-    const dbTrans = post.post_translations?.find((x) => x.language_code === lang);
+    const dbTrans = post.post_translations?.find((x: any) => x.language_code === lang);
     if (dbTrans) {
       return {
         ...post,
@@ -138,6 +139,23 @@ function PostPage() {
   }, [post, lang, t]);
 
   const localizedRelated = related;
+
+  // Auto-generate Table of Contents from H2 & H3 headings
+  const toc = useMemo(() => {
+    if (!localizedPost?.content) return [];
+    const lines = localizedPost.content.split("\n");
+    const items: { id: string; text: string; level: number }[] = [];
+    lines.forEach((line: string) => {
+      const match = line.match(/^(#{2,3})\s+(.+)$/);
+      if (match) {
+        const level = match[1].length;
+        const text = match[2].trim().replace(/[*_~`]/g, "");
+        const id = text.toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-");
+        items.push({ id, text, level });
+      }
+    });
+    return items;
+  }, [localizedPost]);
 
   const [[activeImageIndex, direction], setActiveImageState] = useState<[number | null, number]>([null, 0]);
 
@@ -183,6 +201,9 @@ function PostPage() {
 
   const dest = post.destinations as { title: string; slug: string } | null;
 
+  const prevStory = localizedRelated[0] ?? null;
+  const nextStory = localizedRelated[1] ?? null;
+
   return (
     <article className="pb-24">
       <ReadingProgress />
@@ -223,6 +244,10 @@ function PostPage() {
             {localizedPost.title}
           </h1>
           <div className="mt-5 flex flex-wrap items-center gap-4 text-xs text-white/80">
+            <span className="inline-flex items-center gap-1 font-semibold text-white">
+              <User className="h-3.5 w-3.5 text-accent" /> By Noman · ndsolotravel
+            </span>
+            <span aria-hidden>·</span>
             <span>{date}</span>
             {formattedTravelDate && (
               <>
@@ -243,12 +268,64 @@ function PostPage() {
       {/* Body */}
       <div className="mx-auto mt-12 max-w-3xl px-4 sm:px-6">
         {localizedPost.excerpt && (
-          <p className="font-display text-xl leading-relaxed text-muted-foreground">
+          <p className="font-display text-xl leading-relaxed text-muted-foreground border-l-2 border-accent pl-4 py-1 italic">
             {localizedPost.excerpt}
           </p>
         )}
+
+        {/* Table of Contents sidebar/box for long articles */}
+        {toc.length > 2 && (
+          <nav aria-label={t("Table of Contents")} className="my-8 rounded-2xl border border-border bg-card p-5 shadow-sm">
+            <div className="flex items-center gap-2 font-display text-sm font-semibold text-foreground mb-3">
+              <List className="h-4 w-4 text-accent" />
+              <span>{t("Expedition Contents")}</span>
+            </div>
+            <ul className="space-y-2 text-xs">
+              {toc.map((item) => (
+                <li key={item.id} style={{ paddingLeft: item.level === 3 ? "1.25rem" : "0" }}>
+                  <a
+                    href={`#${item.id}`}
+                    className="text-muted-foreground hover:text-accent transition-colors flex items-center gap-1.5"
+                  >
+                    <span className="h-1 w-1 rounded-full bg-accent/60" />
+                    {item.text}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )}
+
         <div className="prose-blog mt-8">
-          <ReactMarkdown>{localizedPost.content}</ReactMarkdown>
+          <ReactMarkdown
+            components={{
+              h2: ({ children }) => {
+                const text = String(children);
+                const id = text.toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-");
+                return (
+                  <h2 id={id} className="scroll-mt-24 font-display text-2xl font-bold mt-10 mb-4 text-foreground">
+                    {children}
+                  </h2>
+                );
+              },
+              h3: ({ children }) => {
+                const text = String(children);
+                const id = text.toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-");
+                return (
+                  <h3 id={id} className="scroll-mt-24 font-display text-xl font-semibold mt-8 mb-3 text-foreground">
+                    {children}
+                  </h3>
+                );
+              },
+              blockquote: ({ children }) => (
+                <blockquote className="my-6 border-l-4 border-accent bg-muted/40 py-3.5 px-5 italic rounded-r-xl text-base text-foreground shadow-sm">
+                  {children}
+                </blockquote>
+              ),
+            }}
+          >
+            {localizedPost.content}
+          </ReactMarkdown>
         </div>
 
         {/* Multi-Photo Gallery Grid */}
@@ -258,7 +335,7 @@ function PostPage() {
               <ImageIcon className="h-5 w-5 text-accent" /> {t("Photo Gallery")}
             </h3>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {gallery.map((item, idx) => (
+              {gallery.map((item: any, idx: number) => (
                 <motion.div
                   key={item.id || idx}
                   whileHover={{ scale: 1.02 }}
@@ -388,6 +465,51 @@ function PostPage() {
 
         <ShareBar title={localizedPost.title} />
 
+        {/* Previous / Next Story Navigation */}
+        {(prevStory || nextStory) && (
+          <div className="mt-12 grid gap-4 sm:grid-cols-2 border-t border-border pt-8">
+            {prevStory ? (
+              <Link
+                to="/blog/$slug"
+                params={{ slug: prevStory.slug }}
+                className="group flex flex-col p-4 rounded-2xl border border-border hover:border-accent/50 transition-colors"
+              >
+                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+                  <ArrowLeft className="h-3 w-3" /> {t("Previous Story")}
+                </span>
+                <span className="mt-2 font-display text-base font-semibold text-foreground group-hover:text-accent transition-colors line-clamp-1">
+                  {t(prevStory.title)}
+                </span>
+              </Link>
+            ) : <div />}
+            {nextStory ? (
+              <Link
+                to="/blog/$slug"
+                params={{ slug: nextStory.slug }}
+                className="group flex flex-col p-4 rounded-2xl border border-border hover:border-accent/50 transition-colors text-right"
+              >
+                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider flex items-center justify-end gap-1">
+                  {t("Next Story")} <ArrowRightIcon className="h-3 w-3" />
+                </span>
+                <span className="mt-2 font-display text-base font-semibold text-foreground group-hover:text-accent transition-colors line-clamp-1">
+                  {t(nextStory.title)}
+                </span>
+              </Link>
+            ) : <div />}
+          </div>
+        )}
+
+        {/* Article Bottom Newsletter Dispatch CTA */}
+        <section className="mt-14 rounded-3xl border border-border bg-muted/30 p-6 sm:p-8 text-center shadow-xs">
+          <h3 className="font-display text-2xl font-bold">{t("Enjoyed this dispatch?")}</h3>
+          <p className="mt-2 text-sm text-muted-foreground max-w-md mx-auto">
+            {t("Get an email when a new expedition story drops. No spam, no algorithm noise.")}
+          </p>
+          <div className="mt-6 max-w-md mx-auto">
+            <NewsletterForm />
+          </div>
+        </section>
+
         <CommentsSection postId={post.id} />
       </div>
 
@@ -396,7 +518,7 @@ function PostPage() {
         <div className="mx-auto mt-20 max-w-7xl px-4 sm:px-6 lg:px-8">
           <h2 className="font-display text-2xl font-bold">{t("Keep reading")}</h2>
           <div className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {localizedRelated.map((p, i: number) => (
+            {localizedRelated.map((p: Post, i: number) => (
               <PostCard key={p.id} post={p} index={i} />
             ))}
           </div>
