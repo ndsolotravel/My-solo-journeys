@@ -27,7 +27,7 @@ function AdminPostsList() {
   const toggleFn = useServerFn(adminTogglePublish);
   const delFn = useServerFn(adminDeletePost);
   const qc = useQueryClient();
-  const { data, isLoading } = useQuery({ queryKey: ["admin-posts"], queryFn: () => listFn() });
+  const { data, isLoading } = useQuery<any>({ queryKey: ["admin-posts"], queryFn: async () => await listFn() });
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
@@ -54,7 +54,7 @@ function AdminPostsList() {
 
   const filteredPosts = useMemo(() => {
     if (!data) return [];
-    return data.filter((p) => {
+    return data.filter((p: any) => {
       // Status filter
       if (statusFilter === "published" && !p.published) return false;
       if (statusFilter === "draft" && (p.published || p.scheduled_at)) return false;
@@ -139,7 +139,7 @@ function AdminPostsList() {
                 </td>
               </tr>
             )}
-            {filteredPosts.map((p) => {
+            {filteredPosts.map((p: any) => {
               const dest = (p as Record<string, unknown>).destinations as { title?: string } | null;
               return (
                 <tr key={p.id} className="border-t border-border hover:bg-muted/30">

@@ -26,7 +26,45 @@ CREATE INDEX IF NOT EXISTS page_views_created_at_idx ON public.page_views (creat
 CREATE INDEX IF NOT EXISTS page_views_path_idx ON public.page_views (path);
 CREATE INDEX IF NOT EXISTS page_views_session_id_idx ON public.page_views (session_id);
 
--- 3. Update cleanup_stale_visitor_sessions so historical analytics data is preserved.
+-- 3. Atomic PostgreSQL RPC for tracking visitor sessions and recording page views
+CREATE OR REPLACE FUNCTION public.upsert_visitor_session(
+  p_session_id TEXT,
+  p_path TEXT DEFAULT '/',
+  p_device_type TEXT DEFAULT 'desktop',
+  p_browser TEXT DEFAULT 'Unknown',
+  p_os TEXT DEFAULT 'Unknown',
+  p_country TEXT DEFAULT 'Unknown',
+  p_referrer_source TEXT DEFAULT 'Direct',
+  p_is_new_page_view BOOLEAN DEFAULT false,
+  p_title TEXT DEFAULT '',
+  p_referrer TEXT DEFAULT ''
+) RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  INSERT INTO public.visitor_sessions (
+    session_id, last_active_at, created_at, device_type, browser, os, country, referrer_source, entry_page
+  ) VALUES (
+    p_session_id, now(), now(), p_device_type, p_browser, p_os, p_country, p_referrer_source, p_path
+  )
+  ON CONFLICT (session_id) DO UPDATE SET
+    last_active_at = now(),
+    device_type = COALESCE(NULLIF(EXCLUDED.device_type, ''), public.visitor_sessions.device_type),
+    browser = COALESCE(NULLIF(EXCLUDED.browser, 'Unknown'), public.visitor_sessions.browser),
+    os = COALESCE(NULLIF(EXCLUDED.os, 'Unknown'), public.visitor_sessions.os),
+    country = COALESCE(NULLIF(EXCLUDED.country, 'Unknown'), public.visitor_sessions.country);
+
+  IF p_is_new_page_view THEN
+    INSERT INTO public.page_views (session_id, path, title, referrer, created_at)
+    VALUES (p_session_id, p_path, COALESCE(p_title, p_path), COALESCE(p_referrer, ''), now());
+  END IF;
+END; $$;
+
+GRANT EXECUTE ON FUNCTION public.upsert_visitor_session TO anon, authenticated;
+
+-- 4. Update cleanup_stale_visitor_sessions so historical analytics data is preserved.
 -- Only purge sessions inactive for more than 365 days.
 CREATE OR REPLACE FUNCTION public.cleanup_stale_visitor_sessions()
 RETURNS void
@@ -41,7 +79,7 @@ $$;
 -- Grant EXECUTE to anon and authenticated
 GRANT EXECUTE ON FUNCTION public.cleanup_stale_visitor_sessions() TO anon, authenticated;
 
--- 4. Enable Row Level Security and setup policies on page_views
+-- 5. Enable Row Level Security and setup policies on page_views
 ALTER TABLE public.page_views ENABLE ROW LEVEL SECURITY;
 
 DO $$ BEGIN

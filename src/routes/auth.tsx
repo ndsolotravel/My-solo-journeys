@@ -84,11 +84,10 @@ function AuthPage() {
 
         if (data.user) {
           toast.success("Signed in successfully");
-          const { data: rolesData } = await supabase
-            .from("user_roles")
+          const { data: rolesData } = await (supabase.from("user_roles") as any)
             .select("role")
             .eq("user_id", data.user.id);
-          const roles = (rolesData ?? []).map((r) => r.role);
+          const roles = ((rolesData as any[]) ?? []).map((r) => r.role);
           const isStaff = roles.includes("admin") || roles.includes("editor");
 
           if (redirectTarget) {

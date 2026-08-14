@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { recordPageViewAndPing } from "@/lib/analytics.functions";
 
 const SESSION_KEY = "ndsolo:visitor-session";
-const HEARTBEAT_INTERVAL_MS = 60_000; // 1 minute heartbeat
+const HEARTBEAT_INTERVAL_MS = 30_000; // 30 seconds heartbeat for responsive Live Now tracking
 
 /**
  * Retrieve or generate persistent anonymous Visitor Session ID.
@@ -76,40 +77,44 @@ export function getReferrerSource(referrer: string): string {
  */
 export function usePageAnalytics(pathname: string) {
   const lastPathRef = useRef<string | null>(null);
+  const trackFn = useServerFn(recordPageViewAndPing);
 
-  const track = useCallback(async (isNewPage: boolean) => {
-    if (typeof window === "undefined") return;
-    const sessionId = getVisitorSessionId();
-    if (!sessionId) return;
+  const track = useCallback(
+    async (isNewPage: boolean) => {
+      if (typeof window === "undefined") return;
+      const sessionId = getVisitorSessionId();
+      if (!sessionId) return;
 
-    const ua = navigator.userAgent || "";
-    const deviceType = getDeviceType(ua);
-    const browser = getBrowserName(ua);
-    const os = getOSName(ua);
-    const referrer = document.referrer || "";
-    const referrerSource = getReferrerSource(referrer);
-    const title = document.title || pathname;
+      const ua = navigator.userAgent || "";
+      const deviceType = getDeviceType(ua);
+      const browser = getBrowserName(ua);
+      const os = getOSName(ua);
+      const referrer = document.referrer || "";
+      const referrerSource = getReferrerSource(referrer);
+      const title = document.title || pathname;
 
-    try {
-      await recordPageViewAndPing({
-        data: {
-          sessionId,
-          path: pathname,
-          title,
-          referrer,
-          deviceType,
-          browser,
-          os,
-          referrerSource,
-          isNewPageView: isNewPage,
-        },
-      });
-    } catch {
-      // Swallowed silently so network interruptions never disrupt user experience
-    }
-  }, [pathname]);
+      try {
+        await trackFn({
+          data: {
+            sessionId,
+            path: pathname,
+            title,
+            referrer,
+            deviceType,
+            browser,
+            os,
+            referrerSource,
+            isNewPageView: isNewPage,
+          },
+        });
+      } catch {
+        // Swallowed silently so network interruptions never disrupt user experience
+      }
+    },
+    [pathname, trackFn],
+  );
 
-  // Record page view on path change
+  // Record page view on path change and manage heartbeat
   useEffect(() => {
     if (typeof window === "undefined") return;
     const isNew = lastPathRef.current !== pathname;
@@ -120,17 +125,25 @@ export function usePageAnalytics(pathname: string) {
     const heartbeatTimer = window.setInterval(() => void track(false), HEARTBEAT_INTERVAL_MS);
 
     const onVisible = () => {
-      if (document.visibilityState === "visible") void track(false);
+      if (document.visibilityState === "visible") {
+        void track(false);
+      } else if (document.visibilityState === "hidden") {
+        void track(false);
+      }
     };
+
     const onFocus = () => void track(false);
+    const onPageHide = () => void track(false);
 
     document.addEventListener("visibilitychange", onVisible);
     window.addEventListener("focus", onFocus);
+    window.addEventListener("pagehide", onPageHide);
 
     return () => {
       window.clearInterval(heartbeatTimer);
       document.removeEventListener("visibilitychange", onVisible);
       window.removeEventListener("focus", onFocus);
+      window.removeEventListener("pagehide", onPageHide);
     };
   }, [pathname, track]);
 }

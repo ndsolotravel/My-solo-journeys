@@ -18,7 +18,7 @@ function AdminDestinations() {
   const delFn = useServerFn(adminDeleteDestination);
   const uploadFn = useServerFn(adminUploadImage);
   const qc = useQueryClient();
-  const { data } = useQuery({ queryKey: ["admin-destinations"], queryFn: () => listFn() });
+  const { data } = useQuery<any>({ queryKey: ["admin-destinations"], queryFn: async () => await listFn() });
   const [editing, setEditing] = useState<Dest | null>(null);
 
   const save = useMutation({
@@ -49,7 +49,7 @@ function AdminDestinations() {
       </div>
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {(data ?? []).map((d) => (
+        {(data ?? []).map((d: any) => (
           <div key={d.id} className="overflow-hidden rounded-2xl border border-border">
             {d.featured_image && <img src={d.featured_image} alt={d.title} className="aspect-video w-full object-cover" />}
             <div className="p-4">

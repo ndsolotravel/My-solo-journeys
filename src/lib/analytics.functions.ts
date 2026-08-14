@@ -39,9 +39,17 @@ function formatCountry(code: string | null | undefined): string {
   return COUNTRY_NAMES[upper] || upper;
 }
 
+/** Helper to extract payload whether wrapped as { data: ... } or direct object */
+function unwrapInput(input: any) {
+  if (input && typeof input === "object" && "data" in input && input.data !== undefined) {
+    return input.data;
+  }
+  return input ?? {};
+}
+
 /** Server function to ping session heartbeat and optionally record a page view. */
 export const recordPageViewAndPing = createServerFn({ method: "POST" })
-  .inputValidator((input) =>
+  .inputValidator((input: any) =>
     z
       .object({
         sessionId: z.string().min(1).max(128),
@@ -54,7 +62,7 @@ export const recordPageViewAndPing = createServerFn({ method: "POST" })
         referrerSource: z.string().max(100).optional().default("Direct"),
         isNewPageView: z.boolean().optional().default(false),
       })
-      .parse(input ?? {}),
+      .parse(unwrapInput(input)),
   )
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -73,7 +81,29 @@ export const recordPageViewAndPing = createServerFn({ method: "POST" })
     const country = formatCountry(rawCountry);
     const nowIso = new Date().toISOString();
 
-    // 1. Check if visitor session exists
+    // 1. Try atomic PostgreSQL RPC execution first
+    try {
+      const { error: rpcErr } = await supabaseAdmin.rpc("upsert_visitor_session", {
+        p_session_id: data.sessionId,
+        p_path: data.path,
+        p_device_type: data.deviceType || "desktop",
+        p_browser: data.browser || "Unknown",
+        p_os: data.os || "Unknown",
+        p_country: country,
+        p_referrer_source: data.referrerSource || "Direct",
+        p_is_new_page_view: Boolean(data.isNewPageView),
+        p_title: data.title || data.path,
+        p_referrer: data.referrer || "",
+      });
+
+      if (!rpcErr) {
+        return { ok: true };
+      }
+    } catch {
+      // Fallback to table queries if RPC is not installed yet
+    }
+
+    // 2. Fallback upsert logic
     const { data: existingSession } = await supabaseAdmin
       .from("visitor_sessions")
       .select("session_id")
@@ -81,7 +111,6 @@ export const recordPageViewAndPing = createServerFn({ method: "POST" })
       .maybeSingle();
 
     if (!existingSession) {
-      // Insert brand new visitor session
       await supabaseAdmin.from("visitor_sessions").insert({
         session_id: data.sessionId,
         last_active_at: nowIso,
@@ -94,7 +123,6 @@ export const recordPageViewAndPing = createServerFn({ method: "POST" })
         entry_page: data.path,
       });
     } else {
-      // Update last_active_at timestamp for heartbeat
       await supabaseAdmin
         .from("visitor_sessions")
         .update({
@@ -107,7 +135,6 @@ export const recordPageViewAndPing = createServerFn({ method: "POST" })
         .eq("session_id", data.sessionId);
     }
 
-    // 2. Insert page view record if this is a distinct page view event
     if (data.isNewPageView) {
       await supabaseAdmin.from("page_views").insert({
         session_id: data.sessionId,
@@ -116,13 +143,6 @@ export const recordPageViewAndPing = createServerFn({ method: "POST" })
         referrer: data.referrer || "",
         created_at: nowIso,
       });
-    }
-
-    // 3. Lazy cleanup of obsolete sessions older than 365 days
-    try {
-      await supabaseAdmin.rpc("cleanup_stale_visitor_sessions");
-    } catch {
-      // ignore function absence on unmigrated db
     }
 
     return { ok: true };
@@ -157,12 +177,12 @@ export type PeriodOption = "7d" | "30d" | "90d" | "all";
 /** Server function to fetch complete Analytics Dashboard data for Admin panel. */
 export const getAdminAnalyticsDetails = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) =>
+  .inputValidator((input: any) =>
     z
       .object({
         period: z.enum(["7d", "30d", "90d", "all"]).optional().default("30d"),
       })
-      .parse(input ?? {}),
+      .parse(unwrapInput(input)),
   )
   .handler(async ({ context, data }) => {
     await assertEditorRole(context.userId, context.supabase);
@@ -198,7 +218,7 @@ export const getAdminAnalyticsDetails = createServerFn({ method: "GET" })
       topPostsRes,
       recentVisitorsRes,
     ] = await Promise.all([
-      // 1. Live Now
+      // 1. Live Now - strictly active within 5-minute window
       supabaseAdmin
         .from("visitor_sessions")
         .select("session_id", { count: "exact", head: true })

@@ -38,9 +38,9 @@ function AdminMessages() {
   const [q, setQ] = useState("");
   const [openId, setOpenId] = useState<string | null>(null);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading } = useQuery<any>({
     queryKey: ["admin-messages"],
-    queryFn: () => listFn(),
+    queryFn: async () => await listFn(),
   });
 
   const upd = useMutation({
@@ -62,7 +62,7 @@ function AdminMessages() {
   const filtered = useMemo(() => {
     const rows = data ?? [];
     const term = q.trim().toLowerCase();
-    return rows.filter((r) => {
+    return rows.filter((r: any) => {
       if (filter !== "all" && r.status !== filter) return false;
       if (!term) return true;
       return (
@@ -78,9 +78,9 @@ function AdminMessages() {
     const rows = data ?? [];
     return {
       all: rows.length,
-      new: rows.filter((r) => r.status === "new").length,
-      read: rows.filter((r) => r.status === "read").length,
-      replied: rows.filter((r) => r.status === "replied").length,
+      new: rows.filter((r: any) => r.status === "new").length,
+      read: rows.filter((r: any) => r.status === "read").length,
+      replied: rows.filter((r: any) => r.status === "replied").length,
     };
   }, [data]);
 
@@ -123,7 +123,7 @@ function AdminMessages() {
             No messages.
           </p>
         )}
-        {filtered.map((m) => {
+        {filtered.map((m: any) => {
           const isOpen = openId === m.id;
           return (
             <div

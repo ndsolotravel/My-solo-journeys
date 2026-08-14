@@ -25,10 +25,10 @@ function AccountPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
       setEmail(user.email ?? "");
-      const { data } = await supabase.from("profiles").select("username,bio").eq("id", user.id).maybeSingle();
+      const { data } = await (supabase.from("profiles") as any).select("username,bio").eq("id", user.id).maybeSingle();
       if (data) {
-        setUsername(data.username ?? "");
-        setBio(data.bio ?? "");
+        setUsername((data as any).username ?? "");
+        setBio((data as any).bio ?? "");
       }
     })();
   }, []);
@@ -38,8 +38,8 @@ function AccountPage() {
     setLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
-    const { error } = await supabase
-      .from("profiles")
+    const { error } = await (supabase
+      .from("profiles") as any)
       .upsert({ id: user.id, username, bio });
     setLoading(false);
     if (error) toast.error(error.message);

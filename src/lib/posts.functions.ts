@@ -98,16 +98,16 @@ export const getPostBySlug = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    let postRes = await supabaseAdmin
-      .from("posts")
+    let postRes = await (supabaseAdmin
+      .from("posts") as any)
       .select(`${FULL_POST_COLUMNS},destinations(title,slug),post_gallery(id,image_url,alt_text,sort_order),post_translations(language_code,title,excerpt,content,seo_title,seo_description)`)
       .eq("slug", data.slug)
       .eq("published", true)
       .maybeSingle();
 
     if (postRes.error) {
-      postRes = await supabaseAdmin
-        .from("posts")
+      postRes = await (supabaseAdmin
+        .from("posts") as any)
         .select(BASE_POST_COLUMNS)
         .eq("slug", data.slug)
         .eq("published", true)
@@ -123,8 +123,8 @@ export const getPostBySlug = createServerFn({ method: "GET" })
       gallery.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
     }
 
-    const { data: related } = await supabaseAdmin
-      .from("posts")
+    const { data: related } = await (supabaseAdmin
+      .from("posts") as any)
       .select(BASE_POST_COLUMNS)
       .eq("published", true)
       .eq("category", (post as unknown as Post).category)
@@ -133,8 +133,8 @@ export const getPostBySlug = createServerFn({ method: "GET" })
       .limit(3);
 
     // fire-and-forget views increment
-    await supabaseAdmin
-      .from("posts")
+    await (supabaseAdmin
+      .from("posts") as any)
       .update({ views: ((post as unknown as Post).views ?? 0) + 1 })
       .eq("id", (post as unknown as Post).id);
 
@@ -148,8 +148,8 @@ export const getPostBySlug = createServerFn({ method: "GET" })
 
 export const listAllPostSlugs = createServerFn({ method: "GET" }).handler(async () => {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data, error } = await supabaseAdmin
-    .from("posts")
+  const { data, error } = await (supabaseAdmin
+    .from("posts") as any)
     .select("slug,updated_at")
     .eq("published", true);
   if (error) throw new Error(error.message);

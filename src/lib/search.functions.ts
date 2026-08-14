@@ -13,16 +13,16 @@ export const searchSite = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const term = `%${data.q.replace(/[%_]/g, "")}%`;
     const [posts, dests] = await Promise.all([
-      supabaseAdmin
-        .from("posts")
+      (supabaseAdmin
+        .from("posts") as any)
         .select("id,title,slug,excerpt,category,tags")
         .eq("published", true)
         .or(
           `title.ilike.${term},excerpt.ilike.${term},content.ilike.${term},category.ilike.${term}`,
         )
         .limit(data.limit),
-      supabaseAdmin
-        .from("destinations")
+      (supabaseAdmin
+        .from("destinations") as any)
         .select("id,title,slug,country,region,description")
         .eq("published", true)
         .or(

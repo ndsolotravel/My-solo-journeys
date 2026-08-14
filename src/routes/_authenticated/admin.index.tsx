@@ -10,7 +10,7 @@ export const Route = createFileRoute("/_authenticated/admin/")({
 
 function AdminDashboard() {
   const fn = useServerFn(adminAnalytics);
-  const { data, isLoading } = useQuery({ queryKey: ["admin-analytics"], queryFn: () => fn() });
+  const { data, isLoading } = useQuery<any>({ queryKey: ["admin-analytics"], queryFn: async () => await fn() });
 
   return (
     <div>
@@ -46,7 +46,7 @@ function AdminDashboard() {
           <Link to="/admin/posts" className="text-xs text-accent hover:underline">All posts →</Link>
         </div>
         <ul className="mt-4 divide-y divide-border">
-          {(data?.topPosts ?? []).map((p) => (
+          {(data?.topPosts ?? []).map((p: any) => (
             <li key={p.id} className="flex items-center justify-between py-3 text-sm">
               <Link to="/blog/$slug" params={{ slug: p.slug }} className="hover:text-accent line-clamp-1">{p.title}</Link>
               <span className="text-muted-foreground inline-flex items-center gap-1"><Eye className="h-3.5 w-3.5" /> {p.views}</span>

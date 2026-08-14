@@ -44,10 +44,10 @@ function AdminAnalyticsPage() {
   const [period, setPeriod] = useState<PeriodOption>("30d");
   const fn = useServerFn(getAdminAnalyticsDetails);
 
-  const { data, isLoading, isError, refetch, isFetching } = useQuery({
+  const { data, isLoading, isError, refetch, isFetching } = useQuery<any>({
     queryKey: ["admin-analytics-details", period],
-    queryFn: () => fn({ data: { period } }),
-    refetchInterval: 30_000, // auto refresh live stats every 30s
+    queryFn: async () => await fn({ data: { period } }),
+    refetchInterval: 10_000, // auto refresh live stats every 10s
   });
 
   // Client-side mounted state for Recharts SSR safety
@@ -263,7 +263,7 @@ function AdminAnalyticsPage() {
             ) : (data?.popularPages ?? []).length === 0 ? (
               <p className="py-8 text-center text-xs text-muted-foreground">No page views recorded yet.</p>
             ) : (
-              data?.popularPages.map((page) => (
+              data?.popularPages.map((page: any) => (
                 <div key={page.path} className="py-3 space-y-1.5">
                   <div className="flex items-center justify-between text-sm">
                     <span className="font-mono text-xs text-foreground font-semibold truncate max-w-[70%]">
@@ -303,7 +303,7 @@ function AdminAnalyticsPage() {
             ) : (data?.topPosts ?? []).length === 0 ? (
               <p className="py-8 text-center text-xs text-muted-foreground">No blog posts available.</p>
             ) : (
-              data?.topPosts.map((post) => (
+              data?.topPosts.map((post: any) => (
                 <div key={post.id} className="py-3 flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-muted">
@@ -414,7 +414,7 @@ function AdminAnalyticsPage() {
             {isLoading ? (
               <p className="py-8 text-center text-xs text-muted-foreground">Loading traffic sources...</p>
             ) : (
-              (data?.trafficSources ?? []).map((src) => (
+              (data?.trafficSources ?? []).map((src: any) => (
                 <div key={src.name} className="space-y-1.5">
                   <div className="flex items-center justify-between text-sm">
                     <span className="font-medium text-foreground">{src.name}</span>
@@ -474,7 +474,7 @@ function AdminAnalyticsPage() {
                   </td>
                 </tr>
               ) : (
-                data?.recentVisitors.map((v, i) => (
+                data?.recentVisitors.map((v: any, i: number) => (
                   <tr key={i} className="hover:bg-muted/50 transition">
                     <td className="py-3 font-mono font-medium text-foreground">{v.sessionId}</td>
                     <td className="py-3 text-foreground font-medium flex items-center gap-1.5">

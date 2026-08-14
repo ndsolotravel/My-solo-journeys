@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { getLiveVisitorCount, pingVisitor, ACTIVITY_TIMEOUT_MS } from "@/lib/live.functions";
 
 const SESSION_KEY = "ndsolo:visitor-session";
-const HEARTBEAT_INTERVAL_MS = 60_000; // bump last_active_at every minute
-const POLL_INTERVAL_MS = 30_000; // refresh the live count every 30s
+const HEARTBEAT_INTERVAL_MS = 30_000; // 30s heartbeat
+const POLL_INTERVAL_MS = 15_000; // refresh live count every 15s
 
 /**
  * Shared session id for this browser (persisted in localStorage). All tabs of
@@ -27,41 +28,45 @@ export function getVisitorSessionId(): string | null {
 /**
  * Real-time "Live Now" count of active visitors.
  * - Registers this browser as an active session (heartbeat).
- * - Polls Supabase for the count every 30s.
+ * - Polls Supabase for the count every 15s.
  * - Pings + re-polls immediately when the tab regains focus/visibility.
- * - Multiple tabs share one session id, so opening more tabs does not inflate
- *   the count.
+ * - Multiple tabs share one session id, so opening more tabs does not inflate the count.
  */
 export function useActiveVisitors(): number {
   const [count, setCount] = useState(0);
   const sessionIdRef = useRef<string | null>(null);
   const mountedRef = useRef(true);
 
+  const pingFn = useServerFn(pingVisitor);
+  const getCountFn = useServerFn(getLiveVisitorCount);
+
   const ping = useCallback(async () => {
     const sessionId = sessionIdRef.current;
     if (!sessionId) return;
     try {
-      await pingVisitor({ data: { sessionId } });
+      await pingFn({ data: { sessionId } });
     } catch {
       // offline / transient — retry on next tick
     }
-  }, []);
+  }, [pingFn]);
 
   const poll = useCallback(async () => {
     try {
-      const res = await getLiveVisitorCount();
-      if (mountedRef.current) setCount(res.count);
+      const res = await getCountFn();
+      if (mountedRef.current && typeof res?.count === "number") {
+        setCount(res.count);
+      }
     } catch {
       // keep last known value; retry on next tick
     }
-  }, []);
+  }, [getCountFn]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     sessionIdRef.current = getVisitorSessionId();
     mountedRef.current = true;
 
-    // Register + first count immediately (no full page reload ever needed).
+    // Register + first count immediately
     void ping();
     void poll();
 
@@ -91,6 +96,5 @@ export function useActiveVisitors(): number {
     };
   }, [ping, poll]);
 
-  // Expose the timeout so a component can show "updated Xs ago" if desired.
   return count;
 }

@@ -13,7 +13,7 @@ function AdminComments() {
   const listFn = useServerFn(adminListComments);
   const delFn = useServerFn(adminDeleteComment);
   const qc = useQueryClient();
-  const { data, isLoading } = useQuery({ queryKey: ["admin-comments"], queryFn: () => listFn() });
+  const { data, isLoading } = useQuery<any>({ queryKey: ["admin-comments"], queryFn: async () => await listFn() });
   const del = useMutation({
     mutationFn: (id: string) => delFn({ data: { id } }),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin-comments"] }); toast.success("Deleted"); },
@@ -27,7 +27,7 @@ function AdminComments() {
 
       <div className="mt-6 space-y-3">
         {isLoading && <p className="text-muted-foreground">Loading…</p>}
-        {data?.map((c) => {
+        {data?.map((c: any) => {
           const post = (c as { posts?: { title?: string; slug?: string } }).posts;
           return (
             <div key={c.id} className="rounded-2xl border border-border p-4">

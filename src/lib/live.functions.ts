@@ -10,26 +10,42 @@ import { z } from "zod";
  *   - last_active_at : bumped by a client heartbeat while the tab is open.
  *
  * A session counts as "live" while last_active_at is within ACTIVITY_TIMEOUT_MS.
- * Rows that have been inactive for a day are cleaned up lazily.
  */
 
 export const ACTIVITY_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
-const CLEANUP_AFTER_MS = 24 * 60 * 60 * 1000; // 1 day
 const MAX_SESSION_ID_LEN = 128;
+
+function unwrapInput(input: any) {
+  if (input && typeof input === "object" && "data" in input && input.data !== undefined) {
+    return input.data;
+  }
+  return input ?? {};
+}
 
 /** Upsert one heartbeat row for a visitor session. */
 export const pingVisitor = createServerFn({ method: "POST" })
-  .inputValidator((input) =>
+  .inputValidator((input: any) =>
     z
       .object({
         sessionId: z.string().min(1).max(MAX_SESSION_ID_LEN),
       })
-      .parse(input ?? {}),
+      .parse(unwrapInput(input)),
   )
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error: upErr } = await supabaseAdmin
-      .from("visitor_sessions")
+
+    // Try atomic RPC upsert first
+    try {
+      const { error: rpcErr } = await supabaseAdmin.rpc("upsert_visitor_session", {
+        p_session_id: data.sessionId,
+      });
+      if (!rpcErr) return { ok: true };
+    } catch {
+      // Fallback
+    }
+
+    const { error: upErr } = await (supabaseAdmin
+      .from("visitor_sessions") as any)
       .upsert(
         { session_id: data.sessionId, last_active_at: new Date().toISOString() },
         { onConflict: "session_id" },
@@ -47,7 +63,7 @@ export const getLiveVisitorCount = createServerFn({ method: "GET" }).handler(asy
 async function countLive(): Promise<number> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-  // Fire-and-forget lazy cleanup so the table never accumulates dead rows.
+  // Lazy cleanup of obsolete sessions > 365 days
   try {
     await supabaseAdmin.rpc("cleanup_stale_visitor_sessions");
   } catch {
