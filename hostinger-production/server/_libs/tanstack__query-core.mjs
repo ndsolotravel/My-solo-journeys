@@ -404,6 +404,173 @@ function pendingThenable() {
   };
   return thenable;
 }
+function tryResolveSync(promise) {
+  let data;
+  promise.then((result) => {
+    data = result;
+    return result;
+  }, noop)?.catch(noop);
+  if (data !== void 0) {
+    return { data };
+  }
+  return void 0;
+}
+function defaultTransformerFn(data) {
+  return data;
+}
+function dehydrateMutation(mutation) {
+  return {
+    mutationKey: mutation.options.mutationKey,
+    state: mutation.state,
+    ...mutation.options.scope && { scope: mutation.options.scope },
+    ...mutation.meta && { meta: mutation.meta }
+  };
+}
+function dehydrateQuery(query, serializeData, shouldRedactErrors) {
+  const dehydratePromise = () => {
+    const promise = query.promise?.then(serializeData).catch((error) => {
+      if (!shouldRedactErrors(error)) {
+        return Promise.reject(error);
+      }
+      return Promise.reject(new Error("redacted"));
+    });
+    promise?.catch(noop);
+    return promise;
+  };
+  return {
+    dehydratedAt: Date.now(),
+    state: {
+      ...query.state,
+      ...query.state.data !== void 0 && {
+        data: serializeData(query.state.data)
+      }
+    },
+    queryKey: query.queryKey,
+    queryHash: query.queryHash,
+    ...query.state.status === "pending" && {
+      promise: dehydratePromise()
+    },
+    ...query.meta && { meta: query.meta },
+    ...query.queryType && { queryType: query.queryType }
+  };
+}
+function defaultShouldDehydrateMutation(mutation) {
+  return mutation.state.isPaused;
+}
+function defaultShouldDehydrateQuery(query) {
+  return query.state.status === "success";
+}
+function defaultShouldRedactErrors(_) {
+  return true;
+}
+function dehydrate(client, options = {}) {
+  const filterMutation = options.shouldDehydrateMutation ?? client.getDefaultOptions().dehydrate?.shouldDehydrateMutation ?? defaultShouldDehydrateMutation;
+  const mutations = client.getMutationCache().getAll().flatMap(
+    (mutation) => filterMutation(mutation) ? [dehydrateMutation(mutation)] : []
+  );
+  const filterQuery = options.shouldDehydrateQuery ?? client.getDefaultOptions().dehydrate?.shouldDehydrateQuery ?? defaultShouldDehydrateQuery;
+  const shouldRedactErrors = options.shouldRedactErrors ?? client.getDefaultOptions().dehydrate?.shouldRedactErrors ?? defaultShouldRedactErrors;
+  const serializeData = options.serializeData ?? client.getDefaultOptions().dehydrate?.serializeData ?? defaultTransformerFn;
+  const queries = client.getQueryCache().getAll().flatMap(
+    (query) => filterQuery(query) ? [dehydrateQuery(query, serializeData, shouldRedactErrors)] : []
+  );
+  return { mutations, queries };
+}
+function hydrate(client, dehydratedState, options) {
+  if (typeof dehydratedState !== "object" || dehydratedState === null) {
+    return;
+  }
+  const mutationCache = client.getMutationCache();
+  const queryCache = client.getQueryCache();
+  const deserializeData = client.getDefaultOptions().hydrate?.deserializeData ?? defaultTransformerFn;
+  const mutations = dehydratedState.mutations || [];
+  const queries = dehydratedState.queries || [];
+  mutations.forEach(({ state, ...mutationOptions }) => {
+    mutationCache.build(
+      client,
+      {
+        ...client.getDefaultOptions().hydrate?.mutations,
+        ...options?.defaultOptions?.mutations,
+        ...mutationOptions
+      },
+      state
+    );
+  });
+  queries.forEach(
+    ({
+      queryKey,
+      state,
+      queryHash,
+      meta,
+      promise,
+      dehydratedAt,
+      queryType
+    }) => {
+      const syncData = promise ? tryResolveSync(promise) : void 0;
+      const rawData = state.data === void 0 ? syncData?.data : state.data;
+      const data = rawData === void 0 ? rawData : deserializeData(rawData);
+      let query = queryCache.get(queryHash);
+      const existingQueryIsPending = query?.state.status === "pending";
+      const existingQueryIsFetching = query?.state.fetchStatus === "fetching";
+      if (query) {
+        const hasNewerSyncData = syncData && // We only need this undefined check to handle older dehydration
+        // payloads that might not have dehydratedAt
+        dehydratedAt !== void 0 && dehydratedAt > query.state.dataUpdatedAt;
+        if (state.dataUpdatedAt > query.state.dataUpdatedAt || hasNewerSyncData) {
+          const { fetchStatus: _ignored, ...serializedState } = state;
+          query.setState({
+            ...serializedState,
+            data,
+            // If the query was pending at the moment of dehydration, but resolved to have data
+            // before hydration, we can assume the query should be hydrated as successful.
+            //
+            // Since you can opt into dehydrating failed queries, and those can have data from
+            // previous successful fetches, we make sure we only do this for pending queries.
+            ...state.status === "pending" && data !== void 0 && {
+              status: "success",
+              // Preserve existing fetchStatus if the existing query is actively fetching.
+              ...!existingQueryIsFetching && {
+                fetchStatus: "idle"
+              }
+            }
+          });
+        }
+      } else {
+        query = queryCache.build(
+          client,
+          {
+            ...client.getDefaultOptions().hydrate?.queries,
+            ...options?.defaultOptions?.queries,
+            queryKey,
+            queryHash,
+            meta,
+            _type: queryType
+          },
+          // Reset fetch status to idle to avoid
+          // query being stuck in fetching state upon hydration
+          {
+            ...state,
+            data,
+            fetchStatus: "idle",
+            // Like above, if the query was pending at the moment of dehydration but has data,
+            // we can assume it should be hydrated as successful.
+            status: state.status === "pending" && data !== void 0 ? "success" : state.status
+          }
+        );
+      }
+      if (promise && // If the data was synchronously available, there is no need to set up
+      // a retryer and thus no reason to call fetch
+      !syncData && !existingQueryIsPending && !existingQueryIsFetching && // Only hydrate if dehydration is newer than any existing data,
+      // this is always true for new queries
+      (dehydratedAt === void 0 || dehydratedAt > query.state.dataUpdatedAt)) {
+        query.fetch(void 0, {
+          // RSC transformed promises are not thenable
+          initialPromise: Promise.resolve(promise).then(deserializeData)
+        }).catch(noop);
+      }
+    }
+  );
+}
 var defaultScheduler = systemSetTimeoutZero;
 function createNotifyManager() {
   let queue = [];
@@ -2546,7 +2713,9 @@ export {
   QueryObserver as Q,
   noop as a,
   QueryClient as b,
+  dehydrate as d,
   environmentManager as e,
+  hydrate as h,
   notifyManager as n,
   shouldThrowError as s
 };

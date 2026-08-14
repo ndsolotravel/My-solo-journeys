@@ -423,6 +423,8 @@ export type Database = {
       }
       publish_scheduled_posts: { Args: never; Returns: number }
       cleanup_stale_visitor_sessions: { Args: never; Returns: void }
+      get_public_hit_stats: { Args: never; Returns: Record<string, unknown> }
+      upsert_visitor_session: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "editor" | "reader"

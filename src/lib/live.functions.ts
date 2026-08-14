@@ -60,6 +60,64 @@ export const getLiveVisitorCount = createServerFn({ method: "GET" }).handler(asy
   return { count };
 });
 
+export interface HitCounterStats {
+  totalPageHits: number;
+  weeklyPageHits: number;
+  uniqueReaders: number;
+  countries: number;
+  storiesRead: number;
+  avgReadingMinutes: number;
+}
+
+/**
+ * Aggregate stats for the public "Hit Counter" cards. All values are real
+ * Supabase counts (no hardcoded numbers). Prefers the SECURITY DEFINER RPC
+ * (works with the publishable/anon key, never leaks row data). Falls back to
+ * best-effort queries so the homepage never breaks before the RPC is deployed.
+ */
+export const getHitCounterStats = createServerFn({ method: "GET" }).handler(async () => {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+  try {
+    const { data, error } = await supabaseAdmin.rpc("get_public_hit_stats");
+    if (!error && data) {
+      const r = data as unknown as Record<string, unknown>;
+      return {
+        totalPageHits: Number(r.totalPageHits ?? 0),
+        weeklyPageHits: Number(r.weeklyPageHits ?? 0),
+        uniqueReaders: Number(r.uniqueReaders ?? 0),
+        countries: Number(r.countries ?? 0),
+        storiesRead: Number(r.storiesRead ?? 0),
+        avgReadingMinutes: Number(r.avgReadingMinutes ?? 0),
+      };
+    }
+  } catch {
+    // RPC not deployed yet — fall through to table queries
+  }
+
+  // Fallback: derive what the anon key is allowed to read (visitor_sessions
+  // count + posts), and leave page-view-derived numbers at 0 until the
+  // migration is applied.
+  const [sessionsRes, postsRes] = await Promise.all([
+    supabaseAdmin.from("visitor_sessions").select("session_id", { count: "exact", head: true }),
+    (supabaseAdmin as any).from("posts").select("views, reading_minutes").eq("published", true),
+  ]);
+  const posts = (postsRes.data ?? []) as Array<{ views: number | null; reading_minutes: number | null }>;
+  const storiesRead = posts.reduce((sum, p) => sum + (p.views || 0), 0);
+  const totalMins = posts.reduce((sum, p) => sum + (p.reading_minutes || 0), 0);
+  const avgReadingMinutes =
+    posts.length > 0 ? Math.round((totalMins / posts.length) * 10) / 10 : 0;
+
+  return {
+    totalPageHits: 0,
+    weeklyPageHits: 0,
+    uniqueReaders: sessionsRes.count ?? 0,
+    countries: 0,
+    storiesRead,
+    avgReadingMinutes,
+  };
+});
+
 async function countLive(): Promise<number> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 

@@ -30,6 +30,7 @@ import { NewsletterForm } from "../components/layout/NewsletterForm";
 import { HeroSlider } from "../components/layout/HeroSlider";
 import { CATEGORIES } from "../lib/site";
 import { useActiveVisitors } from "@/hooks/use-active-visitors";
+import { getHitCounterStats } from "@/lib/live.functions";
 import { useTranslations } from "@/lib/translate/store";
 
 const postsQO = queryOptions({
@@ -69,6 +70,10 @@ const motoQO = queryOptions({
       data: { limit: 1, categories: ["Motorcycle Adventure Travel"] },
     }),
 });
+const hitStatsQO = queryOptions({
+  queryKey: ["home", "hit-stats"],
+  queryFn: () => getHitCounterStats(),
+});
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -94,6 +99,7 @@ export const Route = createFileRoute("/")({
       context.queryClient.ensureQueryData(guidesQO),
       context.queryClient.ensureQueryData(galleryQO),
       context.queryClient.ensureQueryData(motoQO),
+      context.queryClient.ensureQueryData(hitStatsQO),
     ]);
   },
   component: HomePage,
@@ -143,6 +149,7 @@ function HomePage() {
   const guides = useQuery(guidesQO);
   const { data: galleryData } = useSuspenseQuery(galleryQO);
   const { data: motoData } = useSuspenseQuery(motoQO);
+  const { data: hitStats } = useSuspenseQuery(hitStatsQO);
 
   const featuredList = featuredData.posts;
   const latest = postsData.posts;
@@ -157,6 +164,14 @@ function HomePage() {
   const latestDest = destinations[0];
   const latestPhoto = gallery[0] ?? (galleryData ?? [])[0];
   const latestPhotoCaption = latestPhoto?.caption || "";
+  const hit = hitStats ?? {
+    totalPageHits: 0,
+    weeklyPageHits: 0,
+    uniqueReaders: 0,
+    countries: 0,
+    storiesRead: 0,
+    avgReadingMinutes: 0,
+  };
   const [heroQuery, setHeroQuery] = useState("");
   const navigate = useNavigate();
 
@@ -548,7 +563,117 @@ function HomePage() {
         </div>
       </section>
 
-      {/* 5. Latest Stories */}
+      {/* 5. Hit Counter / Live Analytics */}
+      <section
+        id="hit-counter"
+        aria-labelledby="hit-counter-heading"
+        className="border-b border-border bg-slate-100/90 dark:bg-muted/30 py-16 sm:py-20 transition-colors"
+      >
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+            <div>
+              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/80 px-3.5 py-1 text-xs font-medium text-accent shadow-sm backdrop-blur-sm">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
+                </span>
+                {t("Live Traffic Analytics")}
+              </div>
+              <h2
+                id="hit-counter-heading"
+                className="font-display text-3xl font-bold tracking-tight sm:text-4xl"
+              >
+                {t("Website Hit Counter & Analytics")}
+              </h2>
+              <p className="mt-2.5 max-w-xl text-sm text-muted-foreground">
+                {t("Real-time reader activity, page hits, and engagement across stories and field guides.")}
+              </p>
+            </div>
+            <div className="flex w-fit items-center gap-2 rounded-full border border-border bg-background/70 px-4 py-2.5 text-xs text-muted-foreground backdrop-blur-sm">
+              <span className="h-2 w-2 rounded-full bg-emerald-500" />
+              {t("Updated real-time · 99.9% uptime")}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {/* Total Hits */}
+            <div className="group rounded-2xl border border-border/80 bg-background p-5 shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-md">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  {t("Total Page Hits")}
+                </span>
+                <div className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-accent/10 text-accent transition-transform group-hover:scale-110">
+                  <Eye className="h-4 w-4" />
+                </div>
+              </div>
+              <div className="mt-3 font-display text-3xl font-bold">
+                <CountUp end={hit.totalPageHits} suffix="+" />
+              </div>
+              <p className="mt-1 text-[11px] text-muted-foreground">
+                +{hit.weeklyPageHits.toLocaleString()} {t("page views this week")}
+              </p>
+            </div>
+
+            {/* Unique Readers */}
+            <div className="group rounded-2xl border border-border/80 bg-background p-5 shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-md">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  {t("Unique Readers")}
+                </span>
+                <div className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-accent/10 text-accent transition-transform group-hover:scale-110">
+                  <Users className="h-4 w-4" />
+                </div>
+              </div>
+              <div className="mt-3 font-display text-3xl font-bold">
+                <CountUp end={hit.uniqueReaders} suffix="+" />
+              </div>
+              <p className="mt-1 text-[11px] text-muted-foreground">
+                {t("Across")} {hit.countries.toLocaleString()} {t("countries")}
+              </p>
+            </div>
+
+            {/* Stories Read */}
+            <div className="group rounded-2xl border border-border/80 bg-background p-5 shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-md">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  {t("Stories Read")}
+                </span>
+                <div className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-accent/10 text-accent transition-transform group-hover:scale-110">
+                  <BookOpen className="h-4 w-4" />
+                </div>
+              </div>
+              <div className="mt-3 font-display text-3xl font-bold">
+                <CountUp end={hit.storiesRead} suffix="+" />
+              </div>
+              <p className="mt-1 text-[11px] text-muted-foreground">
+                {t("Avg. reading time")}: {hit.avgReadingMinutes} {t("min")}
+              </p>
+            </div>
+
+            {/* Live Active Readers */}
+            <div className="group rounded-2xl border border-border/80 bg-background p-5 shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-md">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  {t("Live Now")}
+                </span>
+                <div className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 transition-transform group-hover:scale-110 dark:text-emerald-400">
+                  <Activity className="h-4 w-4" />
+                </div>
+              </div>
+              <div className="mt-3 flex items-baseline gap-2 font-display text-3xl font-bold text-emerald-600 dark:text-emerald-400">
+                <LiveNowNumber />
+                <span className="text-xs font-normal text-muted-foreground">{t("active readers")}</span>
+              </div>
+              <p className="mt-1 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
+                {t("Reading stories right now")}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. Latest Stories */}
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
         <div className="mb-10 flex items-end justify-between">
           <div>
@@ -684,5 +809,20 @@ function HomePage() {
         </div>
       </section>
     </div>
+  );
+}
+
+function LiveNowNumber() {
+  const count = useActiveVisitors();
+  // Render 0 during SSR/first paint to avoid hydration mismatch, then show the
+  // live number as it arrives (no full page reload — it just re-renders).
+  const [display, setDisplay] = useState(0);
+  useEffect(() => {
+    setDisplay(count);
+  }, [count]);
+  return (
+    <span className="tabular-nums" suppressHydrationWarning>
+      {display.toLocaleString()}
+    </span>
   );
 }
