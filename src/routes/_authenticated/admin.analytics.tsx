@@ -108,7 +108,7 @@ function AdminAnalyticsPage() {
       </div>
 
       {/* KPI Stats Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {/* Live Now */}
         <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-5 relative overflow-hidden">
           <div className="flex items-center justify-between">
@@ -131,7 +131,7 @@ function AdminAnalyticsPage() {
         {/* Total Visitors */}
         <StatCard
           icon={Users}
-          label="Total Unique Visitors"
+          label="Total Visitors"
           value={data?.totalVisitors}
           sub="Unique session IDs tracked"
           loading={isLoading}
@@ -151,11 +151,16 @@ function AdminAnalyticsPage() {
           icon={Calendar}
           label="Today's Visitors"
           value={data?.todayVisitors}
-          sub={
-            data
-              ? `${data.todayPageViews} views today · ${data.yesterdayVisitors} yesterday`
-              : undefined
-          }
+          sub={data ? `${data.yesterdayVisitors ?? 0} visitors yesterday` : undefined}
+          loading={isLoading}
+        />
+
+        {/* Today's Page Views */}
+        <StatCard
+          icon={TrendingUp}
+          label="Today's Page Views"
+          value={data?.todayPageViews}
+          sub="Views recorded today"
           loading={isLoading}
         />
       </div>
