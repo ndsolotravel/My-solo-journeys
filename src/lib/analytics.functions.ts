@@ -212,13 +212,15 @@ export const recordPageViewAndPing = createServerFn({ method: "POST" })
         p_is_new_page_view: Boolean(data.isNewPageView),
         p_title: data.title || data.path,
         p_referrer: data.referrer || "",
+        p_subscriber_email: null,
       });
 
       if (!rpcErr) {
         return { ok: true };
       }
-    } catch {
-      // Fallback to table queries if RPC is not updated yet
+      console.warn(`[analytics] upsert_visitor_session RPC notice (falling back to direct queries):`, rpcErr.message);
+    } catch (err) {
+      console.warn(`[analytics] upsert_visitor_session RPC exception (falling back to direct queries):`, err);
     }
 
     // 2. Fallback upsert logic

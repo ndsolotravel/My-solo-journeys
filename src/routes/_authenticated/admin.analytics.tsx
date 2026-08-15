@@ -49,7 +49,7 @@ function AdminAnalyticsPage() {
   const { data, isLoading, isError, refetch, isFetching } = useQuery<any>({
     queryKey: ["admin-analytics-details", period],
     queryFn: async () => await fn({ data: { period } }),
-    refetchInterval: 10_000, // auto refresh live stats every 10s
+    refetchInterval: 5_000, // auto refresh live stats & recent visitors log every 5s
   });
 
   // Client-side mounted state for Recharts SSR safety
@@ -478,7 +478,7 @@ function AdminAnalyticsPage() {
               ) : (data?.recentVisitors ?? []).length === 0 ? (
                 <tr>
                   <td colSpan={6} className="py-8 text-center text-muted-foreground">
-                    No active visitor sessions recorded yet.
+                    No visitor sessions recorded yet.
                   </td>
                 </tr>
               ) : (
