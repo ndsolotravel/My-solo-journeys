@@ -364,14 +364,21 @@ export const adminListMessages = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertEditor(context.userId, context.supabase);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data, error } = await supabaseAdmin
+    const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
+    let res = await client
       .from("contact_messages")
       .select("id,name,email,subject,message,status,created_at")
       .order("created_at", { ascending: false })
       .limit(500);
-    if (error) throw new Error(error.message);
-    return data ?? [];
+    if (res.error) {
+      res = await client
+        .from("contact_messages")
+        .select("id,name,email,message,created_at")
+        .order("created_at", { ascending: false })
+        .limit(500);
+    }
+    if (res.error) throw new Error(res.error.message);
+    return res.data ?? [];
   });
 
 export const adminUpdateMessageStatus = createServerFn({ method: "POST" })
@@ -386,8 +393,8 @@ export const adminUpdateMessageStatus = createServerFn({ method: "POST" })
   )
   .handler(async ({ context, data }) => {
     await assertEditor(context.userId, context.supabase);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin
+    const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
+    const { error } = await client
       .from("contact_messages")
       .update({ status: data.status })
       .eq("id", data.id);
@@ -400,8 +407,8 @@ export const adminDeleteMessage = createServerFn({ method: "POST" })
   .inputValidator((i) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ context, data }) => {
     await assertEditor(context.userId, context.supabase);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.from("contact_messages").delete().eq("id", data.id);
+    const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
+    const { error } = await client.from("contact_messages").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -412,13 +419,13 @@ export const adminAnalytics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertEditor(context.userId, context.supabase);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
     const [posts, comments, subs, msgs, top] = await Promise.all([
-      supabaseAdmin.from("posts").select("id,published,scheduled_at,views", { count: "exact" }),
-      supabaseAdmin.from("comments").select("id,rating", { count: "exact", head: false }),
-      supabaseAdmin.from("subscribers").select("id", { count: "exact", head: true }),
-      supabaseAdmin.from("contact_messages").select("id", { count: "exact", head: true }),
-      supabaseAdmin
+      client.from("posts").select("id,published,scheduled_at,views", { count: "exact" }),
+      client.from("comments").select("id,rating", { count: "exact", head: false }),
+      client.from("subscribers").select("id", { count: "exact", head: true }),
+      client.from("contact_messages").select("id", { count: "exact", head: true }),
+      client
         .from("posts")
         .select("id,title,slug,views")
         .eq("published", true)

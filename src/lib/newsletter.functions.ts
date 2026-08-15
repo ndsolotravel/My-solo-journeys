@@ -14,29 +14,40 @@ export const subscribe = createServerFn({ method: "POST" })
     console.log(`[subscribe] Processing newsletter subscription for: <${subscriberEmail}>`);
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error: dbError } = await supabaseAdmin
-      .from("subscribers")
-      .insert({ email: subscriberEmail });
+    const { data: rpcData, error: dbError } = await supabaseAdmin.rpc("newsletter_subscribe", {
+      p_email: subscriberEmail,
+    });
 
-    if (dbError && !dbError.message.includes("duplicate") && !dbError.message.includes("unique")) {
-      console.error(`[subscribe] Supabase subscribers insert error: ${dbError.message}`);
-      throw new Error(`Database error: ${dbError.message}`);
+    if (dbError) {
+      console.error(`[subscribe] Supabase newsletter_subscribe RPC error: ${dbError.message}`);
+      throw new Error(
+        "Subscription could not be saved. Please try again later or email us directly at contact@ndsolotravel.com."
+      );
+    }
+    if (!rpcData?.id) {
+      console.error(`[subscribe] Subscriber insert returned no id (RLS or insert blocked).`);
+      throw new Error(
+        "Subscription could not be saved. Please try again later or email us directly at contact@ndsolotravel.com."
+      );
     }
 
     console.log(`[subscribe] Subscriber record saved in Supabase: <${subscriberEmail}>`);
 
     // Dispatch email notification to recipient (contact@ndsolotravel.com)
+    // Email is a side-channel; the subscription itself has already succeeded in DB.
     const emailResult = await sendNewsletterNotification(subscriberEmail);
 
     if (!emailResult.sent) {
-      console.error(`[subscribe] Newsletter email dispatch failed: ${emailResult.reason}`);
-      throw new Error(
-        `Subscriber saved, but newsletter notification email could not be delivered to contact@ndsolotravel.com (${emailResult.reason}). Please verify Hostinger SMTP environment variables.`
-      );
+      console.error(`[subscribe] Newsletter email dispatch failed (subscription still saved): ${emailResult.reason}`);
     }
 
     console.log(`[subscribe] Complete newsletter flow SUCCESS via ${emailResult.provider} (ID: ${emailResult.id})`);
-    return { ok: true, provider: emailResult.provider, messageId: emailResult.id };
+    return {
+      ok: true,
+      provider: emailResult.provider,
+      messageId: emailResult.id,
+      emailDelivered: emailResult.sent,
+    };
   });
 
 async function sendNewsletterNotification(
@@ -182,57 +193,35 @@ export const sendContact = createServerFn({ method: "POST" })
       getRequestHeader("x-forwarded-for")?.split(",")[0]?.trim() ||
       "unknown";
     const ipHash = await sha256(`ndsolo:${ip}`);
-    const since = new Date(Date.now() - 10 * 60 * 1000).toISOString();
-
-    try {
-      const { count, error: countError } = await supabaseAdmin
-        .from("contact_messages")
-        .select("id", { count: "exact", head: true })
-        .eq("ip_hash", ipHash)
-        .gte("created_at", since);
-
-      if (!countError && (count ?? 0) >= 3) {
-        throw new Error("Too many messages. Please try again in a few minutes.");
-      }
-    } catch (err: any) {
-      if (err?.message?.includes("Too many messages")) {
-        throw err;
-      }
-    }
-
     const subject = data.subject?.trim() || null;
-    const fullPayload: Record<string, any> = {
-      name: data.name,
-      email: data.email.toLowerCase(),
-      subject,
-      message: data.message,
-      ip_hash: ipHash,
-      status: "new",
-    };
 
-    let { error } = await supabaseAdmin.from("contact_messages").insert(fullPayload);
-
-    // Fallback: If PostgREST returns schema error (PGRST204) for missing optional columns before migration
-    if (error && (error.code === "PGRST204" || error.message?.includes("schema cache"))) {
-      const fallbackPayload: Record<string, any> = {
-        name: data.name,
-        email: data.email.toLowerCase(),
-        message: data.message,
-      };
-      if (subject && !error.message?.includes("subject")) {
-        fallbackPayload.subject = subject;
-      }
-      const retry = await supabaseAdmin.from("contact_messages").insert(fallbackPayload);
-      error = retry.error;
-    }
+    const { data: rpcData, error } = await supabaseAdmin.rpc("send_contact_message", {
+      p_name: data.name,
+      p_email: data.email.toLowerCase(),
+      p_subject: subject,
+      p_message: data.message,
+      p_ip_hash: ipHash,
+    });
 
     if (error) {
-      console.error("[sendContact] Supabase contact_messages insert notice:", error.message);
-    } else {
-      console.log(`[sendContact] Successfully stored message in Supabase contact_messages.`);
+      console.error(`[sendContact] Supabase send_contact_message RPC failed: ${error.message}`);
+      if (error.message?.includes("Too many messages")) {
+        throw new Error("Too many messages. Please try again in a few minutes.");
+      }
+      throw new Error(
+        "Your message could not be saved. Please try again later or email us directly at contact@ndsolotravel.com."
+      );
     }
+    if (!rpcData?.id) {
+      console.error(`[sendContact] Contact message insert returned no id (RLS or insert blocked).`);
+      throw new Error(
+        "Your message could not be saved. Please try again later or email us directly at contact@ndsolotravel.com."
+      );
+    }
+    console.log(`[sendContact] Successfully stored message in Supabase contact_messages.`);
 
     // ALWAYS dispatch email notification to recipient (contact@ndsolotravel.com)
+    // Email is a side-channel; the message itself has already been stored in DB.
     const emailResult = await notifyRecipientByEmail({
       name: data.name,
       email: data.email,
@@ -241,14 +230,16 @@ export const sendContact = createServerFn({ method: "POST" })
     });
 
     if (!emailResult.sent) {
-      console.error(`[sendContact] Email delivery failed: ${emailResult.reason}`);
-      throw new Error(
-        `Your message was received and saved, but email notification could not be delivered to contact@ndsolotravel.com (${emailResult.reason}). Please try again later or email us directly at contact@ndsolotravel.com.`
-      );
+      console.error(`[sendContact] Email delivery failed (message still saved): ${emailResult.reason}`);
     }
 
     console.log(`[sendContact] Complete contact flow SUCCESS via ${emailResult.provider} (ID: ${emailResult.id})`);
-    return { ok: true, provider: emailResult.provider, messageId: emailResult.id };
+    return {
+      ok: true,
+      provider: emailResult.provider,
+      messageId: emailResult.id,
+      emailDelivered: emailResult.sent,
+    };
   });
 
 const DEFAULT_RECIPIENT = "contact@ndsolotravel.com";

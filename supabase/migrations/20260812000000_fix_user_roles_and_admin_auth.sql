@@ -21,6 +21,22 @@ GRANT SELECT ON public.user_roles TO authenticated;
 GRANT ALL ON public.user_roles TO service_role;
 ALTER TABLE public.user_roles ENABLE ROW LEVEL SECURITY;
 
+-- 2b. Normalize the role column to the app_role enum if it is still text
+DO $$ BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'user_roles'
+      AND column_name = 'role'
+      AND data_type = 'text'
+  ) THEN
+    EXECUTE 'ALTER TABLE public.user_roles ALTER COLUMN role DROP DEFAULT';
+    ALTER TABLE public.user_roles
+      ALTER COLUMN role TYPE public.app_role
+      USING role::public.app_role;
+  END IF;
+END $$;
+
 -- 3. Revert/Fix handle_new_user() trigger so it NEVER auto-grants admin role to new users
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
