@@ -8,7 +8,13 @@ export const subscribe = createServerFn({ method: "POST" })
   .inputValidator((input: any) => {
     const raw = input?.data ? input.data : input;
     const email = typeof raw?.email === "string" ? raw.email.trim() : "";
-    return z.object({ email: z.string().email("Please enter a valid email address.") }).parse({ email });
+    const sessionId = typeof raw?.sessionId === "string" ? raw.sessionId.trim() : "";
+    return z
+      .object({
+        email: z.string().email("Please enter a valid email address."),
+        sessionId: z.string().optional().default(""),
+      })
+      .parse({ email, sessionId });
   })
   .handler(async ({ data }) => {
     const subscriberEmail = data.email.toLowerCase();
@@ -30,6 +36,18 @@ export const subscribe = createServerFn({ method: "POST" })
       throw new Error(
         "Subscription could not be saved. Please try again later or email us directly at contact@ndsolotravel.com."
       );
+    }
+
+    // Link subscriber_email to current visitor session if sessionId is available
+    if (data.sessionId) {
+      try {
+        await supabaseAdmin
+          .from("visitor_sessions")
+          .update({ subscriber_email: subscriberEmail })
+          .eq("session_id", data.sessionId);
+      } catch (err) {
+        console.warn(`[subscribe] Could not link subscriber email to session <${data.sessionId}>:`, err);
+      }
     }
 
     const isNew = (rpcData as any)?.created !== false;

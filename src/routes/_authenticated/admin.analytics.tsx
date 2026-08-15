@@ -18,6 +18,8 @@ import {
   Clock,
   ArrowUpRight,
   Sparkles,
+  CheckCircle2,
+  MailCheck,
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -449,7 +451,7 @@ function AdminAnalyticsPage() {
               Recent Visitors Log
             </h2>
             <p className="text-xs text-muted-foreground">
-              Anonymous active visitor sessions with country and device metadata.
+              Anonymous active visitor sessions with country geolocation and newsletter subscription status.
             </p>
           </div>
         </div>
@@ -458,8 +460,9 @@ function AdminAnalyticsPage() {
           <table className="w-full text-left text-xs">
             <thead>
               <tr className="border-b border-border text-muted-foreground uppercase tracking-wider">
-                <th className="pb-3 font-semibold">Session ID</th>
+                <th className="pb-3 font-semibold">Visitor</th>
                 <th className="pb-3 font-semibold">Country</th>
+                <th className="pb-3 font-semibold">Newsletter Subscriber</th>
                 <th className="pb-3 font-semibold">Device & Environment</th>
                 <th className="pb-3 font-semibold">Entry Page</th>
                 <th className="pb-3 font-semibold text-right">Last Active</th>
@@ -468,13 +471,13 @@ function AdminAnalyticsPage() {
             <tbody className="divide-y divide-border">
               {isLoading ? (
                 <tr>
-                  <td colSpan={5} className="py-8 text-center text-muted-foreground">
+                  <td colSpan={6} className="py-8 text-center text-muted-foreground">
                     Loading recent visitor sessions...
                   </td>
                 </tr>
               ) : (data?.recentVisitors ?? []).length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-8 text-center text-muted-foreground">
+                  <td colSpan={6} className="py-8 text-center text-muted-foreground">
                     No active visitor sessions recorded yet.
                   </td>
                 </tr>
@@ -483,8 +486,24 @@ function AdminAnalyticsPage() {
                   <tr key={i} className="hover:bg-muted/50 transition">
                     <td className="py-3 font-mono font-medium text-foreground">{v.sessionId}</td>
                     <td className="py-3 text-foreground font-medium flex items-center gap-1.5">
-                      <Globe className="h-3.5 w-3.5 text-muted-foreground" />
-                      {v.country}
+                      <Globe className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                      <span>{v.country}</span>
+                      {v.countryCode && v.countryCode !== "XX" && (
+                        <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground">
+                          {v.countryCode}
+                        </span>
+                      )}
+                    </td>
+                    <td className="py-3">
+                      {v.isSubscribed ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                          <CheckCircle2 className="h-3 w-3" /> Subscribed
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground">
+                          Not Subscribed
+                        </span>
+                      )}
                     </td>
                     <td className="py-3 text-muted-foreground">
                       <span className="capitalize font-medium text-foreground">{v.deviceType}</span> · {v.browser} on {v.os}

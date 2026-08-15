@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { subscribe } from "@/lib/newsletter.functions";
 import { toast } from "sonner";
 import { useTranslations } from "@/lib/translate/store";
+import { getVisitorSessionId } from "@/hooks/use-page-analytics";
 
 export function NewsletterForm({ dark = false }: { dark?: boolean }) {
   const t = useTranslations();
@@ -14,7 +15,8 @@ export function NewsletterForm({ dark = false }: { dark?: boolean }) {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await subscribeFn({ data: { email } });
+      const sessionId = getVisitorSessionId() ?? "";
+      const res = await subscribeFn({ data: { email, sessionId } });
       if (res && (res.created === false || res.alreadySubscribed)) {
         toast.info(t("You are already subscribed."));
       } else {

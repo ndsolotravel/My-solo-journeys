@@ -33,10 +33,137 @@ const COUNTRY_NAMES: Record<string, string> = {
   TH: "Thailand",
 };
 
-function formatCountry(code: string | null | undefined): string {
-  if (!code || code === "Unknown" || code === "XX") return "Unknown";
-  const upper = code.toUpperCase();
-  return COUNTRY_NAMES[upper] || upper;
+// In-memory IP Geolocation Cache: IP string -> { country: string; countryCode: string }
+const IP_COUNTRY_CACHE = new Map<string, { country: string; countryCode: string }>();
+
+/** Convert 2-letter country code to human readable country name */
+function getCountryNameFromCode(code: string | null | undefined): { country: string; countryCode: string } {
+  if (!code || code === "Unknown" || code === "XX") {
+    return { country: "Unknown", countryCode: "XX" };
+  }
+  const upper = code.trim().toUpperCase();
+  if (upper === "LOCAL") {
+    return { country: "Localhost", countryCode: "LOCAL" };
+  }
+  if (COUNTRY_NAMES[upper]) {
+    return { country: COUNTRY_NAMES[upper], countryCode: upper };
+  }
+  try {
+    const regionNames = new Intl.DisplayNames(["en"], { type: "region" });
+    const name = regionNames.of(upper);
+    if (name) return { country: name, countryCode: upper };
+  } catch {
+    // Ignore display names error
+  }
+  return { country: upper, countryCode: upper };
+}
+
+/** Check if IP address is localhost or private range */
+function isPrivateOrLocalIp(ip: string): boolean {
+  if (!ip) return true;
+  const clean = ip.trim().toLowerCase();
+  if (
+    clean === "127.0.0.1" ||
+    clean === "::1" ||
+    clean === "::ffff:127.0.0.1" ||
+    clean === "localhost" ||
+    clean.startsWith("10.") ||
+    clean.startsWith("192.168.") ||
+    clean.startsWith("fe80:") ||
+    clean.startsWith("fc00:") ||
+    clean.startsWith("127.")
+  ) {
+    return true;
+  }
+  if (clean.startsWith("172.")) {
+    const parts = clean.split(".");
+    if (parts.length >= 2) {
+      const secondOctet = parseInt(parts[1], 10);
+      if (secondOctet >= 16 && secondOctet <= 31) return true;
+    }
+  }
+  return false;
+}
+
+/** Extract real public client IP from server request headers */
+function getClientIp(): string {
+  try {
+    const cfConnecting = getRequestHeader("cf-connecting-ip");
+    if (cfConnecting) return cfConnecting.trim();
+
+    const xForwardedFor = getRequestHeader("x-forwarded-for");
+    if (xForwardedFor) {
+      const clientIp = xForwardedFor.split(",")[0].trim();
+      if (clientIp) return clientIp;
+    }
+
+    const xRealIp = getRequestHeader("x-real-ip");
+    if (xRealIp) return xRealIp.trim();
+
+    const fastlyIp = getRequestHeader("fastly-client-ip");
+    if (fastlyIp) return fastlyIp.trim();
+
+    const trueClientIp = getRequestHeader("true-client-ip");
+    if (trueClientIp) return trueClientIp.trim();
+  } catch {
+    // Header extraction context unavailable
+  }
+  return "";
+}
+
+/** Geolocation resolver: CDN header check -> Local IP check -> Memory Cache -> Server IP API */
+async function resolveVisitorCountry(): Promise<{ country: string; countryCode: string }> {
+  // 1. Check Proxy / CDN Geolocation headers (0ms overhead)
+  try {
+    const headerCode =
+      getRequestHeader("cf-ipcountry") ||
+      getRequestHeader("x-country-code") ||
+      getRequestHeader("x-vercel-ip-country") ||
+      getRequestHeader("cloudfront-viewer-country") ||
+      null;
+
+    if (headerCode && headerCode.trim() && headerCode !== "XX" && headerCode !== "T1") {
+      return getCountryNameFromCode(headerCode);
+    }
+  } catch {
+    // Ignore header extraction errors
+  }
+
+  // 2. Extract Client IP
+  const clientIp = getClientIp();
+  if (!clientIp || isPrivateOrLocalIp(clientIp)) {
+    return { country: "Localhost", countryCode: "LOCAL" };
+  }
+
+  // 3. Check In-Memory Cache
+  if (IP_COUNTRY_CACHE.has(clientIp)) {
+    return IP_COUNTRY_CACHE.get(clientIp)!;
+  }
+
+  // 4. Server-Side IP Geolocation Lookup (api.country.is)
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2000);
+
+    const res = await fetch(`https://api.country.is/${encodeURIComponent(clientIp)}`, {
+      signal: controller.signal,
+      headers: { Accept: "application/json" },
+    });
+    clearTimeout(timeoutId);
+
+    if (res.ok) {
+      const payload = (await res.json()) as { country?: string };
+      if (payload && typeof payload.country === "string" && payload.country.length === 2) {
+        const resolved = getCountryNameFromCode(payload.country);
+        IP_COUNTRY_CACHE.set(clientIp, resolved);
+        return resolved;
+      }
+    }
+  } catch (err) {
+    console.warn(`[analytics] IP geolocation fallback warning for <${clientIp}>:`, err);
+  }
+
+  return { country: "Unknown", countryCode: "XX" };
 }
 
 /** Helper to extract payload whether wrapped as { data: ... } or direct object */
@@ -67,18 +194,8 @@ export const recordPageViewAndPing = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    // Extract country from proxy/CDN headers
-    let rawCountry: string | null = null;
-    try {
-      rawCountry =
-        getRequestHeader("cf-ipcountry") ||
-        getRequestHeader("x-country-code") ||
-        getRequestHeader("x-vercel-ip-country") ||
-        null;
-    } catch {
-      // Header extraction unavailable or client-side context
-    }
-    const country = formatCountry(rawCountry);
+    // Perform non-blocking server-side IP geolocation
+    const { country, countryCode } = await resolveVisitorCountry();
     const nowIso = new Date().toISOString();
 
     // 1. Try atomic PostgreSQL RPC execution first
@@ -90,6 +207,7 @@ export const recordPageViewAndPing = createServerFn({ method: "POST" })
         p_browser: data.browser || "Unknown",
         p_os: data.os || "Unknown",
         p_country: country,
+        p_country_code: countryCode,
         p_referrer_source: data.referrerSource || "Direct",
         p_is_new_page_view: Boolean(data.isNewPageView),
         p_title: data.title || data.path,
@@ -100,7 +218,7 @@ export const recordPageViewAndPing = createServerFn({ method: "POST" })
         return { ok: true };
       }
     } catch {
-      // Fallback to table queries if RPC is not installed yet
+      // Fallback to table queries if RPC is not updated yet
     }
 
     // 2. Fallback upsert logic
@@ -119,6 +237,7 @@ export const recordPageViewAndPing = createServerFn({ method: "POST" })
         browser: data.browser,
         os: data.os,
         country: country,
+        country_code: countryCode,
         referrer_source: data.referrerSource,
         entry_page: data.path,
       });
@@ -127,7 +246,7 @@ export const recordPageViewAndPing = createServerFn({ method: "POST" })
         .from("visitor_sessions")
         .update({
           last_active_at: nowIso,
-          ...(country !== "Unknown" ? { country } : {}),
+          ...(country !== "Unknown" ? { country, country_code: countryCode } : {}),
           ...(data.deviceType ? { device_type: data.deviceType } : {}),
           ...(data.browser && data.browser !== "Unknown" ? { browser: data.browser } : {}),
           ...(data.os && data.os !== "Unknown" ? { os: data.os } : {}),
@@ -286,7 +405,7 @@ export const getAdminAnalyticsDetails = createServerFn({ method: "GET" })
       // 12. Recent Visitors Log
       supabaseAdmin
         .from("visitor_sessions")
-        .select("session_id, country, device_type, browser, os, entry_page, last_active_at")
+        .select("session_id, country, country_code, device_type, browser, os, entry_page, last_active_at, subscriber_email")
         .order("last_active_at", { ascending: false })
         .limit(15),
     ]);
@@ -410,16 +529,46 @@ export const getAdminAnalyticsDetails = createServerFn({ method: "GET" })
       percentage: sourceTotal > 0 ? Math.round((count / sourceTotal) * 100) : 0,
     }));
 
-    // Recent Visitors Anonymization
-    const recentVisitors = (recentVisitorsRes.data ?? []).map((v) => ({
-      sessionId: `v-${v.session_id.slice(0, 6)}...`,
-      country: v.country || "Unknown",
-      deviceType: v.device_type || "desktop",
-      browser: v.browser || "Unknown",
-      os: v.os || "Unknown",
-      entryPage: v.entry_page || "/",
-      lastActiveAt: v.last_active_at,
-    }));
+    // Verify subscriber status against public.subscribers (single source of truth)
+    const rawVisitorRows = recentVisitorsRes.data ?? [];
+    const emailsToVerify = Array.from(
+      new Set(
+        rawVisitorRows
+          .map((v: any) => v.subscriber_email)
+          .filter((e: any): e is string => typeof e === "string" && e.trim().length > 0)
+      )
+    );
+
+    const activeSubscribers = new Set<string>();
+    if (emailsToVerify.length > 0) {
+      const { data: subRows } = await supabaseAdmin
+        .from("subscribers")
+        .select("email, status")
+        .in("email", emailsToVerify);
+
+      (subRows ?? []).forEach((s: any) => {
+        if (!s.status || s.status === "active") {
+          activeSubscribers.add(s.email.toLowerCase());
+        }
+      });
+    }
+
+    const recentVisitors = rawVisitorRows.map((v: any) => {
+      const email = v.subscriber_email ? String(v.subscriber_email).toLowerCase() : "";
+      const isSubscribed = Boolean(email && activeSubscribers.has(email));
+      return {
+        sessionId: `v-${v.session_id.slice(0, 6)}...`,
+        country: v.country || "Unknown",
+        countryCode: v.country_code || "XX",
+        deviceType: v.device_type || "desktop",
+        browser: v.browser || "Unknown",
+        os: v.os || "Unknown",
+        entryPage: v.entry_page || "/",
+        lastActiveAt: v.last_active_at,
+        isSubscribed,
+        subscriberStatus: isSubscribed ? "Subscribed" : "Not Subscribed",
+      };
+    });
 
     return {
       liveNow,
