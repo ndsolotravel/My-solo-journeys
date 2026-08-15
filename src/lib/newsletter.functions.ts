@@ -175,12 +175,12 @@ export const adminDeleteSubscriber = createServerFn({ method: "POST" })
 async function sendNewsletterNotification(
   subscriberEmail: string
 ): Promise<{ sent: boolean; provider: string; id?: string; reason?: string }> {
-  const recipient = process.env.CONTACT_NOTIFICATION_EMAIL || process.env.NOTIFICATION_EMAIL || DEFAULT_RECIPIENT;
-  const emailSubject = `New Newsletter Subscriber: ${subscriberEmail}`;
+  const recipient = cleanEnv(process.env.CONTACT_NOTIFICATION_EMAIL) || cleanEnv(process.env.NOTIFICATION_EMAIL) || DEFAULT_RECIPIENT;
+  const emailSubject = `New Subscriber: ${subscriberEmail}`;
 
   const htmlContent = `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 24px; max-width: 600px; margin: 0 auto; color: #1e293b; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px;">
-      <h2 style="color: #0f172a; margin-top: 0; font-size: 20px; font-weight: 700;">New Newsletter Subscription</h2>
+      <h2 style="color: #0f172a; margin-top: 0; font-size: 20px; font-weight: 700;">New Newsletter Subscriber</h2>
       <p style="margin: 8px 0; font-size: 14px;"><strong>Subscriber Email:</strong> <a href="mailto:${subscriberEmail}" style="color: #2563eb;">${subscriberEmail}</a></p>
       <p style="margin: 8px 0; font-size: 14px;"><strong>Subscribed At:</strong> ${new Date().toISOString()}</p>
       <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
@@ -193,28 +193,31 @@ async function sendNewsletterNotification(
   const plainText = `New Newsletter Subscriber Notification\n\nSubscriber Email: ${subscriberEmail}\nSubscribed At: ${new Date().toISOString()}\n\n---\nSent via NDSOLOTRAVEL website. Notification recipient: ${recipient}`;
 
   // 1. Try Hostinger / Custom SMTP (via Nodemailer) if credentials configured
-  const smtpHost = process.env.SMTP_HOST || process.env.SMTP_SERVER;
-  const smtpUser = process.env.SMTP_USER || process.env.SMTP_USERNAME;
-  const smtpPass = process.env.SMTP_PASS || process.env.SMTP_PASSWORD;
-  const smtpPort = Number(process.env.SMTP_PORT) || 465;
-  const smtpFrom = process.env.SMTP_FROM || (smtpUser ? `NDSOLOTRAVEL <${smtpUser}>` : `NDSOLOTRAVEL <contact@ndsolotravel.com>`);
+  const smtpHost = cleanEnv(process.env.SMTP_HOST) || cleanEnv(process.env.SMTP_SERVER);
+  const smtpUser = cleanEnv(process.env.SMTP_USER) || cleanEnv(process.env.SMTP_USERNAME);
+  const smtpPass = cleanEnv(process.env.SMTP_PASS) || cleanEnv(process.env.SMTP_PASSWORD);
+  const smtpPort = Number(cleanEnv(process.env.SMTP_PORT)) || 465;
+  const smtpFrom = cleanEnv(process.env.SMTP_FROM) || (smtpUser ? `NDSOLOTRAVEL <${smtpUser}>` : `NDSOLOTRAVEL <contact@ndsolotravel.com>`);
 
   if (smtpHost && smtpUser && smtpPass) {
     try {
-      console.log(`[subscribe] Initiating SMTP connection to ${smtpHost}:${smtpPort}...`);
+      const isSecure = smtpPort === 465;
+      console.log(`[subscribe] Connecting to SMTP ${smtpHost}:${smtpPort} (secure=${isSecure})...`);
       const transporter = nodemailer.createTransport({
         host: smtpHost,
         port: smtpPort,
-        secure: smtpPort === 465,
+        secure: isSecure,
         auth: {
           user: smtpUser,
           pass: smtpPass,
         },
+        requireTLS: !isSecure && smtpPort === 587,
         connectionTimeout: 15000,
         greetingTimeout: 10000,
         socketTimeout: 20000,
         tls: {
           rejectUnauthorized: false,
+          minVersion: "TLSv1.2",
         },
       });
 
@@ -227,19 +230,24 @@ async function sendNewsletterNotification(
         html: htmlContent,
       });
 
-      console.log(`[subscribe] SMTP email ACCEPTED for ${recipient} (Message ID: ${info.messageId})`);
+      console.log(`[subscribe] SMTP delivery SUCCESS: Message ID: ${info.messageId} | Response: ${info.response}`);
       return { sent: true, provider: "smtp", id: info.messageId };
     } catch (err: any) {
-      console.error(`[subscribe] SMTP delivery attempt failed:`, err?.message || err);
+      console.error(`[subscribe] SMTP delivery ERROR:`, {
+        code: err?.code,
+        command: err?.command,
+        response: err?.response,
+        message: err?.message,
+      });
     }
   }
 
   // 2. Try Resend API if RESEND_API_KEY is configured
-  const resendApiKey = process.env.RESEND_API_KEY;
+  const resendApiKey = cleanEnv(process.env.RESEND_API_KEY);
   if (resendApiKey) {
     try {
       console.log(`[subscribe] Initiating Resend API dispatch to ${recipient}...`);
-      const fromAddress = process.env.RESEND_FROM_EMAIL || "NDSOLOTRAVEL Newsletter <onboarding@resend.dev>";
+      const fromAddress = cleanEnv(process.env.RESEND_FROM_EMAIL) || "NDSOLOTRAVEL Newsletter <onboarding@resend.dev>";
       const res = await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: {
@@ -272,7 +280,7 @@ async function sendNewsletterNotification(
 
   // 3. If no email provider env vars set
   console.warn(
-    `[subscribe] No active email provider configured (SMTP_HOST/SMTP_USER/SMTP_PASS or RESEND_API_KEY missing). Notification for subscriber ${subscriberEmail} was not dispatched.`
+    `[subscribe] No active email provider credentials detected in process.env (SMTP_HOST/SMTP_USER/SMTP_PASS or RESEND_API_KEY missing). Notification for subscriber ${subscriberEmail} was not dispatched.`
   );
   return {
     sent: false,
@@ -382,6 +390,15 @@ export const sendContact = createServerFn({ method: "POST" })
     };
   });
 
+function cleanEnv(val: string | undefined): string | undefined {
+  if (!val) return undefined;
+  let s = val.trim();
+  if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
+    s = s.slice(1, -1).trim();
+  }
+  return s || undefined;
+}
+
 const DEFAULT_RECIPIENT = "contact@ndsolotravel.com";
 
 async function notifyRecipientByEmail(msg: {
@@ -390,7 +407,7 @@ async function notifyRecipientByEmail(msg: {
   subject: string | null;
   message: string;
 }): Promise<{ sent: boolean; provider: string; id?: string; reason?: string }> {
-  const recipient = process.env.CONTACT_NOTIFICATION_EMAIL || process.env.NOTIFICATION_EMAIL || DEFAULT_RECIPIENT;
+  const recipient = cleanEnv(process.env.CONTACT_NOTIFICATION_EMAIL) || cleanEnv(process.env.NOTIFICATION_EMAIL) || DEFAULT_RECIPIENT;
   const emailSubject = `New Contact Message from ${msg.name}${msg.subject ? `: ${msg.subject}` : ""}`;
 
   const htmlContent = `
@@ -406,31 +423,36 @@ async function notifyRecipientByEmail(msg: {
     </div>
   `;
 
-  // 1. Try Hostinger / Custom SMTP (via Nodemailer) if credentials configured
-  const smtpHost = process.env.SMTP_HOST || process.env.SMTP_SERVER;
-  const smtpUser = process.env.SMTP_USER || process.env.SMTP_USERNAME;
-  const smtpPass = process.env.SMTP_PASS || process.env.SMTP_PASSWORD;
-  const smtpPort = Number(process.env.SMTP_PORT) || 465;
-  const smtpFrom = process.env.SMTP_FROM || (smtpUser ? `NDSOLOTRAVEL <${smtpUser}>` : `NDSOLOTRAVEL <contact@ndsolotravel.com>`);
-
   const plainText = `New Contact Form Message\n\nVisitor Name: ${msg.name}\nVisitor Email: ${msg.email}\nSubject: ${msg.subject || "N/A"}\n\nMessage:\n${msg.message}\n\n---\nSent via NDSOLOTRAVEL contact form. Recipient: ${recipient}`;
+
+  // 1. Try Hostinger / Custom SMTP (via Nodemailer) if credentials configured
+  const smtpHost = cleanEnv(process.env.SMTP_HOST) || cleanEnv(process.env.SMTP_SERVER);
+  const smtpUser = cleanEnv(process.env.SMTP_USER) || cleanEnv(process.env.SMTP_USERNAME);
+  const smtpPass = cleanEnv(process.env.SMTP_PASS) || cleanEnv(process.env.SMTP_PASSWORD);
+  const smtpPort = Number(cleanEnv(process.env.SMTP_PORT)) || 465;
+  const smtpFrom = cleanEnv(process.env.SMTP_FROM) || (smtpUser ? `NDSOLOTRAVEL Contact <${smtpUser}>` : `NDSOLOTRAVEL Contact <contact@ndsolotravel.com>`);
+
+  console.log(`[sendContact] Evaluation: recipient=<${recipient}>, smtpHost=${smtpHost ? `'${smtpHost}'` : 'undefined'}, smtpUser=${smtpUser ? `'${smtpUser}'` : 'undefined'}, smtpPass=${smtpPass ? '[CONFIGURED]' : 'undefined'}, smtpPort=${smtpPort}`);
 
   if (smtpHost && smtpUser && smtpPass) {
     try {
-      console.log(`[sendContact] Initiating SMTP connection to ${smtpHost}:${smtpPort}...`);
+      const isSecure = smtpPort === 465;
+      console.log(`[sendContact] Connecting to SMTP ${smtpHost}:${smtpPort} (secure=${isSecure})...`);
       const transporter = nodemailer.createTransport({
         host: smtpHost,
         port: smtpPort,
-        secure: smtpPort === 465,
+        secure: isSecure,
         auth: {
           user: smtpUser,
           pass: smtpPass,
         },
+        requireTLS: !isSecure && smtpPort === 587,
         connectionTimeout: 15000,
         greetingTimeout: 10000,
         socketTimeout: 20000,
         tls: {
           rejectUnauthorized: false,
+          minVersion: "TLSv1.2",
         },
       });
 
@@ -443,20 +465,26 @@ async function notifyRecipientByEmail(msg: {
         html: htmlContent,
       });
 
-      console.log(`[sendContact] SMTP email ACCEPTED for ${recipient} (Message ID: ${info.messageId})`);
+      console.log(`[sendContact] SMTP delivery SUCCESS: Message ID: ${info.messageId} | Response: ${info.response} | Accepted: ${JSON.stringify(info.accepted)}`);
       return { sent: true, provider: "smtp", id: info.messageId };
     } catch (err: any) {
-      console.error(`[sendContact] SMTP delivery attempt failed:`, err?.message || err);
+      console.error(`[sendContact] SMTP delivery ERROR:`, {
+        code: err?.code,
+        command: err?.command,
+        response: err?.response,
+        responseCode: err?.responseCode,
+        message: err?.message,
+      });
       // Fall through to test API provider if available
     }
   }
 
   // 2. Try Resend API if RESEND_API_KEY is configured
-  const resendApiKey = process.env.RESEND_API_KEY;
+  const resendApiKey = cleanEnv(process.env.RESEND_API_KEY);
   if (resendApiKey) {
     try {
       console.log(`[sendContact] Initiating Resend API dispatch to ${recipient}...`);
-      const fromAddress = process.env.RESEND_FROM_EMAIL || "NDSOLOTRAVEL Contact <onboarding@resend.dev>";
+      const fromAddress = cleanEnv(process.env.RESEND_FROM_EMAIL) || "NDSOLOTRAVEL Contact <onboarding@resend.dev>";
       const res = await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: {
@@ -489,7 +517,7 @@ async function notifyRecipientByEmail(msg: {
 
   // 3. If no email provider env vars set
   console.warn(
-    `[sendContact] No active email provider configured (SMTP_HOST/SMTP_USER/SMTP_PASS or RESEND_API_KEY missing). Notification to ${recipient} was not dispatched.`
+    `[sendContact] No active email provider credentials detected in process.env (SMTP_HOST/SMTP_USER/SMTP_PASS or RESEND_API_KEY missing). Notification to ${recipient} was not dispatched.`
   );
   return {
     sent: false,
