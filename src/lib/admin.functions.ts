@@ -66,18 +66,19 @@ export const adminListPosts = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     await assertEditor(context.userId, context.supabase);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    let res = await supabaseAdmin
-      .from("posts")
+    const { data: fullData, error: fullError } = await (supabaseAdmin
+      .from("posts") as any)
       .select(`${POST_COLS},destinations(title,slug)`)
       .order("updated_at", { ascending: false });
-    if (res.error) {
-      res = await supabaseAdmin
-        .from("posts")
-        .select(BASE_POST_COLS)
-        .order("updated_at", { ascending: false });
+    if (!fullError && fullData) {
+      return fullData as any[];
     }
-    if (res.error) throw new Error(res.error.message);
-    return res.data ?? [];
+    const { data: baseData, error: baseError } = await supabaseAdmin
+      .from("posts")
+      .select(BASE_POST_COLS)
+      .order("updated_at", { ascending: false });
+    if (baseError) throw new Error(baseError.message);
+    return (baseData ?? []) as any[];
   });
 
 export const adminGetPost = createServerFn({ method: "GET" })
@@ -86,22 +87,23 @@ export const adminGetPost = createServerFn({ method: "GET" })
   .handler(async ({ context, data }) => {
     await assertEditor(context.userId, context.supabase);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    let res = await supabaseAdmin
-      .from("posts")
+    const { data: fullData, error: fullError } = await (supabaseAdmin
+      .from("posts") as any)
       .select(`${POST_COLS},destinations(id,title,slug),post_gallery(id,image_url,alt_text,sort_order)`)
       .eq("id", data.id)
       .maybeSingle();
 
-    if (res.error) {
-      res = await supabaseAdmin
+    let row: any = fullData;
+    if (fullError || !row) {
+      const { data: baseData, error: baseError } = await supabaseAdmin
         .from("posts")
         .select(BASE_POST_COLS)
         .eq("id", data.id)
         .maybeSingle();
+      if (baseError) throw new Error(baseError.message);
+      row = baseData;
     }
 
-    if (res.error) throw new Error(res.error.message);
-    const row = res.data;
     if (!row) return null;
     const gallery = ((row as Record<string, unknown>).post_gallery ?? []) as {
       id: string;
@@ -112,7 +114,7 @@ export const adminGetPost = createServerFn({ method: "GET" })
     if (Array.isArray(gallery)) {
       gallery.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
     }
-    return { ...row, gallery };
+    return { ...row, gallery } as any;
   });
 
 const slugify = (s: string) =>
@@ -344,7 +346,7 @@ export const adminListComments = createServerFn({ method: "GET" })
       .order("created_at", { ascending: false })
       .limit(500);
     if (error) throw new Error(error.message);
-    return data ?? [];
+    return (data ?? []) as any[];
   });
 
 export const adminDeleteComment = createServerFn({ method: "POST" })
@@ -365,31 +367,31 @@ export const adminListMessages = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     await assertEditor(context.userId, context.supabase);
     const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
-    let res = await client
+    const { data: msgData, error: msgError } = await client
       .from("messages")
       .select("id,name,email,subject,message,is_read,created_at")
       .order("created_at", { ascending: false })
       .limit(500);
 
-    if (res.error) {
-      console.warn("[adminListMessages] Querying messages failed, checking fallback contact_messages:", res.error.message);
-      res = await client
-        .from("contact_messages")
-        .select("id,name,email,subject,message,status,created_at")
-        .order("created_at", { ascending: false })
-        .limit(500);
-      if (res.error) throw new Error(res.error.message);
-      return (res.data ?? []).map((m: any) => ({
+    if (!msgError && msgData) {
+      return msgData.map((m: any) => ({
         ...m,
-        is_read: m.status === "read" || m.status === "replied",
-        status: m.status || "new",
+        is_read: Boolean(m.is_read),
+        status: m.is_read ? "read" : "new",
       }));
     }
 
-    return (res.data ?? []).map((m: any) => ({
+    const { data: cmData, error: cmError } = await client
+      .from("contact_messages")
+      .select("id,name,email,subject,message,status,created_at")
+      .order("created_at", { ascending: false })
+      .limit(500);
+
+    if (cmError) throw new Error(cmError.message);
+    return (cmData ?? []).map((m: any) => ({
       ...m,
-      is_read: Boolean(m.is_read),
-      status: m.is_read ? "read" : "new",
+      is_read: m.status === "read" || m.status === "replied",
+      status: m.status || "new",
     }));
   });
 
@@ -480,7 +482,7 @@ export const adminAnalytics = createServerFn({ method: "GET" })
       avgRating: Math.round(avgRating * 10) / 10,
       subscribers: subs.count ?? 0,
       messages: msgs.count ?? 0,
-      topPosts: top.data ?? [],
+      topPosts: (top.data ?? []) as any[],
     };
   });
 

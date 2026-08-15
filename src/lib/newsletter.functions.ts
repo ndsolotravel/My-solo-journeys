@@ -31,7 +31,7 @@ export const subscribe = createServerFn({ method: "POST" })
         "Subscription could not be saved. Please try again later or email us directly at contact@ndsolotravel.com."
       );
     }
-    if (!rpcData?.id) {
+    if (!(rpcData as any)?.id) {
       console.error(`[subscribe] Subscriber insert returned no id (RLS or insert blocked).`);
       throw new Error(
         "Subscription could not be saved. Please try again later or email us directly at contact@ndsolotravel.com."
@@ -41,8 +41,8 @@ export const subscribe = createServerFn({ method: "POST" })
     // Link subscriber_email to current visitor session if sessionId is available
     if (data.sessionId) {
       try {
-        await supabaseAdmin
-          .from("visitor_sessions")
+        await (supabaseAdmin
+          .from("visitor_sessions") as any)
           .update({ subscriber_email: subscriberEmail })
           .eq("session_id", data.sessionId);
       } catch (err) {
@@ -91,35 +91,42 @@ export const adminListSubscribers = createServerFn({ method: "GET" })
 
     let roles: string[] = [];
     if (context.supabase) {
-      const { data } = await context.supabase.from("user_roles").select("role").eq("user_id", context.userId);
+      const { data } = await (context.supabase as any).from("user_roles").select("role").eq("user_id", context.userId);
       roles = (data ?? []).map((r: any) => r.role);
     }
     if (roles.length === 0) {
-      const { data } = await supabaseAdmin.from("user_roles").select("role").eq("user_id", context.userId);
+      const { data } = await (supabaseAdmin as any).from("user_roles").select("role").eq("user_id", context.userId);
       roles = (data ?? []).map((r: any) => r.role);
     }
     if (!roles.includes("admin") && !roles.includes("editor")) {
       throw new Error("Forbidden");
     }
 
-    let res = await supabaseAdmin
+    const { data: fullData, error: fullError } = await supabaseAdmin
       .from("subscribers")
       .select("id, email, status, subscribed_at")
       .order("subscribed_at", { ascending: false });
 
-    if (res.error) {
-      res = await supabaseAdmin
-        .from("subscribers")
-        .select("id, email, subscribed_at")
-        .order("subscribed_at", { ascending: false });
+    if (!fullError && fullData) {
+      return fullData.map((r: any) => ({
+        id: r.id,
+        email: r.email,
+        status: r.status || "active",
+        subscribed_at: r.subscribed_at,
+      }));
     }
 
-    if (res.error) throw new Error(res.error.message);
+    const { data: basicData, error: basicError } = await supabaseAdmin
+      .from("subscribers")
+      .select("id, email, subscribed_at")
+      .order("subscribed_at", { ascending: false });
 
-    return (res.data ?? []).map((r: any) => ({
+    if (basicError) throw new Error(basicError.message);
+
+    return (basicData ?? []).map((r: any) => ({
       id: r.id,
       email: r.email,
-      status: r.status || "active",
+      status: "active",
       subscribed_at: r.subscribed_at,
     }));
   });
@@ -137,8 +144,8 @@ export const adminUpdateSubscriberStatus = createServerFn({ method: "POST" })
   })
   .handler(async ({ context, data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin
-      .from("subscribers")
+    const { error } = await (supabaseAdmin
+      .from("subscribers") as any)
       .update({ status: data.status })
       .eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -157,8 +164,8 @@ export const adminDeleteSubscriber = createServerFn({ method: "POST" })
   })
   .handler(async ({ context, data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin
-      .from("subscribers")
+    const { error } = await (supabaseAdmin
+      .from("subscribers") as any)
       .delete()
       .eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -311,8 +318,8 @@ export const sendContact = createServerFn({ method: "POST" })
     const subject = data.subject?.trim() || null;
 
     // 1. Insert into public.messages table
-    const { error: dbError, status } = await supabaseAdmin
-      .from("messages")
+    const { error: dbError, status } = await (supabaseAdmin
+      .from("messages") as any)
       .insert({
         name: data.name,
         email: data.email.toLowerCase(),
@@ -331,7 +338,7 @@ export const sendContact = createServerFn({ method: "POST" })
 
     // 2. Synchronize to legacy contact_messages table if present
     try {
-      await supabaseAdmin.from("contact_messages").insert({
+      await (supabaseAdmin.from("contact_messages") as any).insert({
         name: data.name,
         email: data.email.toLowerCase(),
         subject: subject,

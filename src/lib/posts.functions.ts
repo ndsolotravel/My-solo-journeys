@@ -65,8 +65,8 @@ export const listPosts = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const buildQuery = (selectCols: string) => {
-      let q = supabaseAdmin
-        .from("posts")
+      let q = (supabaseAdmin
+        .from("posts") as any)
         .select(selectCols, { count: "exact" })
         .eq("published", true);
       if (data.sort === "popular") q = q.order("views", { ascending: false });
@@ -84,13 +84,14 @@ export const listPosts = createServerFn({ method: "GET" })
     };
 
     // Try full query first with destination relation, fallback to basic columns if schema not migrated yet
-    let res = await buildQuery(`${FULL_POST_COLUMNS},destinations(title,slug),post_translations(language_code,title,excerpt)`);
-    if (res.error) {
-      res = await buildQuery(BASE_POST_COLUMNS);
+    const fullRes = await buildQuery(`${FULL_POST_COLUMNS},destinations(title,slug),post_translations(language_code,title,excerpt)`);
+    if (!fullRes.error && fullRes.data) {
+      return { posts: fullRes.data as unknown as Post[], total: fullRes.count ?? 0 };
     }
 
-    if (res.error) throw new Error(res.error.message);
-    return { posts: (res.data ?? []) as Post[], total: res.count ?? 0 };
+    const baseRes = await buildQuery(BASE_POST_COLUMNS);
+    if (baseRes.error) throw new Error(baseRes.error.message);
+    return { posts: (baseRes.data ?? []) as unknown as Post[], total: baseRes.count ?? 0 };
   });
 
 export const getPostBySlug = createServerFn({ method: "GET" })

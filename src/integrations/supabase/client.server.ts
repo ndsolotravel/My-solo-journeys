@@ -16,15 +16,14 @@ function createSupabaseAdminClient() {
     (typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY : undefined) ||
     DEFAULT_SUPABASE_ANON_KEY;
 
-  return createClient<Database>(SUPABASE_URL, SUPABASE_KEY, {
+  return createClient(SUPABASE_URL, SUPABASE_KEY, {
     auth: {
       storage: undefined,
       persistSession: false,
       autoRefreshToken: false,
     },
     realtime: {
-      transport: ws,
-      WebSocket: ws,
+      transport: ws as any,
     },
   });
 }

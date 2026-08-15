@@ -30,15 +30,14 @@ function createSupabaseClient() {
       : undefined) ||
     DEFAULT_SUPABASE_ANON_KEY;
 
-  return createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  return createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     auth: {
       storage: typeof window !== 'undefined' ? localStorage : undefined,
       persistSession: true,
       autoRefreshToken: true,
     },
     realtime: {
-      transport: typeof window !== 'undefined' ? undefined : ws,
-      WebSocket: typeof window !== 'undefined' ? undefined : ws,
+      transport: typeof window !== 'undefined' ? undefined : (ws as any),
     },
   });
 }

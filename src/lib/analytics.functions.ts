@@ -546,7 +546,7 @@ export const getAdminAnalyticsDetails = createServerFn({ method: "GET" })
       const { data: subRows } = await client
         .from("subscribers")
         .select("email, status")
-        .in("email", emailsToVerify);
+        .in("email", emailsToVerify as any);
 
       (subRows ?? []).forEach((s: any) => {
         if (!s.status || s.status === "active") {
@@ -581,7 +581,7 @@ export const getAdminAnalyticsDetails = createServerFn({ method: "GET" })
       yesterdayVisitors,
       trafficOverTime,
       popularPages,
-      topPosts: topPostsRes.data ?? [],
+      topPosts: (topPostsRes.data ?? []) as any[],
       deviceStats,
       trafficSources,
       recentVisitors,
