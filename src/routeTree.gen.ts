@@ -27,6 +27,7 @@ import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
+import { Route as AuthenticatedAdminSubscribersRouteImport } from './routes/_authenticated/admin.subscribers'
 import { Route as AuthenticatedAdminMessagesRouteImport } from './routes/_authenticated/admin.messages'
 import { Route as AuthenticatedAdminDestinationsRouteImport } from './routes/_authenticated/admin.destinations'
 import { Route as AuthenticatedAdminCommentsRouteImport } from './routes/_authenticated/admin.comments'
@@ -124,6 +125,12 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminSubscribersRoute =
+  AuthenticatedAdminSubscribersRouteImport.update({
+    id: '/subscribers',
+    path: '/subscribers',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminMessagesRoute =
   AuthenticatedAdminMessagesRouteImport.update({
     id: '/messages',
@@ -188,6 +195,7 @@ export interface FileRoutesByFullPath {
   '/admin/comments': typeof AuthenticatedAdminCommentsRoute
   '/admin/destinations': typeof AuthenticatedAdminDestinationsRoute
   '/admin/messages': typeof AuthenticatedAdminMessagesRoute
+  '/admin/subscribers': typeof AuthenticatedAdminSubscribersRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/admin/posts/$id': typeof AuthenticatedAdminPostsIdRoute
   '/admin/posts/new': typeof AuthenticatedAdminPostsNewRoute
@@ -211,6 +219,7 @@ export interface FileRoutesByTo {
   '/admin/comments': typeof AuthenticatedAdminCommentsRoute
   '/admin/destinations': typeof AuthenticatedAdminDestinationsRoute
   '/admin/messages': typeof AuthenticatedAdminMessagesRoute
+  '/admin/subscribers': typeof AuthenticatedAdminSubscribersRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/admin/posts/$id': typeof AuthenticatedAdminPostsIdRoute
   '/admin/posts/new': typeof AuthenticatedAdminPostsNewRoute
@@ -239,6 +248,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/comments': typeof AuthenticatedAdminCommentsRoute
   '/_authenticated/admin/destinations': typeof AuthenticatedAdminDestinationsRoute
   '/_authenticated/admin/messages': typeof AuthenticatedAdminMessagesRoute
+  '/_authenticated/admin/subscribers': typeof AuthenticatedAdminSubscribersRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/admin/posts/$id': typeof AuthenticatedAdminPostsIdRoute
   '/_authenticated/admin/posts/new': typeof AuthenticatedAdminPostsNewRoute
@@ -267,6 +277,7 @@ export interface FileRouteTypes {
     | '/admin/comments'
     | '/admin/destinations'
     | '/admin/messages'
+    | '/admin/subscribers'
     | '/admin/'
     | '/admin/posts/$id'
     | '/admin/posts/new'
@@ -290,6 +301,7 @@ export interface FileRouteTypes {
     | '/admin/comments'
     | '/admin/destinations'
     | '/admin/messages'
+    | '/admin/subscribers'
     | '/admin'
     | '/admin/posts/$id'
     | '/admin/posts/new'
@@ -317,6 +329,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/comments'
     | '/_authenticated/admin/destinations'
     | '/_authenticated/admin/messages'
+    | '/_authenticated/admin/subscribers'
     | '/_authenticated/admin/'
     | '/_authenticated/admin/posts/$id'
     | '/_authenticated/admin/posts/new'
@@ -465,6 +478,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/subscribers': {
+      id: '/_authenticated/admin/subscribers'
+      path: '/subscribers'
+      fullPath: '/admin/subscribers'
+      preLoaderRoute: typeof AuthenticatedAdminSubscribersRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/messages': {
       id: '/_authenticated/admin/messages'
       path: '/messages'
@@ -522,6 +542,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminCommentsRoute: typeof AuthenticatedAdminCommentsRoute
   AuthenticatedAdminDestinationsRoute: typeof AuthenticatedAdminDestinationsRoute
   AuthenticatedAdminMessagesRoute: typeof AuthenticatedAdminMessagesRoute
+  AuthenticatedAdminSubscribersRoute: typeof AuthenticatedAdminSubscribersRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminPostsIdRoute: typeof AuthenticatedAdminPostsIdRoute
   AuthenticatedAdminPostsNewRoute: typeof AuthenticatedAdminPostsNewRoute
@@ -533,6 +554,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminCommentsRoute: AuthenticatedAdminCommentsRoute,
   AuthenticatedAdminDestinationsRoute: AuthenticatedAdminDestinationsRoute,
   AuthenticatedAdminMessagesRoute: AuthenticatedAdminMessagesRoute,
+  AuthenticatedAdminSubscribersRoute: AuthenticatedAdminSubscribersRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedAdminPostsIdRoute: AuthenticatedAdminPostsIdRoute,
   AuthenticatedAdminPostsNewRoute: AuthenticatedAdminPostsNewRoute,

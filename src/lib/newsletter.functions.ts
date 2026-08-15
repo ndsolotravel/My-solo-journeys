@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { getRequestHeader } from "@tanstack/react-start/server";
 import { z } from "zod";
 import nodemailer from "nodemailer";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export const subscribe = createServerFn({ method: "POST" })
   .inputValidator((input: any) => {
@@ -31,7 +32,19 @@ export const subscribe = createServerFn({ method: "POST" })
       );
     }
 
-    console.log(`[subscribe] Subscriber record saved in Supabase: <${subscriberEmail}>`);
+    const isNew = (rpcData as any)?.created !== false;
+
+    if (!isNew) {
+      console.log(`[subscribe] Subscriber already exists in Supabase: <${subscriberEmail}>`);
+      return {
+        ok: true,
+        created: false,
+        alreadySubscribed: true,
+        message: "You are already subscribed.",
+      };
+    }
+
+    console.log(`[subscribe] New subscriber record saved in Supabase: <${subscriberEmail}>`);
 
     // Dispatch email notification to recipient (contact@ndsolotravel.com)
     // Email is a side-channel; the subscription itself has already succeeded in DB.
@@ -44,10 +57,94 @@ export const subscribe = createServerFn({ method: "POST" })
     console.log(`[subscribe] Complete newsletter flow SUCCESS via ${emailResult.provider} (ID: ${emailResult.id})`);
     return {
       ok: true,
+      created: true,
+      alreadySubscribed: false,
       provider: emailResult.provider,
       messageId: emailResult.id,
       emailDelivered: emailResult.sent,
+      message: "Subscribed. Welcome aboard.",
     };
+  });
+
+export const adminListSubscribers = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    let roles: string[] = [];
+    if (context.supabase) {
+      const { data } = await context.supabase.from("user_roles").select("role").eq("user_id", context.userId);
+      roles = (data ?? []).map((r: any) => r.role);
+    }
+    if (roles.length === 0) {
+      const { data } = await supabaseAdmin.from("user_roles").select("role").eq("user_id", context.userId);
+      roles = (data ?? []).map((r: any) => r.role);
+    }
+    if (!roles.includes("admin") && !roles.includes("editor")) {
+      throw new Error("Forbidden");
+    }
+
+    let res = await supabaseAdmin
+      .from("subscribers")
+      .select("id, email, status, subscribed_at")
+      .order("subscribed_at", { ascending: false });
+
+    if (res.error) {
+      res = await supabaseAdmin
+        .from("subscribers")
+        .select("id, email, subscribed_at")
+        .order("subscribed_at", { ascending: false });
+    }
+
+    if (res.error) throw new Error(res.error.message);
+
+    return (res.data ?? []).map((r: any) => ({
+      id: r.id,
+      email: r.email,
+      status: r.status || "active",
+      subscribed_at: r.subscribed_at,
+    }));
+  });
+
+export const adminUpdateSubscriberStatus = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: any) => {
+    const raw = input?.data ? input.data : input;
+    return z
+      .object({
+        id: z.string().uuid(),
+        status: z.enum(["active", "unsubscribed"]),
+      })
+      .parse(raw);
+  })
+  .handler(async ({ context, data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("subscribers")
+      .update({ status: data.status })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const adminDeleteSubscriber = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: any) => {
+    const raw = input?.data ? input.data : input;
+    return z
+      .object({
+        id: z.string().uuid(),
+      })
+      .parse(raw);
+  })
+  .handler(async ({ context, data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("subscribers")
+      .delete()
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
   });
 
 async function sendNewsletterNotification(

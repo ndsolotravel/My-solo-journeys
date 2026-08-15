@@ -14,8 +14,12 @@ export function NewsletterForm({ dark = false }: { dark?: boolean }) {
     e.preventDefault();
     setLoading(true);
     try {
-      await subscribeFn({ data: { email } });
-      toast.success(t("Subscribed. Welcome aboard."));
+      const res = await subscribeFn({ data: { email } });
+      if (res && (res.created === false || res.alreadySubscribed)) {
+        toast.info(t("You are already subscribed."));
+      } else {
+        toast.success(t("Subscribed! Welcome aboard."));
+      }
       setEmail("");
     } catch (err: any) {
       let msg = t("Could not subscribe. Try again.");

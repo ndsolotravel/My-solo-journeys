@@ -31,7 +31,9 @@ function AdminDashboard() {
         <Stat icon={FileText} label="Posts" value={data?.posts} sub={`${data?.published ?? 0} published`} loading={isLoading} />
         <Stat icon={Eye} label="Total views" value={data?.totalViews} loading={isLoading} />
         <Stat icon={MessageSquare} label="Comments" value={data?.comments} sub={data?.avgRating ? `★ ${data.avgRating} avg` : undefined} loading={isLoading} />
-        <Stat icon={Users} label="Subscribers" value={data?.subscribers} loading={isLoading} />
+        <Link to="/admin/subscribers" className="block transition hover:opacity-90">
+          <Stat icon={Users} label="Subscribers" value={data?.subscribers} sub="Manage subscribers →" loading={isLoading} />
+        </Link>
       </div>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-3">

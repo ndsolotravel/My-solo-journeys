@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet, redirect, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, FileText, MapPin, MessageSquare, Mail, LogOut, BarChart3 } from "lucide-react";
+import { LayoutDashboard, FileText, MapPin, MessageSquare, Mail, LogOut, BarChart3, Users } from "lucide-react";
 import { getMyRoles } from "@/lib/admin.functions";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -40,6 +40,7 @@ const NAV: { to: string; label: string; icon: typeof LayoutDashboard; exact?: bo
   { to: "/admin/posts", label: "Posts", icon: FileText },
   { to: "/admin/destinations", label: "Destinations", icon: MapPin },
   { to: "/admin/comments", label: "Comments", icon: MessageSquare },
+  { to: "/admin/subscribers", label: "Subscribers", icon: Users },
   { to: "/admin/messages", label: "Messages", icon: Mail },
 ];
 
