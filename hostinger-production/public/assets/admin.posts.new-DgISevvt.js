@@ -1,0 +1,1 @@
+import{j as o}from"./index-DSjdR-fM.js";import{P as t}from"./PostEditor-0g95JGg6.js";import"./useQuery-CaXd4QSV.js";import"./useBaseQuery-B7q1uyOK.js";import"./useMutation-B4K-85Ou.js";import"./index-BKTiPudb.js";import"./eye-CBU2_Li1.js";import"./plus-Dz3afpCG.js";import"./trash-2-DWGxS6RW.js";const j=()=>o.jsx(t,{});export{j as component};

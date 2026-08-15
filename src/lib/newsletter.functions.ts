@@ -310,30 +310,38 @@ export const sendContact = createServerFn({ method: "POST" })
     const ipHash = await sha256(`ndsolo:${ip}`);
     const subject = data.subject?.trim() || null;
 
-    const { data: rpcData, error } = await supabaseAdmin.rpc("send_contact_message", {
-      p_name: data.name,
-      p_email: data.email.toLowerCase(),
-      p_subject: subject,
-      p_message: data.message,
-      p_ip_hash: ipHash,
-    });
+    // 1. Insert into public.messages table
+    const { error: dbError, status } = await supabaseAdmin
+      .from("messages")
+      .insert({
+        name: data.name,
+        email: data.email.toLowerCase(),
+        subject: subject,
+        message: data.message,
+        is_read: false,
+      });
 
-    if (error) {
-      console.error(`[sendContact] Supabase send_contact_message RPC failed: ${error.message}`);
-      if (error.message?.includes("Too many messages")) {
-        throw new Error("Too many messages. Please try again in a few minutes.");
-      }
+    if (dbError || (status !== 200 && status !== 201 && status !== 204)) {
+      console.error(`[sendContact] Supabase public.messages insert failed:`, dbError?.message || `HTTP ${status}`);
       throw new Error(
         "Your message could not be saved. Please try again later or email us directly at contact@ndsolotravel.com."
       );
     }
-    if (!rpcData?.id) {
-      console.error(`[sendContact] Contact message insert returned no id (RLS or insert blocked).`);
-      throw new Error(
-        "Your message could not be saved. Please try again later or email us directly at contact@ndsolotravel.com."
-      );
+    console.log(`[sendContact] Successfully stored message in Supabase public.messages table.`);
+
+    // 2. Synchronize to legacy contact_messages table if present
+    try {
+      await supabaseAdmin.from("contact_messages").insert({
+        name: data.name,
+        email: data.email.toLowerCase(),
+        subject: subject,
+        message: data.message,
+        ip_hash: ipHash,
+        status: "new",
+      });
+    } catch {
+      // Non-blocking fallback
     }
-    console.log(`[sendContact] Successfully stored message in Supabase contact_messages.`);
 
     // ALWAYS dispatch email notification to recipient (contact@ndsolotravel.com)
     // Email is a side-channel; the message itself has already been stored in DB.

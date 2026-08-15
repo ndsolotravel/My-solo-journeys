@@ -66,7 +66,7 @@ function ContactPage() {
 
     setLoading(true);
     try {
-      await sendFn({
+      const result = await sendFn({
         data: {
           name,
           email,
@@ -75,10 +75,15 @@ function ContactPage() {
           website,
         },
       });
-      toast.success("Message sent. I'll reply when I'm back from the trail.");
-      setForm({ name: "", email: "", subject: "", message: "", website: "" });
+
+      if (result && result.ok) {
+        toast.success(t("Message sent successfully. I'll reply when I'm back from the trail."));
+        setForm({ name: "", email: "", subject: "", message: "", website: "" });
+      } else {
+        toast.error(t("Could not send message. Please try again."));
+      }
     } catch (err: any) {
-      let errorMsg = "Could not send. Try again.";
+      let errorMsg = "Could not send message. Please try again.";
       if (err instanceof Error && err.message) {
         try {
           const parsed = JSON.parse(err.message);

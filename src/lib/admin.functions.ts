@@ -366,19 +366,31 @@ export const adminListMessages = createServerFn({ method: "GET" })
     await assertEditor(context.userId, context.supabase);
     const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
     let res = await client
-      .from("contact_messages")
-      .select("id,name,email,subject,message,status,created_at")
+      .from("messages")
+      .select("id,name,email,subject,message,is_read,created_at")
       .order("created_at", { ascending: false })
       .limit(500);
+
     if (res.error) {
+      console.warn("[adminListMessages] Querying messages failed, checking fallback contact_messages:", res.error.message);
       res = await client
         .from("contact_messages")
-        .select("id,name,email,message,created_at")
+        .select("id,name,email,subject,message,status,created_at")
         .order("created_at", { ascending: false })
         .limit(500);
+      if (res.error) throw new Error(res.error.message);
+      return (res.data ?? []).map((m: any) => ({
+        ...m,
+        is_read: m.status === "read" || m.status === "replied",
+        status: m.status || "new",
+      }));
     }
-    if (res.error) throw new Error(res.error.message);
-    return res.data ?? [];
+
+    return (res.data ?? []).map((m: any) => ({
+      ...m,
+      is_read: Boolean(m.is_read),
+      status: m.is_read ? "read" : "new",
+    }));
   });
 
 export const adminUpdateMessageStatus = createServerFn({ method: "POST" })
@@ -387,18 +399,35 @@ export const adminUpdateMessageStatus = createServerFn({ method: "POST" })
     z
       .object({
         id: z.string().uuid(),
-        status: z.enum(["new", "read", "replied"]),
+        status: z.enum(["new", "read", "replied"]).optional(),
+        is_read: z.boolean().optional(),
       })
       .parse(i),
   )
   .handler(async ({ context, data }) => {
     await assertEditor(context.userId, context.supabase);
     const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
-    const { error } = await client
-      .from("contact_messages")
-      .update({ status: data.status })
+    
+    const isRead = typeof data.is_read === "boolean" ? data.is_read : (data.status === "read" || data.status === "replied");
+
+    const { error: msgErr } = await client
+      .from("messages")
+      .update({ is_read: isRead })
       .eq("id", data.id);
-    if (error) throw new Error(error.message);
+
+    if (data.status) {
+      try {
+        await client.from("contact_messages").update({ status: data.status }).eq("id", data.id);
+      } catch {}
+    }
+
+    if (msgErr) {
+      const { error: cmErr } = await client
+        .from("contact_messages")
+        .update({ status: data.status || (isRead ? "read" : "new") })
+        .eq("id", data.id);
+      if (cmErr) throw new Error(msgErr.message);
+    }
     return { ok: true };
   });
 
@@ -408,8 +437,14 @@ export const adminDeleteMessage = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     await assertEditor(context.userId, context.supabase);
     const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
-    const { error } = await client.from("contact_messages").delete().eq("id", data.id);
-    if (error) throw new Error(error.message);
+    const { error: msgErr } = await client.from("messages").delete().eq("id", data.id);
+    try {
+      await client.from("contact_messages").delete().eq("id", data.id);
+    } catch {}
+    if (msgErr) {
+      const { error: cmErr } = await client.from("contact_messages").delete().eq("id", data.id);
+      if (cmErr) throw new Error(msgErr.message);
+    }
     return { ok: true };
   });
 
@@ -424,7 +459,7 @@ export const adminAnalytics = createServerFn({ method: "GET" })
       client.from("posts").select("id,published,scheduled_at,views", { count: "exact" }),
       client.from("comments").select("id,rating", { count: "exact", head: false }),
       client.from("subscribers").select("id", { count: "exact", head: true }),
-      client.from("contact_messages").select("id", { count: "exact", head: true }),
+      client.from("messages").select("id", { count: "exact", head: true }),
       client
         .from("posts")
         .select("id,title,slug,views")
