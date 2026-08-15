@@ -190,6 +190,8 @@ async function sendNewsletterNotification(
     </div>
   `;
 
+  const plainText = `New Newsletter Subscriber Notification\n\nSubscriber Email: ${subscriberEmail}\nSubscribed At: ${new Date().toISOString()}\n\n---\nSent via NDSOLOTRAVEL website. Notification recipient: ${recipient}`;
+
   // 1. Try Hostinger / Custom SMTP (via Nodemailer) if credentials configured
   const smtpHost = process.env.SMTP_HOST || process.env.SMTP_SERVER;
   const smtpUser = process.env.SMTP_USER || process.env.SMTP_USERNAME;
@@ -208,6 +210,12 @@ async function sendNewsletterNotification(
           user: smtpUser,
           pass: smtpPass,
         },
+        connectionTimeout: 15000,
+        greetingTimeout: 10000,
+        socketTimeout: 20000,
+        tls: {
+          rejectUnauthorized: false,
+        },
       });
 
       const info = await transporter.sendMail({
@@ -215,6 +223,7 @@ async function sendNewsletterNotification(
         to: recipient,
         replyTo: subscriberEmail,
         subject: emailSubject,
+        text: plainText,
         html: htmlContent,
       });
 
@@ -242,6 +251,7 @@ async function sendNewsletterNotification(
           to: [recipient],
           reply_to: subscriberEmail,
           subject: emailSubject,
+          text: plainText,
           html: htmlContent,
         }),
       });
@@ -403,6 +413,8 @@ async function notifyRecipientByEmail(msg: {
   const smtpPort = Number(process.env.SMTP_PORT) || 465;
   const smtpFrom = process.env.SMTP_FROM || (smtpUser ? `NDSOLOTRAVEL <${smtpUser}>` : `NDSOLOTRAVEL <contact@ndsolotravel.com>`);
 
+  const plainText = `New Contact Form Message\n\nVisitor Name: ${msg.name}\nVisitor Email: ${msg.email}\nSubject: ${msg.subject || "N/A"}\n\nMessage:\n${msg.message}\n\n---\nSent via NDSOLOTRAVEL contact form. Recipient: ${recipient}`;
+
   if (smtpHost && smtpUser && smtpPass) {
     try {
       console.log(`[sendContact] Initiating SMTP connection to ${smtpHost}:${smtpPort}...`);
@@ -414,6 +426,12 @@ async function notifyRecipientByEmail(msg: {
           user: smtpUser,
           pass: smtpPass,
         },
+        connectionTimeout: 15000,
+        greetingTimeout: 10000,
+        socketTimeout: 20000,
+        tls: {
+          rejectUnauthorized: false,
+        },
       });
 
       const info = await transporter.sendMail({
@@ -421,6 +439,7 @@ async function notifyRecipientByEmail(msg: {
         to: recipient,
         replyTo: msg.email,
         subject: emailSubject,
+        text: plainText,
         html: htmlContent,
       });
 
@@ -449,6 +468,7 @@ async function notifyRecipientByEmail(msg: {
           to: [recipient],
           reply_to: msg.email,
           subject: emailSubject,
+          text: plainText,
           html: htmlContent,
         }),
       });
