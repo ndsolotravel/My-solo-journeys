@@ -307,7 +307,7 @@ export const getAdminAnalyticsDetails = createServerFn({ method: "GET" })
   )
   .handler(async ({ context, data }) => {
     await assertEditorRole(context.userId, context.supabase);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
 
     const now = new Date();
     const cutoff5m = new Date(now.getTime() - ACTIVITY_TIMEOUT_MS).toISOString();
@@ -340,64 +340,64 @@ export const getAdminAnalyticsDetails = createServerFn({ method: "GET" })
       recentVisitorsRes,
     ] = await Promise.all([
       // 1. Live Now - strictly active within 5-minute window
-      supabaseAdmin
+      client
         .from("visitor_sessions")
         .select("session_id", { count: "exact", head: true })
         .gte("last_active_at", cutoff5m),
 
       // 2. Total Visitors
-      supabaseAdmin.from("visitor_sessions").select("session_id", { count: "exact", head: true }),
+      client.from("visitor_sessions").select("session_id", { count: "exact", head: true }),
 
       // 3. Total Page Views
-      supabaseAdmin.from("page_views").select("id", { count: "exact", head: true }),
+      client.from("page_views").select("id", { count: "exact", head: true }),
 
       // 4. Today Visitors
-      supabaseAdmin
+      client
         .from("visitor_sessions")
         .select("session_id", { count: "exact", head: true })
         .gte("created_at", todayStart.toISOString()),
 
       // 5. Today Page Views
-      supabaseAdmin
+      client
         .from("page_views")
         .select("id", { count: "exact", head: true })
         .gte("created_at", todayStart.toISOString()),
 
       // 6. Yesterday Visitors
-      supabaseAdmin
+      client
         .from("visitor_sessions")
         .select("session_id", { count: "exact", head: true })
         .gte("created_at", yesterdayStart.toISOString())
         .lt("created_at", todayStart.toISOString()),
 
       // 7. Page Views in period
-      supabaseAdmin
+      client
         .from("page_views")
         .select("created_at, path, title")
         .gte("created_at", periodStart.toISOString())
         .order("created_at", { ascending: true }),
 
       // 8. Sessions in period
-      supabaseAdmin
+      client
         .from("visitor_sessions")
         .select("session_id, created_at, device_type, referrer_source, country")
         .gte("created_at", periodStart.toISOString())
         .order("created_at", { ascending: true }),
 
       // 9. Device & Source distribution from visitor_sessions
-      supabaseAdmin
+      client
         .from("visitor_sessions")
         .select("device_type, referrer_source, country")
         .limit(2000),
 
       // 10. Popular pages overall
-      supabaseAdmin
+      client
         .from("page_views")
         .select("path, title")
         .limit(5000),
 
       // 11. Top Blog Posts
-      supabaseAdmin
+      client
         .from("posts")
         .select("id, title, slug, category, cover_image, views")
         .eq("published", true)
@@ -405,7 +405,7 @@ export const getAdminAnalyticsDetails = createServerFn({ method: "GET" })
         .limit(5),
 
       // 12. Recent Visitors Log
-      supabaseAdmin
+      client
         .from("visitor_sessions")
         .select("session_id, country, country_code, device_type, browser, os, entry_page, last_active_at, subscriber_email")
         .order("last_active_at", { ascending: false })
@@ -543,7 +543,7 @@ export const getAdminAnalyticsDetails = createServerFn({ method: "GET" })
 
     const activeSubscribers = new Set<string>();
     if (emailsToVerify.length > 0) {
-      const { data: subRows } = await supabaseAdmin
+      const { data: subRows } = await client
         .from("subscribers")
         .select("email, status")
         .in("email", emailsToVerify);

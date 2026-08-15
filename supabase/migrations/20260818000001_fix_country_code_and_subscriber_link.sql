@@ -46,7 +46,7 @@ BEGIN
   END IF;
 END; $$;
 
-GRANT EXECUTE ON FUNCTION public.upsert_visitor_session TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.upsert_visitor_session(text, text, text, text, text, text, text, text, boolean, text, text, text) TO anon, authenticated;
 
 -- Reload schema cache
 NOTIFY pgrst, 'reload schema';
