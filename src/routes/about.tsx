@@ -20,14 +20,6 @@ export const Route = createFileRoute("/about")({
   component: AboutPage,
 });
 
-const TIMELINE = [
-  { year: "2017", text: "First solo motorcycle ride across the Karakoram Highway." },
-  { year: "2019", text: "Trek to Concordia and K2 Base Camp." },
-  { year: "2021", text: "Three weeks alone at Nanga Parbat Base Camp." },
-  { year: "2023", text: "Crossed five borders by bike — Pakistan to Central Asia." },
-  { year: "2025", text: "Started ndsolotravel to share what the road taught me." },
-];
-
 const BIO = [
   "Welcome to NDSOLOTRAVEL, a space created from a passion for exploring the world, discovering new places, and experiencing the freedom of traveling solo.",
   "I am a solo traveler and an Engineer by profession. While engineering has shaped the way I think, solve problems, and plan, traveling has taught me to be curious, adaptable, independent, and open to the unexpected.",
@@ -75,20 +67,7 @@ function AboutPage() {
           </div>
         </div>
 
-        <section className="mt-20">
-          <h2 className="font-display text-2xl font-bold">{t("The journey so far")}</h2>
-          <ol className="mt-8 space-y-6 border-l-2 border-border pl-6">
-            {TIMELINE.map((item) => (
-              <li key={item.year} className="relative">
-                <span className="absolute -left-[31px] top-1.5 h-3 w-3 rounded-full bg-accent" />
-                <p className="font-display text-sm font-bold text-accent">{item.year}</p>
-                <p className="mt-1 text-muted-foreground">{t(item.text)}</p>
-              </li>
-            ))}
-          </ol>
-        </section>
-
-        <section className="mt-20 rounded-3xl bg-muted/40 p-8">
+        <section className="mt-16 rounded-3xl bg-muted/40 p-8">
           <h2 className="font-display text-2xl font-bold">{t("Travel philosophy")}</h2>
           <p className="mt-4 text-lg italic leading-relaxed text-muted-foreground">
             {t("Solo travel is where the journey becomes the destination")}
