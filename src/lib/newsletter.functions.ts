@@ -354,18 +354,28 @@ export const sendContact = createServerFn({ method: "POST" })
     }
     console.log(`[sendContact] Successfully stored message in Supabase public.messages table.`);
 
-    // 2. Synchronize to legacy contact_messages table if present
+    // 2. Synchronize to contact_messages table via security-definer RPC if available
     try {
-      await (supabaseAdmin.from("contact_messages") as any).insert({
-        name: data.name,
-        email: data.email.toLowerCase(),
-        subject: subject,
-        message: data.message,
-        ip_hash: ipHash,
-        status: "new",
+      await (supabaseAdmin.rpc as any)("send_contact_message", {
+        p_name: data.name,
+        p_email: data.email.toLowerCase(),
+        p_subject: subject,
+        p_message: data.message,
+        p_ip_hash: ipHash,
       });
     } catch {
-      // Non-blocking fallback
+      try {
+        await (supabaseAdmin.from("contact_messages") as any).insert({
+          name: data.name,
+          email: data.email.toLowerCase(),
+          subject: subject,
+          message: data.message,
+          ip_hash: ipHash,
+          status: "new",
+        });
+      } catch {
+        // Non-blocking fallback
+      }
     }
 
     // ALWAYS dispatch email notification to recipient (contact@ndsolotravel.com)
