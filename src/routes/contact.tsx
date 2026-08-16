@@ -77,7 +77,15 @@ function ContactPage() {
       });
 
       if (result && result.ok) {
-        toast.success(t("Message sent successfully. I'll reply when I'm back from the trail."));
+        if (result.emailDelivered) {
+          toast.success(t("Message sent successfully. I'll reply when I'm back from the trail."));
+        } else {
+          toast.warning(
+            t(
+              "Your message was received and saved, but the notification email could not be sent. If it's urgent, please email contact@ndsolotravel.com directly."
+            )
+          );
+        }
         setForm({ name: "", email: "", subject: "", message: "", website: "" });
       } else {
         toast.error(t("Could not send message. Please try again."));
