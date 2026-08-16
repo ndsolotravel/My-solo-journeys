@@ -432,6 +432,7 @@ export const sendContact = createServerFn({ method: "POST" })
       provider: emailResult.provider,
       messageId: emailResult.id,
       emailDelivered: emailResult.sent,
+      emailReason: emailResult.reason,
     };
   });
 

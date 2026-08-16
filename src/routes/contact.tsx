@@ -80,6 +80,7 @@ function ContactPage() {
         if (result.emailDelivered) {
           toast.success(t("Message sent successfully. I'll reply when I'm back from the trail."));
         } else {
+          console.warn("[contact] Message saved but notification email failed:", result.emailReason);
           toast.warning(
             t(
               "Your message was received and saved, but the notification email could not be sent. If it's urgent, please email contact@ndsolotravel.com directly."
