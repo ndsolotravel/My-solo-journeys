@@ -53,10 +53,10 @@ export function LanguageSelector({ className }: { className?: string }) {
         aria-label={`Language: ${current.nativeName}`}
         aria-haspopup="menu"
         aria-expanded={menuOpen}
-        className="inline-flex h-9 items-center gap-1.5 rounded-full border border-border/60 bg-transparent px-3 text-xs font-medium text-foreground hover:bg-muted/60 transition-colors"
+        className="inline-flex h-9 items-center gap-1.5 rounded-full border border-border/60 bg-transparent px-3 text-xs font-medium text-white hover:bg-muted/60 transition-colors"
       >
-        <Globe className="h-3.5 w-3.5" />
-        <span>{current.nativeName}</span>
+        <Globe className="h-3.5 w-3.5 text-white" />
+        <span className="text-white">{current.nativeName}</span>
       </button>
       {menuOpen && (
         <div
