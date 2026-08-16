@@ -16,6 +16,13 @@ export type EmailDiagnostics = {
   effectivePort: number;
   effectiveUser: string;
   effectiveRecipient: string;
+  smtpError: {
+    code: string | null;
+    command: string | null;
+    response: string | null;
+    responseCode: number | null;
+    message: string | null;
+  } | null;
 };
 
 export const subscribe = createServerFn({ method: "POST" })
@@ -520,6 +527,7 @@ async function notifyRecipientByEmail(msg: {
     effectivePort: primaryPort,
     effectiveUser: smtpUser,
     effectiveRecipient: recipient,
+    smtpError: null,
   };
 
   if (smtpHost && smtpUser && smtpPass) {
@@ -565,6 +573,13 @@ async function notifyRecipientByEmail(msg: {
         return { sent: true, provider: "smtp", id: info.messageId, diagnostics };
       } catch (err: any) {
         lastSmtpError = err;
+        diagnostics.smtpError = {
+          code: typeof err?.code === "string" ? err.code : null,
+          command: typeof err?.command === "string" ? err.command : null,
+          response: typeof err?.response === "string" ? err.response : null,
+          responseCode: typeof err?.responseCode === "number" ? err.responseCode : null,
+          message: typeof err?.message === "string" ? err.message : null,
+        };
         console.error(`[sendContact] SMTP delivery ERROR on port ${port}:`, {
           code: err?.code,
           command: err?.command,
