@@ -209,14 +209,59 @@ function cleanEnvValue(val: string | undefined, expectedVarName?: string): strin
   return s || undefined;
 }
 
+let cachedDiskEnv: Record<string, string> | null = null;
+
+function getDiskEnv(): Record<string, string> {
+  if (cachedDiskEnv !== null) return cachedDiskEnv;
+  cachedDiskEnv = {};
+  try {
+    const fs = require("fs");
+    const path = require("path");
+    const envPath = path.resolve(process.cwd(), ".env");
+    if (fs.existsSync(envPath)) {
+      const content = fs.readFileSync(envPath, "utf8");
+      content.split("\n").forEach((line: string) => {
+        const match = line.match(/^([^=]+)=(.*)$/);
+        if (match) {
+          const key = match[1].trim();
+          let val = match[2].trim();
+          if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+            val = val.slice(1, -1).trim();
+          }
+          cachedDiskEnv![key] = val;
+        }
+      });
+    }
+  } catch {
+    // Non-blocking in browser / edge
+  }
+  return cachedDiskEnv;
+}
+
+function getEnvVar(...names: string[]): string | undefined {
+  for (const name of names) {
+    if (process.env[name] !== undefined && String(process.env[name]).trim() !== "") {
+      const cleaned = cleanEnvValue(process.env[name], name);
+      if (cleaned) return cleaned;
+    }
+  }
+  const disk = getDiskEnv();
+  for (const name of names) {
+    if (disk[name] !== undefined && String(disk[name]).trim() !== "") {
+      const cleaned = cleanEnvValue(disk[name], name);
+      if (cleaned) return cleaned;
+    }
+  }
+  return undefined;
+}
+
 const DEFAULT_RECIPIENT = "contact@ndsolotravel.com";
 
 async function sendNewsletterNotification(
   subscriberEmail: string
 ): Promise<{ sent: boolean; provider: string; id?: string; reason?: string }> {
   const recipient =
-    cleanEnvValue(process.env.CONTACT_NOTIFICATION_EMAIL, "CONTACT_NOTIFICATION_EMAIL") ||
-    cleanEnvValue(process.env.NOTIFICATION_EMAIL, "NOTIFICATION_EMAIL") ||
+    getEnvVar("CONTACT_NOTIFICATION_EMAIL", "NOTIFICATION_EMAIL") ||
     DEFAULT_RECIPIENT;
   const emailSubject = `New Subscriber: ${subscriberEmail}`;
 
@@ -235,11 +280,11 @@ async function sendNewsletterNotification(
   const plainText = `New Newsletter Subscriber Notification\n\nSubscriber Email: ${subscriberEmail}\nSubscribed At: ${new Date().toISOString()}\n\n---\nSent via NDSOLOTRAVEL website. Notification recipient: ${recipient}`;
 
   // 1. Try Hostinger / Custom SMTP (via Nodemailer)
-  const rawHost = cleanEnvValue(process.env.SMTP_HOST, "SMTP_HOST") || cleanEnvValue(process.env.SMTP_SERVER, "SMTP_SERVER");
-  const rawUser = cleanEnvValue(process.env.SMTP_USER, "SMTP_USER") || cleanEnvValue(process.env.SMTP_USERNAME, "SMTP_USERNAME") || cleanEnvValue(process.env.SMTP_EMAIL, "SMTP_EMAIL");
-  const rawPass = cleanEnvValue(process.env.SMTP_PASS, "SMTP_PASS") || cleanEnvValue(process.env.SMTP_PASSWORD, "SMTP_PASSWORD");
-  const rawPort = cleanEnvValue(process.env.SMTP_PORT, "SMTP_PORT");
-  const rawFrom = cleanEnvValue(process.env.SMTP_FROM, "SMTP_FROM");
+  const rawHost = getEnvVar("SMTP_HOST", "SMTP_SERVER");
+  const rawUser = getEnvVar("SMTP_USER", "SMTP_USERNAME", "SMTP_EMAIL");
+  const rawPass = getEnvVar("SMTP_PASS", "SMTP_PASSWORD");
+  const rawPort = getEnvVar("SMTP_PORT");
+  const rawFrom = getEnvVar("SMTP_FROM");
 
   const smtpHost = rawHost || "smtp.hostinger.com";
   const smtpUser = rawUser || "contact@ndsolotravel.com";
@@ -465,8 +510,7 @@ async function notifyRecipientByEmail(msg: {
   message: string;
 }): Promise<{ sent: boolean; provider: string; id?: string; reason?: string; diagnostics?: EmailDiagnostics }> {
   const recipient =
-    cleanEnvValue(process.env.CONTACT_NOTIFICATION_EMAIL, "CONTACT_NOTIFICATION_EMAIL") ||
-    cleanEnvValue(process.env.NOTIFICATION_EMAIL, "NOTIFICATION_EMAIL") ||
+    getEnvVar("CONTACT_NOTIFICATION_EMAIL", "NOTIFICATION_EMAIL") ||
     DEFAULT_RECIPIENT;
 
   const emailSubject = `New Contact Message from ${msg.name}${msg.subject ? `: ${msg.subject}` : ""}`;
@@ -487,11 +531,11 @@ async function notifyRecipientByEmail(msg: {
   const plainText = `New Contact Form Message\n\nVisitor Name: ${msg.name}\nVisitor Email: ${msg.email}\nSubject: ${msg.subject || "N/A"}\n\nMessage:\n${msg.message}\n\n---\nSent via NDSOLOTRAVEL contact form. Recipient: ${recipient}`;
 
   // 1. Try Hostinger / Custom SMTP (via Nodemailer)
-  const rawHost = cleanEnvValue(process.env.SMTP_HOST, "SMTP_HOST") || cleanEnvValue(process.env.SMTP_SERVER, "SMTP_SERVER");
-  const rawUser = cleanEnvValue(process.env.SMTP_USER, "SMTP_USER") || cleanEnvValue(process.env.SMTP_USERNAME, "SMTP_USERNAME") || cleanEnvValue(process.env.SMTP_EMAIL, "SMTP_EMAIL");
-  const rawPass = cleanEnvValue(process.env.SMTP_PASS, "SMTP_PASS") || cleanEnvValue(process.env.SMTP_PASSWORD, "SMTP_PASSWORD");
-  const rawPort = cleanEnvValue(process.env.SMTP_PORT, "SMTP_PORT");
-  const rawFrom = cleanEnvValue(process.env.SMTP_FROM, "SMTP_FROM");
+  const rawHost = getEnvVar("SMTP_HOST", "SMTP_SERVER");
+  const rawUser = getEnvVar("SMTP_USER", "SMTP_USERNAME", "SMTP_EMAIL");
+  const rawPass = getEnvVar("SMTP_PASS", "SMTP_PASSWORD");
+  const rawPort = getEnvVar("SMTP_PORT");
+  const rawFrom = getEnvVar("SMTP_FROM");
 
   const smtpHost = rawHost || "smtp.hostinger.com";
   const smtpUser = rawUser || "contact@ndsolotravel.com";
@@ -513,7 +557,7 @@ async function notifyRecipientByEmail(msg: {
     effectiveFrom: smtpFrom,
   });
 
-  const resendApiKey = cleanEnvValue(process.env.RESEND_API_KEY, "RESEND_API_KEY");
+  const resendApiKey = getEnvVar("RESEND_API_KEY");
 
   const diagnostics: EmailDiagnostics = {
     smtpHostConfigured: Boolean(rawHost),
