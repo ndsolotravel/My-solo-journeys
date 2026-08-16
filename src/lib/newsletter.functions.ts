@@ -1,28 +1,14 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getRequestHeader } from "@tanstack/react-start/server";
 import { z } from "zod";
-import nodemailer from "nodemailer";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export type EmailDiagnostics = {
-  smtpHostConfigured: boolean;
-  smtpPortConfigured: boolean;
-  smtpUserConfigured: boolean;
-  smtpPassConfigured: boolean;
-  smtpFromConfigured: boolean;
   resendConfigured: boolean;
   recipientConfigured: boolean;
-  effectiveHost: string;
-  effectivePort: number;
-  effectiveUser: string;
   effectiveRecipient: string;
-  smtpError: {
-    code: string | null;
-    command: string | null;
-    response: string | null;
-    responseCode: number | null;
-    message: string | null;
-  } | null;
+  effectiveFrom: string;
+  error: string | null;
 };
 
 export const subscribe = createServerFn({ method: "POST" })
@@ -263,6 +249,22 @@ async function sendNewsletterNotification(
   const recipient =
     getEnvVar("CONTACT_NOTIFICATION_EMAIL", "NOTIFICATION_EMAIL") ||
     DEFAULT_RECIPIENT;
+  const resendApiKey = getEnvVar("RESEND_API_KEY");
+  const fromAddress =
+    getEnvVar("RESEND_FROM_EMAIL") ||
+    "NDSOLOTRAVEL Newsletter <contact@ndsolotravel.com>";
+
+  if (!resendApiKey) {
+    console.warn(
+      `[subscribe] RESEND_API_KEY is not configured in process.env or .env. Notification for subscriber <${subscriberEmail}> was not dispatched.`
+    );
+    return {
+      sent: false,
+      provider: "resend",
+      reason: "RESEND_API_KEY is not configured in environment variables.",
+    };
+  }
+
   const emailSubject = `New Subscriber: ${subscriberEmail}`;
 
   const htmlContent = `
@@ -279,115 +281,44 @@ async function sendNewsletterNotification(
 
   const plainText = `New Newsletter Subscriber Notification\n\nSubscriber Email: ${subscriberEmail}\nSubscribed At: ${new Date().toISOString()}\n\n---\nSent via NDSOLOTRAVEL website. Notification recipient: ${recipient}`;
 
-  // 1. Try Hostinger / Custom SMTP (via Nodemailer)
-  const rawHost = getEnvVar("SMTP_HOST", "SMTP_SERVER");
-  const rawUser = getEnvVar("SMTP_USER", "SMTP_USERNAME", "SMTP_EMAIL");
-  const rawPass = getEnvVar("SMTP_PASS", "SMTP_PASSWORD");
-  const rawPort = getEnvVar("SMTP_PORT");
-  const rawFrom = getEnvVar("SMTP_FROM");
+  try {
+    console.log(`[subscribe] Initiating Resend API dispatch to ${recipient}...`);
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${resendApiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: fromAddress,
+        to: [recipient],
+        reply_to: subscriberEmail,
+        subject: emailSubject,
+        text: plainText,
+        html: htmlContent,
+      }),
+    });
 
-  const smtpHost = rawHost || "smtp.hostinger.com";
-  const smtpUser = rawUser || "contact@ndsolotravel.com";
-  const smtpPass = rawPass;
-  const primaryPort = Number(rawPort) || 465;
-  const smtpFrom = rawFrom || (smtpUser ? `NDSOLOTRAVEL <${smtpUser}>` : `NDSOLOTRAVEL <contact@ndsolotravel.com>`);
-
-  if (smtpHost && smtpUser && smtpPass) {
-    const portsToTry = [
-      { port: primaryPort, secure: primaryPort === 465 },
-      { port: primaryPort === 465 ? 587 : 465, secure: primaryPort !== 465 },
-    ];
-
-    for (const { port, secure } of portsToTry) {
-      try {
-        console.log(`[subscribe] Connecting to SMTP ${smtpHost}:${port} (secure=${secure})...`);
-        const transporter = nodemailer.createTransport({
-          host: smtpHost,
-          port,
-          secure,
-          auth: {
-            user: smtpUser,
-            pass: smtpPass,
-          },
-          requireTLS: !secure && port === 587,
-          connectionTimeout: 15000,
-          greetingTimeout: 10000,
-          socketTimeout: 20000,
-          tls: {
-            rejectUnauthorized: false,
-            servername: smtpHost,
-            minVersion: "TLSv1.2",
-          },
-        });
-
-        const info = await transporter.sendMail({
-          from: smtpFrom,
-          to: recipient,
-          replyTo: subscriberEmail,
-          subject: emailSubject,
-          text: plainText,
-          html: htmlContent,
-        });
-
-        console.log(`[subscribe] SMTP delivery SUCCESS: Message ID: ${info.messageId} | Response: ${info.response}`);
-        return { sent: true, provider: "smtp", id: info.messageId };
-      } catch (err: any) {
-        console.error(`[subscribe] SMTP delivery ERROR on port ${port}:`, {
-          code: err?.code,
-          command: err?.command,
-          response: err?.response,
-          responseCode: err?.responseCode,
-          message: err?.message,
-        });
-      }
+    const resData = await res.json();
+    if (!res.ok) {
+      console.error(`[subscribe] Resend API rejected email delivery:`, resData);
+      return {
+        sent: false,
+        provider: "resend",
+        reason: `Resend API error: ${resData.message || JSON.stringify(resData)}`,
+      };
     }
+
+    console.log(`[subscribe] Resend email ACCEPTED for ${recipient} (ID: ${resData.id})`);
+    return { sent: true, provider: "resend", id: resData.id };
+  } catch (err: any) {
+    console.error(`[subscribe] Resend API delivery attempt failed:`, err?.message || err);
+    return {
+      sent: false,
+      provider: "resend",
+      reason: err?.message || "Resend network error",
+    };
   }
-
-  // 2. Try Resend API if RESEND_API_KEY is configured
-  const resendApiKey = cleanEnvValue(process.env.RESEND_API_KEY, "RESEND_API_KEY");
-  if (resendApiKey) {
-    try {
-      console.log(`[subscribe] Initiating Resend API dispatch to ${recipient}...`);
-      const fromAddress = cleanEnvValue(process.env.RESEND_FROM_EMAIL, "RESEND_FROM_EMAIL") || "NDSOLOTRAVEL Newsletter <onboarding@resend.dev>";
-      const res = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${resendApiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          from: fromAddress,
-          to: [recipient],
-          reply_to: subscriberEmail,
-          subject: emailSubject,
-          text: plainText,
-          html: htmlContent,
-        }),
-      });
-
-      const resData = await res.json();
-      if (!res.ok) {
-        console.error(`[subscribe] Resend API rejected email delivery:`, resData);
-        return { sent: false, provider: "resend", reason: `Resend API error: ${resData.message || JSON.stringify(resData)}` };
-      }
-
-      console.log(`[subscribe] Resend email ACCEPTED for ${recipient} (ID: ${resData.id})`);
-      return { sent: true, provider: "resend", id: resData.id };
-    } catch (err: any) {
-      console.error(`[subscribe] Resend API delivery attempt failed:`, err?.message || err);
-      return { sent: false, provider: "resend", reason: err?.message || "Resend network error" };
-    }
-  }
-
-  // 3. If no email provider env vars set
-  console.warn(
-    `[subscribe] No active email provider credentials succeeded in process.env. Notification for subscriber ${subscriberEmail} was not dispatched.`
-  );
-  return {
-    sent: false,
-    provider: "none",
-    reason: "No email credentials or API key configured in Hostinger environment variables (SMTP_HOST or RESEND_API_KEY)",
-  };
 }
 
 const contactSchema = z.object({
@@ -512,6 +443,39 @@ async function notifyRecipientByEmail(msg: {
   const recipient =
     getEnvVar("CONTACT_NOTIFICATION_EMAIL", "NOTIFICATION_EMAIL") ||
     DEFAULT_RECIPIENT;
+  const resendApiKey = getEnvVar("RESEND_API_KEY");
+  const fromAddress =
+    getEnvVar("RESEND_FROM_EMAIL") ||
+    "NDSOLOTRAVEL Contact <contact@ndsolotravel.com>";
+
+  console.log(`[sendContact] Runtime env evaluation:`, {
+    "RESEND_API_KEY configured": Boolean(resendApiKey),
+    "RESEND_FROM_EMAIL configured": Boolean(getEnvVar("RESEND_FROM_EMAIL")),
+    "CONTACT_NOTIFICATION_EMAIL configured": Boolean(getEnvVar("CONTACT_NOTIFICATION_EMAIL", "NOTIFICATION_EMAIL")),
+    effectiveRecipient: recipient,
+    effectiveFrom: fromAddress,
+  });
+
+  const diagnostics: EmailDiagnostics = {
+    resendConfigured: Boolean(resendApiKey),
+    recipientConfigured: Boolean(recipient),
+    effectiveRecipient: recipient,
+    effectiveFrom: fromAddress,
+    error: null,
+  };
+
+  if (!resendApiKey) {
+    console.warn(
+      `[sendContact] RESEND_API_KEY is not configured in process.env or .env. Notification to ${recipient} was not dispatched.`
+    );
+    diagnostics.error = "RESEND_API_KEY is missing from environment variables.";
+    return {
+      sent: false,
+      provider: "resend",
+      reason: "RESEND_API_KEY is not configured in Hostinger environment variables.",
+      diagnostics,
+    };
+  }
 
   const emailSubject = `New Contact Message from ${msg.name}${msg.subject ? `: ${msg.subject}` : ""}`;
 
@@ -530,156 +494,53 @@ async function notifyRecipientByEmail(msg: {
 
   const plainText = `New Contact Form Message\n\nVisitor Name: ${msg.name}\nVisitor Email: ${msg.email}\nSubject: ${msg.subject || "N/A"}\n\nMessage:\n${msg.message}\n\n---\nSent via NDSOLOTRAVEL contact form. Recipient: ${recipient}`;
 
-  // 1. Try Hostinger / Custom SMTP (via Nodemailer)
-  const rawHost = getEnvVar("SMTP_HOST", "SMTP_SERVER");
-  const rawUser = getEnvVar("SMTP_USER", "SMTP_USERNAME", "SMTP_EMAIL");
-  const rawPass = getEnvVar("SMTP_PASS", "SMTP_PASSWORD");
-  const rawPort = getEnvVar("SMTP_PORT");
-  const rawFrom = getEnvVar("SMTP_FROM");
+  try {
+    console.log(`[sendContact] Initiating Resend API dispatch to ${recipient}...`);
+    const cleanVisitorName = msg.name.replace(/["\\]/g, "");
+    const replyToHeader = `"${cleanVisitorName}" <${msg.email}>`;
 
-  const smtpHost = rawHost || "smtp.hostinger.com";
-  const smtpUser = rawUser || "contact@ndsolotravel.com";
-  const smtpPass = rawPass;
-  const primaryPort = Number(rawPort) || 465;
-  const smtpFrom = rawFrom || (smtpUser ? `NDSOLOTRAVEL Contact <${smtpUser}>` : `NDSOLOTRAVEL Contact <contact@ndsolotravel.com>`);
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${resendApiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: fromAddress,
+        to: [recipient],
+        reply_to: replyToHeader,
+        subject: emailSubject,
+        text: plainText,
+        html: htmlContent,
+      }),
+    });
 
-  console.log(`[sendContact] Diagnostic check:`, {
-    "SMTP_HOST configured": Boolean(rawHost),
-    "SMTP_PORT configured": Boolean(rawPort),
-    "SMTP_USER configured": Boolean(rawUser),
-    "SMTP_PASS configured": Boolean(rawPass),
-    "SMTP_FROM configured": Boolean(rawFrom),
-    "CONTACT_NOTIFICATION_EMAIL configured": Boolean(recipient),
-    effectiveHost: smtpHost,
-    effectivePort: primaryPort,
-    effectiveUser: smtpUser,
-    effectiveRecipient: recipient,
-    effectiveFrom: smtpFrom,
-  });
-
-  const resendApiKey = getEnvVar("RESEND_API_KEY");
-
-  const diagnostics: EmailDiagnostics = {
-    smtpHostConfigured: Boolean(rawHost),
-    smtpPortConfigured: Boolean(rawPort),
-    smtpUserConfigured: Boolean(rawUser),
-    smtpPassConfigured: Boolean(rawPass),
-    smtpFromConfigured: Boolean(rawFrom),
-    resendConfigured: Boolean(resendApiKey),
-    recipientConfigured: Boolean(recipient),
-    effectiveHost: smtpHost,
-    effectivePort: primaryPort,
-    effectiveUser: smtpUser,
-    effectiveRecipient: recipient,
-    smtpError: null,
-  };
-
-  if (smtpHost && smtpUser && smtpPass) {
-    const portsToTry = [
-      { port: primaryPort, secure: primaryPort === 465 },
-      { port: primaryPort === 465 ? 587 : 465, secure: primaryPort !== 465 },
-    ];
-
-    let lastSmtpError: any = null;
-
-    for (const { port, secure } of portsToTry) {
-      try {
-        console.log(`[sendContact] Connecting to SMTP ${smtpHost}:${port} (secure=${secure})...`);
-        const transporter = nodemailer.createTransport({
-          host: smtpHost,
-          port,
-          secure,
-          auth: {
-            user: smtpUser,
-            pass: smtpPass,
-          },
-          requireTLS: !secure && port === 587,
-          connectionTimeout: 15000,
-          greetingTimeout: 10000,
-          socketTimeout: 20000,
-          tls: {
-            rejectUnauthorized: false,
-            servername: smtpHost,
-            minVersion: "TLSv1.2",
-          },
-        });
-
-        const info = await transporter.sendMail({
-          from: smtpFrom,
-          to: recipient,
-          replyTo: `"${msg.name.replace(/["\\]/g, "")}" <${msg.email}>`,
-          subject: emailSubject,
-          text: plainText,
-          html: htmlContent,
-        });
-
-        console.log(`[sendContact] SMTP delivery SUCCESS: Message ID: ${info.messageId} | Response: ${info.response} | Accepted: ${JSON.stringify(info.accepted)}`);
-        return { sent: true, provider: "smtp", id: info.messageId, diagnostics };
-      } catch (err: any) {
-        lastSmtpError = err;
-        diagnostics.smtpError = {
-          code: typeof err?.code === "string" ? err.code : null,
-          command: typeof err?.command === "string" ? err.command : null,
-          response: typeof err?.response === "string" ? err.response : null,
-          responseCode: typeof err?.responseCode === "number" ? err.responseCode : null,
-          message: typeof err?.message === "string" ? err.message : null,
-        };
-        console.error(`[sendContact] SMTP delivery ERROR on port ${port}:`, {
-          code: err?.code,
-          command: err?.command,
-          response: err?.response,
-          responseCode: err?.responseCode,
-          message: err?.message,
-        });
-      }
+    const resData = await res.json();
+    if (!res.ok) {
+      console.error(`[sendContact] Resend API rejected email delivery:`, resData);
+      const errMsg = resData.message || JSON.stringify(resData);
+      diagnostics.error = errMsg;
+      return {
+        sent: false,
+        provider: "resend",
+        reason: `Resend API error: ${errMsg}`,
+        diagnostics,
+      };
     }
+
+    console.log(`[sendContact] Resend email ACCEPTED for ${recipient} (ID: ${resData.id})`);
+    return { sent: true, provider: "resend", id: resData.id, diagnostics };
+  } catch (err: any) {
+    console.error(`[sendContact] Resend API delivery attempt failed:`, err?.message || err);
+    const errMsg = err?.message || "Resend network error";
+    diagnostics.error = errMsg;
+    return {
+      sent: false,
+      provider: "resend",
+      reason: errMsg,
+      diagnostics,
+    };
   }
-
-  // 2. Try Resend API if RESEND_API_KEY is configured
-  if (resendApiKey) {
-    try {
-      console.log(`[sendContact] Initiating Resend API dispatch to ${recipient}...`);
-      const fromAddress = cleanEnvValue(process.env.RESEND_FROM_EMAIL, "RESEND_FROM_EMAIL") || "NDSOLOTRAVEL Contact <onboarding@resend.dev>";
-      const res = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${resendApiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          from: fromAddress,
-          to: [recipient],
-          reply_to: `"${msg.name.replace(/["\\]/g, "")}" <${msg.email}>`,
-          subject: emailSubject,
-          text: plainText,
-          html: htmlContent,
-        }),
-      });
-
-      const resData = await res.json();
-      if (!res.ok) {
-        console.error(`[sendContact] Resend API rejected email delivery:`, resData);
-        return { sent: false, provider: "resend", reason: `Resend API error: ${resData.message || JSON.stringify(resData)}`, diagnostics };
-      }
-
-      console.log(`[sendContact] Resend email ACCEPTED for ${recipient} (ID: ${resData.id})`);
-      return { sent: true, provider: "resend", id: resData.id, diagnostics };
-    } catch (err: any) {
-      console.error(`[sendContact] Resend API delivery attempt failed:`, err?.message || err);
-      return { sent: false, provider: "resend", reason: err?.message || "Resend network error", diagnostics };
-    }
-  }
-
-  // 3. If no email provider env vars set or SMTP failed
-  console.warn(
-    `[sendContact] No active email provider credentials succeeded in process.env. Notification to ${recipient} was not dispatched.`
-  );
-  return {
-    sent: false,
-    provider: "none",
-    reason: "No email server credentials or API key configured in Hostinger environment variables (SMTP_HOST or RESEND_API_KEY)",
-    diagnostics,
-  };
 }
 
 export const sendContactReply = createServerFn({ method: "POST" })
