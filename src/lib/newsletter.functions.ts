@@ -4,6 +4,20 @@ import { z } from "zod";
 import nodemailer from "nodemailer";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+export type EmailDiagnostics = {
+  smtpHostConfigured: boolean;
+  smtpPortConfigured: boolean;
+  smtpUserConfigured: boolean;
+  smtpPassConfigured: boolean;
+  smtpFromConfigured: boolean;
+  resendConfigured: boolean;
+  recipientConfigured: boolean;
+  effectiveHost: string;
+  effectivePort: number;
+  effectiveUser: string;
+  effectiveRecipient: string;
+};
+
 export const subscribe = createServerFn({ method: "POST" })
   .inputValidator((input: any) => {
     const raw = input?.data ? input.data : input;
@@ -433,6 +447,7 @@ export const sendContact = createServerFn({ method: "POST" })
       messageId: emailResult.id,
       emailDelivered: emailResult.sent,
       emailReason: emailResult.reason,
+      emailDiagnostics: emailResult.diagnostics,
     };
   });
 
@@ -441,7 +456,7 @@ async function notifyRecipientByEmail(msg: {
   email: string;
   subject: string | null;
   message: string;
-}): Promise<{ sent: boolean; provider: string; id?: string; reason?: string }> {
+}): Promise<{ sent: boolean; provider: string; id?: string; reason?: string; diagnostics?: EmailDiagnostics }> {
   const recipient =
     cleanEnvValue(process.env.CONTACT_NOTIFICATION_EMAIL, "CONTACT_NOTIFICATION_EMAIL") ||
     cleanEnvValue(process.env.NOTIFICATION_EMAIL, "NOTIFICATION_EMAIL") ||
@@ -491,6 +506,22 @@ async function notifyRecipientByEmail(msg: {
     effectiveFrom: smtpFrom,
   });
 
+  const resendApiKey = cleanEnvValue(process.env.RESEND_API_KEY, "RESEND_API_KEY");
+
+  const diagnostics: EmailDiagnostics = {
+    smtpHostConfigured: Boolean(rawHost),
+    smtpPortConfigured: Boolean(rawPort),
+    smtpUserConfigured: Boolean(rawUser),
+    smtpPassConfigured: Boolean(rawPass),
+    smtpFromConfigured: Boolean(rawFrom),
+    resendConfigured: Boolean(resendApiKey),
+    recipientConfigured: Boolean(recipient),
+    effectiveHost: smtpHost,
+    effectivePort: primaryPort,
+    effectiveUser: smtpUser,
+    effectiveRecipient: recipient,
+  };
+
   if (smtpHost && smtpUser && smtpPass) {
     const portsToTry = [
       { port: primaryPort, secure: primaryPort === 465 },
@@ -531,7 +562,7 @@ async function notifyRecipientByEmail(msg: {
         });
 
         console.log(`[sendContact] SMTP delivery SUCCESS: Message ID: ${info.messageId} | Response: ${info.response} | Accepted: ${JSON.stringify(info.accepted)}`);
-        return { sent: true, provider: "smtp", id: info.messageId };
+        return { sent: true, provider: "smtp", id: info.messageId, diagnostics };
       } catch (err: any) {
         lastSmtpError = err;
         console.error(`[sendContact] SMTP delivery ERROR on port ${port}:`, {
@@ -546,7 +577,6 @@ async function notifyRecipientByEmail(msg: {
   }
 
   // 2. Try Resend API if RESEND_API_KEY is configured
-  const resendApiKey = cleanEnvValue(process.env.RESEND_API_KEY, "RESEND_API_KEY");
   if (resendApiKey) {
     try {
       console.log(`[sendContact] Initiating Resend API dispatch to ${recipient}...`);
@@ -570,14 +600,14 @@ async function notifyRecipientByEmail(msg: {
       const resData = await res.json();
       if (!res.ok) {
         console.error(`[sendContact] Resend API rejected email delivery:`, resData);
-        return { sent: false, provider: "resend", reason: `Resend API error: ${resData.message || JSON.stringify(resData)}` };
+        return { sent: false, provider: "resend", reason: `Resend API error: ${resData.message || JSON.stringify(resData)}`, diagnostics };
       }
 
       console.log(`[sendContact] Resend email ACCEPTED for ${recipient} (ID: ${resData.id})`);
-      return { sent: true, provider: "resend", id: resData.id };
+      return { sent: true, provider: "resend", id: resData.id, diagnostics };
     } catch (err: any) {
       console.error(`[sendContact] Resend API delivery attempt failed:`, err?.message || err);
-      return { sent: false, provider: "resend", reason: err?.message || "Resend network error" };
+      return { sent: false, provider: "resend", reason: err?.message || "Resend network error", diagnostics };
     }
   }
 
@@ -589,6 +619,7 @@ async function notifyRecipientByEmail(msg: {
     sent: false,
     provider: "none",
     reason: "No email server credentials or API key configured in Hostinger environment variables (SMTP_HOST or RESEND_API_KEY)",
+    diagnostics,
   };
 }
 
