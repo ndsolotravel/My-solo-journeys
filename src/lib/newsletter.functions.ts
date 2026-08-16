@@ -402,7 +402,14 @@ export const sendContact = createServerFn({ method: "POST" })
 
 function cleanEnv(val: string | undefined): string | undefined {
   if (!val) return undefined;
-  let s = val.trim();
+  let s = String(val).trim();
+  if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
+    s = s.slice(1, -1).trim();
+  }
+  const match = s.match(/^([A-Z0-9_]{3,})=\s*(.*)$/);
+  if (match) {
+    s = match[2].trim();
+  }
   if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
     s = s.slice(1, -1).trim();
   }
