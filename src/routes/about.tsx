@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import portraitAsset from "@/assets/ndsolotravel-portrait.jpeg.asset.json";
+import aboutPortrait from "@/assets/nd-about.jpg";
 import { useTranslations } from "@/lib/translate/store";
 
 export const Route = createFileRoute("/about")({
@@ -64,7 +64,7 @@ function AboutPage() {
 
         <div className="mt-10 grid gap-12 lg:grid-cols-[1fr_2fr]">
           <img
-            src={portraitAsset.url}
+            src={aboutPortrait}
             alt="ndsolotravel portrait"
             className="aspect-[3/4] w-full rounded-3xl object-cover"
           />
