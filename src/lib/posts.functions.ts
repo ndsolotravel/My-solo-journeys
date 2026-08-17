@@ -119,8 +119,28 @@ export const getPostBySlug = createServerFn({ method: "GET" })
     const post = postRes.data;
     if (!post) return { post: null, related: [] as Post[] };
 
-    const gallery = ((post as Record<string, unknown>).post_gallery ?? []) as PostGalleryItem[];
+    let gallery = ((post as Record<string, unknown>).post_gallery ?? []) as PostGalleryItem[];
+    if (!Array.isArray(gallery) || gallery.length === 0) {
+      // Direct query fallback for post_gallery if nested relation was empty
+      const { data: directGal } = await (supabaseAdmin
+        .from("post_gallery") as any)
+        .select("id, image_url, alt_text, sort_order")
+        .eq("post_id", (post as any).id)
+        .order("sort_order", { ascending: true });
+      if (Array.isArray(directGal) && directGal.length > 0) {
+        gallery = directGal as PostGalleryItem[];
+      }
+    }
+
+    const { resolveMediaUrl } = await import("@/lib/admin.functions");
+
     if (Array.isArray(gallery)) {
+      gallery = gallery.map((g, idx) => ({
+        id: g.id,
+        image_url: resolveMediaUrl(g.image_url, supabaseAdmin),
+        alt_text: g.alt_text ?? "",
+        sort_order: g.sort_order ?? idx,
+      }));
       gallery.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
     }
 
@@ -141,6 +161,8 @@ export const getPostBySlug = createServerFn({ method: "GET" })
 
     const fullPost: Post = {
       ...(post as unknown as Post),
+      cover_image: resolveMediaUrl((post as any).cover_image, supabaseAdmin),
+      og_image_url: resolveMediaUrl((post as any).og_image_url, supabaseAdmin),
       gallery,
     };
 

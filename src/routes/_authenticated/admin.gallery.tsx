@@ -43,6 +43,31 @@ export const Route = createFileRoute("/_authenticated/admin/gallery")({
   component: AdminGalleryPage,
 });
 
+const DEFAULT_SUPABASE_URL = "https://mqoybarqgzzvillignbr.supabase.co";
+
+function resolveImageUrl(urlOrPath: string | null | undefined): string {
+  if (!urlOrPath || typeof urlOrPath !== "string") return "";
+  const trimmed = urlOrPath.trim();
+  if (!trimmed) return "";
+  if (
+    trimmed.startsWith("http://") ||
+    trimmed.startsWith("https://") ||
+    trimmed.startsWith("data:") ||
+    trimmed.startsWith("blob:")
+  ) {
+    return trimmed;
+  }
+  let cleanPath = trimmed.replace(/^\/+/, "");
+  if (cleanPath.startsWith("blog-media/")) {
+    cleanPath = cleanPath.slice("blog-media/".length);
+  }
+  const baseUrl =
+    (typeof process !== "undefined"
+      ? process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
+      : "") || DEFAULT_SUPABASE_URL;
+  return `${baseUrl.replace(/\/+$/, "")}/storage/v1/object/public/blog-media/${cleanPath}`;
+}
+
 type GalleryItem = {
   id?: string;
   image_url: string;
@@ -719,7 +744,7 @@ function AdminGalleryPage() {
                   {/* Thumbnail Card */}
                   <div className="relative aspect-4/3 w-full bg-muted/40 overflow-hidden">
                     <img
-                      src={item.image_url}
+                      src={resolveImageUrl(item.image_url)}
                       alt={item.alt_text || `Gallery photo ${idx + 1}`}
                       className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                       loading="lazy"
@@ -747,7 +772,7 @@ function AdminGalleryPage() {
                         type="button"
                         title="Inspect / Preview"
                         onClick={() => setLightboxIndex(idx)}
-                        className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-zinc-900 hover:bg-white transition-transform hover:scale-110 shadow-md"
+                        className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-zinc-900 hover:bg-white transition-transform hover:scale-110 shadow-md cursor-pointer"
                       >
                         <Maximize2 className="h-4 w-4" />
                       </button>
@@ -759,7 +784,7 @@ function AdminGalleryPage() {
                             title="Move left"
                             disabled={idx === 0}
                             onClick={() => moveItem(idx, "prev")}
-                            className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-zinc-900 hover:bg-white disabled:opacity-40 disabled:hover:scale-100 transition-transform hover:scale-110 shadow-md"
+                            className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-zinc-900 hover:bg-white disabled:opacity-40 disabled:hover:scale-100 transition-transform hover:scale-110 shadow-md cursor-pointer"
                           >
                             <ChevronLeft className="h-4 w-4" />
                           </button>
@@ -768,7 +793,7 @@ function AdminGalleryPage() {
                             title="Move right"
                             disabled={idx === displayedItems.length - 1}
                             onClick={() => moveItem(idx, "next")}
-                            className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-zinc-900 hover:bg-white disabled:opacity-40 disabled:hover:scale-100 transition-transform hover:scale-110 shadow-md"
+                            className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-zinc-900 hover:bg-white disabled:opacity-40 disabled:hover:scale-100 transition-transform hover:scale-110 shadow-md cursor-pointer"
                           >
                             <ChevronRight className="h-4 w-4" />
                           </button>
@@ -779,40 +804,51 @@ function AdminGalleryPage() {
                         type="button"
                         title="Remove picture"
                         onClick={() => setDeleteTarget({ item, postId: item.post_id || selectedPostId })}
-                        className="flex h-8 w-8 items-center justify-center rounded-full bg-red-600 text-white hover:bg-red-700 transition-transform hover:scale-110 shadow-md"
+                        className="flex h-8 w-8 items-center justify-center rounded-full bg-red-600 text-white hover:bg-red-700 transition-transform hover:scale-110 shadow-md cursor-pointer"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
                   </div>
 
-                  {/* Caption & Post Info */}
+                  {/* Caption & Post Info & Quick Delete */}
                   <div className="p-2.5 bg-card border-t border-border space-y-1">
                     {selectedPostId === "all" && item.post_title && (
                       <p className="text-[10px] font-semibold text-accent truncate" title={item.post_title}>
                         {item.post_title}
                       </p>
                     )}
-                    <input
-                      defaultValue={item.alt_text}
-                      placeholder="Caption / Alt text…"
-                      onBlur={(e) => {
-                        if (item.post_id && e.target.value !== item.alt_text) {
-                          updateAltText(item.post_id, idx, e.target.value);
-                        }
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" && item.post_id) {
-                          e.currentTarget.blur();
-                        }
-                      }}
-                      className="w-full text-[11px] rounded-lg border border-border/80 bg-background px-2 py-1 outline-none focus:border-accent transition-colors"
-                    />
+                    <div className="flex items-center gap-1.5">
+                      <input
+                        defaultValue={item.alt_text}
+                        placeholder="Caption / Alt text…"
+                        onBlur={(e) => {
+                          if (item.post_id && e.target.value !== item.alt_text) {
+                            updateAltText(item.post_id, idx, e.target.value);
+                          }
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && item.post_id) {
+                            e.currentTarget.blur();
+                          }
+                        }}
+                        className="flex-1 min-w-0 text-[11px] rounded-lg border border-border/80 bg-background px-2 py-1 outline-none focus:border-accent transition-colors"
+                      />
+                      <button
+                        type="button"
+                        title="Delete photo"
+                        onClick={() => setDeleteTarget({ item, postId: item.post_id || selectedPostId })}
+                        className="p-1.5 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer shrink-0"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
             })}
           </div>
+
         ) : (
           <div className="rounded-2xl border border-dashed border-border py-12 text-center text-xs text-muted-foreground bg-card">
             <ImageIcon className="mx-auto h-10 w-10 opacity-30 mb-2" />

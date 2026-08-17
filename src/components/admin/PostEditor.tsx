@@ -31,6 +31,7 @@ import {
   adminUploadImage,
   adminListDestinations,
   adminDeleteGalleryImage,
+  adminSavePostGallery,
 } from "@/lib/admin.functions";
 import { CATEGORIES } from "@/lib/site";
 import {
@@ -50,6 +51,31 @@ export type GalleryItemState = {
   alt_text: string;
   sort_order: number;
 };
+
+const DEFAULT_SUPABASE_URL = "https://mqoybarqgzzvillignbr.supabase.co";
+
+function resolveImageUrl(urlOrPath: string | null | undefined): string {
+  if (!urlOrPath || typeof urlOrPath !== "string") return "";
+  const trimmed = urlOrPath.trim();
+  if (!trimmed) return "";
+  if (
+    trimmed.startsWith("http://") ||
+    trimmed.startsWith("https://") ||
+    trimmed.startsWith("data:") ||
+    trimmed.startsWith("blob:")
+  ) {
+    return trimmed;
+  }
+  let cleanPath = trimmed.replace(/^\/+/, "");
+  if (cleanPath.startsWith("blog-media/")) {
+    cleanPath = cleanPath.slice("blog-media/".length);
+  }
+  const baseUrl =
+    (typeof process !== "undefined"
+      ? process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
+      : "") || DEFAULT_SUPABASE_URL;
+  return `${baseUrl.replace(/\/+$/, "")}/storage/v1/object/public/blog-media/${cleanPath}`;
+}
 
 type Post = {
   id?: string;
@@ -82,6 +108,7 @@ export function PostEditor({
   const upsertFn = useServerFn(adminUpsertPost);
   const uploadFn = useServerFn(adminUploadImage);
   const delGalleryImageFn = useServerFn(adminDeleteGalleryImage);
+  const saveGalleryFn = useServerFn(adminSavePostGallery);
   const listDestinationsFn = useServerFn(adminListDestinations);
 
   const { data: destinations } = useQuery({
@@ -93,7 +120,7 @@ export function PostEditor({
   const [slug, setSlug] = useState(initial?.slug ?? "");
   const [excerpt, setExcerpt] = useState(initial?.excerpt ?? "");
   const [content, setContent] = useState(initial?.content ?? "");
-  const [cover, setCover] = useState(initial?.cover_image ?? "");
+  const [cover, setCover] = useState(initial?.cover_image ? resolveImageUrl(initial.cover_image) : "");
   const [category, setCategory] = useState(initial?.category ?? CATEGORIES[0]);
   const [tags, setTags] = useState((initial?.tags ?? []).join(", "));
   const [featured, setFeatured] = useState(!!initial?.featured);
@@ -105,16 +132,47 @@ export function PostEditor({
   const [travelDate, setTravelDate] = useState(initial?.travel_date ?? "");
   const [seoTitle, setSeoTitle] = useState(initial?.seo_title ?? "");
   const [seoDescription, setSeoDescription] = useState(initial?.seo_description ?? "");
-  const [ogImageUrl, setOgImageUrl] = useState(initial?.og_image_url ?? "");
+  const [ogImageUrl, setOgImageUrl] = useState(initial?.og_image_url ? resolveImageUrl(initial.og_image_url) : "");
 
   const [gallery, setGallery] = useState<GalleryItemState[]>(
     (initial?.gallery ?? []).map((g, idx) => ({
       id: g.id,
-      image_url: g.image_url,
+      image_url: resolveImageUrl(g.image_url),
       alt_text: g.alt_text ?? "",
       sort_order: g.sort_order ?? idx,
     })),
   );
+
+  // Sync state automatically when `initial` data loads or changes
+  useEffect(() => {
+    if (!initial) return;
+    setTitle(initial.title ?? "");
+    setSlug(initial.slug ?? "");
+    setExcerpt(initial.excerpt ?? "");
+    setContent(initial.content ?? "");
+    setCover(initial.cover_image ? resolveImageUrl(initial.cover_image) : "");
+    setCategory(initial.category ?? CATEGORIES[0]);
+    setTags((initial.tags ?? []).join(", "));
+    setFeatured(!!initial.featured);
+    setPublished(!!initial.published);
+    setScheduledAt(initial.scheduled_at ? toLocalInput(initial.scheduled_at) : "");
+    setDestinationId(initial.destination_id ?? "");
+    setTravelDate(initial.travel_date ?? "");
+    setSeoTitle(initial.seo_title ?? "");
+    setSeoDescription(initial.seo_description ?? "");
+    setOgImageUrl(initial.og_image_url ? resolveImageUrl(initial.og_image_url) : "");
+
+    if (initial.gallery && Array.isArray(initial.gallery)) {
+      setGallery(
+        initial.gallery.map((g, idx) => ({
+          id: g.id,
+          image_url: resolveImageUrl(g.image_url),
+          alt_text: g.alt_text ?? "",
+          sort_order: g.sort_order ?? idx,
+        })),
+      );
+    }
+  }, [initial]);
 
   const [galleryUrlInput, setGalleryUrlInput] = useState("");
   const [uploading, setUploading] = useState<"cover" | "inline" | "gallery" | null>(null);
@@ -156,8 +214,9 @@ export function PostEditor({
       const { url } = await uploadFn({
         data: { filename: file.name, contentType: file.type, base64 },
       });
-      if (kind === "cover") setCover(url);
-      else if (kind === "inline") setContent((c) => `${c}\n\n![](${url})\n`);
+      const resolved = resolveImageUrl(url);
+      if (kind === "cover") setCover(resolved);
+      else if (kind === "inline") setContent((c) => `${c}\n\n![](${resolved})\n`);
       toast.success("Image uploaded");
     } catch (e) {
       toast.error((e as Error).message);
@@ -194,6 +253,7 @@ export function PostEditor({
     let successCount = 0;
 
     try {
+      const newItems: GalleryItemState[] = [...gallery];
       for (let i = 0; i < validFiles.length; i++) {
         const file = validFiles[i];
         setUploadProgress({ current: i + 1, total: validFiles.length });
@@ -202,13 +262,37 @@ export function PostEditor({
         const { url } = await uploadFn({
           data: { filename: file.name, contentType: file.type, base64 },
         });
-        setGallery((prev) => [
-          ...prev,
-          { image_url: url, alt_text: "", sort_order: prev.length },
-        ]);
+        const resolved = resolveImageUrl(url);
+        newItems.push({
+          image_url: resolved,
+          alt_text: "",
+          sort_order: newItems.length,
+        });
         successCount++;
       }
-      toast.success(`Successfully uploaded ${successCount} photo${successCount > 1 ? "s" : ""} to gallery`);
+
+      setGallery(newItems);
+
+      // If this is an existing post, immediately persist gallery records to post_gallery table
+      if (initial?.id) {
+        try {
+          await saveGalleryFn({
+            data: {
+              postId: initial.id,
+              gallery: newItems.map((g, idx) => ({
+                id: g.id,
+                image_url: g.image_url,
+                alt_text: g.alt_text || null,
+                sort_order: idx,
+              })),
+            },
+          });
+        } catch (saveErr) {
+          console.warn("[PostEditor] Automatic gallery sync note:", saveErr);
+        }
+      }
+
+      toast.success(`Successfully uploaded and saved ${successCount} photo${successCount > 1 ? "s" : ""} to gallery`);
     } catch (e) {
       toast.error(`Upload error: ${(e as Error).message}`);
     } finally {
@@ -218,26 +302,64 @@ export function PostEditor({
     }
   }
 
-  function addGalleryUrl() {
+  async function addGalleryUrl() {
     if (!galleryUrlInput.trim()) return;
-    setGallery((prev) => [
-      ...prev,
-      { image_url: galleryUrlInput.trim(), alt_text: "", sort_order: prev.length },
-    ]);
+    const resolved = resolveImageUrl(galleryUrlInput.trim());
+    const nextGallery = [
+      ...gallery,
+      { image_url: resolved, alt_text: "", sort_order: gallery.length },
+    ];
+    setGallery(nextGallery);
     setGalleryUrlInput("");
+
+    if (initial?.id) {
+      try {
+        await saveGalleryFn({
+          data: {
+            postId: initial.id,
+            gallery: nextGallery.map((g, idx) => ({
+              id: g.id,
+              image_url: g.image_url,
+              alt_text: g.alt_text || null,
+              sort_order: idx,
+            })),
+          },
+        });
+      } catch (err) {
+        console.warn("[PostEditor] Add URL sync warning:", err);
+      }
+    }
+
     toast.success("Gallery image added");
   }
 
-  function moveGalleryItem(index: number, direction: "prev" | "next") {
-    setGallery((prev) => {
-      const next = [...prev];
-      const targetIndex = direction === "prev" ? index - 1 : index + 1;
-      if (targetIndex < 0 || targetIndex >= next.length) return prev;
-      const temp = next[index];
-      next[index] = next[targetIndex];
-      next[targetIndex] = temp;
-      return next.map((item, idx) => ({ ...item, sort_order: idx }));
-    });
+  async function moveGalleryItem(index: number, direction: "prev" | "next") {
+    const next = [...gallery];
+    const targetIndex = direction === "prev" ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= next.length) return;
+    const temp = next[index];
+    next[index] = next[targetIndex];
+    next[targetIndex] = temp;
+    const reordered = next.map((item, idx) => ({ ...item, sort_order: idx }));
+    setGallery(reordered);
+
+    if (initial?.id) {
+      try {
+        await saveGalleryFn({
+          data: {
+            postId: initial.id,
+            gallery: reordered.map((g, idx) => ({
+              id: g.id,
+              image_url: g.image_url,
+              alt_text: g.alt_text || null,
+              sort_order: idx,
+            })),
+          },
+        });
+      } catch (err) {
+        console.warn("[PostEditor] Reorder sync warning:", err);
+      }
+    }
   }
 
   function handleDragStart(e: React.DragEvent, index: number) {
@@ -254,32 +376,52 @@ export function PostEditor({
     }
   }
 
-  function handleDropOnItem(e: React.DragEvent, targetIndex: number) {
+  async function handleDropOnItem(e: React.DragEvent, targetIndex: number) {
     e.preventDefault();
     if (draggedIdx === null || draggedIdx === targetIndex) {
       setDraggedIdx(null);
       setDragOverIdx(null);
       return;
     }
-    setGallery((prev) => {
-      const next = [...prev];
-      const [moved] = next.splice(draggedIdx, 1);
-      next.splice(targetIndex, 0, moved);
-      return next.map((item, idx) => ({ ...item, sort_order: idx }));
-    });
+    const next = [...gallery];
+    const [moved] = next.splice(draggedIdx, 1);
+    next.splice(targetIndex, 0, moved);
+    const reordered = next.map((item, idx) => ({ ...item, sort_order: idx }));
+    setGallery(reordered);
     setDraggedIdx(null);
     setDragOverIdx(null);
+
+    if (initial?.id) {
+      try {
+        await saveGalleryFn({
+          data: {
+            postId: initial.id,
+            gallery: reordered.map((g, idx) => ({
+              id: g.id,
+              image_url: g.image_url,
+              alt_text: g.alt_text || null,
+              sort_order: idx,
+            })),
+          },
+        });
+      } catch (err) {
+        console.warn("[PostEditor] Drag drop sync warning:", err);
+      }
+    }
+
     toast.success("Gallery order updated");
   }
 
   async function confirmRemoveGalleryItem() {
     if (!deleteTarget) return;
     const { index, item } = deleteTarget;
-    setGallery((prev) =>
-      prev.filter((_, idx) => idx !== index).map((g, idx) => ({ ...g, sort_order: idx }))
-    );
+    const nextGallery = gallery
+      .filter((_, idx) => idx !== index)
+      .map((g, idx) => ({ ...g, sort_order: idx }));
 
-    // If existing post and item has a saved URL, clean up backend storage asynchronously
+    setGallery(nextGallery);
+
+    // If existing post and item has a saved URL, clean up backend post_gallery and Supabase storage
     if (initial?.id && item.image_url) {
       try {
         await delGalleryImageFn({
@@ -289,8 +431,19 @@ export function PostEditor({
             imageUrl: item.image_url,
           },
         });
+        await saveGalleryFn({
+          data: {
+            postId: initial.id,
+            gallery: nextGallery.map((g, idx) => ({
+              id: g.id,
+              image_url: g.image_url,
+              alt_text: g.alt_text || null,
+              sort_order: idx,
+            })),
+          },
+        });
       } catch (err) {
-        console.warn("[PostEditor] Async gallery image cleanup notice:", err);
+        console.warn("[PostEditor] Gallery image deletion notice:", err);
       }
     }
 
@@ -298,6 +451,7 @@ export function PostEditor({
     if (lightboxIndex === index) setLightboxIndex(null);
     setDeleteTarget(null);
   }
+
 
   function updateGalleryAltText(index: number, alt_text: string) {
     setGallery((prev) =>

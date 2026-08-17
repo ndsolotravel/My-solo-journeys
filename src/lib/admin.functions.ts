@@ -53,15 +53,68 @@ export const getMyRoles = createServerFn({ method: "GET" })
     return roles;
   });
 
-function extractBlogMediaPath(url: string | null | undefined): string | null {
+const DEFAULT_SUPABASE_URL = "https://mqoybarqgzzvillignbr.supabase.co";
+
+export function resolveMediaUrl(urlOrPath: string | null | undefined, client?: any): string {
+  if (!urlOrPath || typeof urlOrPath !== "string") return "";
+  const trimmed = urlOrPath.trim();
+  if (!trimmed) return "";
+
+  // If it's already an absolute HTTP(S) URL or data/blob URI
+  if (
+    trimmed.startsWith("http://") ||
+    trimmed.startsWith("https://") ||
+    trimmed.startsWith("data:") ||
+    trimmed.startsWith("blob:")
+  ) {
+    return trimmed;
+  }
+
+  // It's a storage path in blog-media (e.g. "userId/filename.jpg" or "/blog-media/userId/filename.jpg")
+  let cleanPath = trimmed.replace(/^\/+/, "");
+  if (cleanPath.startsWith("blog-media/")) {
+    cleanPath = cleanPath.slice("blog-media/".length);
+  }
+
+  if (client?.storage?.from) {
+    try {
+      const { data } = client.storage.from("blog-media").getPublicUrl(cleanPath);
+      if (data?.publicUrl) return data.publicUrl;
+    } catch {
+      // fallback
+    }
+  }
+
+  const baseUrl =
+    (typeof process !== "undefined"
+      ? process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
+      : "") || DEFAULT_SUPABASE_URL;
+
+  return `${baseUrl.replace(/\/+$/, "")}/storage/v1/object/public/blog-media/${cleanPath}`;
+}
+
+export function extractBlogMediaPath(url: string | null | undefined): string | null {
   if (!url || typeof url !== "string") return null;
   try {
-    const cleanUrl = url.split("?")[0].split("#")[0];
+    const cleanUrl = url.split("?")[0].split("#")[0].trim();
     const marker = "/blog-media/";
     const markerIdx = cleanUrl.indexOf(marker);
     if (markerIdx !== -1) {
       const extracted = cleanUrl.slice(markerIdx + marker.length);
-      return decodeURIComponent(extracted);
+      return decodeURIComponent(extracted.replace(/^\/+/, ""));
+    }
+    // If it's a relative path (e.g. userId/filename.jpg or blog-media/userId/filename.jpg)
+    if (
+      !cleanUrl.startsWith("http://") &&
+      !cleanUrl.startsWith("https://") &&
+      !cleanUrl.startsWith("data:") &&
+      !cleanUrl.startsWith("blob:")
+    ) {
+      let path = cleanUrl.replace(/^\/+/, "");
+      if (path.startsWith("blog-media/")) {
+        path = path.slice("blog-media/".length);
+      }
+      return decodeURIComponent(path);
     }
   } catch (e) {
     console.warn("[extractBlogMediaPath] Failed to parse url:", url, e);
@@ -84,17 +137,26 @@ export const adminListPosts = createServerFn({ method: "GET" })
     const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
     const { data: fullData, error: fullError } = await (client
       .from("posts") as any)
-      .select(`${POST_COLS},destinations(title,slug)`)
+      .select(`${POST_COLS},destinations(id,title,slug)`)
       .order("updated_at", { ascending: false });
+
     if (!fullError && fullData) {
-      return fullData as any[];
+      return fullData.map((p: any) => ({
+        ...p,
+        cover_image: resolveMediaUrl(p.cover_image, client),
+      }));
     }
+
     const { data: baseData, error: baseError } = await client
       .from("posts")
       .select(BASE_POST_COLS)
       .order("updated_at", { ascending: false });
+
     if (baseError) throw new Error(baseError.message);
-    return (baseData ?? []) as any[];
+    return (baseData ?? []).map((p: any) => ({
+      ...p,
+      cover_image: resolveMediaUrl(p.cover_image, client),
+    }));
   });
 
 export const adminGetPost = createServerFn({ method: "GET" })
@@ -103,9 +165,11 @@ export const adminGetPost = createServerFn({ method: "GET" })
   .handler(async ({ context, data }) => {
     await assertEditor(context.userId, context.supabase);
     const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
+
+    // 1. Fetch post metadata
     const { data: fullData, error: fullError } = await (client
       .from("posts") as any)
-      .select(`${POST_COLS},destinations(id,title,slug),post_gallery(id,image_url,alt_text,sort_order)`)
+      .select(`${POST_COLS},destinations(id,title,slug)`)
       .eq("id", data.id)
       .maybeSingle();
 
@@ -121,16 +185,34 @@ export const adminGetPost = createServerFn({ method: "GET" })
     }
 
     if (!row) return null;
-    const gallery = ((row as Record<string, unknown>).post_gallery ?? []) as {
-      id: string;
-      image_url: string;
-      alt_text: string | null;
-      sort_order: number;
-    }[];
-    if (Array.isArray(gallery)) {
-      gallery.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+
+    // 2. Fetch all gallery records directly from post_gallery for this specific post
+    const { data: galleryRows, error: galErr } = await client
+      .from("post_gallery")
+      .select("id, post_id, image_url, alt_text, sort_order, created_at")
+      .eq("post_id", data.id)
+      .order("sort_order", { ascending: true });
+
+    if (galErr) {
+      console.warn("[adminGetPost] Warning fetching post_gallery records:", galErr);
     }
-    return { ...row, gallery } as any;
+
+    const rawGallery = (galleryRows ?? []) as any[];
+    const gallery = rawGallery.map((g, idx) => ({
+      id: g.id,
+      post_id: g.post_id || data.id,
+      image_url: resolveMediaUrl(g.image_url, client),
+      alt_text: g.alt_text ?? "",
+      sort_order: g.sort_order ?? idx,
+      created_at: g.created_at,
+    }));
+
+    return {
+      ...row,
+      cover_image: resolveMediaUrl(row.cover_image, client),
+      og_image_url: resolveMediaUrl(row.og_image_url, client),
+      gallery,
+    } as any;
   });
 
 const slugify = (s: string) =>
@@ -139,109 +221,112 @@ const slugify = (s: string) =>
     .trim()
     .replace(/[^a-z0-9\s-]/g, "")
     .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .slice(0, 80);
-
-const postInputSchema = z.object({
-  id: z.string().uuid().optional(),
-  title: z.string().trim().min(1).max(200),
-  slug: z.string().trim().min(1).max(200).optional(),
-  excerpt: z.string().max(500).optional().nullable(),
-  content: z.string().default(""),
-  cover_image: z.string().url().optional().nullable().or(z.literal("")),
-  category: z.string().min(1).max(80),
-  tags: z.array(z.string().max(40)).max(20).default([]),
-  featured: z.boolean().default(false),
-  published: z.boolean().default(false),
-  scheduled_at: z.string().datetime().optional().nullable().or(z.literal("")),
-  destination_id: z.string().uuid().optional().nullable().or(z.literal("")),
-  travel_date: z.string().optional().nullable().or(z.literal("")),
-  seo_title: z.string().max(200).optional().nullable().or(z.literal("")),
-  seo_description: z.string().max(500).optional().nullable().or(z.literal("")),
-  og_image_url: z.string().url().optional().nullable().or(z.literal("")),
-  gallery: z
-    .array(
-      z.object({
-        id: z.string().optional(),
-        image_url: z.string().min(1),
-        alt_text: z.string().optional().nullable(),
-        sort_order: z.number().default(0),
-      }),
-    )
-    .optional(),
-});
+    .replace(/-+/g, "-");
 
 export const adminUpsertPost = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i) => postInputSchema.parse(i))
+  .inputValidator((i) =>
+    z
+      .object({
+        id: z.string().uuid().optional(),
+        title: z.string().min(1),
+        slug: z.string().min(1).optional(),
+        excerpt: z.string().optional().default(""),
+        content: z.string().optional().default(""),
+        cover_image: z.string().optional().default(""),
+        category: z.string().min(1),
+        tags: z.array(z.string()).default([]),
+        featured: z.boolean().default(false),
+        published: z.boolean().default(false),
+        scheduled_at: z.string().nullable().optional(),
+        destination_id: z.string().uuid().nullable().optional(),
+        travel_date: z.string().nullable().optional(),
+        seo_title: z.string().nullable().optional(),
+        seo_description: z.string().nullable().optional(),
+        og_image_url: z.string().nullable().optional(),
+        gallery: z
+          .array(
+            z.object({
+              id: z.string().uuid().optional(),
+              image_url: z.string().min(1),
+              alt_text: z.string().nullable().optional(),
+              sort_order: z.number().int().nonnegative().optional(),
+            }),
+          )
+          .optional(),
+      })
+      .parse(i),
+  )
   .handler(async ({ context, data }) => {
     await assertEditor(context.userId, context.supabase);
     const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
+    const slug = slugify(data.slug || data.title);
+    const words = (data.content || "").trim().split(/\s+/).filter(Boolean).length;
+    const reading_minutes = Math.max(1, Math.ceil(words / 200));
 
-    const slug = (data.slug && data.slug.trim()) || slugify(data.title);
-    const reading_minutes = Math.max(1, Math.round((data.content || "").split(/\s+/).length / 200));
-    const scheduled = data.scheduled_at && data.scheduled_at !== "" ? data.scheduled_at : null;
-    const cover = data.cover_image && data.cover_image !== "" ? data.cover_image : null;
-    const destination_id = data.destination_id && data.destination_id !== "" ? data.destination_id : null;
-    const travel_date = data.travel_date && data.travel_date !== "" ? data.travel_date : null;
-    const og_image_url = data.og_image_url && data.og_image_url !== "" ? data.og_image_url : null;
+    const scheduledDate = data.scheduled_at ? new Date(data.scheduled_at) : null;
+    const isScheduledFuture = scheduledDate && scheduledDate.getTime() > Date.now();
+    const effectivePublished = isScheduledFuture ? false : !!data.published;
 
-    const payload = {
-      title: data.title,
+    const payload: Record<string, unknown> = {
+      title: data.title.trim(),
       slug,
-      excerpt: data.excerpt || null,
-      content: data.content,
-      cover_image: cover,
+      excerpt: (data.excerpt || "").trim(),
+      content: data.content || "",
+      cover_image: data.cover_image || null,
       category: data.category,
       tags: data.tags,
-      featured: data.featured,
-      published: data.published,
-      published_at: data.published ? new Date().toISOString() : null,
-      scheduled_at: scheduled,
+      featured: !!data.featured,
+      published: effectivePublished,
+      scheduled_at: data.scheduled_at ? new Date(data.scheduled_at).toISOString() : null,
       reading_minutes,
-      author_id: context.userId,
-      destination_id,
-      travel_date,
-      seo_title: data.seo_title || null,
-      seo_description: data.seo_description || null,
-      og_image_url,
+      updated_at: new Date().toISOString(),
     };
 
+    if (data.destination_id !== undefined) {
+      payload.destination_id = data.destination_id || null;
+    }
+    if (data.travel_date !== undefined) {
+      payload.travel_date = data.travel_date || null;
+    }
+    if (data.seo_title !== undefined) {
+      payload.seo_title = data.seo_title ? data.seo_title.trim() : null;
+    }
+    if (data.seo_description !== undefined) {
+      payload.seo_description = data.seo_description ? data.seo_description.trim() : null;
+    }
+    if (data.og_image_url !== undefined) {
+      payload.og_image_url = data.og_image_url || null;
+    }
+
+    if (effectivePublished) {
+      payload.published_at = new Date().toISOString();
+    }
+
+    let postRow: any = null;
     let postId = data.id;
-    let postRow;
 
     if (postId) {
-      // Preserve existing published_at when republishing
-      const { data: existing } = await client
-        .from("posts")
-        .select("published_at,published")
-        .eq("id", postId)
-        .maybeSingle();
-      if (existing?.published && data.published && existing.published_at) {
-        payload.published_at = existing.published_at;
-      }
-      const { data: row, error } = await client
-        .from("posts")
+      const { data: updated, error } = await (client.from("posts") as any)
         .update(payload)
         .eq("id", postId)
-        .select(POST_COLS)
+        .select()
         .single();
       if (error) throw new Error(error.message);
-      postRow = row;
+      postRow = updated;
     } else {
-      const { data: row, error } = await client
-        .from("posts")
+      payload.author_id = context.userId;
+      const { data: inserted, error } = await (client.from("posts") as any)
         .insert(payload)
-        .select(POST_COLS)
+        .select()
         .single();
       if (error) throw new Error(error.message);
-      postRow = row;
-      postId = row.id;
+      postRow = inserted;
+      postId = inserted.id;
     }
 
     // Sync post_gallery items if provided
     if (data.gallery !== undefined && postId) {
-      // Find old gallery items to clean up removed storage images
       try {
         const { data: oldGallery } = await client
           .from("post_gallery")
@@ -302,12 +387,21 @@ export const adminDeleteGalleryImage = createServerFn({ method: "POST" })
     await assertEditor(context.userId, context.supabase);
     const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
 
+    // 1. Delete from database table post_gallery
     if (data.galleryId) {
-      await client.from("post_gallery").delete().eq("id", data.galleryId);
-    } else if (data.postId) {
-      await client.from("post_gallery").delete().eq("post_id", data.postId).eq("image_url", data.imageUrl);
+      const { error: delErr } = await client.from("post_gallery").delete().eq("id", data.galleryId);
+      if (delErr) console.warn("[adminDeleteGalleryImage] Delete by ID error:", delErr);
+    }
+    if (data.postId) {
+      const { error: delErr } = await client
+        .from("post_gallery")
+        .delete()
+        .eq("post_id", data.postId)
+        .eq("image_url", data.imageUrl);
+      if (delErr) console.warn("[adminDeleteGalleryImage] Delete by post_id error:", delErr);
     }
 
+    // 2. Clean up file from Supabase Storage bucket blog-media
     const storagePath = extractBlogMediaPath(data.imageUrl);
     if (storagePath) {
       try {
@@ -326,18 +420,49 @@ export const adminListGalleries = createServerFn({ method: "GET" })
     await assertEditor(context.userId, context.supabase);
     const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
 
-    const { data, error } = await (client
+    // 1. Fetch all posts
+    const { data: postsData, error: postsErr } = await (client
       .from("posts") as any)
-      .select("id, title, slug, cover_image, published, created_at, updated_at, post_gallery(id, image_url, alt_text, sort_order, created_at)")
+      .select("id, title, slug, cover_image, published, created_at, updated_at")
       .order("updated_at", { ascending: false });
 
-    if (error) throw new Error(error.message);
+    if (postsErr) throw new Error(postsErr.message);
 
-    const posts = (data ?? []).map((p: any) => {
-      const gallery = Array.isArray(p.post_gallery) ? [...p.post_gallery] : [];
+    // 2. Fetch all gallery records directly from post_gallery
+    const { data: allGallery, error: galErr } = await (client
+      .from("post_gallery") as any)
+      .select("id, post_id, image_url, alt_text, sort_order, created_at")
+      .order("sort_order", { ascending: true });
+
+    if (galErr) {
+      console.warn("[adminListGalleries] Warning fetching post_gallery:", galErr);
+    }
+
+    // 3. Map gallery items to their respective post
+    const galleryByPostId = new Map<string, any[]>();
+    ((allGallery as any[]) ?? []).forEach((g: any) => {
+      const pid = g.post_id;
+      if (pid) {
+        if (!galleryByPostId.has(pid)) {
+          galleryByPostId.set(pid, []);
+        }
+        galleryByPostId.get(pid)!.push({
+          id: g.id,
+          post_id: g.post_id,
+          image_url: resolveMediaUrl(g.image_url, client),
+          alt_text: g.alt_text ?? "",
+          sort_order: g.sort_order ?? 0,
+          created_at: g.created_at,
+        });
+      }
+    });
+
+    const posts = ((postsData as any[]) ?? []).map((p: any) => {
+      const gallery = galleryByPostId.get(p.id) ?? [];
       gallery.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
       return {
         ...p,
+        cover_image: resolveMediaUrl(p.cover_image, client),
         gallery,
         galleryCount: gallery.length,
       };
