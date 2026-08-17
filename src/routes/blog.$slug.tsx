@@ -45,21 +45,21 @@ export const Route = createFileRoute("/blog/$slug")({
       links: [{ rel: "canonical", href: `/blog/${params.slug}` }],
       scripts: p
         ? [
-            {
-              type: "application/ld+json",
-              children: JSON.stringify({
-                "@context": "https://schema.org",
-                "@type": "Article",
-                headline: p.title,
-                description: desc,
-                image: image ?? undefined,
-                datePublished: p.published_at ?? p.created_at,
-                articleSection: p.category,
-                keywords: p.tags?.join(", "),
-                author: { "@type": "Person", name: p.author_name || "ndsolotravel" },
-              }),
-            },
-          ]
+          {
+            type: "application/ld+json",
+            children: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Article",
+              headline: p.title,
+              description: desc,
+              image: image ?? undefined,
+              datePublished: p.published_at ?? p.created_at,
+              articleSection: p.category,
+              keywords: p.tags?.join(", "),
+              author: { "@type": "Person", name: p.author_name || "ndsolotravel" },
+            }),
+          },
+        ]
         : [],
     };
   },
@@ -193,10 +193,10 @@ function PostPage() {
 
   const formattedTravelDate = post.travel_date
     ? new Date(post.travel_date).toLocaleDateString("en-US", {
-        month: "long",
-        day: "numeric",
-        year: "numeric",
-      })
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    })
     : null;
 
   const dest = post.destinations as { title: string; slug: string } | null;
@@ -245,7 +245,7 @@ function PostPage() {
           </h1>
           <div className="mt-5 flex flex-wrap items-center gap-4 text-xs text-white/80">
             <span className="inline-flex items-center gap-1 font-semibold text-white">
-              <User className="h-3.5 w-3.5 text-accent" /> By {post.author_name || "Noman"} · ndsolotravel
+              <User className="h-3.5 w-3.5 text-accent" /> By {post.author_name || "Hussain"} · ndsolotravel
             </span>
             <span aria-hidden>·</span>
             <span>{date}</span>
@@ -612,9 +612,8 @@ function StarPicker({ value, onChange }: { value: number; onChange: (n: number) 
           className="rounded p-1 outline-none focus-visible:ring-2 focus-visible:ring-accent"
         >
           <Star
-            className={`h-7 w-7 transition-colors ${
-              i <= active ? "fill-amber-400 text-amber-400" : "text-muted-foreground/40"
-            }`}
+            className={`h-7 w-7 transition-colors ${i <= active ? "fill-amber-400 text-amber-400" : "text-muted-foreground/40"
+              }`}
           />
         </motion.button>
       ))}
