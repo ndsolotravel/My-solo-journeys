@@ -241,6 +241,36 @@ export const adminUpsertPost = createServerFn({ method: "POST" })
 
     // Sync post_gallery items if provided
     if (data.gallery !== undefined && postId) {
+      // Find old gallery items to clean up removed storage images
+      try {
+        const { data: oldGallery } = await client
+          .from("post_gallery")
+          .select("image_url")
+          .eq("post_id", postId);
+
+        if (oldGallery && oldGallery.length > 0) {
+          const newUrls = new Set(data.gallery.map((g) => g.image_url));
+          const removedPaths: string[] = [];
+          for (const old of oldGallery) {
+            if (!newUrls.has(old.image_url)) {
+              const path = extractBlogMediaPath(old.image_url);
+              if (path && !removedPaths.includes(path)) {
+                removedPaths.push(path);
+              }
+            }
+          }
+          if (removedPaths.length > 0) {
+            try {
+              await client.storage.from("blog-media").remove(removedPaths);
+            } catch (storageCleanupErr) {
+              console.warn("[adminUpsertPost] Storage cleanup error:", storageCleanupErr);
+            }
+          }
+        }
+      } catch (e) {
+        console.warn("[adminUpsertPost] Could not inspect old gallery for storage cleanup:", e);
+      }
+
       await client.from("post_gallery").delete().eq("post_id", postId);
       if (data.gallery.length > 0) {
         const galleryRows = data.gallery.map((g, idx) => ({
@@ -255,6 +285,39 @@ export const adminUpsertPost = createServerFn({ method: "POST" })
     }
 
     return postRow;
+  });
+
+export const adminDeleteGalleryImage = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i) =>
+    z
+      .object({
+        postId: z.string().uuid().optional(),
+        galleryId: z.string().uuid().optional(),
+        imageUrl: z.string().min(1),
+      })
+      .parse(i),
+  )
+  .handler(async ({ context, data }) => {
+    await assertEditor(context.userId, context.supabase);
+    const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
+
+    if (data.galleryId) {
+      await client.from("post_gallery").delete().eq("id", data.galleryId);
+    } else if (data.postId) {
+      await client.from("post_gallery").delete().eq("post_id", data.postId).eq("image_url", data.imageUrl);
+    }
+
+    const storagePath = extractBlogMediaPath(data.imageUrl);
+    if (storagePath) {
+      try {
+        await client.storage.from("blog-media").remove([storagePath]);
+      } catch (err) {
+        console.warn("[adminDeleteGalleryImage] Storage cleanup warning:", err);
+      }
+    }
+
+    return { ok: true };
   });
 
 export const adminDeletePost = createServerFn({ method: "POST" })

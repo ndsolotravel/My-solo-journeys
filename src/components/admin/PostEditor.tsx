@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useNavigate } from "@tanstack/react-router";
@@ -15,6 +15,13 @@ import {
   MapPin,
   Calendar,
   Image as ImageIcon,
+  GripVertical,
+  Maximize2,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  Eye,
+  FileImage,
 } from "lucide-react";
 import { toast } from "sonner";
 import { MarkdownEditor } from "./MarkdownEditor";
@@ -23,8 +30,19 @@ import {
   adminUpsertPost,
   adminUploadImage,
   adminListDestinations,
+  adminDeleteGalleryImage,
 } from "@/lib/admin.functions";
 import { CATEGORIES } from "@/lib/site";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export type GalleryItemState = {
   id?: string;
@@ -63,6 +81,7 @@ export function PostEditor({
   const navigate = useNavigate();
   const upsertFn = useServerFn(adminUpsertPost);
   const uploadFn = useServerFn(adminUploadImage);
+  const delGalleryImageFn = useServerFn(adminDeleteGalleryImage);
   const listDestinationsFn = useServerFn(adminListDestinations);
 
   const { data: destinations } = useQuery({
@@ -99,6 +118,18 @@ export function PostEditor({
 
   const [galleryUrlInput, setGalleryUrlInput] = useState("");
   const [uploading, setUploading] = useState<"cover" | "inline" | "gallery" | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<{ current: number; total: number } | null>(null);
+  const [isDropzoneActive, setIsDropzoneActive] = useState(false);
+
+  // Drag-and-drop state for reordering
+  const [draggedIdx, setDraggedIdx] = useState<number | null>(null);
+  const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
+
+  // Lightbox preview state
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  // Deletion confirmation state
+  const [deleteTarget, setDeleteTarget] = useState<{ index: number; item: GalleryItemState } | null>(null);
 
   const coverInput = useRef<HTMLInputElement>(null);
   const inlineInput = useRef<HTMLInputElement>(null);
@@ -116,7 +147,8 @@ export function PostEditor({
     onError: (e: Error) => toast.error(e.message),
   });
 
-  async function uploadFile(file: File, kind: "cover" | "inline" | "gallery") {
+  // Single file uploader for cover and inline
+  async function uploadFile(file: File, kind: "cover" | "inline") {
     setUploading(kind);
     try {
       const buf = await file.arrayBuffer();
@@ -126,17 +158,63 @@ export function PostEditor({
       });
       if (kind === "cover") setCover(url);
       else if (kind === "inline") setContent((c) => `${c}\n\n![](${url})\n`);
-      else if (kind === "gallery") {
-        setGallery((prev) => [
-          ...prev,
-          { image_url: url, alt_text: "", sort_order: prev.length },
-        ]);
-      }
       toast.success("Image uploaded");
     } catch (e) {
       toast.error((e as Error).message);
     } finally {
       setUploading(null);
+    }
+  }
+
+  // Multi-file batch uploader for gallery
+  async function uploadGalleryFiles(files: FileList | File[]) {
+    const fileArray = Array.from(files);
+    if (fileArray.length === 0) return;
+
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/avif", "image/jpg"];
+    const maxBytes = 8 * 1024 * 1024; // 8 MB
+
+    const validFiles: File[] = [];
+    for (const f of fileArray) {
+      const type = f.type.toLowerCase();
+      if (!allowedTypes.includes(type) && !type.startsWith("image/")) {
+        toast.error(`"${f.name}" is not a supported format. Please use JPG, PNG, WebP, or AVIF.`);
+        continue;
+      }
+      if (f.size > maxBytes) {
+        toast.error(`"${f.name}" exceeds the 8 MB size limit.`);
+        continue;
+      }
+      validFiles.push(f);
+    }
+
+    if (validFiles.length === 0) return;
+
+    setUploading("gallery");
+    let successCount = 0;
+
+    try {
+      for (let i = 0; i < validFiles.length; i++) {
+        const file = validFiles[i];
+        setUploadProgress({ current: i + 1, total: validFiles.length });
+        const buf = await file.arrayBuffer();
+        const base64 = btoa(String.fromCharCode(...new Uint8Array(buf)));
+        const { url } = await uploadFn({
+          data: { filename: file.name, contentType: file.type, base64 },
+        });
+        setGallery((prev) => [
+          ...prev,
+          { image_url: url, alt_text: "", sort_order: prev.length },
+        ]);
+        successCount++;
+      }
+      toast.success(`Successfully uploaded ${successCount} photo${successCount > 1 ? "s" : ""} to gallery`);
+    } catch (e) {
+      toast.error(`Upload error: ${(e as Error).message}`);
+    } finally {
+      setUploading(null);
+      setUploadProgress(null);
+      if (galleryInput.current) galleryInput.current.value = "";
     }
   }
 
@@ -150,10 +228,10 @@ export function PostEditor({
     toast.success("Gallery image added");
   }
 
-  function moveGalleryItem(index: number, direction: "up" | "down") {
+  function moveGalleryItem(index: number, direction: "prev" | "next") {
     setGallery((prev) => {
       const next = [...prev];
-      const targetIndex = direction === "up" ? index - 1 : index + 1;
+      const targetIndex = direction === "prev" ? index - 1 : index + 1;
       if (targetIndex < 0 || targetIndex >= next.length) return prev;
       const temp = next[index];
       next[index] = next[targetIndex];
@@ -162,10 +240,63 @@ export function PostEditor({
     });
   }
 
-  function removeGalleryItem(index: number) {
+  function handleDragStart(e: React.DragEvent, index: number) {
+    setDraggedIdx(index);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", `${index}`);
+  }
+
+  function handleDragOverItem(e: React.DragEvent, index: number) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (dragOverIdx !== index) {
+      setDragOverIdx(index);
+    }
+  }
+
+  function handleDropOnItem(e: React.DragEvent, targetIndex: number) {
+    e.preventDefault();
+    if (draggedIdx === null || draggedIdx === targetIndex) {
+      setDraggedIdx(null);
+      setDragOverIdx(null);
+      return;
+    }
+    setGallery((prev) => {
+      const next = [...prev];
+      const [moved] = next.splice(draggedIdx, 1);
+      next.splice(targetIndex, 0, moved);
+      return next.map((item, idx) => ({ ...item, sort_order: idx }));
+    });
+    setDraggedIdx(null);
+    setDragOverIdx(null);
+    toast.success("Gallery order updated");
+  }
+
+  async function confirmRemoveGalleryItem() {
+    if (!deleteTarget) return;
+    const { index, item } = deleteTarget;
     setGallery((prev) =>
-      prev.filter((_, idx) => idx !== index).map((item, idx) => ({ ...item, sort_order: idx })),
+      prev.filter((_, idx) => idx !== index).map((g, idx) => ({ ...g, sort_order: idx }))
     );
+
+    // If existing post and item has a saved URL, clean up backend storage asynchronously
+    if (initial?.id && item.image_url) {
+      try {
+        await delGalleryImageFn({
+          data: {
+            postId: initial.id,
+            galleryId: item.id,
+            imageUrl: item.image_url,
+          },
+        });
+      } catch (err) {
+        console.warn("[PostEditor] Async gallery image cleanup notice:", err);
+      }
+    }
+
+    toast.success("Picture removed from gallery");
+    if (lightboxIndex === index) setLightboxIndex(null);
+    setDeleteTarget(null);
   }
 
   function updateGalleryAltText(index: number, alt_text: string) {
@@ -173,6 +304,22 @@ export function PostEditor({
       prev.map((item, idx) => (idx === index ? { ...item, alt_text } : item)),
     );
   }
+
+  // Keyboard navigation for lightbox
+  useEffect(() => {
+    if (lightboxIndex === null) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft" && gallery.length > 1) {
+        setLightboxIndex((curr) => (curr !== null ? (curr - 1 + gallery.length) % gallery.length : null));
+      } else if (e.key === "ArrowRight" && gallery.length > 1) {
+        setLightboxIndex((curr) => (curr !== null ? (curr + 1) % gallery.length : null));
+      } else if (e.key === "Escape") {
+        setLightboxIndex(null);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [lightboxIndex, gallery.length]);
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -204,6 +351,8 @@ export function PostEditor({
   function close() {
     navigate({ to: "/admin/posts" });
   }
+
+  const activeLightboxItem = lightboxIndex !== null && gallery[lightboxIndex] ? gallery[lightboxIndex] : null;
 
   const body = (
     <form id={formId} onSubmit={submit} className="grid gap-6 lg:grid-cols-[1fr_340px]">
@@ -258,114 +407,351 @@ export function PostEditor({
           )}
         </Field>
 
-        {/* Per-Post Photo Gallery Section */}
+        {/* ================= POST PHOTO GALLERY SECTION ================= */}
         <div className="rounded-2xl border border-border bg-card p-5 space-y-4 shadow-sm">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h3 className="font-display text-base font-semibold flex items-center gap-2">
-                <ImageIcon className="h-4 w-4 text-accent" /> Post Photo Gallery
-              </h3>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Upload photos specific to this story. Drag/reorder to change sequence.
+              <div className="flex items-center gap-2">
+                <h3 className="font-display text-base font-semibold flex items-center gap-2">
+                  <ImageIcon className="h-5 w-5 text-accent" /> Post Photo Gallery
+                </h3>
+                {gallery.length > 0 && (
+                  <span className="rounded-full bg-accent/10 px-2.5 py-0.5 text-xs font-semibold text-accent">
+                    {gallery.length} {gallery.length === 1 ? "picture" : "pictures"}
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Upload pictures from your computer or add external image URLs. Drag to reorder.
               </p>
             </div>
             <button
               type="button"
               onClick={() => galleryInput.current?.click()}
               disabled={uploading === "gallery"}
-              className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium hover:bg-muted transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-full bg-foreground px-4 py-2 text-xs font-medium text-background hover:opacity-90 transition-opacity disabled:opacity-50 cursor-pointer shadow-xs"
             >
               {uploading === "gallery" ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                <>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" /> Uploading…
+                </>
               ) : (
-                <Plus className="h-3.5 w-3.5" />
+                <>
+                  <Upload className="h-3.5 w-3.5" /> Upload Pictures
+                </>
               )}
-              Add Photo
             </button>
           </div>
 
           <input
             ref={galleryInput}
             type="file"
-            accept="image/*"
+            multiple
+            accept="image/jpeg,image/png,image/webp,image/avif"
             className="hidden"
-            onChange={(e) => e.target.files?.[0] && uploadFile(e.target.files[0], "gallery")}
+            onChange={(e) => e.target.files && uploadGalleryFiles(e.target.files)}
           />
 
+          {/* Drag & Drop Upload Dropzone Area */}
+          <div
+            onDragOver={(e) => {
+              e.preventDefault();
+              setIsDropzoneActive(true);
+            }}
+            onDragLeave={() => setIsDropzoneActive(false)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setIsDropzoneActive(false);
+              if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                uploadGalleryFiles(e.dataTransfer.files);
+              }
+            }}
+            onClick={() => galleryInput.current?.click()}
+            className={`group relative flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-6 text-center transition-all ${
+              isDropzoneActive
+                ? "border-accent bg-accent/10 text-accent scale-[1.01]"
+                : "border-border bg-background hover:border-accent hover:bg-accent/5 text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {uploading === "gallery" ? (
+              <div className="flex flex-col items-center gap-2 py-2">
+                <Loader2 className="h-7 w-7 animate-spin text-accent" />
+                <p className="text-sm font-medium text-foreground">
+                  Uploading picture {uploadProgress?.current ?? 1} of {uploadProgress?.total ?? 1}…
+                </p>
+                <p className="text-xs text-muted-foreground">Please wait while files are processed and optimized</p>
+              </div>
+            ) : (
+              <>
+                <div className="rounded-full bg-muted/60 p-3 text-foreground group-hover:bg-accent/15 group-hover:text-accent transition-colors">
+                  <FileImage className="h-6 w-6" />
+                </div>
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium">
+                    Drag & drop pictures here, or <span className="text-accent underline underline-offset-2">browse</span>
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Supports JPG, PNG, WebP, AVIF up to 8 MB each · Select multiple files
+                  </p>
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Paste Image URL Input */}
           <div className="flex items-center gap-2">
             <input
               value={galleryUrlInput}
               onChange={(e) => setGalleryUrlInput(e.target.value)}
-              placeholder="…or paste photo URL"
+              placeholder="…or paste image web URL (https://…)"
               className={input + " text-xs py-2"}
             />
             <button
               type="button"
               onClick={addGalleryUrl}
-              className="rounded-xl border border-border px-3 py-2 text-xs font-medium hover:bg-muted whitespace-nowrap"
+              className="rounded-xl border border-border px-3.5 py-2 text-xs font-medium hover:bg-muted whitespace-nowrap transition-colors"
             >
               Add URL
             </button>
           </div>
 
+          {/* Gallery Pictures Grid with Drag-and-Drop */}
           {gallery.length > 0 ? (
-            <div className="space-y-3 pt-2">
-              {gallery.map((item, idx) => (
-                <div
-                  key={idx}
-                  className="flex items-center gap-3 rounded-xl border border-border/80 bg-background p-3 shadow-xs"
-                >
-                  <img
-                    src={item.image_url}
-                    alt={item.alt_text || `Gallery photo ${idx + 1}`}
-                    className="h-14 w-14 rounded-lg object-cover bg-muted shrink-0"
-                  />
-                  <div className="flex-1 min-w-0 space-y-1">
-                    <input
-                      value={item.alt_text}
-                      onChange={(e) => updateGalleryAltText(idx, e.target.value)}
-                      placeholder="Alt text / description…"
-                      className="w-full text-xs rounded-lg border border-border bg-muted/20 px-2.5 py-1.5 outline-none focus:border-accent"
-                    />
-                    <p className="text-[10px] text-muted-foreground truncate">{item.image_url}</p>
-                  </div>
-                  <div className="flex items-center gap-1 shrink-0">
-                    <button
-                      type="button"
-                      disabled={idx === 0}
-                      onClick={() => moveGalleryItem(idx, "up")}
-                      className="h-7 w-7 inline-flex items-center justify-center rounded hover:bg-muted disabled:opacity-30"
-                      title="Move up"
+            <div className="pt-2">
+              <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground">
+                <span>Hold and drag cards to reorder sequence</span>
+                <span>{gallery.length} {gallery.length === 1 ? "item" : "items"}</span>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3.5">
+                {gallery.map((item, idx) => {
+                  const isDragging = draggedIdx === idx;
+                  const isDragOver = dragOverIdx === idx && draggedIdx !== idx;
+
+                  return (
+                    <div
+                      key={item.id || item.image_url + idx}
+                      draggable={uploading !== "gallery"}
+                      onDragStart={(e) => handleDragStart(e, idx)}
+                      onDragOver={(e) => handleDragOverItem(e, idx)}
+                      onDrop={(e) => handleDropOnItem(e, idx)}
+                      onDragEnd={() => {
+                        setDraggedIdx(null);
+                        setDragOverIdx(null);
+                      }}
+                      className={`group relative flex flex-col justify-between overflow-hidden rounded-xl border bg-background transition-all select-none shadow-xs ${
+                        isDragging ? "opacity-40 scale-95 border-dashed border-accent" : ""
+                      } ${
+                        isDragOver
+                          ? "border-accent ring-2 ring-accent/30 scale-[1.02]"
+                          : "border-border hover:border-accent/60 hover:shadow-md"
+                      }`}
                     >
-                      <ArrowUp className="h-3.5 w-3.5" />
-                    </button>
-                    <button
-                      type="button"
-                      disabled={idx === gallery.length - 1}
-                      onClick={() => moveGalleryItem(idx, "down")}
-                      className="h-7 w-7 inline-flex items-center justify-center rounded hover:bg-muted disabled:opacity-30"
-                      title="Move down"
-                    >
-                      <ArrowDown className="h-3.5 w-3.5" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => removeGalleryItem(idx)}
-                      className="h-7 w-7 inline-flex items-center justify-center rounded hover:bg-red-500/10 text-muted-foreground hover:text-red-500"
-                      title="Remove photo"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
-                </div>
-              ))}
+                      {/* Thumbnail with overlay controls */}
+                      <div className="relative aspect-4/3 w-full bg-muted/40 overflow-hidden">
+                        <img
+                          src={item.image_url}
+                          alt={item.alt_text || `Gallery item ${idx + 1}`}
+                          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          loading="lazy"
+                        />
+
+                        {/* Position Pill */}
+                        <div className="absolute left-2 top-2 z-10">
+                          <span className="rounded-md bg-black/75 px-2 py-0.5 text-[11px] font-bold text-white shadow-xs backdrop-blur-xs">
+                            #{idx + 1}
+                          </span>
+                        </div>
+
+                        {/* Drag Handle Icon */}
+                        <div className="absolute right-2 top-2 z-10 opacity-70 group-hover:opacity-100 transition-opacity">
+                          <div className="rounded-md bg-black/75 p-1 text-white shadow-xs backdrop-blur-xs cursor-grab active:cursor-grabbing">
+                            <GripVertical className="h-3.5 w-3.5" />
+                          </div>
+                        </div>
+
+                        {/* Action Overlay */}
+                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 p-2">
+                          <button
+                            type="button"
+                            title="Inspect / Preview"
+                            onClick={() => setLightboxIndex(idx)}
+                            className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-zinc-900 hover:bg-white transition-transform hover:scale-110 shadow-md"
+                          >
+                            <Maximize2 className="h-4 w-4" />
+                          </button>
+                          <button
+                            type="button"
+                            title="Move left / up"
+                            disabled={idx === 0}
+                            onClick={() => moveGalleryItem(idx, "prev")}
+                            className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-zinc-900 hover:bg-white disabled:opacity-40 disabled:hover:scale-100 transition-transform hover:scale-110 shadow-md"
+                          >
+                            <ChevronLeft className="h-4 w-4" />
+                          </button>
+                          <button
+                            type="button"
+                            title="Move right / down"
+                            disabled={idx === gallery.length - 1}
+                            onClick={() => moveGalleryItem(idx, "next")}
+                            className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-zinc-900 hover:bg-white disabled:opacity-40 disabled:hover:scale-100 transition-transform hover:scale-110 shadow-md"
+                          >
+                            <ChevronRight className="h-4 w-4" />
+                          </button>
+                          <button
+                            type="button"
+                            title="Remove picture"
+                            onClick={() => setDeleteTarget({ index: idx, item })}
+                            className="flex h-8 w-8 items-center justify-center rounded-full bg-red-600 text-white hover:bg-red-700 transition-transform hover:scale-110 shadow-md"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Caption / Alt Text Input */}
+                      <div className="p-2.5 bg-card border-t border-border">
+                        <input
+                          value={item.alt_text}
+                          onChange={(e) => updateGalleryAltText(idx, e.target.value)}
+                          placeholder="Caption / Alt text…"
+                          className="w-full text-[11px] rounded-lg border border-border/80 bg-background px-2 py-1 outline-none focus:border-accent transition-colors"
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           ) : (
-            <p className="text-xs text-center py-4 text-muted-foreground border border-dashed border-border rounded-xl">
-              No gallery photos added yet.
-            </p>
+            <div className="rounded-xl border border-dashed border-border py-8 text-center text-xs text-muted-foreground">
+              <ImageIcon className="mx-auto h-8 w-8 opacity-40 mb-2" />
+              <p>No gallery pictures added yet.</p>
+              <p className="text-[11px] mt-0.5">Upload multiple photos above to showcase visual moments from your story.</p>
+            </div>
           )}
         </div>
+
+        {/* Confirmation Dialog for Image Removal */}
+        <AlertDialog
+          open={!!deleteTarget}
+          onOpenChange={(open) => !open && setDeleteTarget(null)}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Remove picture from gallery?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to remove picture <span className="font-semibold text-foreground">#{deleteTarget ? deleteTarget.index + 1 : ""}</span>?
+                This will remove the picture from this post's gallery.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                onClick={confirmRemoveGalleryItem}
+              >
+                Remove Picture
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* Lightbox Modal Preview */}
+        {activeLightboxItem && lightboxIndex !== null && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 p-4 backdrop-blur-md transition-all duration-300"
+            onClick={() => setLightboxIndex(null)}
+          >
+            {/* Top Bar */}
+            <div className="absolute left-4 top-4 sm:left-6 sm:top-6 z-50 flex items-center gap-3">
+              <span className="rounded-full bg-black/75 px-3.5 py-1 text-xs font-semibold text-white border border-white/20 backdrop-blur-md shadow-lg">
+                Photo {lightboxIndex + 1} of {gallery.length}
+              </span>
+            </div>
+
+            <div className="absolute right-4 top-4 sm:right-6 sm:top-6 z-50 flex items-center gap-2">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setDeleteTarget({ index: lightboxIndex, item: activeLightboxItem });
+                }}
+                className="flex h-10 px-3 items-center gap-1.5 rounded-full bg-red-600/90 hover:bg-red-600 text-white text-xs font-medium border border-red-500/40 backdrop-blur-md transition-all shadow-lg cursor-pointer"
+              >
+                <Trash2 className="h-3.5 w-3.5" /> Remove
+              </button>
+              <button
+                type="button"
+                aria-label="Close"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setLightboxIndex(null);
+                }}
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-black/75 text-white border border-white/20 backdrop-blur-md hover:bg-black transition-all hover:scale-105 cursor-pointer shadow-lg"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Main Preview */}
+            <div
+              className="relative flex max-h-[80vh] max-w-[90vw] items-center justify-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img
+                src={activeLightboxItem.image_url}
+                alt={activeLightboxItem.alt_text || `Gallery photo ${lightboxIndex + 1}`}
+                className="max-h-[80vh] max-w-[90vw] rounded-2xl object-contain shadow-2xl"
+              />
+
+              {/* Prev Button */}
+              {gallery.length > 1 && (
+                <button
+                  type="button"
+                  aria-label="Previous photo"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setLightboxIndex((curr) => (curr !== null ? (curr - 1 + gallery.length) % gallery.length : null));
+                  }}
+                  className="absolute left-2 sm:-left-14 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full bg-black/75 hover:bg-black text-white border border-white/30 shadow-xl transition-transform hover:scale-110 cursor-pointer"
+                >
+                  <ChevronLeft className="h-6 w-6" />
+                </button>
+              )}
+
+              {/* Next Button */}
+              {gallery.length > 1 && (
+                <button
+                  type="button"
+                  aria-label="Next photo"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setLightboxIndex((curr) => (curr !== null ? (curr + 1) % gallery.length : null));
+                  }}
+                  className="absolute right-2 sm:-right-14 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full bg-black/75 hover:bg-black text-white border border-white/30 shadow-xl transition-transform hover:scale-110 cursor-pointer"
+                >
+                  <ChevronRight className="h-6 w-6" />
+                </button>
+              )}
+            </div>
+
+            {/* Bottom Caption Editor */}
+            <div
+              className="absolute bottom-4 sm:bottom-6 inset-x-4 max-w-xl mx-auto z-50"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="rounded-2xl bg-black/80 p-3 border border-white/20 backdrop-blur-md shadow-xl flex items-center gap-2">
+                <input
+                  value={activeLightboxItem.alt_text}
+                  onChange={(e) => updateGalleryAltText(lightboxIndex, e.target.value)}
+                  placeholder="Add caption / alt text for this photo…"
+                  className="flex-1 rounded-xl bg-white/10 border border-white/20 px-3.5 py-1.5 text-xs text-white placeholder:text-white/50 outline-none focus:border-white/60"
+                />
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* SEO Metadata Section */}
         <div className="rounded-2xl border border-border bg-card p-5 space-y-4 shadow-sm">
