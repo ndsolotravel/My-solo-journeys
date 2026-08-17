@@ -758,16 +758,56 @@ export const adminUploadImage = createServerFn({ method: "POST" })
     if (buf.byteLength > 8 * 1024 * 1024) throw new Error("Max 8 MB");
     const ext = (data.filename.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "");
     const path = `${context.userId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-    const { error } = await client.storage
-      .from("blog-media")
+
+    const bucketName = "blog-media";
+
+    // Attempt upload
+    let { error } = await client.storage
+      .from(bucketName)
       .upload(path, buf, { contentType: data.contentType, upsert: false });
-    if (error) throw new Error(error.message);
-    // Bucket is private (workspace policy blocks public buckets), so issue
-    // a long-lived signed URL (~10 years) for the cover image.
-    const { data: signed, error: signErr } = await client.storage
-      .from("blog-media")
-      .createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
-    if (signErr) throw new Error(signErr.message);
-    return { url: signed.signedUrl, path };
+
+    // If bucket not found, attempt to automatically create the bucket and retry upload
+    if (error && error.message && error.message.toLowerCase().includes("bucket not found")) {
+      try {
+        const { error: createErr } = await client.storage.createBucket(bucketName, {
+          public: true,
+          fileSizeLimit: 8388608,
+          allowedMimeTypes: ["image/jpeg", "image/png", "image/webp", "image/avif", "image/gif"],
+        });
+        if (!createErr) {
+          const retry = await client.storage
+            .from(bucketName)
+            .upload(path, buf, { contentType: data.contentType, upsert: false });
+          error = retry.error;
+        }
+      } catch (createErr) {
+        console.warn("[adminUploadImage] Auto-create bucket attempt error:", createErr);
+      }
+    }
+
+    if (error) {
+      console.error("[adminUploadImage] Storage upload error:", error);
+      if (error.message && error.message.toLowerCase().includes("bucket not found")) {
+        throw new Error(
+          `Supabase Storage bucket "${bucketName}" was not found. Please create the "${bucketName}" bucket in your Supabase Storage dashboard (set to Public) or run migration 20260820000000_create_blog_media_bucket.sql.`,
+        );
+      }
+      throw new Error(error.message || "Failed to upload image to storage");
+    }
+
+    // Get public URL for the uploaded image
+    const { data: pubData } = client.storage.from(bucketName).getPublicUrl(path);
+    let finalUrl = pubData?.publicUrl;
+
+    if (!finalUrl || finalUrl.includes("/undefined")) {
+      const { data: signed, error: signErr } = await client.storage
+        .from(bucketName)
+        .createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
+      if (signErr) throw new Error(signErr.message);
+      finalUrl = signed.signedUrl;
+    }
+
+    return { url: finalUrl, path };
   });
+
 
