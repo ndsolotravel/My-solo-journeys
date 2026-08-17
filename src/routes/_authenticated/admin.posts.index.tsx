@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Plus, Eye, EyeOff, Trash2, Clock, Search, MapPin } from "lucide-react";
+import { Plus, Eye, EyeOff, Trash2, Clock, Search, MapPin, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { adminListPosts, adminTogglePublish, adminDeletePost } from "@/lib/admin.functions";
 import {
@@ -44,12 +44,20 @@ function AdminPostsList() {
 
   const del = useMutation({
     mutationFn: (id: string) => delFn({ data: { id } }),
-    onSuccess: () => {
+    onSuccess: (_, deletedId) => {
+      qc.setQueryData<any[]>(["admin-posts"], (old) =>
+        old ? old.filter((p) => p.id !== deletedId) : []
+      );
       qc.invalidateQueries({ queryKey: ["admin-posts"] });
-      toast.success("Post deleted");
+      qc.invalidateQueries({ queryKey: ["admin-analytics"] });
+      qc.invalidateQueries({ queryKey: ["posts"] });
+      toast.success("Post deleted successfully");
       setDeleteTarget(null);
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => {
+      toast.error(e.message || "Unable to delete this blog post. Please try again.");
+      setDeleteTarget(null);
+    },
   });
 
   const filteredPosts = useMemo(() => {
@@ -212,7 +220,10 @@ function AdminPostsList() {
       </div>
 
       {/* Accessible Confirmation Modal Dialog */}
-      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+      <AlertDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => !open && !del.isPending && setDeleteTarget(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete post?</AlertDialogTitle>
@@ -221,12 +232,24 @@ function AdminPostsList() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={del.isPending}>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              onClick={() => deleteTarget && del.mutate(deleteTarget.id)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 inline-flex items-center gap-2"
+              disabled={del.isPending}
+              onClick={(e) => {
+                e.preventDefault();
+                if (deleteTarget && !del.isPending) {
+                  del.mutate(deleteTarget.id);
+                }
+              }}
             >
-              Delete
+              {del.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" /> Deleting…
+                </>
+              ) : (
+                "Delete"
+              )}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

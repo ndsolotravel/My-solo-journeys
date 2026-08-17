@@ -53,6 +53,22 @@ export const getMyRoles = createServerFn({ method: "GET" })
     return roles;
   });
 
+function extractBlogMediaPath(url: string | null | undefined): string | null {
+  if (!url || typeof url !== "string") return null;
+  try {
+    const cleanUrl = url.split("?")[0].split("#")[0];
+    const marker = "/blog-media/";
+    const markerIdx = cleanUrl.indexOf(marker);
+    if (markerIdx !== -1) {
+      const extracted = cleanUrl.slice(markerIdx + marker.length);
+      return decodeURIComponent(extracted);
+    }
+  } catch (e) {
+    console.warn("[extractBlogMediaPath] Failed to parse url:", url, e);
+  }
+  return null;
+}
+
 // ---------------- POSTS ----------------
 
 const BASE_POST_COLS =
@@ -65,15 +81,15 @@ export const adminListPosts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertEditor(context.userId, context.supabase);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: fullData, error: fullError } = await (supabaseAdmin
+    const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
+    const { data: fullData, error: fullError } = await (client
       .from("posts") as any)
       .select(`${POST_COLS},destinations(title,slug)`)
       .order("updated_at", { ascending: false });
     if (!fullError && fullData) {
       return fullData as any[];
     }
-    const { data: baseData, error: baseError } = await supabaseAdmin
+    const { data: baseData, error: baseError } = await client
       .from("posts")
       .select(BASE_POST_COLS)
       .order("updated_at", { ascending: false });
@@ -86,8 +102,8 @@ export const adminGetPost = createServerFn({ method: "GET" })
   .inputValidator((i) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ context, data }) => {
     await assertEditor(context.userId, context.supabase);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: fullData, error: fullError } = await (supabaseAdmin
+    const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
+    const { data: fullData, error: fullError } = await (client
       .from("posts") as any)
       .select(`${POST_COLS},destinations(id,title,slug),post_gallery(id,image_url,alt_text,sort_order)`)
       .eq("id", data.id)
@@ -95,7 +111,7 @@ export const adminGetPost = createServerFn({ method: "GET" })
 
     let row: any = fullData;
     if (fullError || !row) {
-      const { data: baseData, error: baseError } = await supabaseAdmin
+      const { data: baseData, error: baseError } = await client
         .from("posts")
         .select(BASE_POST_COLS)
         .eq("id", data.id)
@@ -160,7 +176,7 @@ export const adminUpsertPost = createServerFn({ method: "POST" })
   .inputValidator((i) => postInputSchema.parse(i))
   .handler(async ({ context, data }) => {
     await assertEditor(context.userId, context.supabase);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
 
     const slug = (data.slug && data.slug.trim()) || slugify(data.title);
     const reading_minutes = Math.max(1, Math.round((data.content || "").split(/\s+/).length / 200));
@@ -196,7 +212,7 @@ export const adminUpsertPost = createServerFn({ method: "POST" })
 
     if (postId) {
       // Preserve existing published_at when republishing
-      const { data: existing } = await supabaseAdmin
+      const { data: existing } = await client
         .from("posts")
         .select("published_at,published")
         .eq("id", postId)
@@ -204,7 +220,7 @@ export const adminUpsertPost = createServerFn({ method: "POST" })
       if (existing?.published && data.published && existing.published_at) {
         payload.published_at = existing.published_at;
       }
-      const { data: row, error } = await supabaseAdmin
+      const { data: row, error } = await client
         .from("posts")
         .update(payload)
         .eq("id", postId)
@@ -213,7 +229,7 @@ export const adminUpsertPost = createServerFn({ method: "POST" })
       if (error) throw new Error(error.message);
       postRow = row;
     } else {
-      const { data: row, error } = await supabaseAdmin
+      const { data: row, error } = await client
         .from("posts")
         .insert(payload)
         .select(POST_COLS)
@@ -225,7 +241,7 @@ export const adminUpsertPost = createServerFn({ method: "POST" })
 
     // Sync post_gallery items if provided
     if (data.gallery !== undefined && postId) {
-      await supabaseAdmin.from("post_gallery").delete().eq("post_id", postId);
+      await client.from("post_gallery").delete().eq("post_id", postId);
       if (data.gallery.length > 0) {
         const galleryRows = data.gallery.map((g, idx) => ({
           post_id: postId,
@@ -233,7 +249,7 @@ export const adminUpsertPost = createServerFn({ method: "POST" })
           alt_text: g.alt_text || null,
           sort_order: g.sort_order ?? idx,
         }));
-        const { error: galErr } = await supabaseAdmin.from("post_gallery").insert(galleryRows);
+        const { error: galErr } = await client.from("post_gallery").insert(galleryRows);
         if (galErr) throw new Error(galErr.message);
       }
     }
@@ -246,10 +262,80 @@ export const adminDeletePost = createServerFn({ method: "POST" })
   .inputValidator((i) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ context, data }) => {
     await assertEditor(context.userId, context.supabase);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.from("posts").delete().eq("id", data.id);
-    if (error) throw new Error(error.message);
-    return { ok: true };
+    const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
+
+    // 1. Fetch post and gallery info to discover storage media before deletion
+    const { data: post, error: fetchError } = await client
+      .from("posts")
+      .select("id, cover_image, og_image_url, post_gallery(image_url)")
+      .eq("id", data.id)
+      .maybeSingle();
+
+    if (fetchError) {
+      console.error("[adminDeletePost] Error locating post:", fetchError);
+      throw new Error(fetchError.message || "Failed to locate post for deletion");
+    }
+
+    if (!post) {
+      console.error("[adminDeletePost] Post not found or unauthorized:", data.id);
+      throw new Error("Unable to delete this blog post: Post not found or permission denied.");
+    }
+
+    // 2. Clean up associated images from Supabase Storage (blog-media)
+    const storagePaths: string[] = [];
+    const coverPath = extractBlogMediaPath(post.cover_image);
+    if (coverPath) storagePaths.push(coverPath);
+
+    const ogPath = extractBlogMediaPath(post.og_image_url);
+    if (ogPath && !storagePaths.includes(ogPath)) storagePaths.push(ogPath);
+
+    if (Array.isArray((post as any).post_gallery)) {
+      for (const item of (post as any).post_gallery) {
+        const galPath = extractBlogMediaPath(item?.image_url);
+        if (galPath && !storagePaths.includes(galPath)) {
+          storagePaths.push(galPath);
+        }
+      }
+    }
+
+    if (storagePaths.length > 0) {
+      try {
+        const { error: storageErr } = await client.storage
+          .from("blog-media")
+          .remove(storagePaths);
+        if (storageErr) {
+          console.warn("[adminDeletePost] Warning removing post storage files:", storageErr);
+        }
+      } catch (err) {
+        console.warn("[adminDeletePost] Storage cleanup caught exception:", err);
+      }
+    }
+
+    // 3. Explicitly delete related gallery items if needed (defense-in-depth)
+    try {
+      await client.from("post_gallery").delete().eq("post_id", data.id);
+    } catch (galErr) {
+      console.warn("[adminDeletePost] Warning cleaning post_gallery:", galErr);
+    }
+
+    // 4. Perform atomic DELETE on posts table with row confirmation
+    const { data: deletedRows, error: deleteError } = await client
+      .from("posts")
+      .delete()
+      .eq("id", data.id)
+      .select("id");
+
+    if (deleteError) {
+      console.error("[adminDeletePost] Supabase DELETE error:", deleteError);
+      throw new Error(deleteError.message || "Unable to delete this blog post. Please try again.");
+    }
+
+    if (!deletedRows || deletedRows.length === 0) {
+      console.error("[adminDeletePost] Zero rows affected during delete for post ID:", data.id);
+      throw new Error("Unable to delete this blog post. The post was not found or deletion permission was denied.");
+    }
+
+    return { ok: true, id: data.id };
   });
 
 export const adminTogglePublish = createServerFn({ method: "POST" })
@@ -257,16 +343,20 @@ export const adminTogglePublish = createServerFn({ method: "POST" })
   .inputValidator((i) => z.object({ id: z.string().uuid(), published: z.boolean() }).parse(i))
   .handler(async ({ context, data }) => {
     await assertEditor(context.userId, context.supabase);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin
+    const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
+    const { data: updated, error } = await client
       .from("posts")
       .update({
         published: data.published,
         published_at: data.published ? new Date().toISOString() : null,
         scheduled_at: data.published ? null : undefined,
       })
-      .eq("id", data.id);
+      .eq("id", data.id)
+      .select("id");
     if (error) throw new Error(error.message);
+    if (!updated || updated.length === 0) {
+      throw new Error("Unable to update post status: Post not found or permission denied.");
+    }
     return { ok: true };
   });
 
@@ -287,8 +377,8 @@ export const adminListDestinations = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertEditor(context.userId, context.supabase);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data, error } = await supabaseAdmin
+    const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
+    const { data, error } = await client
       .from("destinations")
       .select("*")
       .order("created_at", { ascending: false });
@@ -301,7 +391,7 @@ export const adminUpsertDestination = createServerFn({ method: "POST" })
   .inputValidator((i) => destInputSchema.parse(i))
   .handler(async ({ context, data }) => {
     await assertEditor(context.userId, context.supabase);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
     const slug = (data.slug && data.slug.trim()) || slugify(data.title);
     const payload = {
       title: data.title,
@@ -313,10 +403,10 @@ export const adminUpsertDestination = createServerFn({ method: "POST" })
       published: data.published,
     };
     if (data.id) {
-      const { error } = await supabaseAdmin.from("destinations").update(payload).eq("id", data.id);
+      const { error } = await client.from("destinations").update(payload).eq("id", data.id);
       if (error) throw new Error(error.message);
     } else {
-      const { error } = await supabaseAdmin.from("destinations").insert(payload);
+      const { error } = await client.from("destinations").insert(payload);
       if (error) throw new Error(error.message);
     }
     return { ok: true };
@@ -327,9 +417,12 @@ export const adminDeleteDestination = createServerFn({ method: "POST" })
   .inputValidator((i) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ context, data }) => {
     await assertEditor(context.userId, context.supabase);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.from("destinations").delete().eq("id", data.id);
+    const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
+    const { data: deleted, error } = await client.from("destinations").delete().eq("id", data.id).select("id");
     if (error) throw new Error(error.message);
+    if (!deleted || deleted.length === 0) {
+      throw new Error("Unable to delete destination: Not found or permission denied.");
+    }
     return { ok: true };
   });
 
@@ -339,8 +432,8 @@ export const adminListComments = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertEditor(context.userId, context.supabase);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data, error } = await supabaseAdmin
+    const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
+    const { data, error } = await client
       .from("comments")
       .select("id,post_id,comment,guest_name,guest_email,rating,created_at,posts(title,slug)")
       .order("created_at", { ascending: false })
@@ -354,9 +447,12 @@ export const adminDeleteComment = createServerFn({ method: "POST" })
   .inputValidator((i) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ context, data }) => {
     await assertEditor(context.userId, context.supabase);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.from("comments").delete().eq("id", data.id);
+    const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
+    const { data: deleted, error } = await client.from("comments").delete().eq("id", data.id).select("id");
     if (error) throw new Error(error.message);
+    if (!deleted || deleted.length === 0) {
+      throw new Error("Unable to delete comment: Not found or permission denied.");
+    }
     return { ok: true };
   });
 
@@ -502,20 +598,21 @@ export const adminUploadImage = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     await assertEditor(context.userId, context.supabase);
     if (!data.contentType.startsWith("image/")) throw new Error("Only image uploads allowed");
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
     const buf = Buffer.from(data.base64, "base64");
     if (buf.byteLength > 8 * 1024 * 1024) throw new Error("Max 8 MB");
     const ext = (data.filename.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "");
     const path = `${context.userId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-    const { error } = await supabaseAdmin.storage
+    const { error } = await client.storage
       .from("blog-media")
       .upload(path, buf, { contentType: data.contentType, upsert: false });
     if (error) throw new Error(error.message);
     // Bucket is private (workspace policy blocks public buckets), so issue
     // a long-lived signed URL (~10 years) for the cover image.
-    const { data: signed, error: signErr } = await supabaseAdmin.storage
+    const { data: signed, error: signErr } = await client.storage
       .from("blog-media")
       .createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
     if (signErr) throw new Error(signErr.message);
     return { url: signed.signedUrl, path };
   });
+
