@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Plus, Eye, EyeOff, Trash2, Clock, Search, MapPin, Loader2 } from "lucide-react";
+import { Plus, Eye, EyeOff, Trash2, Clock, Search, MapPin, Loader2, Image as ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 import { adminListPosts, adminTogglePublish, adminDeletePost } from "@/lib/admin.functions";
 import {
@@ -189,6 +189,13 @@ function AdminPostsList() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-1">
+                      <Link
+                        to="/admin/gallery"
+                        title="Manage gallery photos"
+                        className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-accent transition-colors"
+                      >
+                        <ImageIcon className="h-4 w-4 text-accent" />
+                      </Link>
                       <IconBtn
                         title={p.published ? "Unpublish" : "Publish now"}
                         onClick={() => toggle.mutate({ id: p.id, published: !p.published })}

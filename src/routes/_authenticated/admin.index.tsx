@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { FileText, Eye, MessageSquare, Mail, Users, BarChart3, Activity, ArrowRight } from "lucide-react";
+import { FileText, Eye, MessageSquare, Mail, Users, BarChart3, Activity, ArrowRight, Image as ImageIcon } from "lucide-react";
 import { adminAnalytics } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
@@ -36,10 +36,18 @@ function AdminDashboard() {
         </Link>
       </div>
 
-      <div className="mt-8 grid gap-4 sm:grid-cols-3">
+      <div className="mt-8 grid gap-4 sm:grid-cols-4">
         <SmallStat label="Drafts" value={data?.drafts} />
         <SmallStat label="Scheduled" value={data?.scheduled} />
         <SmallStat label="Messages" value={data?.messages} icon={Mail} />
+        <Link to="/admin/gallery" className="block transition hover:opacity-90">
+          <div className="rounded-xl border border-border bg-background p-4 hover:border-accent transition-colors">
+            <p className="text-xs text-muted-foreground inline-flex items-center gap-1.5">
+              <ImageIcon className="h-3.5 w-3.5 text-accent" /> Photo Gallery
+            </p>
+            <p className="mt-1 text-sm font-semibold text-accent">Manage galleries →</p>
+          </div>
+        </Link>
       </div>
 
       <div className="mt-10 rounded-2xl border border-border p-5">

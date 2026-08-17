@@ -320,6 +320,98 @@ export const adminDeleteGalleryImage = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const adminListGalleries = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertEditor(context.userId, context.supabase);
+    const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
+
+    const { data, error } = await (client
+      .from("posts") as any)
+      .select("id, title, slug, cover_image, published, created_at, updated_at, post_gallery(id, image_url, alt_text, sort_order, created_at)")
+      .order("updated_at", { ascending: false });
+
+    if (error) throw new Error(error.message);
+
+    const posts = (data ?? []).map((p: any) => {
+      const gallery = Array.isArray(p.post_gallery) ? [...p.post_gallery] : [];
+      gallery.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+      return {
+        ...p,
+        gallery,
+        galleryCount: gallery.length,
+      };
+    });
+
+    return posts;
+  });
+
+export const adminSavePostGallery = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i) =>
+    z
+      .object({
+        postId: z.string().uuid(),
+        gallery: z.array(
+          z.object({
+            id: z.string().uuid().optional(),
+            image_url: z.string().min(1),
+            alt_text: z.string().nullable().optional(),
+            sort_order: z.number().int().nonnegative().optional(),
+          }),
+        ),
+      })
+      .parse(i),
+  )
+  .handler(async ({ context, data }) => {
+    await assertEditor(context.userId, context.supabase);
+    const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
+
+    // Find old gallery items to clean up removed storage images
+    try {
+      const { data: oldGallery } = await client
+        .from("post_gallery")
+        .select("image_url")
+        .eq("post_id", data.postId);
+
+      if (oldGallery && oldGallery.length > 0) {
+        const newUrls = new Set(data.gallery.map((g) => g.image_url));
+        const removedPaths: string[] = [];
+        for (const old of oldGallery) {
+          if (!newUrls.has(old.image_url)) {
+            const path = extractBlogMediaPath(old.image_url);
+            if (path && !removedPaths.includes(path)) {
+              removedPaths.push(path);
+            }
+          }
+        }
+        if (removedPaths.length > 0) {
+          try {
+            await client.storage.from("blog-media").remove(removedPaths);
+          } catch (storageCleanupErr) {
+            console.warn("[adminSavePostGallery] Storage cleanup error:", storageCleanupErr);
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("[adminSavePostGallery] Could not inspect old gallery:", e);
+    }
+
+    await client.from("post_gallery").delete().eq("post_id", data.postId);
+    if (data.gallery.length > 0) {
+      const rows = data.gallery.map((g, idx) => ({
+        post_id: data.postId,
+        image_url: g.image_url,
+        alt_text: g.alt_text || null,
+        sort_order: g.sort_order ?? idx,
+      }));
+      const { error: insErr } = await client.from("post_gallery").insert(rows);
+      if (insErr) throw new Error(insErr.message);
+    }
+
+    return { ok: true };
+  });
+
 export const adminDeletePost = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i) => z.object({ id: z.string().uuid() }).parse(i))
