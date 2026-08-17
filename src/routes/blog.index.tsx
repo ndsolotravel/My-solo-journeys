@@ -77,7 +77,7 @@ function BlogIndex() {
   const { data: destinations } = useSuspenseQuery(destQO);
 
   const { data: globalAuthor } = useQuery(authorNameQO);
-  const authorName = globalAuthor || "Noman";
+  const authorName = globalAuthor || "Hussain";
 
   let posts = data.posts;
   if (search.destination) {
@@ -235,8 +235,8 @@ function BlogIndex() {
                     })
                   }
                   className={`rounded-full px-3 py-1 transition-colors ${!search.sort || search.sort === "latest"
-                      ? "bg-foreground text-background font-medium"
-                      : "text-muted-foreground hover:text-foreground"
+                    ? "bg-foreground text-background font-medium"
+                    : "text-muted-foreground hover:text-foreground"
                     }`}
                 >
                   {t("Newest")}
@@ -249,8 +249,8 @@ function BlogIndex() {
                     })
                   }
                   className={`rounded-full px-3 py-1 transition-colors ${search.sort === "popular"
-                      ? "bg-foreground text-background font-medium"
-                      : "text-muted-foreground hover:text-foreground"
+                    ? "bg-foreground text-background font-medium"
+                    : "text-muted-foreground hover:text-foreground"
                     }`}
                 >
                   {t("Most Popular")}
