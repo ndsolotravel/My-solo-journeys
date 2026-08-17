@@ -157,7 +157,7 @@ function BlogIndex() {
                 )}
                 <div className="mt-6 flex items-center justify-between border-t border-border/60 pt-4">
                   <span className="text-xs text-muted-foreground">
-                    By Noman · {new Date(featuredPost.published_at ?? featuredPost.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                    By {featuredPost.author_name || "Noman"} · {new Date(featuredPost.published_at ?? featuredPost.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                   </span>
                   <span className="inline-flex items-center gap-1 text-xs font-semibold text-accent group-hover:translate-x-1 transition-transform">
                     {t("Read story")} <ArrowRight className="h-3.5 w-3.5 rtl:rotate-180" />

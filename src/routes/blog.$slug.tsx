@@ -56,7 +56,7 @@ export const Route = createFileRoute("/blog/$slug")({
                 datePublished: p.published_at ?? p.created_at,
                 articleSection: p.category,
                 keywords: p.tags?.join(", "),
-                author: { "@type": "Person", name: "ndsolotravel" },
+                author: { "@type": "Person", name: p.author_name || "ndsolotravel" },
               }),
             },
           ]
@@ -245,7 +245,7 @@ function PostPage() {
           </h1>
           <div className="mt-5 flex flex-wrap items-center gap-4 text-xs text-white/80">
             <span className="inline-flex items-center gap-1 font-semibold text-white">
-              <User className="h-3.5 w-3.5 text-accent" /> By Noman · ndsolotravel
+              <User className="h-3.5 w-3.5 text-accent" /> By {post.author_name || "Noman"} · ndsolotravel
             </span>
             <span aria-hidden>·</span>
             <span>{date}</span>

@@ -125,10 +125,10 @@ export function extractBlogMediaPath(url: string | null | undefined): string | n
 // ---------------- POSTS ----------------
 
 const BASE_POST_COLS =
-  "id,title,slug,excerpt,content,cover_image,category,tags,featured,published,published_at,scheduled_at,reading_minutes,views,created_at,updated_at";
+  "id,title,slug,excerpt,content,cover_image,category,tags,featured,published,published_at,scheduled_at,reading_minutes,views,created_at,updated_at,author_name";
 
 const POST_COLS =
-  "id,title,slug,excerpt,content,cover_image,category,tags,featured,published,published_at,scheduled_at,reading_minutes,views,created_at,updated_at,destination_id,travel_date,seo_title,seo_description,og_image_url";
+  "id,title,slug,excerpt,content,cover_image,category,tags,featured,published,published_at,scheduled_at,reading_minutes,views,created_at,updated_at,destination_id,travel_date,seo_title,seo_description,og_image_url,author_name";
 
 export const adminListPosts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -238,6 +238,7 @@ export const adminUpsertPost = createServerFn({ method: "POST" })
         tags: z.array(z.string()).default([]),
         featured: z.boolean().default(false),
         published: z.boolean().default(false),
+        author_name: z.string().nullable().optional(),
         scheduled_at: z.string().nullable().optional(),
         destination_id: z.string().uuid().nullable().optional(),
         travel_date: z.string().nullable().optional(),
@@ -283,6 +284,9 @@ export const adminUpsertPost = createServerFn({ method: "POST" })
       updated_at: new Date().toISOString(),
     };
 
+    if (data.author_name !== undefined) {
+      payload.author_name = data.author_name ? data.author_name.trim() : "Noman";
+    }
     if (data.destination_id !== undefined) {
       payload.destination_id = data.destination_id || null;
     }

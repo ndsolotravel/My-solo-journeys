@@ -159,7 +159,9 @@ function AdminPostsList() {
                     >
                       {p.title}
                     </Link>
-                    <p className="text-xs text-muted-foreground line-clamp-1">/{p.slug}</p>
+                    <p className="text-xs text-muted-foreground line-clamp-1">
+                      /{p.slug} · By {p.author_name || "Noman"}
+                    </p>
                   </td>
                   <td className="px-4 py-3 hidden sm:table-cell">
                     {p.published ? (

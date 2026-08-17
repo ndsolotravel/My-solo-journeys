@@ -22,6 +22,7 @@ import {
   ChevronRight,
   Eye,
   FileImage,
+  User,
 } from "lucide-react";
 import { toast } from "sonner";
 import { MarkdownEditor } from "./MarkdownEditor";
@@ -88,6 +89,7 @@ type Post = {
   tags?: string[] | null;
   featured?: boolean | null;
   published?: boolean | null;
+  author_name?: string | null;
   scheduled_at?: string | null;
   destination_id?: string | null;
   travel_date?: string | null;
@@ -125,6 +127,7 @@ export function PostEditor({
   const [tags, setTags] = useState((initial?.tags ?? []).join(", "));
   const [featured, setFeatured] = useState(!!initial?.featured);
   const [published, setPublished] = useState(!!initial?.published);
+  const [authorName, setAuthorName] = useState(initial?.author_name ?? "Noman");
   const [scheduledAt, setScheduledAt] = useState<string>(
     initial?.scheduled_at ? toLocalInput(initial.scheduled_at) : "",
   );
@@ -155,6 +158,7 @@ export function PostEditor({
     setTags((initial.tags ?? []).join(", "));
     setFeatured(!!initial.featured);
     setPublished(!!initial.published);
+    setAuthorName(initial.author_name ?? "Noman");
     setScheduledAt(initial.scheduled_at ? toLocalInput(initial.scheduled_at) : "");
     setDestinationId(initial.destination_id ?? "");
     setTravelDate(initial.travel_date ?? "");
@@ -492,6 +496,7 @@ export function PostEditor({
         .filter(Boolean),
       featured,
       published,
+      author_name: authorName.trim() || "Noman",
       scheduled_at: scheduledAt ? new Date(scheduledAt).toISOString() : null,
       destination_id: destinationId || null,
       travel_date: travelDate || null,
@@ -988,6 +993,23 @@ export function PostEditor({
             />
             Featured on Homepage
           </label>
+        </div>
+
+        {/* Author & Attribution */}
+        <div className="rounded-2xl border border-border bg-card p-5 space-y-4 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+            <User className="h-3.5 w-3.5 text-accent" /> Author & Attribution
+          </p>
+
+          <Field label="Author Name" hint="Displayed after 'By' on public story">
+            <input
+              value={authorName}
+              onChange={(e) => setAuthorName(e.target.value)}
+              placeholder="Noman"
+              maxLength={100}
+              className={input}
+            />
+          </Field>
         </div>
 
         {/* Destination & Travel Info */}

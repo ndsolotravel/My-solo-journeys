@@ -299,6 +299,7 @@ export type Database = {
       posts: {
         Row: {
           author_id: string | null
+          author_name: string | null
           category: string
           content: string
           cover_image: string | null
@@ -323,6 +324,7 @@ export type Database = {
         }
         Insert: {
           author_id?: string | null
+          author_name?: string | null
           category?: string
           content?: string
           cover_image?: string | null
@@ -347,6 +349,7 @@ export type Database = {
         }
         Update: {
           author_id?: string | null
+          author_name?: string | null
           category?: string
           content?: string
           cover_image?: string | null
