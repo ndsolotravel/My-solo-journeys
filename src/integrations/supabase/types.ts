@@ -308,6 +308,9 @@ export type Database = {
           excerpt: string | null
           featured: boolean
           id: string
+          latitude: number | null
+          location_name: string | null
+          longitude: number | null
           og_image_url: string | null
           published: boolean
           published_at: string | null
@@ -333,6 +336,9 @@ export type Database = {
           excerpt?: string | null
           featured?: boolean
           id?: string
+          latitude?: number | null
+          location_name?: string | null
+          longitude?: number | null
           og_image_url?: string | null
           published?: boolean
           published_at?: string | null
@@ -358,6 +364,9 @@ export type Database = {
           excerpt?: string | null
           featured?: boolean
           id?: string
+          latitude?: number | null
+          location_name?: string | null
+          longitude?: number | null
           og_image_url?: string | null
           published?: boolean
           published_at?: string | null

@@ -90,6 +90,9 @@ type Post = {
   featured?: boolean | null;
   published?: boolean | null;
   author_name?: string | null;
+  location_name?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
   scheduled_at?: string | null;
   destination_id?: string | null;
   travel_date?: string | null;
@@ -127,6 +130,10 @@ export function PostEditor({
   const [tags, setTags] = useState((initial?.tags ?? []).join(", "));
   const [featured, setFeatured] = useState(!!initial?.featured);
   const [published, setPublished] = useState(!!initial?.published);
+  const [authorName, setAuthorName] = useState(initial?.author_name ?? "Noman");
+  const [locationName, setLocationName] = useState(initial?.location_name ?? "");
+  const [latitude, setLatitude] = useState<string>(initial?.latitude != null ? String(initial.latitude) : "");
+  const [longitude, setLongitude] = useState<string>(initial?.longitude != null ? String(initial.longitude) : "");
   const [scheduledAt, setScheduledAt] = useState<string>(
     initial?.scheduled_at ? toLocalInput(initial.scheduled_at) : "",
   );
@@ -157,6 +164,10 @@ export function PostEditor({
     setTags((initial.tags ?? []).join(", "));
     setFeatured(!!initial.featured);
     setPublished(!!initial.published);
+    setAuthorName(initial.author_name ?? "Noman");
+    setLocationName(initial.location_name ?? "");
+    setLatitude(initial.latitude != null ? String(initial.latitude) : "");
+    setLongitude(initial.longitude != null ? String(initial.longitude) : "");
     setScheduledAt(initial.scheduled_at ? toLocalInput(initial.scheduled_at) : "");
     setDestinationId(initial.destination_id ?? "");
     setTravelDate(initial.travel_date ?? "");
@@ -480,6 +491,17 @@ export function PostEditor({
   function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!title.trim()) return toast.error("Title is required");
+
+    const parsedLat = latitude.trim() !== "" ? parseFloat(latitude.trim()) : null;
+    const parsedLng = longitude.trim() !== "" ? parseFloat(longitude.trim()) : null;
+
+    if (parsedLat !== null && (isNaN(parsedLat) || parsedLat < -90 || parsedLat > 90)) {
+      return toast.error("Latitude must be a valid number between -90 and 90");
+    }
+    if (parsedLng !== null && (isNaN(parsedLng) || parsedLng < -180 || parsedLng > 180)) {
+      return toast.error("Longitude must be a valid number between -180 and 180");
+    }
+
     save.mutate({
       id: initial?.id,
       title,
@@ -494,6 +516,10 @@ export function PostEditor({
         .filter(Boolean),
       featured,
       published,
+      author_name: authorName.trim() || "Noman",
+      location_name: locationName.trim() || null,
+      latitude: parsedLat,
+      longitude: parsedLng,
       scheduled_at: scheduledAt ? new Date(scheduledAt).toISOString() : null,
       destination_id: destinationId || null,
       travel_date: travelDate || null,
@@ -992,11 +1018,84 @@ export function PostEditor({
           </label>
         </div>
 
-        {/* Destination & Travel Info */}
+        {/* Author & Attribution */}
         <div className="rounded-2xl border border-border bg-card p-5 space-y-4 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-            <MapPin className="h-3.5 w-3.5 text-accent" /> Location & Date
+            <User className="h-3.5 w-3.5 text-accent" /> Author & Attribution
           </p>
+
+          <Field label="Author Name" hint="Displayed after 'By' on public story">
+            <input
+              value={authorName}
+              onChange={(e) => setAuthorName(e.target.value)}
+              placeholder="Noman"
+              maxLength={100}
+              className={input}
+            />
+          </Field>
+        </div>
+
+        {/* Map Location */}
+        <div className="rounded-2xl border border-border bg-card p-5 space-y-4 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+            <MapPin className="h-3.5 w-3.5 text-accent" /> Map Location
+          </p>
+
+          <Field label="Location Name" hint="e.g. Phander Valley, Ghizer, Gilgit Baltistan, Pakistan">
+            <input
+              value={locationName}
+              onChange={(e) => setLocationName(e.target.value)}
+              placeholder="Phander Valley, Ghizer, Gilgit Baltistan, Pakistan"
+              maxLength={200}
+              className={input}
+            />
+          </Field>
+
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Latitude" hint="e.g. 36.179 (-90 to 90)">
+              <input
+                type="number"
+                step="any"
+                min="-90"
+                max="90"
+                value={latitude}
+                onChange={(e) => setLatitude(e.target.value)}
+                placeholder="36.179"
+                className={input}
+              />
+            </Field>
+
+            <Field label="Longitude" hint="e.g. 73.751 (-180 to 180)">
+              <input
+                type="number"
+                step="any"
+                min="-180"
+                max="180"
+                value={longitude}
+                onChange={(e) => setLongitude(e.target.value)}
+                placeholder="73.751"
+                className={input}
+              />
+            </Field>
+          </div>
+        </div>
+
+        {/* Date & Destination */}
+        <div className="rounded-2xl border border-border bg-card p-5 space-y-4 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+            <Calendar className="h-3.5 w-3.5 text-accent" /> Date & Destination
+          </p>
+
+          <Field label="Travel Date" hint="Date of the actual trip">
+            <div className="relative">
+              <input
+                type="date"
+                value={travelDate}
+                onChange={(e) => setTravelDate(e.target.value)}
+                className={input}
+              />
+            </div>
+          </Field>
 
           <Field label="Link Destination">
             <select
@@ -1011,17 +1110,6 @@ export function PostEditor({
                 </option>
               ))}
             </select>
-          </Field>
-
-          <Field label="Travel Date" hint="Date of the actual trip">
-            <div className="relative">
-              <input
-                type="date"
-                value={travelDate}
-                onChange={(e) => setTravelDate(e.target.value)}
-                className={input}
-              />
-            </div>
           </Field>
         </div>
 

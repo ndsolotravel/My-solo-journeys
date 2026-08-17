@@ -9,6 +9,7 @@ import { getPostBySlug, type Post } from "@/lib/posts.functions";
 import { getBlogAuthorName } from "@/lib/settings.functions";
 import { listComments, postComment, getPostRatingStats } from "@/lib/comments.functions";
 import { PostCard } from "@/components/blog/PostCard";
+import { BlogPostMap } from "@/components/blog/BlogPostMap";
 import { ReadingProgress } from "@/components/blog/ReadingProgress";
 import { NewsletterForm } from "@/components/layout/NewsletterForm";
 import { toast } from "sonner";
@@ -36,7 +37,7 @@ export const Route = createFileRoute("/blog/$slug")({
   },
   head: ({ loaderData, params }) => {
     const p = loaderData?.post;
-    const authorName = loaderData?.authorName || "Noman";
+    const authorName = p?.author_name || loaderData?.authorName || "Noman";
     const title = p?.seo_title || (p ? `${p.title} — ndsolotravel` : "Story — ndsolotravel");
     const desc = p?.seo_description || p?.excerpt || "A solo travel story from ndsolotravel.";
     const image = p?.og_image_url || p?.cover_image;
@@ -125,6 +126,7 @@ function PostPage() {
     initialData: loaderData?.authorName,
   });
   const authorName = globalAuthor || loaderData?.authorName || "Noman";
+  const postAuthor = post?.author_name || authorName || "Noman";
   const { lang } = useLanguage();
   const t = useTranslations();
 
@@ -251,6 +253,11 @@ function PostPage() {
                 <MapPin className="h-3 w-3" /> {t(dest.title)}
               </Link>
             )}
+            {post.location_name && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-accent/20 backdrop-blur-md px-3 py-1 text-xs font-medium text-amber-300">
+                <MapPin className="h-3 w-3" /> {post.location_name}
+              </span>
+            )}
           </div>
 
           <p className="mt-4 text-xs uppercase tracking-[0.2em] text-accent">
@@ -261,7 +268,7 @@ function PostPage() {
           </h1>
           <div className="mt-5 flex flex-wrap items-center gap-4 text-xs text-white/80">
             <span className="inline-flex items-center gap-1 font-semibold text-white">
-              <User className="h-3.5 w-3.5 text-accent" /> By {authorName} · ndsolotravel
+              <User className="h-3.5 w-3.5 text-accent" /> By {postAuthor} · ndsolotravel
             </span>
             <span aria-hidden>·</span>
             <span>{date}</span>
@@ -342,6 +349,16 @@ function PostPage() {
           >
             {localizedPost.content}
           </ReactMarkdown>
+
+          {/* Interactive Map Location */}
+          {post.latitude != null && post.longitude != null && (
+            <BlogPostMap
+              locationName={post.location_name}
+              latitude={post.latitude}
+              longitude={post.longitude}
+              title={localizedPost.title}
+            />
+          )}
         </div>
 
         {/* Multi-Photo Gallery Grid */}

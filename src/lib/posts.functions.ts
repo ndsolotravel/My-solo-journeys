@@ -26,6 +26,9 @@ export type Post = {
   destination_id?: string | null;
   destinations?: { title: string; slug: string } | null;
   travel_date?: string | null;
+  location_name?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
   seo_title?: string | null;
   seo_description?: string | null;
   og_image_url?: string | null;
@@ -41,10 +44,10 @@ export type Post = {
 };
 
 const BASE_POST_COLUMNS =
-  "id,title,slug,excerpt,content,cover_image,category,tags,featured,views,reading_minutes,published_at,created_at,author_name";
+  "id,title,slug,excerpt,content,cover_image,category,tags,featured,views,reading_minutes,published_at,created_at,author_name,location_name,latitude,longitude";
 
 const FULL_POST_COLUMNS =
-  "id,title,slug,excerpt,content,cover_image,category,tags,featured,views,reading_minutes,published_at,created_at,destination_id,travel_date,seo_title,seo_description,og_image_url,author_name";
+  "id,title,slug,excerpt,content,cover_image,category,tags,featured,views,reading_minutes,published_at,created_at,destination_id,travel_date,location_name,latitude,longitude,seo_title,seo_description,og_image_url,author_name";
 
 export const listPosts = createServerFn({ method: "GET" })
   .inputValidator((input) =>

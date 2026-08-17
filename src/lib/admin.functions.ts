@@ -125,10 +125,10 @@ export function extractBlogMediaPath(url: string | null | undefined): string | n
 // ---------------- POSTS ----------------
 
 const BASE_POST_COLS =
-  "id,title,slug,excerpt,content,cover_image,category,tags,featured,published,published_at,scheduled_at,reading_minutes,views,created_at,updated_at,author_name";
+  "id,title,slug,excerpt,content,cover_image,category,tags,featured,published,published_at,scheduled_at,reading_minutes,views,created_at,updated_at,author_name,location_name,latitude,longitude";
 
 const POST_COLS =
-  "id,title,slug,excerpt,content,cover_image,category,tags,featured,published,published_at,scheduled_at,reading_minutes,views,created_at,updated_at,destination_id,travel_date,seo_title,seo_description,og_image_url,author_name";
+  "id,title,slug,excerpt,content,cover_image,category,tags,featured,published,published_at,scheduled_at,reading_minutes,views,created_at,updated_at,destination_id,travel_date,location_name,latitude,longitude,seo_title,seo_description,og_image_url,author_name";
 
 export const adminListPosts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -138,25 +138,17 @@ export const adminListPosts = createServerFn({ method: "GET" })
     const { data: fullData, error: fullError } = await (client
       .from("posts") as any)
       .select(`${POST_COLS},destinations(id,title,slug)`)
-      .order("updated_at", { ascending: false });
+      .order("created_at", { ascending: false });
 
-    if (!fullError && fullData) {
-      return fullData.map((p: any) => ({
-        ...p,
-        cover_image: resolveMediaUrl(p.cover_image, client),
-      }));
+    if (fullError) {
+      const { data, error } = await (client.from("posts") as any)
+        .select(BASE_POST_COLS)
+        .order("created_at", { ascending: false });
+      if (error) throw new Error(error.message);
+      return data ?? [];
     }
 
-    const { data: baseData, error: baseError } = await client
-      .from("posts")
-      .select(BASE_POST_COLS)
-      .order("updated_at", { ascending: false });
-
-    if (baseError) throw new Error(baseError.message);
-    return (baseData ?? []).map((p: any) => ({
-      ...p,
-      cover_image: resolveMediaUrl(p.cover_image, client),
-    }));
+    return fullData ?? [];
   });
 
 export const adminGetPost = createServerFn({ method: "GET" })
@@ -165,54 +157,13 @@ export const adminGetPost = createServerFn({ method: "GET" })
   .handler(async ({ context, data }) => {
     await assertEditor(context.userId, context.supabase);
     const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
-
-    // 1. Fetch post metadata
-    const { data: fullData, error: fullError } = await (client
-      .from("posts") as any)
-      .select(`${POST_COLS},destinations(id,title,slug)`)
+    const { data: row, error } = await (client.from("posts") as any)
+      .select(`${POST_COLS},destinations(id,title,slug),post_gallery(id,image_url,alt_text,sort_order),post_translations(id,language_code,title,excerpt,content,seo_title,seo_description)`)
       .eq("id", data.id)
-      .maybeSingle();
+      .single();
 
-    let row: any = fullData;
-    if (fullError || !row) {
-      const { data: baseData, error: baseError } = await client
-        .from("posts")
-        .select(BASE_POST_COLS)
-        .eq("id", data.id)
-        .maybeSingle();
-      if (baseError) throw new Error(baseError.message);
-      row = baseData;
-    }
-
-    if (!row) return null;
-
-    // 2. Fetch all gallery records directly from post_gallery for this specific post
-    const { data: galleryRows, error: galErr } = await client
-      .from("post_gallery")
-      .select("id, post_id, image_url, alt_text, sort_order, created_at")
-      .eq("post_id", data.id)
-      .order("sort_order", { ascending: true });
-
-    if (galErr) {
-      console.warn("[adminGetPost] Warning fetching post_gallery records:", galErr);
-    }
-
-    const rawGallery = (galleryRows ?? []) as any[];
-    const gallery = rawGallery.map((g, idx) => ({
-      id: g.id,
-      post_id: g.post_id || data.id,
-      image_url: resolveMediaUrl(g.image_url, client),
-      alt_text: g.alt_text ?? "",
-      sort_order: g.sort_order ?? idx,
-      created_at: g.created_at,
-    }));
-
-    return {
-      ...row,
-      cover_image: resolveMediaUrl(row.cover_image, client),
-      og_image_url: resolveMediaUrl(row.og_image_url, client),
-      gallery,
-    } as any;
+    if (error) throw new Error(error.message);
+    return row;
   });
 
 const slugify = (s: string) =>
@@ -230,15 +181,18 @@ export const adminUpsertPost = createServerFn({ method: "POST" })
       .object({
         id: z.string().uuid().optional(),
         title: z.string().min(1),
-        slug: z.string().min(1).optional(),
-        excerpt: z.string().optional().default(""),
-        content: z.string().optional().default(""),
-        cover_image: z.string().optional().default(""),
+        slug: z.string().optional(),
+        excerpt: z.string().optional(),
+        content: z.string().optional(),
+        cover_image: z.string().nullable().optional(),
         category: z.string().min(1),
         tags: z.array(z.string()).default([]),
         featured: z.boolean().default(false),
         published: z.boolean().default(false),
         author_name: z.string().nullable().optional(),
+        location_name: z.string().nullable().optional(),
+        latitude: z.number().min(-90).max(90).nullable().optional(),
+        longitude: z.number().min(-180).max(180).nullable().optional(),
         scheduled_at: z.string().nullable().optional(),
         destination_id: z.string().uuid().nullable().optional(),
         travel_date: z.string().nullable().optional(),
@@ -286,6 +240,15 @@ export const adminUpsertPost = createServerFn({ method: "POST" })
 
     if (data.author_name !== undefined) {
       payload.author_name = data.author_name ? data.author_name.trim() : "Noman";
+    }
+    if (data.location_name !== undefined) {
+      payload.location_name = data.location_name ? data.location_name.trim() : null;
+    }
+    if (data.latitude !== undefined) {
+      payload.latitude = data.latitude !== null && !isNaN(data.latitude) ? data.latitude : null;
+    }
+    if (data.longitude !== undefined) {
+      payload.longitude = data.longitude !== null && !isNaN(data.longitude) ? data.longitude : null;
     }
     if (data.destination_id !== undefined) {
       payload.destination_id = data.destination_id || null;
