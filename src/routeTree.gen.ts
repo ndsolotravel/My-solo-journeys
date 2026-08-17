@@ -28,6 +28,7 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminSubscribersRouteImport } from './routes/_authenticated/admin.subscribers'
+import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
 import { Route as AuthenticatedAdminMessagesRouteImport } from './routes/_authenticated/admin.messages'
 import { Route as AuthenticatedAdminGalleryRouteImport } from './routes/_authenticated/admin.gallery'
 import { Route as AuthenticatedAdminDestinationsRouteImport } from './routes/_authenticated/admin.destinations'
@@ -132,6 +133,12 @@ const AuthenticatedAdminSubscribersRoute =
     path: '/subscribers',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminSettingsRoute =
+  AuthenticatedAdminSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminMessagesRoute =
   AuthenticatedAdminMessagesRouteImport.update({
     id: '/messages',
@@ -203,6 +210,7 @@ export interface FileRoutesByFullPath {
   '/admin/destinations': typeof AuthenticatedAdminDestinationsRoute
   '/admin/gallery': typeof AuthenticatedAdminGalleryRoute
   '/admin/messages': typeof AuthenticatedAdminMessagesRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/subscribers': typeof AuthenticatedAdminSubscribersRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/admin/posts/$id': typeof AuthenticatedAdminPostsIdRoute
@@ -228,6 +236,7 @@ export interface FileRoutesByTo {
   '/admin/destinations': typeof AuthenticatedAdminDestinationsRoute
   '/admin/gallery': typeof AuthenticatedAdminGalleryRoute
   '/admin/messages': typeof AuthenticatedAdminMessagesRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/subscribers': typeof AuthenticatedAdminSubscribersRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/admin/posts/$id': typeof AuthenticatedAdminPostsIdRoute
@@ -258,6 +267,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/destinations': typeof AuthenticatedAdminDestinationsRoute
   '/_authenticated/admin/gallery': typeof AuthenticatedAdminGalleryRoute
   '/_authenticated/admin/messages': typeof AuthenticatedAdminMessagesRoute
+  '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/subscribers': typeof AuthenticatedAdminSubscribersRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/admin/posts/$id': typeof AuthenticatedAdminPostsIdRoute
@@ -288,6 +298,7 @@ export interface FileRouteTypes {
     | '/admin/destinations'
     | '/admin/gallery'
     | '/admin/messages'
+    | '/admin/settings'
     | '/admin/subscribers'
     | '/admin/'
     | '/admin/posts/$id'
@@ -313,6 +324,7 @@ export interface FileRouteTypes {
     | '/admin/destinations'
     | '/admin/gallery'
     | '/admin/messages'
+    | '/admin/settings'
     | '/admin/subscribers'
     | '/admin'
     | '/admin/posts/$id'
@@ -342,6 +354,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/destinations'
     | '/_authenticated/admin/gallery'
     | '/_authenticated/admin/messages'
+    | '/_authenticated/admin/settings'
     | '/_authenticated/admin/subscribers'
     | '/_authenticated/admin/'
     | '/_authenticated/admin/posts/$id'
@@ -498,6 +511,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminSubscribersRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/settings': {
+      id: '/_authenticated/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/messages': {
       id: '/_authenticated/admin/messages'
       path: '/messages'
@@ -563,6 +583,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminDestinationsRoute: typeof AuthenticatedAdminDestinationsRoute
   AuthenticatedAdminGalleryRoute: typeof AuthenticatedAdminGalleryRoute
   AuthenticatedAdminMessagesRoute: typeof AuthenticatedAdminMessagesRoute
+  AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminSubscribersRoute: typeof AuthenticatedAdminSubscribersRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminPostsIdRoute: typeof AuthenticatedAdminPostsIdRoute
@@ -576,6 +597,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminDestinationsRoute: AuthenticatedAdminDestinationsRoute,
   AuthenticatedAdminGalleryRoute: AuthenticatedAdminGalleryRoute,
   AuthenticatedAdminMessagesRoute: AuthenticatedAdminMessagesRoute,
+  AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminSubscribersRoute: AuthenticatedAdminSubscribersRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedAdminPostsIdRoute: AuthenticatedAdminPostsIdRoute,

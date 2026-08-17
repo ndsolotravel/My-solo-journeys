@@ -6,6 +6,7 @@ import ReactMarkdown from "react-markdown";
 import { Clock, Share2, ArrowLeft, Star, MapPin, Calendar, Image as ImageIcon, X, ChevronLeft, ChevronRight, User, List, ArrowRight as ArrowRightIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getPostBySlug, type Post } from "@/lib/posts.functions";
+import { getBlogAuthorName } from "@/lib/settings.functions";
 import { listComments, postComment, getPostRatingStats } from "@/lib/comments.functions";
 import { PostCard } from "@/components/blog/PostCard";
 import { ReadingProgress } from "@/components/blog/ReadingProgress";
@@ -19,14 +20,23 @@ const postQO = (slug: string) =>
     queryFn: () => getPostBySlug({ data: { slug } }),
   });
 
+const authorNameQO = queryOptions({
+  queryKey: ["blog-author-name"],
+  queryFn: () => getBlogAuthorName(),
+});
+
 export const Route = createFileRoute("/blog/$slug")({
   loader: async ({ params, context }) => {
-    const data = await context.queryClient.ensureQueryData(postQO(params.slug));
+    const [data, authorName] = await Promise.all([
+      context.queryClient.ensureQueryData(postQO(params.slug)),
+      context.queryClient.ensureQueryData(authorNameQO),
+    ]);
     if (!data.post) throw notFound();
-    return data;
+    return { ...data, authorName: authorName || "Noman" };
   },
   head: ({ loaderData, params }) => {
     const p = loaderData?.post;
+    const authorName = loaderData?.authorName || "Noman";
     const title = p?.seo_title || (p ? `${p.title} — ndsolotravel` : "Story — ndsolotravel");
     const desc = p?.seo_description || p?.excerpt || "A solo travel story from ndsolotravel.";
     const image = p?.og_image_url || p?.cover_image;
@@ -56,7 +66,7 @@ export const Route = createFileRoute("/blog/$slug")({
               datePublished: p.published_at ?? p.created_at,
               articleSection: p.category,
               keywords: p.tags?.join(", "),
-              author: { "@type": "Person", name: p.author_name || "ndsolotravel" },
+              author: { "@type": "Person", name: authorName },
             }),
           },
         ]
@@ -108,7 +118,13 @@ const pageTurnVariants = {
 };
 
 function PostPage() {
-  const { post, related } = Route.useLoaderData();
+  const loaderData = Route.useLoaderData();
+  const { post, related } = loaderData;
+  const { data: globalAuthor } = useQuery({
+    ...authorNameQO,
+    initialData: loaderData?.authorName,
+  });
+  const authorName = globalAuthor || loaderData?.authorName || "Noman";
   const { lang } = useLanguage();
   const t = useTranslations();
 
@@ -245,7 +261,7 @@ function PostPage() {
           </h1>
           <div className="mt-5 flex flex-wrap items-center gap-4 text-xs text-white/80">
             <span className="inline-flex items-center gap-1 font-semibold text-white">
-              <User className="h-3.5 w-3.5 text-accent" /> By {post.author_name || "Hussain"} · ndsolotravel
+              <User className="h-3.5 w-3.5 text-accent" /> By {authorName} · ndsolotravel
             </span>
             <span aria-hidden>·</span>
             <span>{date}</span>

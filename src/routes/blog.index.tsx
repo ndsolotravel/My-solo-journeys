@@ -5,6 +5,7 @@ import { Search, Filter, ArrowRight, Clock, MapPin, Sparkles, SlidersHorizontal 
 import { z } from "zod";
 import { listPosts } from "@/lib/posts.functions";
 import { listDestinations } from "@/lib/destinations.functions";
+import { getBlogAuthorName } from "@/lib/settings.functions";
 import { PostCard } from "@/components/blog/PostCard";
 import { PostCardSkeleton } from "@/components/blog/Skeletons";
 import { CATEGORIES } from "@/lib/site";
@@ -27,6 +28,11 @@ const blogQO = (params: { category?: string; tag?: string; search?: string; sort
 const destQO = queryOptions({
   queryKey: ["destinations-list"],
   queryFn: () => listDestinations(),
+});
+
+const authorNameQO = queryOptions({
+  queryKey: ["blog-author-name"],
+  queryFn: () => getBlogAuthorName(),
 });
 
 export const Route = createFileRoute("/blog/")({
@@ -52,6 +58,7 @@ export const Route = createFileRoute("/blog/")({
         blogQO({ category: deps.category, tag: deps.tag, search: deps.q, sort: deps.sort }),
       ),
       context.queryClient.ensureQueryData(destQO),
+      context.queryClient.ensureQueryData(authorNameQO),
     ]);
   },
   component: BlogIndex,
@@ -68,6 +75,9 @@ function BlogIndex() {
     blogQO({ category: search.category, tag: search.tag, search: search.q, sort: search.sort }),
   );
   const { data: destinations } = useSuspenseQuery(destQO);
+
+  const { data: globalAuthor } = useQuery(authorNameQO);
+  const authorName = globalAuthor || "Noman";
 
   let posts = data.posts;
   if (search.destination) {
@@ -157,7 +167,7 @@ function BlogIndex() {
                 )}
                 <div className="mt-6 flex items-center justify-between border-t border-border/60 pt-4">
                   <span className="text-xs text-muted-foreground">
-                    By {featuredPost.author_name || "Noman"} · {new Date(featuredPost.published_at ?? featuredPost.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                    By {authorName} · {new Date(featuredPost.published_at ?? featuredPost.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                   </span>
                   <span className="inline-flex items-center gap-1 text-xs font-semibold text-accent group-hover:translate-x-1 transition-transform">
                     {t("Read story")} <ArrowRight className="h-3.5 w-3.5 rtl:rotate-180" />
@@ -224,11 +234,10 @@ function BlogIndex() {
                       search: (prev: Record<string, unknown>) => ({ ...prev, sort: undefined }),
                     })
                   }
-                  className={`rounded-full px-3 py-1 transition-colors ${
-                    !search.sort || search.sort === "latest"
+                  className={`rounded-full px-3 py-1 transition-colors ${!search.sort || search.sort === "latest"
                       ? "bg-foreground text-background font-medium"
                       : "text-muted-foreground hover:text-foreground"
-                  }`}
+                    }`}
                 >
                   {t("Newest")}
                 </button>
@@ -239,11 +248,10 @@ function BlogIndex() {
                       search: (prev: Record<string, unknown>) => ({ ...prev, sort: "popular" }),
                     })
                   }
-                  className={`rounded-full px-3 py-1 transition-colors ${
-                    search.sort === "popular"
+                  className={`rounded-full px-3 py-1 transition-colors ${search.sort === "popular"
                       ? "bg-foreground text-background font-medium"
                       : "text-muted-foreground hover:text-foreground"
-                  }`}
+                    }`}
                 >
                   {t("Most Popular")}
                 </button>
@@ -259,9 +267,8 @@ function BlogIndex() {
             <Link
               to="/blog"
               search={(prev: any) => ({ ...prev, category: undefined })}
-              className={`rounded-full border px-3.5 py-1 text-xs transition-colors ${
-                !search.category ? "border-foreground bg-foreground text-background font-medium" : "border-border hover:border-accent"
-              }`}
+              className={`rounded-full border px-3.5 py-1 text-xs transition-colors ${!search.category ? "border-foreground bg-foreground text-background font-medium" : "border-border hover:border-accent"
+                }`}
             >
               {t("All")}
             </Link>
@@ -270,9 +277,8 @@ function BlogIndex() {
                 key={c}
                 to="/blog"
                 search={(prev: any) => ({ ...prev, category: c })}
-                className={`rounded-full border px-3.5 py-1 text-xs transition-colors ${
-                  search.category === c ? "border-foreground bg-foreground text-background font-medium" : "border-border hover:border-accent"
-                }`}
+                className={`rounded-full border px-3.5 py-1 text-xs transition-colors ${search.category === c ? "border-foreground bg-foreground text-background font-medium" : "border-border hover:border-accent"
+                  }`}
               >
                 {t(c)}
               </Link>
@@ -287,9 +293,8 @@ function BlogIndex() {
                 key={tag}
                 to="/blog"
                 search={(prev: any) => ({ ...prev, tag: search.tag === tag ? undefined : tag })}
-                className={`rounded-md border px-2.5 py-0.5 text-[11px] transition-colors ${
-                  search.tag === tag ? "border-accent bg-accent/10 text-accent font-medium" : "border-border/60 text-muted-foreground hover:border-accent"
-                }`}
+                className={`rounded-md border px-2.5 py-0.5 text-[11px] transition-colors ${search.tag === tag ? "border-accent bg-accent/10 text-accent font-medium" : "border-border/60 text-muted-foreground hover:border-accent"
+                  }`}
               >
                 #{tag}
               </Link>
