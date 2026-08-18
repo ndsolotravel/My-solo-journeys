@@ -18,27 +18,18 @@ export type Destination = {
 export const listDestinations = createServerFn({ method: "GET" }).handler(async () => {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { resolveMediaUrl } = await import("./admin.functions");
-  const { data, error } = await (supabaseAdmin
-    .from("destinations") as any)
-    .select("id,title,slug,country,region,location,description,featured_image,published")
+  const { data, error } = await supabaseAdmin
+    .from("destinations")
+    .select("id,title,slug,country,region,description,featured_image,published,created_at")
     .eq("published", true)
     .order("created_at", { ascending: false });
 
-  let rows = data;
-  if (error) {
-    const { data: fallback, error: fbErr } = await (supabaseAdmin
-      .from("destinations") as any)
-      .select("id,title,slug,country,region,description,featured_image,published")
-      .eq("published", true)
-      .order("created_at", { ascending: false });
-    if (fbErr) throw new Error(fbErr.message);
-    rows = fallback;
-  }
+  if (error) throw new Error(error.message);
 
-  return (rows ?? []).map((d: any) => ({
+  return (data ?? []).map((d: any) => ({
     ...d,
     featured_image: resolveMediaUrl(d.featured_image, supabaseAdmin),
-    location: d.location || (d.region ? `${d.region}, ${d.country}` : d.country || ""),
+    location: d.region ? (d.region.includes(d.country) ? d.region : `${d.region}, ${d.country}`) : d.country || "",
   })) as Destination[];
 });
 
@@ -47,16 +38,17 @@ export const getDestinationBySlug = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { resolveMediaUrl } = await import("./admin.functions");
-    const { data: row, error } = await (supabaseAdmin
-      .from("destinations") as any)
-      .select("*")
+    const { data: row, error } = await supabaseAdmin
+      .from("destinations")
+      .select("id,title,slug,country,region,description,featured_image,published,created_at")
       .eq("slug", data.slug)
       .maybeSingle();
+
     if (error) throw new Error(error.message);
     if (!row) return null;
 
-    const { data: posts, error: postsError } = await (supabaseAdmin
-      .from("posts") as any)
+    const { data: posts, error: postsError } = await supabaseAdmin
+      .from("posts")
       .select("*")
       .eq("destination_id", row.id)
       .eq("published", true)
@@ -67,7 +59,7 @@ export const getDestinationBySlug = createServerFn({ method: "GET" })
     const formatted = {
       ...row,
       featured_image: resolveMediaUrl(row.featured_image, supabaseAdmin),
-      location: row.location || (row.region ? `${row.region}, ${row.country}` : row.country || ""),
+      location: row.region ? (row.region.includes(row.country) ? row.region : `${row.region}, ${row.country}`) : row.country || "",
       posts: (posts ?? []).map((p: any) => ({
         ...p,
         cover_image: resolveMediaUrl(p.cover_image, supabaseAdmin),
@@ -76,4 +68,5 @@ export const getDestinationBySlug = createServerFn({ method: "GET" })
 
     return formatted as Destination & { posts: Post[] };
   });
+
 

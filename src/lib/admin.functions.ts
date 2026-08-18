@@ -627,17 +627,17 @@ export const adminListDestinations = createServerFn({ method: "GET" })
     await assertEditor(context.userId, context.supabase);
     const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
     
-    // Attempt query with joined posts count
+    // Query existing destinations table
     const { data, error } = await (client
       .from("destinations") as any)
-      .select("*,posts(id,title,published)")
+      .select("id,title,slug,country,region,description,featured_image,published,created_at,posts(id,title,published)")
       .order("created_at", { ascending: false });
 
     let rows = data;
     if (error) {
       const { data: fallbackData, error: fallbackError } = await (client
         .from("destinations") as any)
-        .select("*")
+        .select("id,title,slug,country,region,description,featured_image,published,created_at")
         .order("created_at", { ascending: false });
       if (fallbackError) throw new Error(fallbackError.message);
       rows = fallbackData;
@@ -646,7 +646,7 @@ export const adminListDestinations = createServerFn({ method: "GET" })
     return (rows ?? []).map((d: any) => ({
       ...d,
       featured_image: resolveMediaUrl(d.featured_image, client),
-      location: d.location || (d.region ? `${d.region}, ${d.country}` : d.country || ""),
+      location: d.region ? (d.region.includes(d.country) ? d.region : `${d.region}, ${d.country}`) : d.country || "",
       postsCount: Array.isArray(d.posts) ? d.posts.length : 0,
     }));
   });
@@ -659,22 +659,24 @@ export const adminUpsertDestination = createServerFn({ method: "POST" })
     const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
     const slug = slugify(data.slug && data.slug.trim() ? data.slug : data.title);
     
-    const location = data.location ? data.location.trim() : null;
-    let country = data.country ? data.country.trim() : null;
-    let region = data.region ? data.region.trim() : null;
+    const location = data.location ? data.location.trim() : "";
+    let country = data.country ? data.country.trim() : "";
+    let region = data.region ? data.region.trim() : "";
 
-    if (location && !country) {
+    if (location) {
       const parts = location.split(",").map((p) => p.trim()).filter(Boolean);
-      if (parts.length > 0) {
-        country = parts[parts.length - 1];
-        if (parts.length > 1 && !region) {
-          region = parts.slice(0, parts.length - 1).join(", ");
-        }
+      if (parts.length > 1) {
+        if (!country) country = parts[parts.length - 1];
+        if (!region) region = parts.slice(0, parts.length - 1).join(", ");
+      } else if (parts.length === 1) {
+        if (!country) country = "Pakistan";
+        if (!region) region = parts[0];
       }
     }
     if (!country) country = "Pakistan";
+    if (!region && location) region = location;
 
-    const payload: Record<string, any> = {
+    const payload = {
       title: data.title.trim(),
       slug,
       country,
@@ -686,48 +688,26 @@ export const adminUpsertDestination = createServerFn({ method: "POST" })
 
     let resultRow: any = null;
 
-    // Try saving with location column first
-    let opError: any = null;
     if (data.id) {
       const { data: updated, error } = await (client.from("destinations") as any)
-        .update({ ...payload, location: location || null })
+        .update(payload)
         .eq("id", data.id)
         .select()
         .single();
-      if (!error) resultRow = updated;
-      else opError = error;
+      if (error) throw new Error(error.message);
+      resultRow = updated;
     } else {
       const { data: inserted, error } = await (client.from("destinations") as any)
-        .insert({ ...payload, location: location || null })
+        .insert(payload)
         .select()
         .single();
-      if (!error) resultRow = inserted;
-      else opError = error;
-    }
-
-    // Fallback if column 'location' doesn't exist yet on remote schema
-    if (opError) {
-      if (data.id) {
-        const { data: updatedFb, error: fbErr } = await (client.from("destinations") as any)
-          .update(payload)
-          .eq("id", data.id)
-          .select()
-          .single();
-        if (fbErr) throw new Error(fbErr.message);
-        resultRow = updatedFb;
-      } else {
-        const { data: insertedFb, error: fbErr } = await (client.from("destinations") as any)
-          .insert(payload)
-          .select()
-          .single();
-        if (fbErr) throw new Error(fbErr.message);
-        resultRow = insertedFb;
-      }
+      if (error) throw new Error(error.message);
+      resultRow = inserted;
     }
 
     return {
       ...resultRow,
-      location: resultRow?.location || (resultRow?.region ? `${resultRow.region}, ${resultRow.country}` : resultRow?.country || ""),
+      location: resultRow?.region ? (resultRow.region.includes(resultRow.country) ? resultRow.region : `${resultRow.region}, ${resultRow.country}`) : resultRow?.country || "",
     };
   });
 
