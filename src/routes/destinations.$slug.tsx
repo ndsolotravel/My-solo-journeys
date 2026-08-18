@@ -143,7 +143,7 @@ function DestinationPage() {
             </p>
           </div>
           <div className="p-2">
-            <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{t("Field Notes")}</p>
+            <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{t("Stories & Guides")}</p>
             <p className="mt-1 font-display text-lg font-bold text-foreground">{posts.length}</p>
           </div>
           <div className="p-2">
@@ -162,20 +162,17 @@ function DestinationPage() {
         )}
       </div>
 
-      {/* Field Notes Section */}
+      {/* Stories & Guides Section */}
       <section className="border-t border-border bg-muted/20 py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-accent">
-                {t("Destination Dispatches")}
+                {t("Field Notes")}
               </p>
               <h2 className="mt-1 font-display text-3xl font-bold sm:text-4xl">
-                {t("Field Notes")}
+                {t("Stories from")} {t(d.title)}
               </h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {t("Stories and exploration guides from")} {t(d.title)}
-              </p>
             </div>
 
             {/* Filter Tabs */}
@@ -218,10 +215,14 @@ function DestinationPage() {
             </div>
           ) : (
             <div className="mt-8 rounded-3xl border border-border bg-card p-12 text-center text-muted-foreground">
-              <p className="font-display text-lg font-semibold">{t("No Field Notes published for this destination yet.")}</p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {t("Check back soon for stories and dispatches from")} {t(d.title)}.
-              </p>
+              <p className="font-display text-lg font-semibold">{t("No stories under this category yet.")}</p>
+              <button
+                type="button"
+                onClick={() => setActiveTab("all")}
+                className="mt-4 text-xs font-medium text-accent hover:underline cursor-pointer"
+              >
+                {t("View all stories for")} {d.title}
+              </button>
             </div>
           )}
         </div>
