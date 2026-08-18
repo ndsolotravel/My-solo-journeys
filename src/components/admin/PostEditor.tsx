@@ -1097,19 +1097,40 @@ export function PostEditor({
             </div>
           </Field>
 
-          <Field label="Link Destination">
+          <Field label="Link Destination" hint="Connect this story to a destination in the travel atlas">
             <select
               value={destinationId}
               onChange={(e) => setDestinationId(e.target.value)}
               className={input}
             >
               <option value="">-- No destination link --</option>
-              {(destinations ?? []).map((d) => (
+              {(destinations ?? []).map((d: any) => (
                 <option key={d.id} value={d.id}>
-                  {d.title} ({d.country})
+                  {d.title} ({d.location || d.region || d.country || "Destination"})
                 </option>
               ))}
             </select>
+            {destinationId && (
+              <div className="mt-2 flex items-center justify-between rounded-xl bg-accent/10 px-3 py-1.5 text-xs text-accent">
+                <span className="flex items-center gap-1 font-medium truncate">
+                  <MapPin className="h-3 w-3 shrink-0" />
+                  Linked: {destinations?.find((d: any) => d.id === destinationId)?.title || "Destination"}
+                </span>
+                {(() => {
+                  const linkedDest = destinations?.find((d: any) => d.id === destinationId);
+                  return linkedDest?.slug ? (
+                    <a
+                      href={`/destinations/${linkedDest.slug}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center gap-1 font-semibold hover:underline shrink-0 ml-2"
+                    >
+                      <ExternalLink className="h-3 w-3" /> Preview
+                    </a>
+                  ) : null;
+                })()}
+              </div>
+            )}
           </Field>
         </div>
 

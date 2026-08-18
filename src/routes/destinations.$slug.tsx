@@ -104,13 +104,21 @@ function DestinationPage() {
             <ArrowLeft className="h-3.5 w-3.5 rtl:rotate-180" /> {t("Travel Atlas")}
           </Link>
           <div className="mt-4 flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1 rounded-full bg-accent/20 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-amber-300 backdrop-blur-md">
-              <Globe className="h-3 w-3" /> {t(d.country)}
-            </span>
-            {d.region && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white/90 backdrop-blur-md">
-                <MapPin className="h-3 w-3" /> {t(d.region)}
+            {d.location ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-accent/20 px-3 py-1 text-xs font-semibold tracking-wider text-amber-300 backdrop-blur-md">
+                <MapPin className="h-3 w-3" /> {t(d.location)}
               </span>
+            ) : (
+              <>
+                <span className="inline-flex items-center gap-1 rounded-full bg-accent/20 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-amber-300 backdrop-blur-md">
+                  <Globe className="h-3 w-3" /> {t(d.country)}
+                </span>
+                {d.region && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white/90 backdrop-blur-md">
+                    <MapPin className="h-3 w-3" /> {t(d.region)}
+                  </span>
+                )}
+              </>
             )}
           </div>
           <h1 className="mt-3 font-display text-4xl font-bold leading-tight sm:text-6xl lg:text-7xl">
@@ -123,12 +131,16 @@ function DestinationPage() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 -mt-8 relative z-10">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 rounded-2xl border border-border bg-card p-4 sm:p-6 shadow-lg">
           <div className="p-2">
-            <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{t("Country")}</p>
-            <p className="mt-1 font-display text-lg font-bold text-foreground">{t(d.country)}</p>
+            <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{t("Location")}</p>
+            <p className="mt-1 font-display text-sm sm:text-base font-bold text-foreground truncate" title={d.location || d.country}>
+              {t(d.location || d.country)}
+            </p>
           </div>
           <div className="p-2">
-            <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{t("Region")}</p>
-            <p className="mt-1 font-display text-lg font-bold text-foreground">{d.region ? t(d.region) : "—"}</p>
+            <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{t("Region / Country")}</p>
+            <p className="mt-1 font-display text-sm sm:text-base font-bold text-foreground">
+              {d.region ? `${t(d.region)}, ${t(d.country)}` : t(d.country)}
+            </p>
           </div>
           <div className="p-2">
             <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{t("Stories & Guides")}</p>

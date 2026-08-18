@@ -611,12 +611,13 @@ export const adminTogglePublish = createServerFn({ method: "POST" })
 
 const destInputSchema = z.object({
   id: z.string().uuid().optional(),
-  title: z.string().trim().min(1).max(200),
-  slug: z.string().trim().min(1).max(200).optional(),
-  country: z.string().min(1).max(120),
+  title: z.string().trim().min(1, "Destination name is required").max(200),
+  slug: z.string().trim().max(200).optional().nullable(),
+  location: z.string().trim().max(300).optional().nullable(),
+  country: z.string().max(120).optional().nullable(),
   region: z.string().max(120).optional().nullable(),
   description: z.string().max(4000).optional().nullable(),
-  featured_image: z.string().url().optional().nullable().or(z.literal("")),
+  featured_image: z.string().optional().nullable().or(z.literal("")),
   published: z.boolean().default(true),
 });
 
@@ -625,12 +626,29 @@ export const adminListDestinations = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     await assertEditor(context.userId, context.supabase);
     const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
-    const { data, error } = await client
-      .from("destinations")
-      .select("*")
+    
+    // Attempt query with joined posts count
+    const { data, error } = await (client
+      .from("destinations") as any)
+      .select("*,posts(id,title,published)")
       .order("created_at", { ascending: false });
-    if (error) throw new Error(error.message);
-    return data ?? [];
+
+    let rows = data;
+    if (error) {
+      const { data: fallbackData, error: fallbackError } = await (client
+        .from("destinations") as any)
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (fallbackError) throw new Error(fallbackError.message);
+      rows = fallbackData;
+    }
+
+    return (rows ?? []).map((d: any) => ({
+      ...d,
+      featured_image: resolveMediaUrl(d.featured_image, client),
+      location: d.location || (d.region ? `${d.region}, ${d.country}` : d.country || ""),
+      postsCount: Array.isArray(d.posts) ? d.posts.length : 0,
+    }));
   });
 
 export const adminUpsertDestination = createServerFn({ method: "POST" })
@@ -639,24 +657,78 @@ export const adminUpsertDestination = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     await assertEditor(context.userId, context.supabase);
     const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
-    const slug = (data.slug && data.slug.trim()) || slugify(data.title);
-    const payload = {
-      title: data.title,
-      slug,
-      country: data.country,
-      region: data.region || null,
-      description: data.description || null,
-      featured_image: data.featured_image || null,
-      published: data.published,
-    };
-    if (data.id) {
-      const { error } = await client.from("destinations").update(payload).eq("id", data.id);
-      if (error) throw new Error(error.message);
-    } else {
-      const { error } = await client.from("destinations").insert(payload);
-      if (error) throw new Error(error.message);
+    const slug = slugify(data.slug && data.slug.trim() ? data.slug : data.title);
+    
+    const location = data.location ? data.location.trim() : null;
+    let country = data.country ? data.country.trim() : null;
+    let region = data.region ? data.region.trim() : null;
+
+    if (location && !country) {
+      const parts = location.split(",").map((p) => p.trim()).filter(Boolean);
+      if (parts.length > 0) {
+        country = parts[parts.length - 1];
+        if (parts.length > 1 && !region) {
+          region = parts.slice(0, parts.length - 1).join(", ");
+        }
+      }
     }
-    return { ok: true };
+    if (!country) country = "Pakistan";
+
+    const payload: Record<string, any> = {
+      title: data.title.trim(),
+      slug,
+      country,
+      region: region || null,
+      description: (data.description || "").trim() || null,
+      featured_image: data.featured_image || null,
+      published: data.published ?? true,
+    };
+
+    let resultRow: any = null;
+
+    // Try saving with location column first
+    let opError: any = null;
+    if (data.id) {
+      const { data: updated, error } = await (client.from("destinations") as any)
+        .update({ ...payload, location: location || null })
+        .eq("id", data.id)
+        .select()
+        .single();
+      if (!error) resultRow = updated;
+      else opError = error;
+    } else {
+      const { data: inserted, error } = await (client.from("destinations") as any)
+        .insert({ ...payload, location: location || null })
+        .select()
+        .single();
+      if (!error) resultRow = inserted;
+      else opError = error;
+    }
+
+    // Fallback if column 'location' doesn't exist yet on remote schema
+    if (opError) {
+      if (data.id) {
+        const { data: updatedFb, error: fbErr } = await (client.from("destinations") as any)
+          .update(payload)
+          .eq("id", data.id)
+          .select()
+          .single();
+        if (fbErr) throw new Error(fbErr.message);
+        resultRow = updatedFb;
+      } else {
+        const { data: insertedFb, error: fbErr } = await (client.from("destinations") as any)
+          .insert(payload)
+          .select()
+          .single();
+        if (fbErr) throw new Error(fbErr.message);
+        resultRow = insertedFb;
+      }
+    }
+
+    return {
+      ...resultRow,
+      location: resultRow?.location || (resultRow?.region ? `${resultRow.region}, ${resultRow.country}` : resultRow?.country || ""),
+    };
   });
 
 export const adminDeleteDestination = createServerFn({ method: "POST" })
@@ -665,12 +737,40 @@ export const adminDeleteDestination = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     await assertEditor(context.userId, context.supabase);
     const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
-    const { data: deleted, error } = await client.from("destinations").delete().eq("id", data.id).select("id");
+
+    // 1. Fetch destination info for storage cleanup
+    const { data: dest } = await (client
+      .from("destinations") as any)
+      .select("id, featured_image")
+      .eq("id", data.id)
+      .maybeSingle();
+
+    // 2. Safely unlink associated posts
+    try {
+      await (client.from("posts") as any).update({ destination_id: null }).eq("destination_id", data.id);
+    } catch (unlinkErr) {
+      console.warn("[adminDeleteDestination] Unlink posts warning:", unlinkErr);
+    }
+
+    // 3. Clean up storage image if stored in blog-media
+    if (dest?.featured_image) {
+      const storagePath = extractBlogMediaPath(dest.featured_image);
+      if (storagePath) {
+        try {
+          await client.storage.from("blog-media").remove([storagePath]);
+        } catch (storageErr) {
+          console.warn("[adminDeleteDestination] Storage image cleanup notice:", storageErr);
+        }
+      }
+    }
+
+    // 4. Delete the destination record
+    const { data: deleted, error } = await (client.from("destinations") as any).delete().eq("id", data.id).select("id");
     if (error) throw new Error(error.message);
     if (!deleted || deleted.length === 0) {
       throw new Error("Unable to delete destination: Not found or permission denied.");
     }
-    return { ok: true };
+    return { ok: true, id: data.id };
   });
 
 // ---------------- COMMENTS ----------------
