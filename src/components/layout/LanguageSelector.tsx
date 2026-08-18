@@ -2,7 +2,13 @@ import { useEffect, useRef, useState } from "react";
 import { Globe, Loader2, AlertCircle } from "lucide-react";
 import { LANGUAGES, useLanguage, useSetLanguage } from "@/lib/translate/store";
 
-export function LanguageSelector({ className }: { className?: string }) {
+export function LanguageSelector({
+  className,
+  overHero = false,
+}: {
+  className?: string;
+  overHero?: boolean;
+}) {
   const { lang, error, activeRequests } = useLanguage();
   const setLang = useSetLanguage();
   const translating = activeRequests > 0;
@@ -53,10 +59,14 @@ export function LanguageSelector({ className }: { className?: string }) {
         aria-label={`Language: ${current.nativeName}`}
         aria-haspopup="menu"
         aria-expanded={menuOpen}
-        className="inline-flex h-9 items-center gap-1.5 rounded-full border border-border/60 bg-transparent px-3 text-xs font-medium text-white hover:bg-muted/60 transition-colors"
+        className={`inline-flex h-9 items-center gap-1.5 rounded-full border px-3 text-xs font-medium transition-colors cursor-pointer ${
+          overHero
+            ? "border-white/30 text-white hover:bg-white/10"
+            : "border-border/60 text-foreground hover:bg-muted/60"
+        }`}
       >
-        <Globe className="h-3.5 w-3.5 text-white" />
-        <span className="text-white">{current.nativeName}</span>
+        <Globe className={`h-3.5 w-3.5 ${overHero ? "text-white" : "text-foreground"}`} />
+        <span className={overHero ? "text-white" : "text-foreground"}>{current.nativeName}</span>
       </button>
       {menuOpen && (
         <div

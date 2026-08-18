@@ -14,7 +14,7 @@ import {
   Calendar,
   MapPin,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { listPosts } from "../lib/posts.functions";
 import { listDestinations } from "../lib/destinations.functions";
 import { listGallery } from "../lib/gallery.functions";
@@ -25,7 +25,7 @@ import { PostCardSkeleton, DestinationCardSkeleton } from "../components/blog/Sk
 import { NewsletterForm } from "../components/layout/NewsletterForm";
 import { HeroSlider } from "../components/layout/HeroSlider";
 import { CATEGORIES } from "../lib/site";
-import { useTranslations } from "@/lib/translate/store";
+import { useTranslations, useLanguage } from "@/lib/translate/store";
 
 const postsQO = queryOptions({
   queryKey: ["home", "posts"],
@@ -64,6 +64,21 @@ const motoQO = queryOptions({
       data: { limit: 1, categories: ["Motorcycle Adventure Travel"] },
     }),
 });
+
+const DEFAULT_HERO_SLIDES = [
+  {
+    src: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=2000&q=80",
+    alt: "Nanga Parbat at sunrise",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?w=2000&q=80",
+    alt: "Mountain road at dusk",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=2000&q=80",
+    alt: "Trekker on alpine ridge",
+  },
+];
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -131,6 +146,7 @@ const JOURNEY_CARDS = [
 
 function HomePage() {
   const t = useTranslations();
+  const { lang } = useLanguage();
   const { data: postsData } = useSuspenseQuery(postsQO);
   const { data: featuredData } = useSuspenseQuery(featuredQO);
   const { data: destinationsData } = useSuspenseQuery(destQO);
@@ -145,6 +161,36 @@ function HomePage() {
   const guidePosts = guides.data?.posts ?? [];
   const destinations = destinationsData;
   const gallery = galleryData ?? [];
+
+  const latestPost = latest[0] ?? null;
+
+  const localizedLatest = useMemo(() => {
+    if (!latestPost) return null;
+    if (lang === "en") return latestPost;
+    const translation = latestPost.post_translations?.find((x) => x.language_code === lang);
+    if (translation) {
+      return {
+        ...latestPost,
+        title: translation.title || latestPost.title,
+        excerpt: translation.excerpt || latestPost.excerpt,
+      };
+    }
+    return {
+      ...latestPost,
+      title: t(latestPost.title),
+      excerpt: latestPost.excerpt ? t(latestPost.excerpt) : latestPost.excerpt,
+    };
+  }, [latestPost, lang, t]);
+
+  const heroSlides = useMemo(() => {
+    if (localizedLatest?.cover_image) {
+      return [
+        { src: localizedLatest.cover_image, alt: localizedLatest.title },
+        ...DEFAULT_HERO_SLIDES.slice(1),
+      ];
+    }
+    return DEFAULT_HERO_SLIDES;
+  }, [localizedLatest]);
 
   const featured = featuredList[0] ?? featuredData.posts[0];
   const motoPosts = motoData?.posts ?? [];
@@ -209,32 +255,30 @@ function HomePage() {
     <div>
       {/* 1. Hero */}
       <section className="hero-banner group/hero relative min-h-[max(100svh,580px)] overflow-hidden">
-        <HeroSlider
-          slides={[
-            {
-              src: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=2000&q=80",
-              alt: "Nanga Parbat at sunrise",
-            },
-            {
-              src: "https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?w=2000&q=80",
-              alt: "Mountain road at dusk",
-            },
-            {
-              src: "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=2000&q=80",
-              alt: "Trekker on alpine ridge",
-            },
-          ]}
-        />
+        <HeroSlider slides={heroSlides} />
         <div className="pointer-events-none relative mx-auto flex min-h-[max(100svh,580px)] max-w-7xl flex-col justify-end px-4 pb-10 pt-24 sm:px-6 sm:pb-20 sm:pt-32 lg:px-8">
           <span className="mt-6 sm:mt-0 inline-flex w-fit items-center rounded-full border border-white/30 bg-white/10 px-4 py-1.5 text-xs uppercase tracking-[0.2em] text-white backdrop-blur">
-            {t("Solo · Slow · Cinematic")}
+            {localizedLatest?.category
+              ? localizedLatest.destinations?.title
+                ? `${t(localizedLatest.category)} · ${t(localizedLatest.destinations.title)}`
+                : t(localizedLatest.category)
+              : t("Solo · Slow · Cinematic")}
           </span>
           <h1 className="mt-6 max-w-4xl font-display text-5xl font-bold leading-[1.05] text-white sm:text-6xl lg:text-7xl">
-            {t("Stories from the high places")}{" "}
-            <span className="text-accent">{t("most people only fly over.")}</span>
+            {localizedLatest?.title ? (
+              localizedLatest.title
+            ) : (
+              <>
+                {t("Stories from the high places")}{" "}
+                <span className="text-accent">{t("most people only fly over.")}</span>
+              </>
+            )}
           </h1>
-          <p className="mt-5 max-w-2xl text-base text-white/80 sm:text-lg">
-            {t("Solo expeditions, motorcycle journeys and trekking diaries from Pakistan, the Karakoram and the world's wildest borders.")}
+          <p className="mt-5 max-w-2xl text-base text-white/80 sm:text-lg line-clamp-3">
+            {localizedLatest?.excerpt ||
+              t(
+                "Solo expeditions, motorcycle journeys and trekking diaries from Pakistan, the Karakoram and the world's wildest borders."
+              )}
           </p>
 
           {/* Hero search */}
@@ -260,15 +304,25 @@ function HomePage() {
           </form>
 
           <div className="pointer-events-auto mt-6 flex flex-wrap gap-3">
-            <Link
-              to="/blog"
-              className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-medium text-foreground hover:bg-white/90 transition-colors"
-            >
-              {t("Read the stories")} <ArrowRight className="h-4 w-4 rtl:rotate-180" />
-            </Link>
+            {localizedLatest?.slug ? (
+              <Link
+                to="/blog/$slug"
+                params={{ slug: localizedLatest.slug }}
+                className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-medium text-foreground hover:bg-white/90 transition-colors cursor-pointer"
+              >
+                {t("Read story")} <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+              </Link>
+            ) : (
+              <Link
+                to="/blog"
+                className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-medium text-foreground hover:bg-white/90 transition-colors cursor-pointer"
+              >
+                {t("Read the stories")} <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+              </Link>
+            )}
             <Link
               to="/destinations"
-              className="inline-flex items-center gap-2 rounded-full border border-white/30 px-6 py-3 text-sm font-medium text-white hover:bg-white/10 transition-colors"
+              className="inline-flex items-center gap-2 rounded-full border border-white/30 px-6 py-3 text-sm font-medium text-white hover:bg-white/10 transition-colors cursor-pointer"
             >
               {t("Explore destinations")}
             </Link>

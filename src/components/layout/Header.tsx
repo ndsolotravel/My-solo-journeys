@@ -156,7 +156,7 @@ export function Header() {
             })}
           </nav>
           <div className="flex items-center gap-2">
-            <LanguageSelector />
+            <LanguageSelector overHero={overHero} />
             <button
               onClick={() => setSearchOpen(true)}
               aria-label={t("Search")}
