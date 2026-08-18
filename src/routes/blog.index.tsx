@@ -139,6 +139,13 @@ function BlogIndex() {
                   <img
                     src={featuredPost.cover_image}
                     alt={featuredPost.title}
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      if (!target.dataset.fallback) {
+                        target.dataset.fallback = "true";
+                        target.src = "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1600&q=80";
+                      }
+                    }}
                     className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                 )}

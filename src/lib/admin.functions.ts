@@ -55,10 +55,43 @@ export const getMyRoles = createServerFn({ method: "GET" })
 
 const DEFAULT_SUPABASE_URL = "https://mqoybarqgzzvillignbr.supabase.co";
 
+export function extractGoogleDriveFileId(url: string | null | undefined): string | null {
+  if (!url || typeof url !== "string") return null;
+  const trimmed = url.trim();
+
+  // Format 1: /file/(?:u/\d+/)?d/FILE_ID or /d/FILE_ID
+  const fileDMatch = trimmed.match(/\/(?:file\/(?:u\/\d+\/)?d|d)\/([a-zA-Z0-9_-]{20,})/);
+  if (fileDMatch) return fileDMatch[1];
+
+  // Format 2: ?id=FILE_ID or &id=FILE_ID
+  const idMatch = trimmed.match(/[?&]id=([a-zA-Z0-9_-]{20,})/);
+  if (idMatch) return idMatch[1];
+
+  // Format 3: Raw Google Drive file ID
+  if (/^[a-zA-Z0-9_-]{25,50}$/.test(trimmed) && !trimmed.includes("/") && !trimmed.includes(".")) {
+    return trimmed;
+  }
+
+  return null;
+}
+
+export function formatGoogleDriveImageUrl(urlOrId: string | null | undefined): string {
+  if (!urlOrId || typeof urlOrId !== "string") return "";
+  const fileId = extractGoogleDriveFileId(urlOrId);
+  if (!fileId) return urlOrId.trim();
+  return `https://lh3.googleusercontent.com/d/${fileId}`;
+}
+
 export function resolveMediaUrl(urlOrPath: string | null | undefined, client?: any): string {
   if (!urlOrPath || typeof urlOrPath !== "string") return "";
   const trimmed = urlOrPath.trim();
   if (!trimmed) return "";
+
+  // Handle Google Drive links automatically
+  const gDriveId = extractGoogleDriveFileId(trimmed);
+  if (gDriveId) {
+    return `https://lh3.googleusercontent.com/d/${gDriveId}`;
+  }
 
   // If it's already an absolute HTTP(S) URL or data/blob URI
   if (

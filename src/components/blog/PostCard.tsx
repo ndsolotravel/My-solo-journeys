@@ -45,12 +45,26 @@ export function PostCard({ post, index = 0 }: { post: Post; index?: number }) {
     >
       <Link to="/blog/$slug" params={{ slug: post.slug }} className="block">
         <div className="relative aspect-[16/9] overflow-hidden rounded-2xl bg-muted">
-          {localizedPost.cover_image && (
+          {localizedPost.cover_image ? (
             <img
               src={localizedPost.cover_image}
               alt={localizedPost.title}
               loading="lazy"
+              onError={(e) => {
+                const target = e.currentTarget;
+                if (!target.dataset.fallback) {
+                  target.dataset.fallback = "true";
+                  target.src = "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1200&q=80";
+                }
+              }}
               className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+          ) : (
+            <img
+              src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1200&q=80"
+              alt={localizedPost.title}
+              loading="lazy"
+              className="h-full w-full object-cover"
             />
           )}
           <div className="absolute left-3 top-3 rtl:left-auto rtl:right-3">
