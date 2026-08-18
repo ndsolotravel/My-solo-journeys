@@ -23,9 +23,6 @@ import {
   Eye,
   FileImage,
   User,
-  Link2,
-  AlertTriangle,
-  CheckCircle2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { MarkdownEditor } from "./MarkdownEditor";
@@ -36,8 +33,6 @@ import {
   adminListDestinations,
   adminDeleteGalleryImage,
   adminSavePostGallery,
-  extractGoogleDriveFileId,
-  formatGoogleDriveImageUrl,
 } from "@/lib/admin.functions";
 import { CATEGORIES } from "@/lib/site";
 import {
@@ -64,12 +59,6 @@ function resolveImageUrl(urlOrPath: string | null | undefined): string {
   if (!urlOrPath || typeof urlOrPath !== "string") return "";
   const trimmed = urlOrPath.trim();
   if (!trimmed) return "";
-
-  const gDriveId = extractGoogleDriveFileId(trimmed);
-  if (gDriveId) {
-    return `https://lh3.googleusercontent.com/d/${gDriveId}`;
-  }
-
   if (
     trimmed.startsWith("http://") ||
     trimmed.startsWith("https://") ||
@@ -137,17 +126,6 @@ export function PostEditor({
   const [excerpt, setExcerpt] = useState(initial?.excerpt ?? "");
   const [content, setContent] = useState(initial?.content ?? "");
   const [cover, setCover] = useState(initial?.cover_image ? resolveImageUrl(initial.cover_image) : "");
-  const [coverMode, setCoverMode] = useState<"upload" | "url">(
-    initial?.cover_image && (initial.cover_image.startsWith("http") || Boolean(extractGoogleDriveFileId(initial.cover_image)))
-      ? "url"
-      : "upload",
-  );
-  const [coverUrlInput, setCoverUrlInput] = useState(
-    initial?.cover_image && (initial.cover_image.startsWith("http") || Boolean(extractGoogleDriveFileId(initial.cover_image)))
-      ? initial.cover_image
-      : "",
-  );
-  const [coverError, setCoverError] = useState(false);
   const [category, setCategory] = useState(initial?.category ?? CATEGORIES[0]);
   const [tags, setTags] = useState((initial?.tags ?? []).join(", "));
   const [featured, setFeatured] = useState(!!initial?.featured);
@@ -181,16 +159,7 @@ export function PostEditor({
     setSlug(initial.slug ?? "");
     setExcerpt(initial.excerpt ?? "");
     setContent(initial.content ?? "");
-    const initialCover = initial.cover_image ? resolveImageUrl(initial.cover_image) : "";
-    setCover(initialCover);
-    if (initial.cover_image && (initial.cover_image.startsWith("http") || Boolean(extractGoogleDriveFileId(initial.cover_image)))) {
-      setCoverMode("url");
-      setCoverUrlInput(initial.cover_image);
-    } else {
-      setCoverMode("upload");
-      setCoverUrlInput("");
-    }
-    setCoverError(false);
+    setCover(initial.cover_image ? resolveImageUrl(initial.cover_image) : "");
     setCategory(initial.category ?? CATEGORIES[0]);
     setTags((initial.tags ?? []).join(", "));
     setFeatured(!!initial.featured);
@@ -217,18 +186,6 @@ export function PostEditor({
       );
     }
   }, [initial]);
-
-  function handleCoverUrlChange(val: string) {
-    setCoverUrlInput(val);
-    setCoverError(false);
-    const trimmed = val.trim();
-    if (!trimmed) {
-      setCover("");
-      return;
-    }
-    const formatted = formatGoogleDriveImageUrl(trimmed);
-    setCover(formatted);
-  }
 
   const [galleryUrlInput, setGalleryUrlInput] = useState("");
   const [uploading, setUploading] = useState<"cover" | "inline" | "gallery" | null>(null);
@@ -1140,178 +1097,70 @@ export function PostEditor({
             </div>
           </Field>
 
-          <Field label="Link Destination" hint="Connect this story to a destination in the travel atlas">
+          <Field label="Link Destination">
             <select
               value={destinationId}
               onChange={(e) => setDestinationId(e.target.value)}
               className={input}
             >
               <option value="">-- No destination link --</option>
-              {(destinations ?? []).map((d: any) => (
+              {(destinations ?? []).map((d) => (
                 <option key={d.id} value={d.id}>
-                  {d.title} ({d.location || d.region || d.country || "Destination"})
+                  {d.title} ({d.country})
                 </option>
               ))}
             </select>
-            {destinationId && (
-              <div className="mt-2 flex items-center justify-between rounded-xl bg-accent/10 px-3 py-1.5 text-xs text-accent">
-                <span className="flex items-center gap-1 font-medium truncate">
-                  <MapPin className="h-3 w-3 shrink-0" />
-                  Linked: {destinations?.find((d: any) => d.id === destinationId)?.title || "Destination"}
-                </span>
-                {(() => {
-                  const linkedDest = destinations?.find((d: any) => d.id === destinationId);
-                  return linkedDest?.slug ? (
-                    <a
-                      href={`/destinations/${linkedDest.slug}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="flex items-center gap-1 font-semibold hover:underline shrink-0 ml-2"
-                    >
-                      <ExternalLink className="h-3 w-3" /> Preview
-                    </a>
-                  ) : null;
-                })()}
-              </div>
-            )}
           </Field>
         </div>
 
-        {/* Cover Photo */}
+        {/* Cover Image */}
         <div className="rounded-2xl border border-border bg-card p-5 space-y-4 shadow-sm">
-          <div className="flex items-center justify-between">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Cover Photo
-            </p>
-            <div className="inline-flex rounded-lg border border-border bg-muted/40 p-0.5 text-xs">
-              <button
-                type="button"
-                onClick={() => setCoverMode("upload")}
-                className={`flex items-center gap-1 rounded-md px-2.5 py-1 font-medium transition-colors cursor-pointer ${
-                  coverMode === "upload"
-                    ? "bg-background text-foreground shadow-xs"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <Upload className="h-3 w-3" /> Upload Image
-              </button>
-              <button
-                type="button"
-                onClick={() => setCoverMode("url")}
-                className={`flex items-center gap-1 rounded-md px-2.5 py-1 font-medium transition-colors cursor-pointer ${
-                  coverMode === "url"
-                    ? "bg-background text-foreground shadow-xs"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <Link2 className="h-3 w-3" /> Use Image URL
-              </button>
-            </div>
-          </div>
-
-          {/* Live Cover Preview or Dropzone / Input */}
-          {cover ? (
-            <div className="space-y-3">
-              <div className="relative overflow-hidden rounded-xl border border-border bg-muted aspect-[16/9] max-h-56">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Cover Image
+          </p>
+          <div className="min-h-[140px]">
+            {cover ? (
+              <div className="relative">
                 <img
                   src={cover}
                   alt="Cover preview"
-                  className="h-full w-full object-cover"
-                  onError={() => setCoverError(true)}
-                  onLoad={() => setCoverError(false)}
+                  className="max-h-48 w-full rounded-lg object-cover"
                 />
-                {extractGoogleDriveFileId(cover || coverUrlInput) && (
-                  <span className="absolute top-2.5 right-2.5 inline-flex items-center gap-1 rounded-full bg-black/75 px-2.5 py-1 text-[11px] font-medium text-emerald-300 backdrop-blur-md border border-white/10 shadow-xs">
-                    <CheckCircle2 className="h-3 w-3 text-emerald-400" /> Google Drive
-                  </span>
-                )}
-              </div>
-
-              {coverError && (
-                <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-3.5 text-xs text-amber-600 dark:text-amber-400 space-y-1.5">
-                  <p className="font-semibold flex items-center gap-1.5">
-                    <AlertTriangle className="h-4 w-4 shrink-0" /> Unable to load cover image preview
-                  </p>
-                  {extractGoogleDriveFileId(cover || coverUrlInput) ? (
-                    <p className="text-[11px] leading-relaxed text-foreground/80">
-                      The Google Drive file could not be loaded. Please ensure the file sharing is set to{" "}
-                      <strong className="text-foreground">"Anyone with the link → Viewer"</strong> in Google Drive.
-                    </p>
-                  ) : (
-                    <p className="text-[11px] leading-relaxed text-foreground/80">
-                      Please verify that the URL is a direct, publicly accessible image link.
-                    </p>
-                  )}
-                </div>
-              )}
-
-              <div className="flex items-center justify-between gap-2 pt-0.5">
                 <button
                   type="button"
-                  onClick={() => {
-                    setCover("");
-                    setCoverUrlInput("");
-                    setCoverError(false);
-                  }}
-                  className="text-xs text-destructive hover:underline cursor-pointer"
+                  onClick={() => setCover("")}
+                  className="mt-2 text-xs text-muted-foreground transition hover:text-red-500"
                 >
                   Remove cover
                 </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (coverMode === "upload") {
-                      coverInput.current?.click();
-                    } else {
-                      setCoverUrlInput(cover);
-                    }
-                  }}
-                  className="text-xs text-accent hover:underline cursor-pointer"
-                >
-                  Replace cover
-                </button>
               </div>
-            </div>
-          ) : (
-            <>
-              {coverMode === "upload" ? (
-                <button
-                  type="button"
-                  onClick={() => coverInput.current?.click()}
-                  className="group flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-background p-6 text-sm text-muted-foreground shadow-xs transition hover:border-accent hover:bg-accent/5 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-                >
-                  {uploading === "cover" ? (
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                  ) : (
-                    <Upload className="h-5 w-5 transition-transform duration-200 group-hover:-translate-y-0.5" />
-                  )}
-                  <span className="font-medium">Browse and upload cover image</span>
-                  <span className="text-xs text-muted-foreground/70">JPG, PNG, WebP up to 8 MB</span>
-                </button>
-              ) : (
-                <div className="space-y-2">
-                  <Field label="Cover Image URL" hint="Google Drive sharing link or direct image URL">
-                    <input
-                      value={coverUrlInput}
-                      onChange={(e) => handleCoverUrlChange(e.target.value)}
-                      placeholder="https://drive.google.com/file/d/FILE_ID/view…"
-                      className={input}
-                    />
-                  </Field>
-                  <p className="text-[11px] text-muted-foreground leading-relaxed">
-                    Paste a Google Drive link (e.g. <code>https://drive.google.com/file/d/FILE_ID/view</code>). The file must be shared publicly with <strong>"Anyone with the link → Viewer"</strong>.
-                  </p>
-                </div>
-              )}
-            </>
-          )}
-
+            ) : (
+              <button
+                type="button"
+                onClick={() => coverInput.current?.click()}
+                className="group flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border bg-background p-6 text-sm text-muted-foreground shadow-xs transition hover:border-accent hover:bg-accent/5 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              >
+                {uploading === "cover" ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <Upload className="h-5 w-5 transition-transform duration-200 group-hover:-translate-y-0.5" />
+                )}
+                <span>Browse cover image</span>
+              </button>
+            )}
+          </div>
           <input
             ref={coverInput}
             type="file"
             accept="image/*"
             className="hidden"
             onChange={(e) => e.target.files?.[0] && uploadFile(e.target.files[0], "cover")}
+          />
+          <input
+            value={cover}
+            onChange={(e) => setCover(e.target.value)}
+            placeholder="…or paste image URL"
+            className={input}
           />
         </div>
 

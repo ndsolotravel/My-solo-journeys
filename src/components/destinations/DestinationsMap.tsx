@@ -8,7 +8,6 @@ const SLUG_COORDS: Record<string, [number, number]> = {
   "hunza-valley": [36.3167, 74.65],
   "skardu-deosai": [35.2971, 75.6333],
   "karakoram-highway": [35.92, 74.31],
-  "phander-valley": [36.179, 73.751],
 };
 
 const COUNTRY_COORDS: Record<string, [number, number]> = {

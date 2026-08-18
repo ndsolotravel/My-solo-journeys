@@ -5,7 +5,6 @@ import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { listGallery } from "@/lib/gallery.functions";
 import { useTranslations } from "@/lib/translate/store";
-import { HeroBanner } from "@/components/layout/HeroBanner";
 
 const qo = queryOptions({ queryKey: ["gallery"], queryFn: () => listGallery() });
 
@@ -84,11 +83,13 @@ function GalleryPage() {
 
   return (
     <>
-      <HeroBanner
-        imageUrl="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=2000&q=80"
-        imageAlt="Yosemite valley golden hour"
-        overlayClassName="bg-gradient-to-b from-black/40 via-black/30 to-black/70"
-      >
+      <section className="relative h-[45vh] min-h-[280px] w-full overflow-hidden">
+        <img
+          src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=2000&q=80"
+          alt="Yosemite valley golden hour"
+          className="h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/70" />
         <div className="absolute inset-0 flex items-end">
           <div className="mx-auto w-full max-w-7xl px-4 pb-10 sm:px-6 lg:px-8">
             <p className="text-xs uppercase tracking-[0.2em] text-accent">{t("Photography")}</p>
@@ -100,7 +101,7 @@ function GalleryPage() {
             </p>
           </div>
         </div>
-      </HeroBanner>
+      </section>
 
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <header className="max-w-3xl sr-only">

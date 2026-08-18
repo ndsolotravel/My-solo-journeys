@@ -55,43 +55,10 @@ export const getMyRoles = createServerFn({ method: "GET" })
 
 const DEFAULT_SUPABASE_URL = "https://mqoybarqgzzvillignbr.supabase.co";
 
-export function extractGoogleDriveFileId(url: string | null | undefined): string | null {
-  if (!url || typeof url !== "string") return null;
-  const trimmed = url.trim();
-
-  // Format 1: /file/(?:u/\d+/)?d/FILE_ID or /d/FILE_ID
-  const fileDMatch = trimmed.match(/\/(?:file\/(?:u\/\d+\/)?d|d)\/([a-zA-Z0-9_-]{20,})/);
-  if (fileDMatch) return fileDMatch[1];
-
-  // Format 2: ?id=FILE_ID or &id=FILE_ID
-  const idMatch = trimmed.match(/[?&]id=([a-zA-Z0-9_-]{20,})/);
-  if (idMatch) return idMatch[1];
-
-  // Format 3: Raw Google Drive file ID
-  if (/^[a-zA-Z0-9_-]{25,50}$/.test(trimmed) && !trimmed.includes("/") && !trimmed.includes(".")) {
-    return trimmed;
-  }
-
-  return null;
-}
-
-export function formatGoogleDriveImageUrl(urlOrId: string | null | undefined): string {
-  if (!urlOrId || typeof urlOrId !== "string") return "";
-  const fileId = extractGoogleDriveFileId(urlOrId);
-  if (!fileId) return urlOrId.trim();
-  return `https://lh3.googleusercontent.com/d/${fileId}`;
-}
-
 export function resolveMediaUrl(urlOrPath: string | null | undefined, client?: any): string {
   if (!urlOrPath || typeof urlOrPath !== "string") return "";
   const trimmed = urlOrPath.trim();
   if (!trimmed) return "";
-
-  // Handle Google Drive links automatically
-  const gDriveId = extractGoogleDriveFileId(trimmed);
-  if (gDriveId) {
-    return `https://lh3.googleusercontent.com/d/${gDriveId}`;
-  }
 
   // If it's already an absolute HTTP(S) URL or data/blob URI
   if (
@@ -644,13 +611,12 @@ export const adminTogglePublish = createServerFn({ method: "POST" })
 
 const destInputSchema = z.object({
   id: z.string().uuid().optional(),
-  title: z.string().trim().min(1, "Destination name is required").max(200),
-  slug: z.string().trim().max(200).optional().nullable(),
-  location: z.string().trim().max(300).optional().nullable(),
-  country: z.string().max(120).optional().nullable(),
+  title: z.string().trim().min(1).max(200),
+  slug: z.string().trim().min(1).max(200).optional(),
+  country: z.string().min(1).max(120),
   region: z.string().max(120).optional().nullable(),
   description: z.string().max(4000).optional().nullable(),
-  featured_image: z.string().optional().nullable().or(z.literal("")),
+  featured_image: z.string().url().optional().nullable().or(z.literal("")),
   published: z.boolean().default(true),
 });
 
@@ -659,29 +625,12 @@ export const adminListDestinations = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     await assertEditor(context.userId, context.supabase);
     const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
-    
-    // Query existing destinations table
-    const { data, error } = await (client
-      .from("destinations") as any)
-      .select("id,title,slug,country,region,description,featured_image,published,created_at,posts(id,title,published)")
+    const { data, error } = await client
+      .from("destinations")
+      .select("*")
       .order("created_at", { ascending: false });
-
-    let rows = data;
-    if (error) {
-      const { data: fallbackData, error: fallbackError } = await (client
-        .from("destinations") as any)
-        .select("id,title,slug,country,region,description,featured_image,published,created_at")
-        .order("created_at", { ascending: false });
-      if (fallbackError) throw new Error(fallbackError.message);
-      rows = fallbackData;
-    }
-
-    return (rows ?? []).map((d: any) => ({
-      ...d,
-      featured_image: resolveMediaUrl(d.featured_image, client),
-      location: d.region ? (d.region.includes(d.country) ? d.region : `${d.region}, ${d.country}`) : d.country || "",
-      postsCount: Array.isArray(d.posts) ? d.posts.length : 0,
-    }));
+    if (error) throw new Error(error.message);
+    return data ?? [];
   });
 
 export const adminUpsertDestination = createServerFn({ method: "POST" })
@@ -690,58 +639,24 @@ export const adminUpsertDestination = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     await assertEditor(context.userId, context.supabase);
     const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
-    const slug = slugify(data.slug && data.slug.trim() ? data.slug : data.title);
-    
-    const location = data.location ? data.location.trim() : "";
-    let country = data.country ? data.country.trim() : "";
-    let region = data.region ? data.region.trim() : "";
-
-    if (location) {
-      const parts = location.split(",").map((p) => p.trim()).filter(Boolean);
-      if (parts.length > 1) {
-        if (!country) country = parts[parts.length - 1];
-        if (!region) region = parts.slice(0, parts.length - 1).join(", ");
-      } else if (parts.length === 1) {
-        if (!country) country = "Pakistan";
-        if (!region) region = parts[0];
-      }
-    }
-    if (!country) country = "Pakistan";
-    if (!region && location) region = location;
-
+    const slug = (data.slug && data.slug.trim()) || slugify(data.title);
     const payload = {
-      title: data.title.trim(),
+      title: data.title,
       slug,
-      country,
-      region: region || null,
-      description: (data.description || "").trim() || null,
+      country: data.country,
+      region: data.region || null,
+      description: data.description || null,
       featured_image: data.featured_image || null,
-      published: data.published ?? true,
+      published: data.published,
     };
-
-    let resultRow: any = null;
-
     if (data.id) {
-      const { data: updated, error } = await (client.from("destinations") as any)
-        .update(payload)
-        .eq("id", data.id)
-        .select()
-        .single();
+      const { error } = await client.from("destinations").update(payload).eq("id", data.id);
       if (error) throw new Error(error.message);
-      resultRow = updated;
     } else {
-      const { data: inserted, error } = await (client.from("destinations") as any)
-        .insert(payload)
-        .select()
-        .single();
+      const { error } = await client.from("destinations").insert(payload);
       if (error) throw new Error(error.message);
-      resultRow = inserted;
     }
-
-    return {
-      ...resultRow,
-      location: resultRow?.region ? (resultRow.region.includes(resultRow.country) ? resultRow.region : `${resultRow.region}, ${resultRow.country}`) : resultRow?.country || "",
-    };
+    return { ok: true };
   });
 
 export const adminDeleteDestination = createServerFn({ method: "POST" })
@@ -750,40 +665,12 @@ export const adminDeleteDestination = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     await assertEditor(context.userId, context.supabase);
     const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
-
-    // 1. Fetch destination info for storage cleanup
-    const { data: dest } = await (client
-      .from("destinations") as any)
-      .select("id, featured_image")
-      .eq("id", data.id)
-      .maybeSingle();
-
-    // 2. Safely unlink associated posts
-    try {
-      await (client.from("posts") as any).update({ destination_id: null }).eq("destination_id", data.id);
-    } catch (unlinkErr) {
-      console.warn("[adminDeleteDestination] Unlink posts warning:", unlinkErr);
-    }
-
-    // 3. Clean up storage image if stored in blog-media
-    if (dest?.featured_image) {
-      const storagePath = extractBlogMediaPath(dest.featured_image);
-      if (storagePath) {
-        try {
-          await client.storage.from("blog-media").remove([storagePath]);
-        } catch (storageErr) {
-          console.warn("[adminDeleteDestination] Storage image cleanup notice:", storageErr);
-        }
-      }
-    }
-
-    // 4. Delete the destination record
-    const { data: deleted, error } = await (client.from("destinations") as any).delete().eq("id", data.id).select("id");
+    const { data: deleted, error } = await client.from("destinations").delete().eq("id", data.id).select("id");
     if (error) throw new Error(error.message);
     if (!deleted || deleted.length === 0) {
       throw new Error("Unable to delete destination: Not found or permission denied.");
     }
-    return { ok: true, id: data.id };
+    return { ok: true };
   });
 
 // ---------------- COMMENTS ----------------

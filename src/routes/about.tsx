@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import aboutPortrait from "@/assets/nd-about.jpg";
 import { useTranslations } from "@/lib/translate/store";
-import { HeroBanner } from "@/components/layout/HeroBanner";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -35,11 +34,13 @@ function AboutPage() {
 
   return (
     <>
-      <HeroBanner
-        imageUrl="https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?w=2000&q=80"
-        imageAlt="Traveller on a mountain ridge"
-        overlayClassName="bg-gradient-to-b from-black/40 via-black/30 to-black/70"
-      >
+      <section className="relative h-[45vh] min-h-[280px] w-full overflow-hidden">
+        <img
+          src="https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?w=2000&q=80"
+          alt="Traveller on a mountain ridge"
+          className="h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/70" />
         <div className="absolute inset-0 flex items-end">
           <div className="mx-auto w-full max-w-7xl px-4 pb-10 sm:px-6 lg:px-8">
             <p className="text-xs uppercase tracking-[0.2em] text-accent">{t("About")}</p>
@@ -48,7 +49,7 @@ function AboutPage() {
             </h1>
           </div>
         </div>
-      </HeroBanner>
+      </section>
 
       <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6">
         <h2 className="sr-only">{t("Solo, slow, and almost always uphill.")}</h2>

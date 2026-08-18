@@ -87,27 +87,15 @@ export const listPosts = createServerFn({ method: "GET" })
       return q.range(data.offset, data.offset + data.limit - 1);
     };
 
-    const { resolveMediaUrl } = await import("@/lib/admin.functions");
-
     // Try full query first with destination relation, fallback to basic columns if schema not migrated yet
     const fullRes = await buildQuery(`${FULL_POST_COLUMNS},destinations(title,slug),post_translations(language_code,title,excerpt)`);
     if (!fullRes.error && fullRes.data) {
-      const posts = (fullRes.data as any[]).map((p) => ({
-        ...p,
-        cover_image: resolveMediaUrl(p.cover_image, supabaseAdmin),
-        og_image_url: resolveMediaUrl(p.og_image_url, supabaseAdmin),
-      }));
-      return { posts: posts as unknown as Post[], total: fullRes.count ?? 0 };
+      return { posts: fullRes.data as unknown as Post[], total: fullRes.count ?? 0 };
     }
 
     const baseRes = await buildQuery(BASE_POST_COLUMNS);
     if (baseRes.error) throw new Error(baseRes.error.message);
-    const posts = (baseRes.data ?? []).map((p: any) => ({
-      ...p,
-      cover_image: resolveMediaUrl(p.cover_image, supabaseAdmin),
-      og_image_url: resolveMediaUrl(p.og_image_url, supabaseAdmin),
-    }));
-    return { posts: posts as unknown as Post[], total: baseRes.count ?? 0 };
+    return { posts: (baseRes.data ?? []) as unknown as Post[], total: baseRes.count ?? 0 };
   });
 
 export const getPostBySlug = createServerFn({ method: "GET" })
