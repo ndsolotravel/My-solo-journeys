@@ -59,7 +59,13 @@ export function PostCard({ post, index = 0 }: { post: Post; index?: number }) {
             </span>
           </div>
         </div>
-        <div className="mt-3 flex items-center gap-3 text-xs text-muted-foreground">
+        <div className="mt-3 flex items-center gap-2.5 text-xs text-muted-foreground">
+          {localizedPost.author_name && (
+            <>
+              <span className="font-medium text-foreground/90">{localizedPost.author_name}</span>
+              <span aria-hidden>·</span>
+            </>
+          )}
           <span>{formatDate(localizedPost.published_at ?? localizedPost.created_at)}</span>
           <span aria-hidden>·</span>
           <span className="inline-flex items-center gap-1">

@@ -47,14 +47,23 @@ export const getDestinationBySlug = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     if (!row) return null;
 
-    const { data: posts, error: postsError } = await supabaseAdmin
+    let { data: posts, error: postsError } = await supabaseAdmin
       .from("posts")
-      .select("*")
+      .select("*,post_translations(language_code,title,excerpt)")
       .eq("destination_id", row.id)
       .eq("published", true)
       .order("published_at", { ascending: false });
 
-    if (postsError) throw new Error(postsError.message);
+    if (postsError) {
+      const fallback = await supabaseAdmin
+        .from("posts")
+        .select("*")
+        .eq("destination_id", row.id)
+        .eq("published", true)
+        .order("published_at", { ascending: false });
+      if (fallback.error) throw new Error(fallback.error.message);
+      posts = fallback.data;
+    }
 
     const formatted = {
       ...row,
