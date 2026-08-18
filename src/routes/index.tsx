@@ -208,7 +208,7 @@ function HomePage() {
   return (
     <div>
       {/* 1. Hero */}
-      <section className="relative min-h-[max(100svh,580px)] overflow-hidden">
+      <section className="hero-banner group/hero relative min-h-[max(100svh,580px)] overflow-hidden">
         <HeroSlider
           slides={[
             {

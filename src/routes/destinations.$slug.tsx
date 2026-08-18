@@ -87,15 +87,15 @@ function DestinationPage() {
   return (
     <article className="min-h-screen">
       {/* Cover Header */}
-      <div className="relative h-[65vh] min-h-[440px] w-full overflow-hidden">
+      <div className="hero-banner group/hero relative h-[65vh] min-h-[440px] w-full overflow-hidden">
         {d.featured_image && (
           <img
             src={d.featured_image}
             alt={d.title}
-            className="h-full w-full object-cover object-center"
+            className="hero-banner-image h-full w-full object-cover object-center"
           />
         )}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/85" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/85 pointer-events-none" />
         <div className="absolute inset-x-0 bottom-0 mx-auto max-w-7xl px-4 pb-12 text-white sm:px-6 lg:px-8">
           <Link
             to="/destinations"

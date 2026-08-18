@@ -6,6 +6,7 @@ import { Map as MapIcon, LayoutGrid } from "lucide-react";
 import { listDestinations } from "../lib/destinations.functions";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { useTranslations } from "@/lib/translate/store";
+import { HeroBanner } from "@/components/layout/HeroBanner";
 
 const DestinationsMap = lazy(() =>
   import("@/components/destinations/DestinationsMap").then((m) => ({ default: m.DestinationsMap })),
@@ -58,13 +59,11 @@ function DestinationsPage() {
 
   return (
     <>
-      <section className="relative h-[45vh] min-h-[280px] w-full overflow-hidden">
-        <img
-          src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=2000&q=80"
-          alt="Mountain peaks at golden hour"
-          className="h-full w-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/70" />
+      <HeroBanner
+        imageUrl="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=2000&q=80"
+        imageAlt="Mountain peaks at golden hour"
+        overlayClassName="bg-gradient-to-b from-black/40 via-black/30 to-black/70"
+      >
         <div className="absolute inset-0 flex items-end">
           <div className="mx-auto w-full max-w-7xl px-4 pb-10 sm:px-6 lg:px-8">
             <p className="text-xs uppercase tracking-[0.2em] text-accent">{t("Destinations")}</p>
@@ -78,7 +77,7 @@ function DestinationsPage() {
             </p>
           </div>
         </div>
-      </section>
+      </HeroBanner>
 
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         {/* Top-of-page Ad slot (below navigation) */}

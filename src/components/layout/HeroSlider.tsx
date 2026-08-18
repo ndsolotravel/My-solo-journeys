@@ -23,7 +23,7 @@ export function HeroSlider({ slides, intervalMs = 10000, className = "" }: Props
   }, [count, intervalMs, index]);
 
   return (
-    <div className={`absolute inset-0 overflow-hidden ${className}`}>
+    <div className={`hero-banner group/hero absolute inset-0 overflow-hidden ${className}`}>
       <AnimatePresence initial={false} mode="sync">
         <motion.img
           key={index}
@@ -35,10 +35,10 @@ export function HeroSlider({ slides, intervalMs = 10000, className = "" }: Props
           transition={{ duration: 1.1, ease: "easeInOut" }}
           loading={index === 0 ? "eager" : "lazy"}
           fetchPriority={index === 0 ? "high" : "auto"}
-          className="absolute inset-0 h-full w-full object-cover animate-ken-burns"
+          className="hero-banner-image absolute inset-0 h-full w-full object-cover animate-ken-burns"
         />
       </AnimatePresence>
-      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/80" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/80 pointer-events-none" />
 
       {count > 1 && (
         <div className="absolute bottom-5 left-1/2 z-20 flex -translate-x-1/2 gap-2">

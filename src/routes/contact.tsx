@@ -6,6 +6,7 @@ import { sendContact } from "@/lib/newsletter.functions";
 import { toast } from "sonner";
 import { SITE } from "@/lib/site";
 import { useTranslations } from "@/lib/translate/store";
+import { HeroBanner } from "@/components/layout/HeroBanner";
 
 function TikTokIcon({ className }: { className?: string }) {
   return (
@@ -116,13 +117,11 @@ function ContactPage() {
 
   return (
     <>
-      <section className="relative h-[45vh] min-h-[280px] w-full overflow-hidden">
-        <img
-          src="https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=2000&q=80"
-          alt="Open mountain landscape"
-          className="h-full w-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/70" />
+      <HeroBanner
+        imageUrl="https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=2000&q=80"
+        imageAlt="Open mountain landscape"
+        overlayClassName="bg-gradient-to-b from-black/40 via-black/30 to-black/70"
+      >
         <div className="absolute inset-0 flex items-end">
           <div className="mx-auto w-full max-w-7xl px-4 pb-10 sm:px-6 lg:px-8">
             <p className="text-xs uppercase tracking-[0.2em] text-accent">{t("Contact")}</p>
@@ -134,7 +133,7 @@ function ContactPage() {
             </p>
           </div>
         </div>
-      </section>
+      </HeroBanner>
 
       <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
         <h2 className="sr-only">Say hello.</h2>

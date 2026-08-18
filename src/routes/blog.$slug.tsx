@@ -227,7 +227,7 @@ function PostPage() {
       <ReadingProgress />
 
       {/* Cover */}
-      <div className="relative h-[60vh] min-h-[420px] w-full overflow-hidden">
+      <div className="hero-banner group/hero relative h-[60vh] min-h-[420px] w-full overflow-hidden">
         {post.cover_image && (
           <img
             src={post.cover_image}
@@ -239,10 +239,10 @@ function PostPage() {
                 target.src = "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1600&q=80";
               }
             }}
-            className="h-full w-full object-cover"
+            className="hero-banner-image h-full w-full object-cover"
           />
         )}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/30 to-black/80" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/30 to-black/80 pointer-events-none" />
         <div className="absolute inset-x-0 bottom-0 mx-auto max-w-3xl px-4 pb-12 text-white sm:px-6">
           <div className="flex flex-wrap items-center gap-3">
             <Link
