@@ -591,15 +591,13 @@ function HomePage() {
                     transition={{ duration: 0.5, delay: i * 0.05 }}
                   >
                     <Link to="/destinations/$slug" params={{ slug: d.slug }} className="group block">
-                      <div className="relative aspect-[16/10] sm:aspect-[3/4] overflow-hidden rounded-2xl">
-                        {d.featured_image && (
-                          <img
-                            src={d.featured_image}
-                            alt={d.title}
-                            loading="lazy"
-                            className="h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
-                          />
-                        )}
+                      <div className="relative aspect-[16/10] sm:aspect-[3/4] overflow-hidden rounded-2xl bg-muted">
+                        <img
+                          src={d.featured_image || "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1600&q=80"}
+                          alt={d.title}
+                          loading="lazy"
+                          className="h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                        />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
                         <div className="absolute inset-x-0 bottom-0 p-5 text-white">
                           <p className="text-xs uppercase tracking-wider text-white/70">

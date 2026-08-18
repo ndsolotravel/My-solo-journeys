@@ -60,6 +60,16 @@ export function resolveMediaUrl(urlOrPath: string | null | undefined, client?: a
   const trimmed = urlOrPath.trim();
   if (!trimmed) return "";
 
+  // Convert Google Drive sharing/file links into direct renderable CDN image links
+  if (trimmed.includes("drive.google.com")) {
+    const fileIdMatch =
+      trimmed.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) ||
+      trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    if (fileIdMatch && fileIdMatch[1]) {
+      return `https://lh3.googleusercontent.com/d/${fileIdMatch[1]}`;
+    }
+  }
+
   // If it's already an absolute HTTP(S) URL or data/blob URI
   if (
     trimmed.startsWith("http://") ||
