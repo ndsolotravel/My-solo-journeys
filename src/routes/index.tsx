@@ -226,37 +226,19 @@ function HomePage() {
           ]}
         />
         <div className="pointer-events-none relative mx-auto flex min-h-[max(100svh,580px)] max-w-7xl flex-col justify-end px-4 pb-10 pt-24 sm:px-6 sm:pb-20 sm:pt-32 lg:px-8">
-          <motion.span
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="mt-6 sm:mt-0 inline-flex w-fit items-center rounded-full border border-white/30 bg-white/10 px-4 py-1.5 text-xs uppercase tracking-[0.2em] text-white backdrop-blur"
-          >
+          <span className="mt-6 sm:mt-0 inline-flex w-fit items-center rounded-full border border-white/30 bg-white/10 px-4 py-1.5 text-xs uppercase tracking-[0.2em] text-white backdrop-blur">
             {t("Solo · Slow · Cinematic")}
-          </motion.span>
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
-            className="mt-6 max-w-4xl font-display text-5xl font-bold leading-[1.05] text-white sm:text-6xl lg:text-7xl"
-          >
+          </span>
+          <h1 className="mt-6 max-w-4xl font-display text-5xl font-bold leading-[1.05] text-white sm:text-6xl lg:text-7xl">
             {t("Stories from the high places")}{" "}
             <span className="text-accent">{t("most people only fly over.")}</span>
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="mt-5 max-w-2xl text-base text-white/80 sm:text-lg"
-          >
+          </h1>
+          <p className="mt-5 max-w-2xl text-base text-white/80 sm:text-lg">
             {t("Solo expeditions, motorcycle journeys and trekking diaries from Pakistan, the Karakoram and the world's wildest borders.")}
-          </motion.p>
+          </p>
 
           {/* Hero search */}
-          <motion.form
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.35 }}
+          <form
             onSubmit={submitSearch}
             className="pointer-events-auto mt-7 flex w-full max-w-xl items-center gap-2 rounded-full border border-white/30 bg-white/10 px-2 py-1.5 backdrop-blur-md"
           >
@@ -275,14 +257,9 @@ function HomePage() {
             >
               {t("Search")}
             </button>
-          </motion.form>
+          </form>
 
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.45 }}
-            className="pointer-events-auto mt-6 flex flex-wrap gap-3"
-          >
+          <div className="pointer-events-auto mt-6 flex flex-wrap gap-3">
             <Link
               to="/blog"
               className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-medium text-foreground hover:bg-white/90 transition-colors"
@@ -295,7 +272,7 @@ function HomePage() {
             >
               {t("Explore destinations")}
             </Link>
-          </motion.div>
+          </div>
         </div>
       </section>
 
