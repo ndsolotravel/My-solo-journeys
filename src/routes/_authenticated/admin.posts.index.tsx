@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Plus, Eye, EyeOff, Trash2, Clock, Search, MapPin, Loader2, Image as ImageIcon, Navigation } from "lucide-react";
+import { Plus, Eye, EyeOff, Trash2, Clock, Search, MapPin, Loader2, Image as ImageIcon, Navigation, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { adminListPosts, adminTogglePublish, adminDeletePost } from "@/lib/admin.functions";
 import { batchGeocodePosts } from "@/lib/geocoding.functions";
@@ -172,7 +172,7 @@ function AdminPostsList() {
             <tr>
               <th className="px-4 py-3">Title</th>
               <th className="px-4 py-3 hidden sm:table-cell">Status</th>
-              <th className="px-4 py-3 hidden lg:table-cell">Destination</th>
+              <th className="px-4 py-3 hidden lg:table-cell">Map Location</th>
               <th className="px-4 py-3 hidden md:table-cell">Views</th>
               <th className="px-4 py-3 hidden md:table-cell">Updated</th>
               <th className="px-4 py-3 text-right">Actions</th>
@@ -188,6 +188,7 @@ function AdminPostsList() {
             )}
             {filteredPosts.map((p: any) => {
               const dest = (p as Record<string, unknown>).destinations as { title?: string } | null;
+              const hasCoords = p.latitude != null && p.longitude != null && !isNaN(p.latitude) && !isNaN(p.longitude);
               return (
                 <tr key={p.id} className="border-t border-border hover:bg-muted/30">
                   <td className="px-4 py-3">
@@ -213,13 +214,22 @@ function AdminPostsList() {
                       <Badge tone="gray">Draft</Badge>
                     )}
                   </td>
-                  <td className="px-4 py-3 hidden lg:table-cell text-muted-foreground text-xs">
-                    {dest?.title ? (
-                      <span className="inline-flex items-center gap-1">
-                        <MapPin className="h-3 w-3 text-accent" /> {dest.title}
-                      </span>
+                  <td className="px-4 py-3 hidden lg:table-cell text-muted-foreground text-xs space-y-0.5 max-w-[200px]">
+                    {p.location_name && hasCoords ? (
+                      <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium truncate" title={`${p.location_name} (${p.latitude}, ${p.longitude})`}>
+                        <MapPin className="h-3.5 w-3.5 shrink-0" />
+                        <span className="truncate">{p.location_name}</span>
+                      </div>
                     ) : (
-                      "—"
+                      <div className="flex items-center gap-1 text-amber-600 dark:text-amber-400 font-medium text-xs">
+                        <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                        <span>Needs Location</span>
+                      </div>
+                    )}
+                    {dest?.title && (
+                      <p className="text-[11px] text-muted-foreground truncate">
+                        Link: {dest.title}
+                      </p>
                     )}
                   </td>
                   <td className="px-4 py-3 hidden md:table-cell text-muted-foreground">

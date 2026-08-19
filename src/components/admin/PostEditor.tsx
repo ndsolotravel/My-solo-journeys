@@ -230,6 +230,7 @@ export function PostEditor({
         data: {
           title: title.trim(),
           existingLocation: locationName || undefined,
+          override: true,
         },
       });
 
@@ -1084,37 +1085,46 @@ export function PostEditor({
         <div className="rounded-2xl border border-border bg-card p-5 space-y-4 shadow-sm">
           <div className="flex items-center justify-between">
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-              <MapPin className="h-3.5 w-3.5 text-accent" /> Map Location
+              <MapPin className="h-4 w-4 text-sky-500" /> Map Location
             </p>
             <button
               type="button"
               onClick={handleAutoDetectLocation}
               disabled={autoDetecting || !title.trim()}
-              className="inline-flex items-center gap-1.5 rounded-full bg-accent/10 px-3 py-1.5 text-xs font-medium text-accent hover:bg-accent/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex items-center gap-1.5 rounded-full bg-sky-50 dark:bg-sky-950/60 px-3.5 py-1.5 text-xs font-medium text-sky-600 dark:text-sky-400 border border-sky-200/80 dark:border-sky-800/80 hover:bg-sky-100 dark:hover:bg-sky-900/60 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-xs"
             >
               {autoDetecting ? (
                 <>
-                  <Loader2 className="h-3 w-3 animate-spin" /> Detecting...
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" /> Detecting...
                 </>
               ) : (
                 <>
-                  <Navigation className="h-3 w-3" /> Auto Detect
+                  <Navigation className="h-3.5 w-3.5" /> Auto Detect
                 </>
               )}
             </button>
           </div>
 
-          {autoDetectResult && (
-            <p className={`text-xs ${autoDetectResult.startsWith("Detected") ? "text-green-600" : "text-muted-foreground"}`}>
-              {autoDetectResult}
-            </p>
-          )}
+          <p className="text-xs text-muted-foreground">
+            {autoDetectResult ? (
+              <span className={autoDetectResult.startsWith("Detected") ? "text-emerald-600 dark:text-emerald-400 font-medium" : "text-amber-600 dark:text-amber-400 font-medium"}>
+                {autoDetectResult}
+              </span>
+            ) : locationName ? (
+              "Location already exists. Use 'Auto Detect' to override."
+            ) : (
+              "Enter location manually or use Auto Detect to suggest from title."
+            )}
+          </p>
 
           <Field label="Location Name" hint="e.g. Phander Valley, Ghizer, Gilgit Baltistan, Pakistan">
             <input
               value={locationName}
-              onChange={(e) => setLocationName(e.target.value)}
-              placeholder="Phander Valley, Ghizer, Gilgit Baltistan, Pakistan"
+              onChange={(e) => {
+                setLocationName(e.target.value);
+                setAutoDetectResult(null);
+              }}
+              placeholder="e.g. Phander Valley, Ghizer, Gilgit Baltistan, Pakistan"
               maxLength={200}
               className={input}
             />
@@ -1128,7 +1138,10 @@ export function PostEditor({
                 min="-90"
                 max="90"
                 value={latitude}
-                onChange={(e) => setLatitude(e.target.value)}
+                onChange={(e) => {
+                  setLatitude(e.target.value);
+                  setAutoDetectResult(null);
+                }}
                 placeholder="36.179"
                 className={input}
               />
@@ -1141,14 +1154,17 @@ export function PostEditor({
                 min="-180"
                 max="180"
                 value={longitude}
-                onChange={(e) => setLongitude(e.target.value)}
+                onChange={(e) => {
+                  setLongitude(e.target.value);
+                  setAutoDetectResult(null);
+                }}
                 placeholder="73.751"
                 className={input}
               />
             </Field>
           </div>
 
-          <p className="text-[10px] text-muted-foreground">
+          <p className="text-[11px] text-muted-foreground">
             Enter location manually or use Auto Detect to suggest from title. Coordinates are validated before saving.
           </p>
         </div>
