@@ -53,10 +53,10 @@ export function LanguageSelector({ className }: { className?: string }) {
         aria-label={`Language: ${current.nativeName}`}
         aria-haspopup="menu"
         aria-expanded={menuOpen}
-        className="inline-flex h-9 items-center gap-1.5 rounded-full border border-border/60 bg-transparent px-3 text-xs font-medium text-white hover:bg-muted/60 transition-colors"
+        className="inline-flex h-9 items-center gap-1.5 rounded-full border border-border/60 bg-transparent px-3 text-xs font-medium text-[#FF7A00] hover:text-[#FF7A00] focus:text-[#FF7A00] focus-visible:text-[#FF7A00] hover:bg-muted/60 transition-colors"
       >
         <Globe className="h-3.5 w-3.5 text-white" />
-        <span className="text-white">{current.nativeName}</span>
+        <span className="text-[#FF7A00]">{current.nativeName}</span>
       </button>
       {menuOpen && (
         <div
@@ -73,8 +73,8 @@ export function LanguageSelector({ className }: { className?: string }) {
                   role="menuitemradio"
                   aria-checked={l.code === lang}
                   onClick={() => handleChange(l.code)}
-                  className={`flex w-full items-center justify-between px-3 py-2 text-sm hover:bg-muted ${
-                    l.code === lang ? "text-accent font-medium bg-muted/40" : "text-foreground"
+                  className={`flex w-full items-center justify-between px-3 py-2 text-sm hover:bg-muted focus:bg-muted ${
+                    l.code === lang ? "text-[#FF7A00] font-medium bg-muted/40" : "text-foreground hover:text-[#FF7A00] focus:text-[#FF7A00]"
                   }`}
                 >
                   <span className="flex items-center gap-2">
@@ -83,7 +83,7 @@ export function LanguageSelector({ className }: { className?: string }) {
                       <span className="text-xs text-muted-foreground">({l.label})</span>
                     )}
                   </span>
-                  {l.code === lang && <span className="h-2 w-2 rounded-full bg-accent" />}
+                  {l.code === lang && <span className="h-2 w-2 rounded-full bg-[#FF7A00]" />}
                 </button>
               </li>
             ))}
