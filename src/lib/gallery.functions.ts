@@ -27,7 +27,7 @@ function extractMarkdownImages(markdown?: string | null): { url: string; alt: st
 export const listGallery = createServerFn({ method: "GET" }).handler(async () => {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-  // 1. Fetch site settings to resolve About page picture & author name
+  // 1. Fetch site settings for about page picture & author name
   const { data: settings } = await supabaseAdmin
     .from("site_settings")
     .select("key, value")
@@ -35,10 +35,9 @@ export const listGallery = createServerFn({ method: "GET" }).handler(async () =>
 
   const aboutSetting = settings?.find((s) => s.key === "about_image_url");
   const authorSetting = settings?.find((s) => s.key === "blog_author_name");
-  const authorName = authorSetting?.value?.trim() || "Noman";
-  const aboutImageUrl = aboutSetting?.value?.trim()
-    ? resolveMediaUrl(aboutSetting.value.trim(), supabaseAdmin)
-    : "/assets/nd-about.jpg";
+  const authorName = authorSetting?.value?.trim() || "Hussain";
+  const rawAboutUrl = aboutSetting?.value?.trim();
+  const aboutImageUrl = rawAboutUrl ? resolveMediaUrl(rawAboutUrl, supabaseAdmin) : null;
 
   // 2. Fetch all published posts with their cover_image and post_gallery items
   const { data: posts, error: postsError } = await (supabaseAdmin
@@ -64,7 +63,7 @@ export const listGallery = createServerFn({ method: "GET" }).handler(async () =>
     items.push(item);
   };
 
-  // A. Add About Page Picture
+  // A. Add About Page Picture ONLY if a valid custom URL / uploaded storage path exists
   if (aboutImageUrl) {
     addItem(
       {
@@ -75,7 +74,7 @@ export const listGallery = createServerFn({ method: "GET" }).handler(async () =>
         width: 1200,
         height: 1600,
       },
-      aboutImageUrl,
+      rawAboutUrl!,
     );
   }
 
