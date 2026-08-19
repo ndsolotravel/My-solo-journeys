@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState, useEffect } from "react";
-import { Settings, User, Save, Loader2, CheckCircle2, Globe, Shield, Sparkles } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Settings, User, Save, Loader2, CheckCircle2, Globe, Shield, Sparkles, Image as ImageIcon, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { adminGetSettings, adminUpdateSetting } from "@/lib/settings.functions";
+import { adminUploadImage, resolveMediaUrl } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/settings")({
   head: () => ({
@@ -19,6 +20,7 @@ export const Route = createFileRoute("/_authenticated/admin/settings")({
 function AdminSettingsPage() {
   const getSettingsFn = useServerFn(adminGetSettings);
   const updateSettingFn = useServerFn(adminUpdateSetting);
+  const uploadFn = useServerFn(adminUploadImage);
   const qc = useQueryClient();
 
   const { data: settings, isLoading } = useQuery({
@@ -27,7 +29,10 @@ function AdminSettingsPage() {
   });
 
   const [blogAuthorName, setBlogAuthorName] = useState("Noman");
+  const [aboutImageUrl, setAboutImageUrl] = useState("");
   const [isDirty, setIsDirty] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (settings && Array.isArray(settings)) {
@@ -35,34 +40,77 @@ function AdminSettingsPage() {
       if (authorSetting?.value) {
         setBlogAuthorName(authorSetting.value);
       }
+      const aboutSetting = settings.find((s) => s.key === "about_image_url");
+      if (aboutSetting?.value) {
+        setAboutImageUrl(aboutSetting.value);
+      }
     }
   }, [settings]);
 
   const saveMutation = useMutation({
-    mutationFn: (value: string) =>
-      updateSettingFn({
+    mutationFn: async (payload: { authorName: string; aboutImg: string }) => {
+      await updateSettingFn({
         data: {
           key: "blog_author_name",
-          value: value.trim() || "Noman",
+          value: payload.authorName.trim() || "Noman",
           description: "Global author name displayed on blog stories and listings",
         },
-      }),
-    onSuccess: (updated) => {
+      });
+      await updateSettingFn({
+        data: {
+          key: "about_image_url",
+          value: payload.aboutImg.trim(),
+          description: "About page portrait image URL or Supabase storage path",
+        },
+      });
+    },
+    onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-settings"] });
       qc.invalidateQueries({ queryKey: ["blog-author-name"] });
       qc.invalidateQueries({ queryKey: ["public-site-settings"] });
-      if (updated?.value) setBlogAuthorName(updated.value);
+      qc.invalidateQueries({ queryKey: ["gallery"] });
       setIsDirty(false);
-      toast.success("Blog Author Name saved successfully!");
+      toast.success("Settings saved successfully!");
     },
     onError: (err: Error) => {
       toast.error(`Failed to save settings: ${err.message}`);
     },
   });
 
+  const handleFileUpload = async (file: File) => {
+    try {
+      setUploading(true);
+      const reader = new FileReader();
+      const base64 = await new Promise<string>((resolve, reject) => {
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+
+      const res = await uploadFn({
+        data: {
+          filename: file.name,
+          contentType: file.type || "image/jpeg",
+          base64,
+        },
+      });
+
+      if (res?.publicUrl) {
+        setAboutImageUrl(res.publicUrl);
+        setIsDirty(true);
+        toast.success("Portrait uploaded successfully!");
+      }
+    } catch (err: any) {
+      toast.error(`Upload failed: ${err.message}`);
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    saveMutation.mutate(blogAuthorName);
+    saveMutation.mutate({ authorName: blogAuthorName, aboutImg: aboutImageUrl });
   };
 
   return (
@@ -74,13 +122,14 @@ function AdminSettingsPage() {
         </div>
         <h1 className="mt-1 font-display text-3xl font-bold tracking-tight">CMS Settings</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Manage global website parameters, author attributions, and defaults.
+          Manage global website parameters, author attributions, About page portrait, and defaults.
         </p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
         {/* Main Settings Form */}
         <form onSubmit={handleSave} className="space-y-6">
+          {/* Author Name */}
           <div className="rounded-2xl border border-border bg-card p-6 shadow-xs space-y-5">
             <div className="flex items-start justify-between gap-4 border-b border-border/60 pb-4">
               <div>
@@ -147,6 +196,91 @@ function AdminSettingsPage() {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* About Page Picture Configuration */}
+          <div className="rounded-2xl border border-border bg-card p-6 shadow-xs space-y-5">
+            <div className="flex items-start justify-between gap-4 border-b border-border/60 pb-4">
+              <div>
+                <h2 className="font-display text-lg font-semibold flex items-center gap-2">
+                  <ImageIcon className="h-5 w-5 text-accent" /> About Page Picture
+                </h2>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  Controls the portrait photo displayed on the public About page and synced to the public Gallery.
+                </p>
+              </div>
+              <span className="inline-flex items-center gap-1 rounded-full bg-accent/10 px-2.5 py-0.5 text-xs font-medium text-accent">
+                <Globe className="h-3 w-3" /> Auto Synced to Gallery
+              </span>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <div className="relative h-28 w-24 shrink-0 overflow-hidden rounded-2xl border border-border bg-muted">
+                  <img
+                    src={aboutImageUrl ? resolveMediaUrl(aboutImageUrl) : "/assets/nd-about.jpg"}
+                    alt="About Portrait Preview"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                <div className="flex-1 space-y-2 w-full">
+                  <label htmlFor="aboutImageUrl" className="block text-xs font-semibold text-foreground">
+                    Image URL / Storage Path
+                  </label>
+                  <input
+                    id="aboutImageUrl"
+                    type="text"
+                    value={aboutImageUrl}
+                    onChange={(e) => {
+                      setAboutImageUrl(e.target.value);
+                      setIsDirty(true);
+                    }}
+                    placeholder="e.g. https://... or blog-media/... (leave empty for default)"
+                    className="w-full rounded-xl border border-border bg-background py-2 px-3 text-sm font-medium outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                  />
+                  <div className="flex items-center gap-2 pt-1">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleFileUpload(file);
+                      }}
+                    />
+                    <button
+                      type="button"
+                      disabled={uploading}
+                      onClick={() => fileInputRef.current?.click()}
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted transition cursor-pointer"
+                    >
+                      {uploading ? (
+                        <>
+                          <Loader2 className="h-3 w-3 animate-spin" /> Uploading...
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="h-3 w-3" /> Upload Picture
+                        </>
+                      )}
+                    </button>
+                    {aboutImageUrl && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAboutImageUrl("");
+                          setIsDirty(true);
+                        }}
+                        className="text-xs text-muted-foreground hover:text-red-500 transition cursor-pointer"
+                      >
+                        Reset to default
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
 
             <div className="flex items-center justify-between pt-2 border-t border-border/60">
               <span className="text-xs text-muted-foreground">
@@ -154,7 +288,7 @@ function AdminSettingsPage() {
               </span>
               <button
                 type="submit"
-                disabled={saveMutation.isPending || isLoading}
+                disabled={saveMutation.isPending || isLoading || uploading}
                 className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-xs font-semibold text-background shadow-xs hover:opacity-90 transition disabled:opacity-50 cursor-pointer"
               >
                 {saveMutation.isPending ? (

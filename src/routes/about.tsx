@@ -1,6 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import aboutPortrait from "@/assets/nd-about.jpg";
 import { useTranslations } from "@/lib/translate/store";
+import { getPublicSiteSettings } from "@/lib/settings.functions";
+
+const settingsQO = queryOptions({
+  queryKey: ["public-site-settings"],
+  queryFn: () => getPublicSiteSettings(),
+});
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -17,6 +24,7 @@ export const Route = createFileRoute("/about")({
     ],
     links: [{ rel: "canonical", href: "/about" }],
   }),
+  loader: ({ context }) => context.queryClient.ensureQueryData(settingsQO),
   component: AboutPage,
 });
 
@@ -31,6 +39,8 @@ const BIO = [
 
 function AboutPage() {
   const t = useTranslations();
+  const { data: settings } = useSuspenseQuery(settingsQO);
+  const portraitSrc = settings?.about_image_url || aboutPortrait;
 
   return (
     <>
@@ -56,7 +66,7 @@ function AboutPage() {
 
         <div className="mt-10 grid gap-12 lg:grid-cols-[1fr_2fr]">
           <img
-            src={aboutPortrait}
+            src={portraitSrc}
             alt="ndsolotravel portrait"
             className="aspect-[3/4] w-full rounded-3xl object-cover"
           />

@@ -27,15 +27,18 @@ function extractMarkdownImages(markdown?: string | null): { url: string; alt: st
 export const listGallery = createServerFn({ method: "GET" }).handler(async () => {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-  // 1. Fetch standalone gallery items
-  const { data: standaloneGallery, error: galleryError } = await supabaseAdmin
-    .from("gallery")
-    .select("id,image_url,caption,category,width,height,created_at")
-    .order("created_at", { ascending: false });
+  // 1. Fetch site settings to resolve About page picture & author name
+  const { data: settings } = await supabaseAdmin
+    .from("site_settings")
+    .select("key, value")
+    .in("key", ["about_image_url", "blog_author_name"]);
 
-  if (galleryError) {
-    console.warn("[listGallery] Error fetching standalone gallery:", galleryError);
-  }
+  const aboutSetting = settings?.find((s) => s.key === "about_image_url");
+  const authorSetting = settings?.find((s) => s.key === "blog_author_name");
+  const authorName = authorSetting?.value?.trim() || "Noman";
+  const aboutImageUrl = aboutSetting?.value?.trim()
+    ? resolveMediaUrl(aboutSetting.value.trim(), supabaseAdmin)
+    : "/assets/nd-about.jpg";
 
   // 2. Fetch all published posts with their cover_image and post_gallery items
   const { data: posts, error: postsError } = await (supabaseAdmin
@@ -61,7 +64,22 @@ export const listGallery = createServerFn({ method: "GET" }).handler(async () =>
     items.push(item);
   };
 
-  // A. Add images from published posts (Cover, Post Gallery, and Markdown images)
+  // A. Add About Page Picture
+  if (aboutImageUrl) {
+    addItem(
+      {
+        id: "about-portrait",
+        image_url: aboutImageUrl,
+        caption: `${authorName} — ndsolotravel`,
+        category: "About",
+        width: 1200,
+        height: 1600,
+      },
+      aboutImageUrl,
+    );
+  }
+
+  // B. Add images from published posts (Cover Photo, Post Gallery, and Markdown images)
   if (posts && Array.isArray(posts)) {
     for (const post of posts) {
       // 1. Cover Photo
@@ -127,28 +145,6 @@ export const listGallery = createServerFn({ method: "GET" }).handler(async () =>
               post_id: post.id,
             },
             ci.url,
-          );
-        }
-      }
-    }
-  }
-
-  // B. Add standalone gallery items
-  if (standaloneGallery && Array.isArray(standaloneGallery)) {
-    for (const sg of standaloneGallery) {
-      if (sg.image_url && typeof sg.image_url === "string" && sg.image_url.trim()) {
-        const resolved = resolveMediaUrl(sg.image_url, supabaseAdmin);
-        if (resolved) {
-          addItem(
-            {
-              id: sg.id,
-              image_url: resolved,
-              caption: sg.caption || null,
-              category: sg.category || null,
-              width: sg.width || null,
-              height: sg.height || null,
-            },
-            sg.image_url,
           );
         }
       }
