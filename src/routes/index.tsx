@@ -15,7 +15,7 @@ import {
   MapPin,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { listPosts } from "../lib/posts.functions";
+import { listPosts, getJourneyStats } from "../lib/posts.functions";
 import { listDestinations } from "../lib/destinations.functions";
 import { listGallery } from "../lib/gallery.functions";
 import { CountUp } from "../components/dashboard/CountUp";
@@ -64,6 +64,10 @@ const motoQO = queryOptions({
       data: { limit: 1, categories: ["Motorcycle Adventure Travel"] },
     }),
 });
+const journeyStatsQO = queryOptions({
+  queryKey: ["home", "journey-stats"],
+  queryFn: () => getJourneyStats(),
+});
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -89,6 +93,7 @@ export const Route = createFileRoute("/")({
       context.queryClient.ensureQueryData(guidesQO),
       context.queryClient.ensureQueryData(galleryQO),
       context.queryClient.ensureQueryData(motoQO),
+      context.queryClient.ensureQueryData(journeyStatsQO),
     ]);
   },
   component: HomePage,
@@ -138,6 +143,7 @@ function HomePage() {
   const guides = useQuery(guidesQO);
   const { data: galleryData } = useSuspenseQuery(galleryQO);
   const { data: motoData } = useSuspenseQuery(motoQO);
+  const { data: journeyStats } = useSuspenseQuery(journeyStatsQO);
 
   const featuredList = featuredData.posts;
   const latest = postsData.posts;
@@ -174,30 +180,28 @@ function HomePage() {
     navigate({ to: "/blog", search: { q } as any });
   };
 
-  // Derived stats — from real DB data with sensible fallbacks.
-  const countries = new Set(destinations.map((d) => d.country)).size;
-  const photosCount = gallery?.length ?? 0;
-  const motoCount = motoData?.total ?? 0;
+  // Derived stats — Countries Visited automatically calculated from published blog post locations
+  const calculatedCountries = journeyStats?.countriesCount ?? 1;
   const stats = [
     {
       icon: Globe2,
       label: t("Countries Visited"),
-      value: Math.max(countries, 1),
+      value: calculatedCountries,
       suffix: "",
       featured: false,
     },
     {
       icon: Bike,
       label: t("Solo Motorcycle Trips"),
-      value: Math.max(motoCount, 12),
+      value: 102,
       suffix: "",
       featured: false,
     },
     {
       icon: Camera,
       label: t("Photos Captured"),
-      value: Math.max(photosCount, 248),
-      suffix: "",
+      value: 200,
+      suffix: "K+",
       featured: false,
     },
     { icon: RouteIcon, label: t("Kilometres Travelled"), value: 18420, suffix: " km", featured: true },

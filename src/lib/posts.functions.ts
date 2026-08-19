@@ -182,3 +182,205 @@ export const listAllPostSlugs = createServerFn({ method: "GET" }).handler(async 
   if (error) throw new Error(error.message);
   return (data ?? []) as { slug: string; updated_at: string }[];
 });
+
+const KNOWN_COUNTRY_HINTS: Record<string, string> = {
+  // Countries
+  pakistan: "Pakistan",
+  nepal: "Nepal",
+  india: "India",
+  japan: "Japan",
+  indonesia: "Indonesia",
+  thailand: "Thailand",
+  vietnam: "Vietnam",
+  iceland: "Iceland",
+  italy: "Italy",
+  switzerland: "Switzerland",
+  norway: "Norway",
+  turkey: "Turkey",
+  turkiye: "Turkey",
+  greece: "Greece",
+  spain: "Spain",
+  portugal: "Portugal",
+  france: "France",
+  austria: "Austria",
+  germany: "Germany",
+  chile: "Chile",
+  argentina: "Argentina",
+  peru: "Peru",
+  bolivia: "Bolivia",
+  canada: "Canada",
+  usa: "United States",
+  "united states": "United States",
+  uk: "United Kingdom",
+  "united kingdom": "United Kingdom",
+  scotland: "United Kingdom",
+  georgia: "Georgia",
+  kyrgyzstan: "Kyrgyzstan",
+  tajikistan: "Tajikistan",
+  uzbekistan: "Uzbekistan",
+  kazakhstan: "Kazakhstan",
+  mongolia: "Mongolia",
+  morocco: "Morocco",
+  egypt: "Egypt",
+  jordan: "Jordan",
+  oman: "Oman",
+  uae: "United Arab Emirates",
+
+  // Pakistan regions, districts, mountains & valleys
+  "gilgit-baltistan": "Pakistan",
+  "gilgit baltistan": "Pakistan",
+  gilgit: "Pakistan",
+  ghizer: "Pakistan",
+  phander: "Pakistan",
+  diamer: "Pakistan",
+  skardu: "Pakistan",
+  hunza: "Pakistan",
+  karakoram: "Pakistan",
+  chitral: "Pakistan",
+  swat: "Pakistan",
+  kashmir: "Pakistan",
+  punjab: "Pakistan",
+  sindh: "Pakistan",
+  balochistan: "Pakistan",
+  "khyber pakhtunkhwa": "Pakistan",
+  kpk: "Pakistan",
+  k2: "Pakistan",
+  concordia: "Pakistan",
+  baltoro: "Pakistan",
+  "nanga parbat": "Pakistan",
+  "fairy meadows": "Pakistan",
+  deosai: "Pakistan",
+  passu: "Pakistan",
+  rakaposhi: "Pakistan",
+  babusar: "Pakistan",
+  shandur: "Pakistan",
+  khunjerab: "Pakistan",
+  shimshal: "Pakistan",
+  gojal: "Pakistan",
+  askole: "Pakistan",
+  hushe: "Pakistan",
+  nagar: "Pakistan",
+  astore: "Pakistan",
+  shigar: "Pakistan",
+  khaplu: "Pakistan",
+  attabad: "Pakistan",
+  kalash: "Pakistan",
+  kumrat: "Pakistan",
+  dir: "Pakistan",
+  kaghan: "Pakistan",
+  naran: "Pakistan",
+
+  // Nepal
+  himalaya: "Nepal",
+  himalayas: "Nepal",
+  everest: "Nepal",
+  annapurna: "Nepal",
+  kathmandu: "Nepal",
+  pokhara: "Nepal",
+  mustang: "Nepal",
+  manang: "Nepal",
+  langtang: "Nepal",
+  solukhumbu: "Nepal",
+
+  // India
+  ladakh: "India",
+  leh: "India",
+  spiti: "India",
+  manali: "India",
+  rishikesh: "India",
+  sikkim: "India",
+
+  // Global travel spots
+  bali: "Indonesia",
+  ubud: "Indonesia",
+  lombok: "Indonesia",
+  kyoto: "Japan",
+  tokyo: "Japan",
+  osaka: "Japan",
+  fuji: "Japan",
+  hokkaido: "Japan",
+  dolomites: "Italy",
+  alps: "Switzerland",
+  zermatt: "Switzerland",
+  patagonia: "Chile",
+  banff: "Canada",
+  tromso: "Norway",
+  lofotens: "Norway",
+  lofoten: "Norway",
+  cappadocia: "Turkey",
+  santorini: "Greece",
+};
+
+/**
+ * Extract normalized country name from Map Location string.
+ */
+export function extractCountryFromLocation(locationName?: string | null): string | null {
+  if (!locationName || typeof locationName !== "string") return null;
+  const cleaned = locationName.trim();
+  if (!cleaned) return null;
+
+  // Split by comma
+  const segments = cleaned.split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
+
+  // Check from the last segment backwards (standard "Place, Region, Country" format)
+  for (let i = segments.length - 1; i >= 0; i--) {
+    const seg = segments[i];
+    if (KNOWN_COUNTRY_HINTS[seg]) {
+      return KNOWN_COUNTRY_HINTS[seg];
+    }
+  }
+
+  // Check individual words
+  const words = cleaned.toLowerCase().split(/\s+/).map((w) => w.replace(/[^\w-]/g, ""));
+  for (const w of words) {
+    if (KNOWN_COUNTRY_HINTS[w]) {
+      return KNOWN_COUNTRY_HINTS[w];
+    }
+  }
+
+  // If there are comma-separated parts, the last part is typically the country
+  if (segments.length > 1) {
+    const lastSeg = segments[segments.length - 1];
+    return lastSeg.charAt(0).toUpperCase() + lastSeg.slice(1);
+  }
+
+  return null;
+}
+
+/**
+ * Dynamically calculate Journey in Numbers statistics from database.
+ */
+export const getJourneyStats = createServerFn({ method: "GET" }).handler(async () => {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+  // Fetch all published posts' location_name and destinations
+  const { data: posts } = await (supabaseAdmin
+    .from("posts") as any)
+    .select("id, title, location_name, destination_id, destinations(country)")
+    .eq("published", true);
+
+  const countrySet = new Set<string>();
+
+  if (posts && Array.isArray(posts)) {
+    for (const p of posts) {
+      // 1. Extract from Map Location
+      const country = extractCountryFromLocation(p.location_name);
+      if (country) {
+        countrySet.add(country.toLowerCase());
+        continue;
+      }
+
+      // 2. Fallback to linked destination country
+      const destCountry = (p as any).destinations?.country;
+      if (destCountry && typeof destCountry === "string" && destCountry.trim()) {
+        countrySet.add(destCountry.trim().toLowerCase());
+      }
+    }
+  }
+
+  return {
+    countriesCount: Math.max(countrySet.size, 1),
+    countriesList: Array.from(countrySet),
+  };
+});
+
