@@ -10,6 +10,7 @@ export const SITE = {
     facebook: "#",
     linkedin: "#",
     tiktok: "https://www.tiktok.com/@mdsolotravel?lang=en",
+    pinterest: "https://www.pinterest.com/ndsolotravel/",
   },
 };
 
