@@ -2,9 +2,10 @@ import { useState, useMemo } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Plus, Eye, EyeOff, Trash2, Clock, Search, MapPin, Loader2, Image as ImageIcon } from "lucide-react";
+import { Plus, Eye, EyeOff, Trash2, Clock, Search, MapPin, Loader2, Image as ImageIcon, Navigation } from "lucide-react";
 import { toast } from "sonner";
 import { adminListPosts, adminTogglePublish, adminDeletePost } from "@/lib/admin.functions";
+import { batchGeocodePosts } from "@/lib/geocoding.functions";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,12 +27,14 @@ function AdminPostsList() {
   const listFn = useServerFn(adminListPosts);
   const toggleFn = useServerFn(adminTogglePublish);
   const delFn = useServerFn(adminDeletePost);
+  const batchGeocodeFn = useServerFn(batchGeocodePosts);
   const qc = useQueryClient();
   const { data, isLoading } = useQuery<any>({ queryKey: ["admin-posts"], queryFn: async () => await listFn() });
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null);
+  const [batchGeocoding, setBatchGeocoding] = useState(false);
 
   const toggle = useMutation({
     mutationFn: (v: { id: string; published: boolean }) => toggleFn({ data: v }),
@@ -59,6 +62,24 @@ function AdminPostsList() {
       setDeleteTarget(null);
     },
   });
+
+  const batchGeocode = useMutation({
+    mutationFn: () => batchGeocodeFn({ data: { dryRun: false } }),
+    onSuccess: (result) => {
+      qc.invalidateQueries({ queryKey: ["admin-posts"] });
+      toast.success(`Batch geocoding complete: ${result.updated} updated, ${result.flagged} flagged for review`);
+      setBatchGeocoding(false);
+    },
+    onError: (e: Error) => {
+      toast.error(e.message || "Batch geocoding failed");
+      setBatchGeocoding(false);
+    },
+  });
+
+  async function handleBatchGeocode() {
+    setBatchGeocoding(true);
+    batchGeocode.mutate();
+  }
 
   const filteredPosts = useMemo(() => {
     if (!data) return [];
@@ -88,12 +109,30 @@ function AdminPostsList() {
           <h1 className="font-display text-3xl font-bold">Posts</h1>
           <p className="text-sm text-muted-foreground mt-1">Manage and publish your solo travel stories</p>
         </div>
-        <Link
-          to="/admin/posts/new"
-          className="inline-flex items-center gap-2 rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background hover:opacity-90 transition-opacity"
-        >
-          <Plus className="h-4 w-4" /> New post
-        </Link>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleBatchGeocode}
+            disabled={batchGeocoding}
+            className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-medium hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {batchGeocoding ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" /> Geocoding...
+              </>
+            ) : (
+              <>
+                <Navigation className="h-4 w-4" /> Auto-geocode All Posts
+              </>
+            )}
+          </button>
+          <Link
+            to="/admin/posts/new"
+            className="inline-flex items-center gap-2 rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background hover:opacity-90 transition-opacity"
+          >
+            <Plus className="h-4 w-4" /> New post
+          </Link>
+        </div>
       </div>
 
       {/* Filter and Search Bar */}

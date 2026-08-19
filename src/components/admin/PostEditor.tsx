@@ -23,6 +23,7 @@ import {
   Eye,
   FileImage,
   User,
+  Navigation,
 } from "lucide-react";
 import { toast } from "sonner";
 import { MarkdownEditor } from "./MarkdownEditor";
@@ -34,6 +35,7 @@ import {
   adminDeleteGalleryImage,
   adminSavePostGallery,
 } from "@/lib/admin.functions";
+import { geocodeFromTitle } from "@/lib/geocoding.functions";
 import { CATEGORIES } from "@/lib/site";
 import {
   AlertDialog,
@@ -202,10 +204,53 @@ export function PostEditor({
   // Deletion confirmation state
   const [deleteTarget, setDeleteTarget] = useState<{ index: number; item: GalleryItemState } | null>(null);
 
+  // Auto-detect location state
+  const [autoDetecting, setAutoDetecting] = useState(false);
+  const [autoDetectResult, setAutoDetectResult] = useState<string | null>(null);
+
   const coverInput = useRef<HTMLInputElement>(null);
   const inlineInput = useRef<HTMLInputElement>(null);
   const galleryInput = useRef<HTMLInputElement>(null);
   const formId = "post-editor-form";
+
+  const geocodeFn = useServerFn(geocodeFromTitle);
+
+  // Auto-detect location from title
+  async function handleAutoDetectLocation() {
+    if (!title.trim()) {
+      toast.error("Please enter a title first");
+      return;
+    }
+
+    setAutoDetecting(true);
+    setAutoDetectResult(null);
+
+    try {
+      const result = await geocodeFn({
+        data: {
+          title: title.trim(),
+          existingLocation: locationName || undefined,
+        },
+      });
+
+      if (result.success && result.result) {
+        setLocationName(result.result.locationName);
+        setLatitude(String(result.result.latitude));
+        setLongitude(String(result.result.longitude));
+        setAutoDetectResult(`Detected: ${result.result.displayName}`);
+        toast.success(`Location detected: ${result.result.locationName}`);
+      } else {
+        setAutoDetectResult(result.message || "Could not detect location");
+        toast.info(result.message || "Could not detect location from title");
+      }
+    } catch (error) {
+      console.error("[AutoDetect] Error:", error);
+      toast.error("Failed to detect location. Please try again.");
+      setAutoDetectResult("Detection failed");
+    } finally {
+      setAutoDetecting(false);
+    }
+  }
 
   const save = useMutation({
     mutationFn: (payload: Record<string, unknown>) => upsertFn({ data: payload as never }),
@@ -1037,9 +1082,33 @@ export function PostEditor({
 
         {/* Map Location */}
         <div className="rounded-2xl border border-border bg-card p-5 space-y-4 shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-            <MapPin className="h-3.5 w-3.5 text-accent" /> Map Location
-          </p>
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+              <MapPin className="h-3.5 w-3.5 text-accent" /> Map Location
+            </p>
+            <button
+              type="button"
+              onClick={handleAutoDetectLocation}
+              disabled={autoDetecting || !title.trim()}
+              className="inline-flex items-center gap-1.5 rounded-full bg-accent/10 px-3 py-1.5 text-xs font-medium text-accent hover:bg-accent/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {autoDetecting ? (
+                <>
+                  <Loader2 className="h-3 w-3 animate-spin" /> Detecting...
+                </>
+              ) : (
+                <>
+                  <Navigation className="h-3 w-3" /> Auto Detect
+                </>
+              )}
+            </button>
+          </div>
+
+          {autoDetectResult && (
+            <p className={`text-xs ${autoDetectResult.startsWith("Detected") ? "text-green-600" : "text-muted-foreground"}`}>
+              {autoDetectResult}
+            </p>
+          )}
 
           <Field label="Location Name" hint="e.g. Phander Valley, Ghizer, Gilgit Baltistan, Pakistan">
             <input
@@ -1078,6 +1147,10 @@ export function PostEditor({
               />
             </Field>
           </div>
+
+          <p className="text-[10px] text-muted-foreground">
+            Enter location manually or use Auto Detect to suggest from title. Coordinates are validated before saving.
+          </p>
         </div>
 
         {/* Date & Destination */}
