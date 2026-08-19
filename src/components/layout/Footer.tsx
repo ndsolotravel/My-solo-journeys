@@ -36,6 +36,8 @@ export function Footer() {
             <div className="mt-5 flex gap-3">
               <a
                 href={SITE.socials.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label="Instagram"
                 className="inline-flex h-9 w-9 items-center justify-center rounded-full text-white transition-transform duration-200 hover:scale-110"
                 style={{
@@ -46,7 +48,18 @@ export function Footer() {
                 <Instagram className="h-4 w-4" />
               </a>
               <a
+                href={SITE.socials.tiktok}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="TikTok"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-black text-white transition-transform duration-200 hover:scale-110"
+              >
+                <TikTokIcon className="h-4 w-4" />
+              </a>
+              <a
                 href={SITE.socials.youtube}
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label="YouTube"
                 className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#FF0000] text-white transition-transform duration-200 hover:scale-110"
               >
@@ -54,6 +67,8 @@ export function Footer() {
               </a>
               <a
                 href={SITE.socials.twitter}
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label="X"
                 className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-black text-white transition-transform duration-200 hover:scale-110"
               >
@@ -61,6 +76,8 @@ export function Footer() {
               </a>
               <a
                 href={SITE.socials.facebook}
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label="Facebook"
                 className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#1877F2] text-white transition-transform duration-200 hover:scale-110"
               >
@@ -68,17 +85,12 @@ export function Footer() {
               </a>
               <a
                 href={SITE.socials.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label="LinkedIn"
                 className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#0A66C2] text-white transition-transform duration-200 hover:scale-110"
               >
                 <Linkedin className="h-4 w-4" />
-              </a>
-              <a
-                href={SITE.socials.tiktok}
-                aria-label="TikTok"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-black text-white transition-transform duration-200 hover:scale-110"
-              >
-                <TikTokIcon className="h-4 w-4" />
               </a>
             </div>
             <div className="mt-6">

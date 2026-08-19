@@ -1,6 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Menu, X, Search, User, LogOut } from "lucide-react";
+import { Menu, X, Search, User, LogOut, Instagram } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import { SearchDialog } from "./SearchDialog";
 import { LanguageSelector } from "./LanguageSelector";
@@ -9,7 +9,16 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { useTranslations } from "@/lib/translate/store";
+import { SITE } from "@/lib/site";
 import logoPath from "@/assets/ndsolo-travel-logo.png";
+
+function TikTokIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
+    </svg>
+  );
+}
 
 const LINKS = [
   { to: "/", label: "Home" },
@@ -168,6 +177,34 @@ export function Header() {
             >
               <Search className="h-4 w-4" />
             </button>
+            <div className="hidden sm:flex items-center gap-1.5">
+              <a
+                href={SITE.socials.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram"
+                className={`inline-flex h-9 w-9 items-center justify-center rounded-full transition-colors ${
+                  overHero
+                    ? "text-white hover:bg-white/10"
+                    : "text-foreground hover:bg-muted/60"
+                }`}
+              >
+                <Instagram className="h-4 w-4" />
+              </a>
+              <a
+                href={SITE.socials.tiktok}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="TikTok"
+                className={`inline-flex h-9 w-9 items-center justify-center rounded-full transition-colors ${
+                  overHero
+                    ? "text-white hover:bg-white/10"
+                    : "text-foreground hover:bg-muted/60"
+                }`}
+              >
+                <TikTokIcon className="h-4 w-4" />
+              </a>
+            </div>
             <div className="hidden sm:flex items-center gap-2">
               <ThemeToggle />
             </div>
@@ -287,6 +324,26 @@ export function Header() {
           >
             <Search className="h-4 w-4" /> {t("Search")}
           </button>
+          <div className="flex items-center justify-center gap-3 py-2">
+            <a
+              href={SITE.socials.instagram}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 text-white transition-transform duration-200 hover:scale-110"
+            >
+              <Instagram className="h-4 w-4" />
+            </a>
+            <a
+              href={SITE.socials.tiktok}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="TikTok"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-black text-white transition-transform duration-200 hover:scale-110"
+            >
+              <TikTokIcon className="h-4 w-4" />
+            </a>
+          </div>
           <div className="flex items-center justify-between">
             <span className="text-xs uppercase tracking-wider text-muted-foreground">
               {t("Theme")}

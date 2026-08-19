@@ -4,12 +4,12 @@ export const SITE = {
   description:
     "Cinematic stories from solo journeys across Pakistan, the Karakoram, Nanga Parbat, and beyond. Trekking guides, motorcycle adventures, and travel photography.",
   socials: {
-    instagram: "https://instagram.com/",
+    instagram: "https://www.instagram.com/ndsolotravel",
     youtube: "https://youtube.com/",
     twitter: "https://twitter.com/",
     facebook: "#",
     linkedin: "#",
-    tiktok: "#",
+    tiktok: "https://www.tiktok.com/@mdsolotravel?lang=en",
   },
 };
 
