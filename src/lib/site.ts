@@ -6,7 +6,7 @@ export const SITE = {
   socials: {
     instagram: "https://www.instagram.com/ndsolotravel",
     youtube: "https://youtube.com/",
-    twitter: "https://twitter.com/",
+    twitter: "https://x.com/ndsolotravel",
     facebook: "#",
     linkedin: "#",
     tiktok: "https://www.tiktok.com/@mdsolotravel?lang=en",
