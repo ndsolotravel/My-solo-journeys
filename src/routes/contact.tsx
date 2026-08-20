@@ -162,7 +162,7 @@ function ContactPage() {
   }
 
   const underlineInput =
-    "w-full bg-transparent border-b border-[#E5D7CA] pb-2.5 pt-2 text-slate-800 placeholder:text-stone-400 placeholder:text-sm text-sm sm:text-base outline-none focus:border-[#FA8128] transition-colors";
+    "w-full bg-transparent border-b border-[#E5D7CA] pb-2.5 pt-2 text-slate-800 placeholder:text-stone-400 placeholder:text-sm text-sm sm:text-base outline-none focus:border-black transition-colors";
 
   return (
     <div className="min-h-screen bg-[#08172c]">
@@ -212,15 +212,15 @@ function ContactPage() {
             <div className="lg:col-span-7 bg-white p-6 sm:p-10 lg:p-12 flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between border-b border-stone-100 pb-4 mb-8">
-                  <h3 className="font-display text-xl sm:text-2xl font-bold text-[#FA8128]">
+                  <h3 className="font-display text-xl sm:text-2xl font-bold text-black">
                     {t("Send Us A Message")}
                   </h3>
-                  <MessageDecorativeIcon className="h-6 w-8 text-[#FA8128]/80 shrink-0" />
+                  <MessageDecorativeIcon className="h-6 w-8 text-black/80 shrink-0" />
                 </div>
 
                 {submitted ? (
-                  <div className="rounded-2xl bg-amber-50/70 border border-[#FA8128]/30 p-6 sm:p-8 text-center space-y-4 my-6 animate-in fade-in duration-300">
-                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#FA8128]/15 text-[#FA8128]">
+                  <div className="rounded-2xl bg-amber-50/70 border border-black/20 p-6 sm:p-8 text-center space-y-4 my-6 animate-in fade-in duration-300">
+                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-black/10 text-black">
                       <CheckCircle2 className="h-8 w-8" />
                     </div>
                     <h4 className="font-display text-xl font-bold text-slate-900">
@@ -234,7 +234,7 @@ function ContactPage() {
                     <button
                       type="button"
                       onClick={() => setSubmitted(false)}
-                      className="inline-flex items-center justify-center rounded-full bg-[#FA8128] px-6 py-2.5 text-xs font-semibold text-white hover:bg-[#E06D14] transition-colors shadow-sm cursor-pointer"
+                      className="inline-flex items-center justify-center rounded-full bg-black px-6 py-2.5 text-xs font-semibold text-white hover:bg-neutral-800 transition-colors shadow-sm cursor-pointer"
                     >
                       {t("Send another message")}
                     </button>
@@ -328,7 +328,7 @@ function ContactPage() {
                       <button
                         type="submit"
                         disabled={loading}
-                        className="cursor-pointer rounded-full bg-[#FA8128] hover:bg-[#E06D14] active:scale-[0.98] px-10 py-3 text-sm font-semibold text-white shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2"
+                        className="cursor-pointer rounded-full bg-black hover:bg-neutral-800 active:scale-[0.98] px-10 py-3 text-sm font-semibold text-white shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2"
                       >
                         {loading ? (
                           <>
@@ -345,8 +345,8 @@ function ContactPage() {
               </div>
             </div>
 
-            {/* Right Card: Orange Contact Info Panel */}
-            <div className="lg:col-span-5 bg-[#FA8128] text-white p-6 sm:p-10 lg:p-12 flex flex-col justify-between">
+            {/* Right Card: Black Contact Info Panel */}
+            <div className="lg:col-span-5 bg-black text-white p-6 sm:p-10 lg:p-12 flex flex-col justify-between">
               <div>
                 <h3 className="font-display text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-8">
                   {t("Contact Info")}
@@ -404,7 +404,7 @@ function ContactPage() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="LinkedIn"
-                    className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white hover:text-[#FA8128] transition-all duration-200 shadow-sm hover:scale-105"
+                    className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white hover:text-black transition-all duration-200 shadow-sm hover:scale-105"
                   >
                     <Linkedin className="h-4 w-4" />
                   </a>
@@ -413,7 +413,7 @@ function ContactPage() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Facebook"
-                    className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white hover:text-[#FA8128] transition-all duration-200 shadow-sm hover:scale-105"
+                    className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white hover:text-black transition-all duration-200 shadow-sm hover:scale-105"
                   >
                     <Facebook className="h-4 w-4" />
                   </a>
@@ -422,7 +422,7 @@ function ContactPage() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="X (Twitter)"
-                    className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white hover:text-[#FA8128] transition-all duration-200 shadow-sm hover:scale-105"
+                    className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white hover:text-black transition-all duration-200 shadow-sm hover:scale-105"
                   >
                     <Twitter className="h-4 w-4" />
                   </a>
@@ -431,7 +431,7 @@ function ContactPage() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Instagram"
-                    className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white hover:text-[#FA8128] transition-all duration-200 shadow-sm hover:scale-105"
+                    className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white hover:text-black transition-all duration-200 shadow-sm hover:scale-105"
                   >
                     <Instagram className="h-4 w-4" />
                   </a>
@@ -440,7 +440,7 @@ function ContactPage() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="YouTube"
-                    className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white hover:text-[#FA8128] transition-all duration-200 shadow-sm hover:scale-105"
+                    className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white hover:text-black transition-all duration-200 shadow-sm hover:scale-105"
                   >
                     <Youtube className="h-4 w-4" />
                   </a>
@@ -449,7 +449,7 @@ function ContactPage() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="TikTok"
-                    className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white hover:text-[#FA8128] transition-all duration-200 shadow-sm hover:scale-105"
+                    className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white hover:text-black transition-all duration-200 shadow-sm hover:scale-105"
                   >
                     <TikTokIcon className="h-4 w-4" />
                   </a>
@@ -458,7 +458,7 @@ function ContactPage() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Pinterest"
-                    className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white hover:text-[#FA8128] transition-all duration-200 shadow-sm hover:scale-105"
+                    className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white hover:text-black transition-all duration-200 shadow-sm hover:scale-105"
                   >
                     <PinterestIcon className="h-4 w-4" />
                   </a>
