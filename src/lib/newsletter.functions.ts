@@ -305,9 +305,16 @@ async function sendNewsletterNotification(
         (typeof resData?.message === "string" && resData.message) ||
         resData?.name ||
         `HTTP ${res.status}`;
-      const hint = /not verified|verify.*domain|domain.*verified/i.test(errMsg)
-        ? "Resend domain verification is failing for ndsolotravel.com. Add the DNS records shown at https://resend.com/domains and re-verify, then confirm RESEND_API_KEY is set in the server environment."
-        : "Check the Resend API key and confirm the sender domain is verified at https://resend.com/domains.";
+      
+      let hint = "";
+      if (/not verified|verify.*domain|domain.*verified/i.test(errMsg)) {
+        hint = "Resend domain verification is failing for ndsolotravel.com. Add the DNS records at Hostinger and re-verify at https://resend.com/domains";
+      } else if (/invalid.*api.*key|unauthorized|401/i.test(errMsg)) {
+        hint = "The RESEND_API_KEY appears to be invalid. Generate a new key at https://resend.com/api-keys";
+      } else {
+        hint = "Check the Resend API key and confirm the sender domain is verified at https://resend.com/domains.";
+      }
+      
       console.error(
         `[subscribe] Resend API rejected email delivery (HTTP ${res.status}): ${errMsg}`,
         { statusCode: resData?.statusCode ?? res.status, message: errMsg, hint },
@@ -531,18 +538,57 @@ async function notifyRecipientByEmail(msg: {
         (typeof resData?.message === "string" && resData.message) ||
         resData?.name ||
         `HTTP ${res.status}`;
-      const hint = /not verified|verify.*domain|domain.*verified/i.test(errMsg)
-        ? "Resend domain verification is failing for ndsolotravel.com. Add the DNS records shown at https://resend.com/domains and re-verify, then confirm RESEND_API_KEY is set in the server environment."
-        : "Check the Resend API key and confirm the sender domain is verified at https://resend.com/domains.";
+      
+      // Enhanced error diagnostics for domain verification issues
+      let hint = "";
+      let detailedError = errMsg;
+      
+      if (/not verified|verify.*domain|domain.*verified/i.test(errMsg)) {
+        hint = `Resend domain verification is failing for ndsolotravel.com. 
+
+TO FIX THIS:
+1. Log in to Hostinger and go to DNS Zone Editor for ndsolotravel.com
+2. Add these 3 DNS records:
+
+   Record 1 - DKIM TXT:
+   Name: resend._domainkey.ndsolotravel.com
+   Type: TXT
+   Value: p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC+VdNkOo65o+tEkWdfU/T4gbAYCthoIBBnVe9rn88lQX/T7VA9mNwcVkqQPnMAA5xpLuStAsonyu8rr8eW+Z1SXvqP4ub0J2gRLv7EHicxNcN0ehDbJHlTg3V6bTc58ZhG5y5fMfWC9qeM+2QRuo6EKbdDsujho2e17TYrogQc5QIDAQAB
+
+   Record 2 - MX:
+   Name: send.ndsolotravel.com
+   Type: MX
+   Value: feedback-smtp.ap-northeast-1.amazonses.com
+   Priority: 10
+
+   Record 3 - SPF TXT:
+   Name: send.ndsolotravel.com
+   Type: TXT
+   Value: v=spf1 include:amazonses.com ~all
+
+3. Wait 5-10 minutes for DNS propagation
+4. Go to https://resend.com/domains and click "Verify" on ndsolotravel.com
+5. The domain status should change from "failed" to "verified"`;
+        detailedError = `Domain verification failed: ${errMsg}`;
+      } else if (/invalid.*api.*key|unauthorized|401/i.test(errMsg)) {
+        hint = "The RESEND_API_KEY appears to be invalid. Generate a new key at https://resend.com/api-keys";
+        detailedError = `API key error: ${errMsg}`;
+      } else if (/rate.*limit|429/i.test(errMsg)) {
+        hint = "Resend rate limit reached. Wait a few minutes before trying again.";
+        detailedError = `Rate limit: ${errMsg}`;
+      } else {
+        hint = "Check the Resend API key and confirm the sender domain is verified at https://resend.com/domains.";
+      }
+      
       console.error(
         `[sendContact] Resend API rejected email delivery (HTTP ${res.status}): ${errMsg}`,
-        { statusCode: resData?.statusCode ?? res.status, message: errMsg, hint },
+        { statusCode: resData?.statusCode ?? res.status, message: errMsg, hint, fullResponse: resData },
       );
-      diagnostics.error = `${errMsg} ${hint}`;
+      diagnostics.error = `${detailedError} | ${hint}`;
       return {
         sent: false,
         provider: "resend",
-        reason: errMsg,
+        reason: detailedError,
         diagnostics,
       };
     }
