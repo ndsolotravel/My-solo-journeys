@@ -301,11 +301,21 @@ async function sendNewsletterNotification(
 
     const resData = await res.json();
     if (!res.ok) {
-      console.error(`[subscribe] Resend API rejected email delivery:`, resData);
+      const errMsg =
+        (typeof resData?.message === "string" && resData.message) ||
+        resData?.name ||
+        `HTTP ${res.status}`;
+      const hint = /not verified|verify.*domain|domain.*verified/i.test(errMsg)
+        ? "Resend domain verification is failing for ndsolotravel.com. Add the DNS records shown at https://resend.com/domains and re-verify, then confirm RESEND_API_KEY is set in the server environment."
+        : "Check the Resend API key and confirm the sender domain is verified at https://resend.com/domains.";
+      console.error(
+        `[subscribe] Resend API rejected email delivery (HTTP ${res.status}): ${errMsg}`,
+        { statusCode: resData?.statusCode ?? res.status, message: errMsg, hint },
+      );
       return {
         sent: false,
         provider: "resend",
-        reason: `Resend API error: ${resData.message || JSON.stringify(resData)}`,
+        reason: `Resend API error: ${errMsg}`,
       };
     }
 
@@ -517,13 +527,22 @@ async function notifyRecipientByEmail(msg: {
 
     const resData = await res.json();
     if (!res.ok) {
-      console.error(`[sendContact] Resend API rejected email delivery:`, resData);
-      const errMsg = resData.message || JSON.stringify(resData);
-      diagnostics.error = errMsg;
+      const errMsg =
+        (typeof resData?.message === "string" && resData.message) ||
+        resData?.name ||
+        `HTTP ${res.status}`;
+      const hint = /not verified|verify.*domain|domain.*verified/i.test(errMsg)
+        ? "Resend domain verification is failing for ndsolotravel.com. Add the DNS records shown at https://resend.com/domains and re-verify, then confirm RESEND_API_KEY is set in the server environment."
+        : "Check the Resend API key and confirm the sender domain is verified at https://resend.com/domains.";
+      console.error(
+        `[sendContact] Resend API rejected email delivery (HTTP ${res.status}): ${errMsg}`,
+        { statusCode: resData?.statusCode ?? res.status, message: errMsg, hint },
+      );
+      diagnostics.error = `${errMsg} ${hint}`;
       return {
         sent: false,
         provider: "resend",
-        reason: `Resend API error: ${errMsg}`,
+        reason: errMsg,
         diagnostics,
       };
     }
