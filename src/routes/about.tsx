@@ -64,7 +64,7 @@ function AboutPage() {
       <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6">
         <h2 className="sr-only">{t("Solo, slow, and almost always uphill.")}</h2>
 
-        <div className="mt-10 grid gap-12 lg:grid-cols-[1fr_2fr]">
+        <div className="mt-10 grid gap-12 lg:grid-cols-[5fr_7fr]">
           <img
             src={portraitSrc}
             alt="ndsolotravel portrait"
