@@ -1,5 +1,17 @@
 import { createFileRoute, Link, Outlet, redirect, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, FileText, MapPin, MessageSquare, Mail, LogOut, BarChart3, Users, Image as ImageIcon, Settings } from "lucide-react";
+import {
+  LayoutDashboard,
+  FileText,
+  MapPin,
+  MessageSquare,
+  Mail,
+  LogOut,
+  BarChart3,
+  Users,
+  Image as ImageIcon,
+  Settings,
+  Home,
+} from "lucide-react";
 import { getMyRoles } from "@/lib/admin.functions";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -26,10 +38,7 @@ export const Route = createFileRoute("/_authenticated/admin")({
     return { roles };
   },
   head: () => ({
-    meta: [
-      { title: "Admin — ndsolotravel" },
-      { name: "robots", content: "noindex,nofollow" },
-    ],
+    meta: [{ title: "Admin — ndsolotravel" }, { name: "robots", content: "noindex,nofollow" }],
   }),
   component: AdminLayout,
 });
@@ -40,6 +49,7 @@ const NAV: { to: string; label: string; icon: typeof LayoutDashboard; exact?: bo
   { to: "/admin/posts", label: "Posts", icon: FileText },
   { to: "/admin/gallery", label: "Gallery", icon: ImageIcon },
   { to: "/admin/destinations", label: "Destinations", icon: MapPin },
+  { to: "/admin/homepage", label: "Homepage", icon: Home },
   { to: "/admin/comments", label: "Comments", icon: MessageSquare },
   { to: "/admin/subscribers", label: "Subscribers", icon: Users },
   { to: "/admin/messages", label: "Messages", icon: Mail },
@@ -55,7 +65,9 @@ function AdminLayout() {
     <div className="mx-auto grid min-h-[80vh] max-w-7xl gap-8 px-4 py-10 sm:px-6 md:grid-cols-[220px_1fr] lg:px-8">
       <aside className="md:sticky md:top-24 md:self-start">
         <div className="rounded-2xl border border-border bg-background p-3">
-          <p className="px-3 pb-2 pt-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">CMS</p>
+          <p className="px-3 pb-2 pt-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            CMS
+          </p>
           <nav className="flex flex-col gap-0.5">
             {NAV.map((n) => {
               const Icon = n.icon;

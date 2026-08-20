@@ -18,6 +18,7 @@ import { useEffect, useState } from "react";
 import { listPosts, getJourneyStats } from "../lib/posts.functions";
 import { listDestinations } from "../lib/destinations.functions";
 import { listGallery } from "../lib/gallery.functions";
+import { getHomepageConfig } from "../lib/homepage.functions";
 import { CountUp } from "../components/dashboard/CountUp";
 import { useGsapReveal } from "../hooks/use-gsap-reveal";
 import { PostCard } from "../components/blog/PostCard";
@@ -26,6 +27,7 @@ import { NewsletterForm } from "../components/layout/NewsletterForm";
 import { HeroSlider } from "../components/layout/HeroSlider";
 import { CATEGORIES } from "../lib/site";
 import { useTranslations } from "@/lib/translate/store";
+import { resolveMediaUrl } from "@/lib/admin.functions";
 
 const postsQO = queryOptions({
   queryKey: ["home", "posts"],
@@ -68,6 +70,10 @@ const journeyStatsQO = queryOptions({
   queryKey: ["home", "journey-stats"],
   queryFn: () => getJourneyStats(),
 });
+const homepageQO = queryOptions({
+  queryKey: ["home", "homepage-config"],
+  queryFn: () => getHomepageConfig(),
+});
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -94,6 +100,7 @@ export const Route = createFileRoute("/")({
       context.queryClient.ensureQueryData(galleryQO),
       context.queryClient.ensureQueryData(motoQO),
       context.queryClient.ensureQueryData(journeyStatsQO),
+      context.queryClient.ensureQueryData(homepageQO),
     ]);
   },
   component: HomePage,
@@ -144,6 +151,7 @@ function HomePage() {
   const { data: galleryData } = useSuspenseQuery(galleryQO);
   const { data: motoData } = useSuspenseQuery(motoQO);
   const { data: journeyStats } = useSuspenseQuery(journeyStatsQO);
+  const { data: homepageConfig } = useSuspenseQuery(homepageQO);
 
   const featuredList = featuredData.posts;
   const latest = postsData.posts;
@@ -152,7 +160,14 @@ function HomePage() {
   const destinations = destinationsData;
   const gallery = galleryData ?? [];
 
-  const featured = featuredList[0] ?? featuredData.posts[0];
+  const heroSettings = homepageConfig?.settings ?? {};
+  const heroMode = heroSettings.homepage_hero_mode === "manual" ? "manual" : "auto";
+  const featuredMode = heroSettings.homepage_featured_mode === "manual" ? "manual" : "auto";
+  const heroSource = homepageConfig?.heroPost ?? null;
+
+  const featured = featuredMode === "manual"
+    ? (homepageConfig?.featuredPost ?? featuredList[0] ?? featuredData.posts[0])
+    : featuredList[0] ?? featuredData.posts[0];
   const motoPosts = motoData?.posts ?? [];
   const latestMoto = motoPosts[0] ?? null;
   const latestDest = destinations[0];
@@ -182,52 +197,75 @@ function HomePage() {
 
   // Derived stats — Countries Visited automatically calculated from published blog post locations
   const calculatedCountries = journeyStats?.countriesCount ?? 1;
+  const countriesMode = heroSettings.homepage_stat_countries_mode === "manual" ? "manual" : "auto";
+  const countries = countriesMode === "manual"
+    ? Number(heroSettings.homepage_stat_countries) || 1
+    : calculatedCountries;
   const stats = [
     {
       icon: Globe2,
       label: t("Countries Visited"),
-      value: calculatedCountries,
+      value: countries,
       suffix: "",
       featured: false,
     },
     {
       icon: Bike,
       label: t("Solo Motorcycle Trips"),
-      value: 102,
+      value: Number(heroSettings.homepage_stat_trips) || 102,
       suffix: "",
       featured: false,
     },
     {
       icon: Camera,
       label: t("Photos Captured"),
-      value: 200,
-      suffix: "K+",
+      value: Number(heroSettings.homepage_stat_photos) || 200,
+      suffix: heroSettings.homepage_stat_photos_suffix || "K+",
       featured: false,
     },
-    { icon: RouteIcon, label: t("Kilometres Travelled"), value: 18420, suffix: " km", featured: true },
-    { icon: Calendar, label: t("Days on the Road"), value: 142, suffix: "", featured: false },
+    {
+      icon: RouteIcon,
+      label: t("Kilometres Travelled"),
+      value: Number(heroSettings.homepage_stat_kilometres) || 18420,
+      suffix: heroSettings.homepage_stat_kilometres_suffix || " km",
+      featured: true,
+    },
+    { icon: Calendar, label: t("Days on the Road"), value: Number(heroSettings.homepage_stat_days) || 142, suffix: "", featured: false },
   ];
   const journeyRef = useGsapReveal<HTMLDivElement>();
+
+  const isExternal = (link?: string) => {
+    const target = ((link || "").trim()).toLowerCase();
+    return target.startsWith("http://") || target.startsWith("https://") || target.startsWith("mailto:");
+  };
+  const heroPrimaryTo = heroSettings.homepage_hero_button_link?.trim() || "/blog";
+  const heroSecondaryTo = heroSettings.homepage_hero_secondary_button_link?.trim() || "/destinations";
 
   return (
     <div>
       {/* 1. Hero */}
       <section className="relative min-h-[max(100svh,580px)] overflow-hidden">
         <HeroSlider
-          slides={[
-            {
-              src: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=2000&q=80",
-              alt: "Nanga Parbat at sunrise",
-            },
-            {
-              src: "https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?w=2000&q=80",
-              alt: "Mountain road at dusk",
-            },
-            {
-              src: "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=2000&q=80",
-              alt: "Trekker on alpine ridge",
-            },
-          ]}
+          slides={
+            heroSettings.homepage_hero_image
+              ? [{ src: resolveMediaUrl(heroSettings.homepage_hero_image), alt: "Custom hero background" }]
+              : (heroMode === "manual" && heroSource?.cover_image)
+                ? [{ src: heroSource.cover_image, alt: heroSource.title }]
+                : [
+                    {
+                      src: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=2000&q=80",
+                      alt: "Nanga Parbat at sunrise",
+                    },
+                    {
+                      src: "https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?w=2000&q=80",
+                      alt: "Mountain road at dusk",
+                    },
+                    {
+                      src: "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=2000&q=80",
+                      alt: "Trekker on alpine ridge",
+                    },
+                  ]
+          }
         />
         <div className="pointer-events-none relative mx-auto flex min-h-[max(100svh,580px)] max-w-7xl flex-col justify-end px-4 pb-10 pt-24 sm:px-6 sm:pb-20 sm:pt-32 lg:px-8">
           <motion.span
@@ -236,7 +274,7 @@ function HomePage() {
             transition={{ duration: 0.6 }}
             className="mt-6 sm:mt-0 inline-flex w-fit items-center rounded-full border border-white/30 bg-white/10 px-4 py-1.5 text-xs uppercase tracking-[0.2em] text-white backdrop-blur"
           >
-            {t("Solo · Slow · Cinematic")}
+            {t(heroSettings.homepage_hero_badge || "Solo · Slow · Cinematic")}
           </motion.span>
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
@@ -244,8 +282,8 @@ function HomePage() {
             transition={{ duration: 0.8, delay: 0.1 }}
             className="mt-6 max-w-4xl font-display text-5xl font-bold leading-[1.05] text-white sm:text-6xl lg:text-7xl"
           >
-            {t("Stories from the high places")}{" "}
-            <span className="text-accent">{t("most people only fly over.")}</span>
+            {t(heroSettings.homepage_hero_title || "Stories from the high places")}{" "}
+            <span className="text-accent">{t(heroSettings.homepage_hero_title_highlight || "most people only fly over.")}</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 30 }}
@@ -253,7 +291,8 @@ function HomePage() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="mt-5 max-w-2xl text-base text-white/80 sm:text-lg"
           >
-            {t("Solo expeditions, motorcycle journeys and trekking diaries from Pakistan, the Karakoram and the world's wildest borders.")}
+            {t(heroSettings.homepage_hero_description ||
+              "Solo expeditions, motorcycle journeys and trekking diaries from Pakistan, the Karakoram and the world's wildest borders.")}
           </motion.p>
 
           {/* Hero search */}
@@ -287,18 +326,40 @@ function HomePage() {
             transition={{ duration: 0.8, delay: 0.45 }}
             className="pointer-events-auto mt-6 flex flex-wrap gap-3"
           >
-            <Link
-              to="/blog"
-              className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-medium text-foreground hover:bg-white/90 transition-colors"
-            >
-              {t("Read the stories")} <ArrowRight className="h-4 w-4 rtl:rotate-180" />
-            </Link>
-            <Link
-              to="/destinations"
-              className="inline-flex items-center gap-2 rounded-full border border-white/30 px-6 py-3 text-sm font-medium text-white hover:bg-white/10 transition-colors"
-            >
-              {t("Explore destinations")}
-            </Link>
+            {isExternal(heroPrimaryTo) ? (
+              <a
+                href={heroPrimaryTo}
+                target={heroPrimaryTo.startsWith("http") ? "_blank" : undefined}
+                rel={heroPrimaryTo.startsWith("http") ? "noopener noreferrer" : undefined}
+                className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-medium text-foreground hover:bg-white/90 transition-colors"
+              >
+                {t(heroSettings.homepage_hero_button_text || "Read the stories")} <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+              </a>
+            ) : (
+              <Link
+                to={heroPrimaryTo as "/blog"}
+                className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-medium text-foreground hover:bg-white/90 transition-colors"
+              >
+                {t(heroSettings.homepage_hero_button_text || "Read the stories")} <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+              </Link>
+            )}
+            {isExternal(heroSecondaryTo) ? (
+              <a
+                href={heroSecondaryTo}
+                target={heroSecondaryTo.startsWith("http") ? "_blank" : undefined}
+                rel={heroSecondaryTo.startsWith("http") ? "noopener noreferrer" : undefined}
+                className="inline-flex items-center gap-2 rounded-full border border-white/30 px-6 py-3 text-sm font-medium text-white hover:bg-white/10 transition-colors"
+              >
+                {t(heroSettings.homepage_hero_secondary_button_text || "Explore destinations")}
+              </a>
+            ) : (
+              <Link
+                to={heroSecondaryTo as "/destinations"}
+                className="inline-flex items-center gap-2 rounded-full border border-white/30 px-6 py-3 text-sm font-medium text-white hover:bg-white/10 transition-colors"
+              >
+                {t(heroSettings.homepage_hero_secondary_button_text || "Explore destinations")}
+              </Link>
+            )}
           </motion.div>
         </div>
       </section>
@@ -314,7 +375,7 @@ function HomePage() {
             {t("Three pathways into the wild — pick the route that pulls you in.")}
           </p>
         </div>
-        <div className="grid gap-6 md:grid-cols-3">
+<div className="grid gap-6 md:grid-cols-3">
           {JOURNEY_CARDS.map((c) => {
             const Icon = c.icon;
             return (
