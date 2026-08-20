@@ -27,6 +27,7 @@ import {
   adminSavePostGallery,
   adminDeleteGalleryImage,
   adminUploadImage,
+  resolveMediaUrl,
 } from "@/lib/admin.functions";
 import {
   AlertDialog,
@@ -42,31 +43,6 @@ import {
 export const Route = createFileRoute("/_authenticated/admin/gallery")({
   component: AdminGalleryPage,
 });
-
-const DEFAULT_SUPABASE_URL = "https://mqoybarqgzzvillignbr.supabase.co";
-
-function resolveImageUrl(urlOrPath: string | null | undefined): string {
-  if (!urlOrPath || typeof urlOrPath !== "string") return "";
-  const trimmed = urlOrPath.trim();
-  if (!trimmed) return "";
-  if (
-    trimmed.startsWith("http://") ||
-    trimmed.startsWith("https://") ||
-    trimmed.startsWith("data:") ||
-    trimmed.startsWith("blob:")
-  ) {
-    return trimmed;
-  }
-  let cleanPath = trimmed.replace(/^\/+/, "");
-  if (cleanPath.startsWith("blog-media/")) {
-    cleanPath = cleanPath.slice("blog-media/".length);
-  }
-  const baseUrl =
-    (typeof process !== "undefined"
-      ? process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
-      : "") || DEFAULT_SUPABASE_URL;
-  return `${baseUrl.replace(/\/+$/, "")}/storage/v1/object/public/blog-media/${cleanPath}`;
-}
 
 type GalleryItem = {
   id?: string;
@@ -418,13 +394,17 @@ function AdminGalleryPage() {
   }
 
   // Update Alt Text
-  async function updateAltText(postId: string, itemIndex: number, newAlt: string) {
+  async function updateAltText(postId: string, targetItem: GalleryItem, newAlt: string) {
     const post = posts?.find((p) => p.id === postId);
     if (!post) return;
 
+    const itemIdx = post.gallery.findIndex(
+      (g) => (targetItem.id && g.id === targetItem.id) || g.image_url === targetItem.image_url
+    );
+    if (itemIdx === -1) return;
+
     const next = [...post.gallery];
-    if (!next[itemIndex]) return;
-    next[itemIndex] = { ...next[itemIndex], alt_text: newAlt };
+    next[itemIdx] = { ...next[itemIdx], alt_text: newAlt };
 
     try {
       await saveGalleryFn({
@@ -449,11 +429,12 @@ function AdminGalleryPage() {
   async function confirmRemove() {
     if (!deleteTarget) return;
     const { item, postId } = deleteTarget;
+    const effectivePostId = postId !== "all" ? postId : item.post_id;
 
     try {
       await delImageFn({
         data: {
-          postId,
+          postId: effectivePostId,
           galleryId: item.id,
           imageUrl: item.image_url,
         },
@@ -744,7 +725,7 @@ function AdminGalleryPage() {
                   {/* Thumbnail Card */}
                   <div className="relative aspect-4/3 w-full bg-muted/40 overflow-hidden">
                     <img
-                      src={resolveImageUrl(item.image_url)}
+                      src={resolveMediaUrl(item.image_url)}
                       alt={item.alt_text || `Gallery photo ${idx + 1}`}
                       className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                       loading="lazy"
@@ -824,7 +805,7 @@ function AdminGalleryPage() {
                         placeholder="Caption / Alt text…"
                         onBlur={(e) => {
                           if (item.post_id && e.target.value !== item.alt_text) {
-                            updateAltText(item.post_id, idx, e.target.value);
+                            updateAltText(item.post_id, item, e.target.value);
                           }
                         }}
                         onKeyDown={(e) => {
@@ -988,7 +969,7 @@ function AdminGalleryPage() {
                 placeholder="Add caption / alt text for this photo…"
                 onBlur={(e) => {
                   if (activeLightboxItem.post_id && e.target.value !== activeLightboxItem.alt_text) {
-                    updateAltText(activeLightboxItem.post_id, lightboxIndex, e.target.value);
+                    updateAltText(activeLightboxItem.post_id, activeLightboxItem, e.target.value);
                   }
                 }}
                 onKeyDown={(e) => {

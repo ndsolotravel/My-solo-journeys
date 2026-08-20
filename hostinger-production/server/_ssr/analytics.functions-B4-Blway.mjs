@@ -1,5 +1,5 @@
 import { c as createServerRpc } from "./createServerRpc-wV0Vk4NU.mjs";
-import { c as createServerFn, b as getRequestHeader } from "./server-7Z2Wk8DL.mjs";
+import { c as createServerFn, d as getRequestHeader } from "./server-7Z2Wk8DL.mjs";
 import { r as requireSupabaseAuth } from "./auth-middleware-BO6ULLpK.mjs";
 import "../_libs/seroval.mjs";
 import "../_libs/react.mjs";

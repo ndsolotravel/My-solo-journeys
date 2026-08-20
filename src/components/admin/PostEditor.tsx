@@ -145,8 +145,9 @@ export function PostEditor({
   const [seoDescription, setSeoDescription] = useState(initial?.seo_description ?? "");
   const [ogImageUrl, setOgImageUrl] = useState(initial?.og_image_url ? resolveImageUrl(initial.og_image_url) : "");
 
+  const initialGal = (initial?.gallery ?? (initial as any)?.post_gallery ?? []) as GalleryItemState[];
   const [gallery, setGallery] = useState<GalleryItemState[]>(
-    (initial?.gallery ?? []).map((g, idx) => ({
+    initialGal.map((g, idx) => ({
       id: g.id,
       image_url: resolveImageUrl(g.image_url),
       alt_text: g.alt_text ?? "",
@@ -177,9 +178,10 @@ export function PostEditor({
     setSeoDescription(initial.seo_description ?? "");
     setOgImageUrl(initial.og_image_url ? resolveImageUrl(initial.og_image_url) : "");
 
-    if (initial.gallery && Array.isArray(initial.gallery)) {
+    const effectiveGallery = (initial.gallery ?? (initial as any).post_gallery) as GalleryItemState[] | undefined;
+    if (effectiveGallery && Array.isArray(effectiveGallery)) {
       setGallery(
-        initial.gallery.map((g, idx) => ({
+        effectiveGallery.map((g, idx) => ({
           id: g.id,
           image_url: resolveImageUrl(g.image_url),
           alt_text: g.alt_text ?? "",

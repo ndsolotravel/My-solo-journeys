@@ -537,8 +537,8 @@ export {
   React as R,
   requireReact as a,
   getAugmentedNamespace as b,
-  commonjsGlobal as c,
-  React$1 as d,
+  React$1 as c,
+  commonjsGlobal as d,
   getDefaultExportFromCjs as g,
   jsxRuntimeExports as j,
   reactExports as r

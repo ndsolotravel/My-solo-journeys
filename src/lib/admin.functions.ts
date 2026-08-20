@@ -212,7 +212,7 @@ export const adminUpsertPost = createServerFn({ method: "POST" })
         gallery: z
           .array(
             z.object({
-              id: z.string().uuid().optional(),
+              id: z.string().optional(),
               image_url: z.string().min(1),
               alt_text: z.string().nullable().optional(),
               sort_order: z.number().int().nonnegative().optional(),
@@ -355,7 +355,7 @@ export const adminDeleteGalleryImage = createServerFn({ method: "POST" })
     z
       .object({
         postId: z.string().uuid().optional(),
-        galleryId: z.string().uuid().optional(),
+        galleryId: z.string().optional(),
         imageUrl: z.string().min(1),
       })
       .parse(i),
@@ -364,18 +364,37 @@ export const adminDeleteGalleryImage = createServerFn({ method: "POST" })
     await assertEditor(context.userId, context.supabase);
     const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
 
-    // 1. Delete from database table post_gallery
-    if (data.galleryId) {
-      const { error: delErr } = await client.from("post_gallery").delete().eq("id", data.galleryId);
+    // 1. Delete from database table post_gallery if it's a real DB record
+    if (data.galleryId && !data.galleryId.startsWith("post-cover-") && !data.galleryId.startsWith("post-content-")) {
+      const actualId = data.galleryId.startsWith("post-gal-")
+        ? data.galleryId.replace("post-gal-", "")
+        : data.galleryId;
+      const { error: delErr } = await client.from("post_gallery").delete().eq("id", actualId);
       if (delErr) console.warn("[adminDeleteGalleryImage] Delete by ID error:", delErr);
     }
+
     if (data.postId) {
-      const { error: delErr } = await client
-        .from("post_gallery")
-        .delete()
-        .eq("post_id", data.postId)
-        .eq("image_url", data.imageUrl);
-      if (delErr) console.warn("[adminDeleteGalleryImage] Delete by post_id error:", delErr);
+      const resolvedInput = resolveMediaUrl(data.imageUrl, client);
+      const inputMedia = extractBlogMediaPath(data.imageUrl);
+
+      const urlsToDelete = Array.from(new Set([data.imageUrl, resolvedInput, inputMedia].filter(Boolean) as string[]));
+      for (const u of urlsToDelete) {
+        await client.from("post_gallery").delete().eq("post_id", data.postId).eq("image_url", u);
+      }
+
+      // Check if post.cover_image matches this image and clear it
+      const { data: post } = await client.from("posts").select("id, cover_image").eq("id", data.postId).maybeSingle();
+      if (post && post.cover_image) {
+        const resolvedCover = resolveMediaUrl(post.cover_image, client);
+        const coverMedia = extractBlogMediaPath(post.cover_image);
+        if (
+          post.cover_image === data.imageUrl ||
+          (resolvedCover && resolvedInput && resolvedCover === resolvedInput) ||
+          (coverMedia && inputMedia && coverMedia === inputMedia)
+        ) {
+          await client.from("posts").update({ cover_image: null }).eq("id", data.postId);
+        }
+      }
     }
 
     // 2. Clean up file from Supabase Storage bucket blog-media
@@ -391,6 +410,19 @@ export const adminDeleteGalleryImage = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+function extractMarkdownImages(markdown?: string | null): { url: string; alt: string }[] {
+  if (!markdown || typeof markdown !== "string") return [];
+  const results: { url: string; alt: string }[] = [];
+  const mdRegex = /!\[([^\]]*)\]\((https?:\/\/[^\s)]+|\/[^\s)]+|blog-media\/[^\s)]+)\)/g;
+  let match: RegExpExecArray | null;
+  while ((match = mdRegex.exec(markdown)) !== null) {
+    if (match[2]) {
+      results.push({ alt: match[1] || "", url: match[2] });
+    }
+  }
+  return results;
+}
+
 export const adminListGalleries = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -400,7 +432,7 @@ export const adminListGalleries = createServerFn({ method: "GET" })
     // 1. Fetch all posts
     const { data: postsData, error: postsErr } = await (client
       .from("posts") as any)
-      .select("id, title, slug, cover_image, published, created_at, updated_at")
+      .select("id, title, slug, content, cover_image, published, created_at, updated_at")
       .order("updated_at", { ascending: false });
 
     if (postsErr) throw new Error(postsErr.message);
@@ -423,23 +455,84 @@ export const adminListGalleries = createServerFn({ method: "GET" })
         if (!galleryByPostId.has(pid)) {
           galleryByPostId.set(pid, []);
         }
-        galleryByPostId.get(pid)!.push({
-          id: g.id,
-          post_id: g.post_id,
-          image_url: resolveMediaUrl(g.image_url, client),
-          alt_text: g.alt_text ?? "",
-          sort_order: g.sort_order ?? 0,
-          created_at: g.created_at,
-        });
+        galleryByPostId.get(pid)!.push(g);
       }
     });
 
     const posts = ((postsData as any[]) ?? []).map((p: any) => {
-      const gallery = galleryByPostId.get(p.id) ?? [];
+      const seenUrls = new Set<string>();
+      const gallery: any[] = [];
+
+      const addGalleryItem = (item: any, rawUrl: string) => {
+        if (!rawUrl || typeof rawUrl !== "string") return;
+        const cleanKey = rawUrl.trim().toLowerCase();
+        if (seenUrls.has(cleanKey)) return;
+        seenUrls.add(cleanKey);
+        gallery.push(item);
+      };
+
+      // A. Add explicit post_gallery records first (with custom captions / sort order)
+      const postGalList = galleryByPostId.get(p.id) ?? [];
+      postGalList.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+      for (const pg of postGalList) {
+        if (pg.image_url && typeof pg.image_url === "string" && pg.image_url.trim()) {
+          addGalleryItem(
+            {
+              id: pg.id,
+              post_id: p.id,
+              image_url: resolveMediaUrl(pg.image_url, client),
+              alt_text: pg.alt_text ?? p.title ?? "",
+              sort_order: pg.sort_order ?? gallery.length,
+              created_at: pg.created_at,
+            },
+            pg.image_url,
+          );
+        }
+      }
+
+      // B. Add Cover Photo if not already in gallery
+      if (p.cover_image && typeof p.cover_image === "string" && p.cover_image.trim()) {
+        addGalleryItem(
+          {
+            id: `post-cover-${p.id}`,
+            post_id: p.id,
+            image_url: resolveMediaUrl(p.cover_image, client),
+            alt_text: p.title ?? "",
+            sort_order: gallery.length,
+            is_cover: true,
+            created_at: p.created_at,
+          },
+          p.cover_image,
+        );
+      }
+
+      // C. Add Markdown Content Images if not already in gallery
+      const contentImages = extractMarkdownImages(p.content);
+      for (let i = 0; i < contentImages.length; i++) {
+        const ci = contentImages[i];
+        addGalleryItem(
+          {
+            id: `post-content-${p.id}-${i}`,
+            post_id: p.id,
+            image_url: resolveMediaUrl(ci.url, client),
+            alt_text: ci.alt || p.title || "",
+            sort_order: gallery.length,
+            created_at: p.created_at,
+          },
+          ci.url,
+        );
+      }
+
       gallery.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+
       return {
-        ...p,
+        id: p.id,
+        title: p.title,
+        slug: p.slug,
         cover_image: resolveMediaUrl(p.cover_image, client),
+        published: p.published,
+        created_at: p.created_at,
+        updated_at: p.updated_at,
         gallery,
         galleryCount: gallery.length,
       };
@@ -456,7 +549,7 @@ export const adminSavePostGallery = createServerFn({ method: "POST" })
         postId: z.string().uuid(),
         gallery: z.array(
           z.object({
-            id: z.string().uuid().optional(),
+            id: z.string().optional(),
             image_url: z.string().min(1),
             alt_text: z.string().nullable().optional(),
             sort_order: z.number().int().nonnegative().optional(),

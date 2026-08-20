@@ -95,8 +95,8 @@ function AdminSettingsPage() {
         },
       });
 
-      if (res?.publicUrl) {
-        setAboutImageUrl(res.publicUrl);
+      if (res?.url) {
+        setAboutImageUrl(res.url);
         setIsDirty(true);
         toast.success("Portrait uploaded successfully!");
       }

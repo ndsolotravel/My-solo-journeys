@@ -78,29 +78,10 @@ export const listGallery = createServerFn({ method: "GET" }).handler(async () =>
     );
   }
 
-  // B. Add images from published posts (Cover Photo, Post Gallery, and Markdown images)
+  // B. Add images from published posts (Post Gallery, Cover Photo, and Markdown images)
   if (posts && Array.isArray(posts)) {
     for (const post of posts) {
-      // 1. Cover Photo
-      if (post.cover_image && typeof post.cover_image === "string" && post.cover_image.trim()) {
-        const resolved = resolveMediaUrl(post.cover_image, supabaseAdmin);
-        if (resolved) {
-          addItem(
-            {
-              id: `post-cover-${post.id}`,
-              image_url: resolved,
-              caption: post.title || null,
-              category: post.category || "Mountains",
-              width: 1600,
-              height: 1067,
-              post_id: post.id,
-            },
-            post.cover_image,
-          );
-        }
-      }
-
-      // 2. Post Gallery items
+      // 1. Post Gallery items (preserves custom captions & sort orders)
       const postGalleryItems = (post as any).post_gallery;
       if (Array.isArray(postGalleryItems)) {
         const sorted = [...postGalleryItems].sort(
@@ -124,6 +105,25 @@ export const listGallery = createServerFn({ method: "GET" }).handler(async () =>
               );
             }
           }
+        }
+      }
+
+      // 2. Cover Photo (if not already in gallery)
+      if (post.cover_image && typeof post.cover_image === "string" && post.cover_image.trim()) {
+        const resolved = resolveMediaUrl(post.cover_image, supabaseAdmin);
+        if (resolved) {
+          addItem(
+            {
+              id: `post-cover-${post.id}`,
+              image_url: resolved,
+              caption: post.title || null,
+              category: post.category || "Mountains",
+              width: 1600,
+              height: 1067,
+              post_id: post.id,
+            },
+            post.cover_image,
+          );
         }
       }
 
