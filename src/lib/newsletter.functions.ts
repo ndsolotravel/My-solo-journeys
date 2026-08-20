@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { getRequestHeader } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { assertEditor } from "@/lib/admin.functions";
 
 export type EmailDiagnostics = {
   resendConfigured: boolean;
@@ -94,22 +95,10 @@ export const subscribe = createServerFn({ method: "POST" })
 export const adminListSubscribers = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await assertEditor(context.userId, context.supabase);
+    const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
 
-    let roles: string[] = [];
-    if (context.supabase) {
-      const { data } = await (context.supabase as any).from("user_roles").select("role").eq("user_id", context.userId);
-      roles = (data ?? []).map((r: any) => r.role);
-    }
-    if (roles.length === 0) {
-      const { data } = await (supabaseAdmin as any).from("user_roles").select("role").eq("user_id", context.userId);
-      roles = (data ?? []).map((r: any) => r.role);
-    }
-    if (!roles.includes("admin") && !roles.includes("editor")) {
-      throw new Error("Forbidden");
-    }
-
-    const { data: fullData, error: fullError } = await supabaseAdmin
+    const { data: fullData, error: fullError } = await client
       .from("subscribers")
       .select("id, email, status, subscribed_at")
       .order("subscribed_at", { ascending: false });
@@ -123,7 +112,7 @@ export const adminListSubscribers = createServerFn({ method: "GET" })
       }));
     }
 
-    const { data: basicData, error: basicError } = await supabaseAdmin
+    const { data: basicData, error: basicError } = await client
       .from("subscribers")
       .select("id, email, subscribed_at")
       .order("subscribed_at", { ascending: false });
@@ -150,8 +139,9 @@ export const adminUpdateSubscriberStatus = createServerFn({ method: "POST" })
       .parse(raw);
   })
   .handler(async ({ context, data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await (supabaseAdmin
+    await assertEditor(context.userId, context.supabase);
+    const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
+    const { error } = await (client
       .from("subscribers") as any)
       .update({ status: data.status })
       .eq("id", data.id);
@@ -170,8 +160,9 @@ export const adminDeleteSubscriber = createServerFn({ method: "POST" })
       .parse(raw);
   })
   .handler(async ({ context, data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await (supabaseAdmin
+    await assertEditor(context.userId, context.supabase);
+    const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
+    const { error } = await (client
       .from("subscribers") as any)
       .delete()
       .eq("id", data.id);

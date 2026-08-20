@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-async function assertEditor(userId: string, client?: any) {
+export async function assertEditor(userId: string, client?: any) {
   let roles: string[] = [];
 
   if (client && typeof client.from === "function") {
@@ -906,7 +906,7 @@ export const adminAnalytics = createServerFn({ method: "GET" })
     const [posts, comments, subs, msgs, top] = await Promise.all([
       client.from("posts").select("id,published,scheduled_at,views", { count: "exact" }),
       client.from("comments").select("id,rating", { count: "exact", head: false }),
-      client.from("subscribers").select("id", { count: "exact", head: true }),
+      client.from("subscribers").select("id,status", { count: "exact" }),
       client.from("messages").select("id", { count: "exact", head: true }),
       client
         .from("posts")
@@ -918,6 +918,7 @@ export const adminAnalytics = createServerFn({ method: "GET" })
     const allPosts = posts.data ?? [];
     const ratings = (comments.data ?? []).map((c) => c.rating).filter((r): r is number => !!r);
     const avgRating = ratings.length ? ratings.reduce((a, b) => a + b, 0) / ratings.length : 0;
+    const subsCount = subs.count ?? subs.data?.length ?? 0;
     return {
       posts: posts.count ?? 0,
       published: allPosts.filter((p) => p.published).length,
@@ -926,7 +927,7 @@ export const adminAnalytics = createServerFn({ method: "GET" })
       totalViews: allPosts.reduce((a, b) => a + (b.views ?? 0), 0),
       comments: comments.count ?? 0,
       avgRating: Math.round(avgRating * 10) / 10,
-      subscribers: subs.count ?? 0,
+      subscribers: subsCount,
       messages: msgs.count ?? 0,
       topPosts: (top.data ?? []) as any[],
     };
