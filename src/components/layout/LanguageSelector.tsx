@@ -55,7 +55,7 @@ export function LanguageSelector({ className }: { className?: string }) {
         aria-expanded={menuOpen}
         className="inline-flex h-9 items-center gap-1.5 rounded-full border border-border/60 bg-transparent px-3 text-xs font-medium text-[#FF7A00] hover:text-[#FF7A00] focus:text-[#FF7A00] focus-visible:text-[#FF7A00] hover:bg-muted/60 transition-colors"
       >
-        <Globe className="h-3.5 w-3.5 text-white" />
+        <Globe className="h-3.5 w-3.5 text-accent" />
         <span className="text-[#FF7A00]">{current.nativeName}</span>
       </button>
       {menuOpen && (
