@@ -5,6 +5,8 @@ import { useMemo } from "react";
 import type { Post } from "@/lib/posts.functions";
 import { useTranslations, useLanguage } from "@/lib/translate/store";
 
+import { resolveMediaUrl } from "@/lib/admin.functions";
+
 function formatDate(d: string | null) {
   if (!d) return "";
   return new Date(d).toLocaleDateString("en-US", {
@@ -35,6 +37,11 @@ export function PostCard({ post, index = 0 }: { post: Post; index?: number }) {
     };
   }, [post, lang, t]);
 
+  const coverUrl = useMemo(() => {
+    const raw = localizedPost.cover_image || post.cover_image;
+    return raw ? resolveMediaUrl(raw) : "";
+  }, [localizedPost.cover_image, post.cover_image]);
+
   return (
     <motion.article
       initial={{ opacity: 0, y: 20 }}
@@ -45,13 +52,23 @@ export function PostCard({ post, index = 0 }: { post: Post; index?: number }) {
     >
       <Link to="/blog/$slug" params={{ slug: post.slug }} className="block">
         <div className="relative aspect-[16/9] overflow-hidden rounded-2xl bg-muted">
-          {localizedPost.cover_image && (
+          {coverUrl ? (
             <img
-              src={localizedPost.cover_image}
+              src={coverUrl}
               alt={localizedPost.title}
               loading="lazy"
+              onError={(e) => {
+                const target = e.currentTarget as HTMLImageElement;
+                if (!target.src.includes("unsplash.com")) {
+                  target.src = "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1600&q=80";
+                }
+              }}
               className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground">
+              <span className="text-xs uppercase tracking-wider">{t("No Image")}</span>
+            </div>
           )}
           <div className="absolute left-3 top-3 rtl:left-auto rtl:right-3">
             <span className="rounded-full bg-background/90 px-3 py-1 text-xs font-medium text-foreground">

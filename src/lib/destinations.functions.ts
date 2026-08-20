@@ -29,7 +29,7 @@ export const listDestinations = createServerFn({ method: "GET" }).handler(async 
       description,
       featured_image,
       created_at,
-      posts:posts(id, title, slug, cover_image, published, published_at, created_at)
+      posts:posts(id, title, slug, cover_image, category, excerpt, reading_minutes, published, published_at, created_at)
     `)
     .eq("published", true)
     .order("created_at", { ascending: false });
@@ -39,35 +39,34 @@ export const listDestinations = createServerFn({ method: "GET" }).handler(async 
   // Fetch all published posts as fallback lookup for destination title/slug links
   const { data: allPosts } = await supabaseAdmin
     .from("posts")
-    .select("id, title, slug, cover_image, destination_id, published, published_at, created_at")
+    .select("id, title, slug, cover_image, category, excerpt, reading_minutes, destination_id, published, published_at, created_at")
     .eq("published", true)
     .order("published_at", { ascending: false, nullsFirst: false });
 
   const resolved = (data ?? []).map((row: any) => {
     // 1. Find linked published posts through destination_id foreign relation
-    const linkedPosts = (row.posts ?? []).filter((p: any) => p.published !== false && p.cover_image);
+    let linkedPosts = (row.posts ?? []).filter((p: any) => p.published !== false);
+    
+    // Fallback: match from all published posts by destination_id or title/slug matching
+    if (linkedPosts.length === 0 && allPosts) {
+      linkedPosts = allPosts.filter(
+        (p: any) =>
+          p.destination_id === row.id ||
+          (p.slug && row.slug && (p.slug.includes(row.slug) || row.slug.includes(p.slug))) ||
+          (p.title && row.title && (p.title.toLowerCase().includes(row.title.toLowerCase()) || row.title.toLowerCase().includes(p.title.toLowerCase())))
+      );
+    }
+
     linkedPosts.sort((a: any, b: any) => {
       const timeA = new Date(a.published_at || a.created_at || 0).getTime();
       const timeB = new Date(b.published_at || b.created_at || 0).getTime();
       return timeB - timeA;
     });
 
-    let coverPhoto = linkedPosts[0]?.cover_image;
+    const postsWithCovers = linkedPosts.filter((p: any) => p.cover_image);
+    let coverPhoto = postsWithCovers[0]?.cover_image;
 
-    // 2. Fallback: match from all published posts by destination_id or title/slug matching
-    if (!coverPhoto && allPosts) {
-      const matchedPost = allPosts.find(
-        (p: any) =>
-          p.destination_id === row.id ||
-          (p.slug && row.slug && (p.slug.includes(row.slug) || row.slug.includes(p.slug))) ||
-          (p.title && row.title && (p.title.toLowerCase().includes(row.title.toLowerCase()) || row.title.toLowerCase().includes(p.title.toLowerCase())))
-      );
-      if (matchedPost?.cover_image) {
-        coverPhoto = matchedPost.cover_image;
-      }
-    }
-
-    // 3. Fallback to destination's own featured_image
+    // Fallback to destination's own featured_image
     if (!coverPhoto && row.featured_image) {
       coverPhoto = row.featured_image;
     }
@@ -75,6 +74,11 @@ export const listDestinations = createServerFn({ method: "GET" }).handler(async 
     const resolvedImage = coverPhoto
       ? resolveMediaUrl(coverPhoto, supabaseAdmin)
       : "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1600&q=80";
+
+    const resolvedPosts = linkedPosts.map((p: any) => ({
+      ...p,
+      cover_image: resolveMediaUrl(p.cover_image, supabaseAdmin) || resolvedImage,
+    }));
 
     return {
       id: row.id,
@@ -84,7 +88,7 @@ export const listDestinations = createServerFn({ method: "GET" }).handler(async 
       region: row.region,
       description: row.description,
       featured_image: resolvedImage,
-      posts: (row.posts ?? []) as Post[],
+      posts: resolvedPosts as Post[],
     } as Destination;
   });
 
@@ -103,7 +107,7 @@ export const getDestinationBySlug = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     if (!row) return null;
 
-    const { data: posts, error: postsError } = await supabaseAdmin
+    let { data: posts, error: postsError } = await supabaseAdmin
       .from("posts")
       .select("*")
       .eq("destination_id", row.id)
@@ -111,6 +115,24 @@ export const getDestinationBySlug = createServerFn({ method: "GET" })
       .order("published_at", { ascending: false, nullsFirst: false });
 
     if (postsError) throw new Error(postsError.message);
+
+    // Fallback: If no posts explicitly linked via destination_id, search for posts matching destination slug or title
+    if (!posts || posts.length === 0) {
+      const { data: allPosts } = await supabaseAdmin
+        .from("posts")
+        .select("*")
+        .eq("published", true)
+        .order("published_at", { ascending: false, nullsFirst: false });
+
+      if (allPosts && allPosts.length > 0) {
+        posts = allPosts.filter(
+          (p: any) =>
+            p.destination_id === row.id ||
+            (p.slug && row.slug && (p.slug.includes(row.slug) || row.slug.includes(p.slug))) ||
+            (p.title && row.title && (p.title.toLowerCase().includes(row.title.toLowerCase()) || row.title.toLowerCase().includes(p.title.toLowerCase())))
+        );
+      }
+    }
 
     const linkedPosts = (posts ?? []).filter((p: any) => p.cover_image);
     let coverPhoto = linkedPosts[0]?.cover_image;
@@ -124,7 +146,7 @@ export const getDestinationBySlug = createServerFn({ method: "GET" })
 
     const resolvedPosts = (posts ?? []).map((p: any) => ({
       ...p,
-      cover_image: resolveMediaUrl(p.cover_image, supabaseAdmin),
+      cover_image: resolveMediaUrl(p.cover_image, supabaseAdmin) || resolvedImage,
     }));
 
     return {

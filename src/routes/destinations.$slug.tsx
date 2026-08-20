@@ -6,6 +6,7 @@ import { getDestinationBySlug, listDestinations, type Destination } from "@/lib/
 import type { Post } from "@/lib/posts.functions";
 import { PostCard } from "@/components/blog/PostCard";
 import { useTranslations } from "@/lib/translate/store";
+import { resolveMediaUrl } from "@/lib/admin.functions";
 
 const qo = (slug: string) =>
   queryOptions({
@@ -90,8 +91,14 @@ function DestinationPage() {
       <div className="relative h-[65vh] min-h-[440px] w-full overflow-hidden">
         {d.featured_image && (
           <img
-            src={d.featured_image}
+            src={resolveMediaUrl(d.featured_image)}
             alt={d.title}
+            onError={(e) => {
+              const target = e.currentTarget as HTMLImageElement;
+              if (!target.src.includes("unsplash.com")) {
+                target.src = "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1600&q=80";
+              }
+            }}
             className="h-full w-full object-cover object-center"
           />
         )}
@@ -240,9 +247,15 @@ function DestinationPage() {
               >
                 {item.featured_image && (
                   <img
-                    src={item.featured_image}
+                    src={resolveMediaUrl(item.featured_image)}
                     alt={item.title}
                     loading="lazy"
+                    onError={(e) => {
+                      const target = e.currentTarget as HTMLImageElement;
+                      if (!target.src.includes("unsplash.com")) {
+                        target.src = "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1600&q=80";
+                      }
+                    }}
                     className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                 )}
