@@ -358,7 +358,7 @@ function ContactPage() {
                     <div>
                       <p className="font-semibold text-white">Solo Journeys & Explorations</p>
                       <p className="text-xs text-white/85 mt-0.5">
-                        Pakistan, Karakoram & Worldwide
+                        My travel experience around the globe
                       </p>
                     </div>
                   </div>
