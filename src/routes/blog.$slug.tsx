@@ -3,6 +3,7 @@ import { queryOptions, useQuery, useMutation, useQueryClient } from "@tanstack/r
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
+import rehypeRaw from "rehype-raw";
 import { Clock, Share2, ArrowLeft, Star, MapPin, Calendar, Image as ImageIcon, X, ChevronLeft, ChevronRight, User, List, ArrowRight as ArrowRightIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getPostBySlug, type Post } from "@/lib/posts.functions";
@@ -321,6 +322,7 @@ function PostPage() {
 
         <div className="prose-blog mt-8">
           <ReactMarkdown
+            rehypePlugins={[rehypeRaw]}
             components={{
               h2: ({ children }) => {
                 const text = String(children);

@@ -621,20 +621,7 @@ export function PostEditor({
           <MarkdownEditor
             value={content}
             onChange={setContent}
-            onInsertImage={() => inlineInput.current?.click()}
           />
-          <input
-            ref={inlineInput}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={(e) => e.target.files?.[0] && uploadFile(e.target.files[0], "inline")}
-          />
-          {uploading === "inline" && (
-            <p className="mt-1 text-xs text-muted-foreground">
-              <Loader2 className="inline h-3 w-3 animate-spin" /> Uploading image to content…
-            </p>
-          )}
         </Field>
 
         {/* ================= POST PHOTO GALLERY SECTION ================= */}
