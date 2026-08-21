@@ -16,6 +16,7 @@ import appCss from "../styles.css?url";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ScrollToTop } from "@/components/layout/ScrollToTop";
+import { NewsletterPopup } from "@/components/layout/NewsletterPopup";
 import { supabase } from "@/integrations/supabase/client";
 import { TranslationProvider, useT, LANGUAGES } from "@/lib/translate/store";
 import { usePageAnalytics } from "@/hooks/use-page-analytics";
@@ -170,6 +171,7 @@ function RootComponent() {
         </div>
         <Toaster position="top-center" richColors />
         <ScrollToTop />
+        <NewsletterPopup />
         <TitleTranslator />
         <PageAnalyticsTracker pathname={pathname} />
       </QueryClientProvider>
