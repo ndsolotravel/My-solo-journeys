@@ -57,6 +57,7 @@ export function PostCard({ post, index = 0 }: { post: Post; index?: number }) {
               src={coverUrl}
               alt={localizedPost.title}
               loading="lazy"
+              referrerPolicy="no-referrer"
               onError={(e) => {
                 const target = e.currentTarget as HTMLImageElement;
                 if (!target.src.includes("unsplash.com")) {

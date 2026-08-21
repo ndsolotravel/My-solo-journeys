@@ -247,6 +247,7 @@ function PostPage() {
           <img
             src={post.cover_image}
             alt={localizedPost.title}
+            referrerPolicy="no-referrer"
             className="h-full w-full object-cover"
           />
         )}

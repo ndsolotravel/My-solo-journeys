@@ -11,6 +11,7 @@ import { PostCardSkeleton } from "@/components/blog/Skeletons";
 import { CATEGORIES } from "@/lib/site";
 import { useTranslations } from "@/lib/translate/store";
 import { PageBreadcrumbs, BreadcrumbJsonLd } from "@/components/layout/PageBreadcrumbs";
+import { TOPIC_CLUSTERS } from "@/lib/topics";
 
 const searchSchema = z.object({
   category: z.string().optional(),
@@ -190,6 +191,45 @@ function BlogIndex() {
                 </div>
               </div>
             </Link>
+          </div>
+        )}
+
+        {/* Topic Clusters */}
+        {!hasActiveFilters && (
+          <div className="mb-14">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-accent">
+              {t("Explore Topics")}
+            </p>
+            <h2 className="mb-6 font-display text-xl font-bold text-foreground">
+              {t("Deep dives into the places and adventures that matter.")}
+            </h2>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {TOPIC_CLUSTERS.map((topic) => (
+                <Link
+                  key={topic.slug}
+                  to="/topics/$slug"
+                  params={{ slug: topic.slug }}
+                  className="group relative overflow-hidden rounded-2xl border border-border bg-card transition-all duration-300 hover:border-accent/40 hover:shadow-lg"
+                >
+                  <div className="relative h-36 overflow-hidden">
+                    <img
+                      src={topic.heroImage}
+                      alt={topic.title}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                  </div>
+                  <div className="p-4">
+                    <h3 className="font-display text-base font-bold text-foreground group-hover:text-accent transition-colors">
+                      {t(topic.title)}
+                    </h3>
+                    <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
+                      {t(topic.subtitle)}
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
         )}
 

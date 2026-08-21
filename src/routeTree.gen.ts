@@ -22,6 +22,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DestinationsIndexRouteImport } from './routes/destinations.index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
+import { Route as TopicsSlugRouteImport } from './routes/topics.$slug'
 import { Route as DestinationsSlugRouteImport } from './routes/destinations.$slug'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -102,6 +103,11 @@ const BlogIndexRoute = BlogIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => BlogRoute,
+} as any)
+const TopicsSlugRoute = TopicsSlugRouteImport.update({
+  id: '/topics/$slug',
+  path: '/topics/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const DestinationsSlugRoute = DestinationsSlugRouteImport.update({
   id: '/$slug',
@@ -210,6 +216,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/blog/$slug': typeof BlogSlugRoute
   '/destinations/$slug': typeof DestinationsSlugRoute
+  '/topics/$slug': typeof TopicsSlugRoute
   '/blog/': typeof BlogIndexRoute
   '/destinations/': typeof DestinationsIndexRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
@@ -237,6 +244,7 @@ export interface FileRoutesByTo {
   '/account': typeof AuthenticatedAccountRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/destinations/$slug': typeof DestinationsSlugRoute
+  '/topics/$slug': typeof TopicsSlugRoute
   '/blog': typeof BlogIndexRoute
   '/destinations': typeof DestinationsIndexRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
@@ -269,6 +277,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/blog/$slug': typeof BlogSlugRoute
   '/destinations/$slug': typeof DestinationsSlugRoute
+  '/topics/$slug': typeof TopicsSlugRoute
   '/blog/': typeof BlogIndexRoute
   '/destinations/': typeof DestinationsIndexRoute
   '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
@@ -301,6 +310,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/blog/$slug'
     | '/destinations/$slug'
+    | '/topics/$slug'
     | '/blog/'
     | '/destinations/'
     | '/admin/analytics'
@@ -328,6 +338,7 @@ export interface FileRouteTypes {
     | '/account'
     | '/blog/$slug'
     | '/destinations/$slug'
+    | '/topics/$slug'
     | '/blog'
     | '/destinations'
     | '/admin/analytics'
@@ -359,6 +370,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/blog/$slug'
     | '/destinations/$slug'
+    | '/topics/$slug'
     | '/blog/'
     | '/destinations/'
     | '/_authenticated/admin/analytics'
@@ -387,6 +399,7 @@ export interface RootRouteChildren {
   GalleryRoute: typeof GalleryRoute
   MapRoute: typeof MapRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  TopicsSlugRoute: typeof TopicsSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -481,6 +494,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/blog/'
       preLoaderRoute: typeof BlogIndexRouteImport
       parentRoute: typeof BlogRoute
+    }
+    '/topics/$slug': {
+      id: '/topics/$slug'
+      path: '/topics/$slug'
+      fullPath: '/topics/$slug'
+      preLoaderRoute: typeof TopicsSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/destinations/$slug': {
       id: '/destinations/$slug'
@@ -681,6 +701,7 @@ const rootRouteChildren: RootRouteChildren = {
   GalleryRoute: GalleryRoute,
   MapRoute: MapRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  TopicsSlugRoute: TopicsSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
