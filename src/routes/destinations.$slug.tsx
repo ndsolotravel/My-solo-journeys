@@ -7,6 +7,7 @@ import type { Post } from "@/lib/posts.functions";
 import { PostCard } from "@/components/blog/PostCard";
 import { useTranslations } from "@/lib/translate/store";
 import { resolveMediaUrl } from "@/lib/admin.functions";
+import { PageBreadcrumbs, BreadcrumbJsonLd } from "@/components/layout/PageBreadcrumbs";
 
 const qo = (slug: string) =>
   queryOptions({
@@ -40,6 +41,22 @@ export const Route = createFileRoute("/destinations/$slug")({
         ...(d?.featured_image ? [{ property: "og:image", content: d.featured_image }] : []),
       ],
       links: [{ rel: "canonical", href: `/destinations/${params.slug}` }],
+      scripts: d
+        ? [
+          {
+            type: "application/ld+json",
+            children: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                { "@type": "ListItem", position: 1, name: "Home", item: "https://ndsolotravel.com" },
+                { "@type": "ListItem", position: 2, name: "Destinations", item: "https://ndsolotravel.com/destinations" },
+                { "@type": "ListItem", position: 3, name: d.title },
+              ],
+            }),
+          },
+        ]
+        : [],
     };
   },
   notFoundComponent: DestinationNotFound,
@@ -104,12 +121,12 @@ function DestinationPage() {
         )}
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/85" />
         <div className="absolute inset-x-0 bottom-0 mx-auto max-w-7xl px-4 pb-12 text-white sm:px-6 lg:px-8">
-          <Link
-            to="/destinations"
-            className="inline-flex items-center gap-1.5 text-xs text-white/80 hover:text-white transition-colors"
-          >
-            <ArrowLeft className="h-3.5 w-3.5 rtl:rotate-180" /> {t("Travel Atlas")}
-          </Link>
+          <PageBreadcrumbs
+            items={[
+              { label: "Destinations", href: "/destinations" },
+              { label: d.title },
+            ]}
+          />
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center gap-1 rounded-full bg-accent/20 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-amber-300 backdrop-blur-md">
               <Globe className="h-3 w-3" /> {t(d.country)}

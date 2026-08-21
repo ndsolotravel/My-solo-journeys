@@ -10,6 +10,7 @@ import { PostCard } from "@/components/blog/PostCard";
 import { PostCardSkeleton } from "@/components/blog/Skeletons";
 import { CATEGORIES } from "@/lib/site";
 import { useTranslations } from "@/lib/translate/store";
+import { PageBreadcrumbs, BreadcrumbJsonLd } from "@/components/layout/PageBreadcrumbs";
 
 const searchSchema = z.object({
   category: z.string().optional(),
@@ -51,6 +52,19 @@ export const Route = createFileRoute("/blog/")({
       { property: "og:url", content: "/blog" },
     ],
     links: [{ rel: "canonical", href: "/blog" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Home", item: "https://ndsolotravel.com" },
+            { "@type": "ListItem", position: 2, name: "Stories" },
+          ],
+        }),
+      },
+    ],
   }),
   loader: async ({ context, deps }) => {
     await Promise.all([
@@ -115,6 +129,7 @@ function BlogIndex() {
             <h1 className="mt-3 max-w-3xl font-display text-4xl font-bold leading-tight text-white sm:text-5xl lg:text-6xl">
               {t("Stories from the road, the trail, and the saddle.")}
             </h1>
+            <PageBreadcrumbs items={[{ label: "Stories" }]} />
             <p className="mt-3 max-w-xl text-sm text-white/80">
               {data.total} {data.total === 1 ? t("story") : t("stories")} {t("published from remote borders and high mountain passes.")}
             </p>

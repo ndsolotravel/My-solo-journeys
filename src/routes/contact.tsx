@@ -17,6 +17,7 @@ import { sendContact } from "@/lib/newsletter.functions";
 import { toast } from "sonner";
 import { SITE } from "@/lib/site";
 import { useTranslations } from "@/lib/translate/store";
+import { PageBreadcrumbs, BreadcrumbJsonLd } from "@/components/layout/PageBreadcrumbs";
 
 function TikTokIcon({ className }: { className?: string }) {
   return (
@@ -74,6 +75,19 @@ export const Route = createFileRoute("/contact")({
       { property: "og:url", content: "/contact" },
     ],
     links: [{ rel: "canonical", href: "/contact" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Home", item: "https://ndsolotravel.com" },
+            { "@type": "ListItem", position: 2, name: "Contact" },
+          ],
+        }),
+      },
+    ],
   }),
   component: ContactPage,
 });
@@ -178,13 +192,7 @@ function ContactPage() {
           <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight drop-shadow-md">
             {t("Contact Us")}
           </h1>
-          <div className="mt-3 flex items-center justify-center gap-2 text-sm font-medium text-white/85">
-            <Link to="/" className="hover:text-white transition-colors">
-              {t("Home")}
-            </Link>
-            <span className="text-[#FA8128] font-bold text-base leading-none">»</span>
-            <span className="text-white font-semibold">{t("Contact Us")}</span>
-          </div>
+          <PageBreadcrumbs items={[{ label: "Contact Us" }]} />
         </div>
       </section>
 

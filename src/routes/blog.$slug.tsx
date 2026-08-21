@@ -14,6 +14,7 @@ import { BlogPostMap } from "@/components/blog/BlogPostMap";
 import { ReadingProgress } from "@/components/blog/ReadingProgress";
 import { NewsletterForm } from "@/components/layout/NewsletterForm";
 import { AuthorProfile } from "@/components/blog/AuthorProfile";
+import { PageBreadcrumbs, BreadcrumbJsonLd } from "@/components/layout/PageBreadcrumbs";
 import { toast } from "sonner";
 import { useTranslations, useLanguage } from "@/lib/translate/store";
 
@@ -58,6 +59,18 @@ export const Route = createFileRoute("/blog/$slug")({
       links: [{ rel: "canonical", href: `/blog/${params.slug}` }],
       scripts: p
         ? [
+          {
+            type: "application/ld+json",
+            children: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                { "@type": "ListItem", position: 1, name: "Home", item: "https://ndsolotravel.com" },
+                { "@type": "ListItem", position: 2, name: "Stories", item: "https://ndsolotravel.com/blog" },
+                { "@type": "ListItem", position: 3, name: p.title },
+              ],
+            }),
+          },
           {
             type: "application/ld+json",
             children: JSON.stringify({
@@ -240,12 +253,12 @@ function PostPage() {
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/30 to-black/80" />
         <div className="absolute inset-x-0 bottom-0 mx-auto max-w-3xl px-4 pb-12 text-white sm:px-6">
           <div className="flex flex-wrap items-center gap-3">
-            <Link
-              to="/blog"
-              className="inline-flex items-center gap-2 text-xs text-white/80 hover:text-white"
-            >
-              <ArrowLeft className="h-3 w-3" /> {t("Stories")}
-            </Link>
+            <PageBreadcrumbs
+              items={[
+                { label: "Stories", href: "/blog" },
+                { label: localizedPost.title },
+              ]}
+            />
             {dest && (
               <Link
                 to="/destinations/$slug"

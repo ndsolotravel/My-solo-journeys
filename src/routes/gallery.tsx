@@ -5,6 +5,7 @@ import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { listGallery } from "@/lib/gallery.functions";
 import { useTranslations } from "@/lib/translate/store";
+import { PageBreadcrumbs, BreadcrumbJsonLd } from "@/components/layout/PageBreadcrumbs";
 
 const qo = queryOptions({ queryKey: ["gallery"], queryFn: () => listGallery() });
 
@@ -20,6 +21,19 @@ export const Route = createFileRoute("/gallery")({
       { property: "og:url", content: "/gallery" },
     ],
     links: [{ rel: "canonical", href: "/gallery" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Home", item: "https://ndsolotravel.com" },
+            { "@type": "ListItem", position: 2, name: "Gallery" },
+          ],
+        }),
+      },
+    ],
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(qo),
   component: GalleryPage,
@@ -96,6 +110,7 @@ function GalleryPage() {
             <h1 className="mt-2 font-display text-4xl font-bold leading-tight text-white sm:text-5xl">
               {t("The light, the cold, the patience.")}
             </h1>
+            <PageBreadcrumbs items={[{ label: "Gallery" }]} />
             <p className="mt-3 max-w-xl text-sm text-white/80">
               {t("A thousand sunrises above 4,000 metres.")}
             </p>

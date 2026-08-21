@@ -6,6 +6,7 @@ import { Map as MapIcon, LayoutGrid } from "lucide-react";
 import { listDestinations } from "../lib/destinations.functions";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { useTranslations } from "@/lib/translate/store";
+import { PageBreadcrumbs, BreadcrumbJsonLd } from "@/components/layout/PageBreadcrumbs";
 
 const DestinationsMap = lazy(() =>
   import("@/components/destinations/DestinationsMap").then((m) => ({ default: m.DestinationsMap })),
@@ -30,6 +31,19 @@ export const Route = createFileRoute("/destinations/")({
       { property: "og:url", content: "/destinations" },
     ],
     links: [{ rel: "canonical", href: "/destinations" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Home", item: "https://ndsolotravel.com" },
+            { "@type": "ListItem", position: 2, name: "Destinations" },
+          ],
+        }),
+      },
+    ],
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(destQO),
   component: DestinationsPage,
@@ -71,6 +85,7 @@ function DestinationsPage() {
             <h1 className="mt-2 font-display text-4xl font-bold leading-tight text-white sm:text-5xl">
               {t("Where the road runs out.")}
             </h1>
+            <PageBreadcrumbs items={[{ label: "Destinations" }]} />
             <p className="mt-3 max-w-xl text-sm text-white/80">
               {t(
                 "Honest country guides, trekking routes and the maps I wish I'd had before I left.",

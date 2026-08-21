@@ -3,6 +3,7 @@ import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import aboutPortrait from "@/assets/nd-about.jpg";
 import { useTranslations } from "@/lib/translate/store";
 import { getPublicSiteSettings } from "@/lib/settings.functions";
+import { PageBreadcrumbs, BreadcrumbJsonLd } from "@/components/layout/PageBreadcrumbs";
 
 const settingsQO = queryOptions({
   queryKey: ["public-site-settings"],
@@ -23,6 +24,19 @@ export const Route = createFileRoute("/about")({
       { property: "og:url", content: "/about" },
     ],
     links: [{ rel: "canonical", href: "/about" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Home", item: "https://ndsolotravel.com" },
+            { "@type": "ListItem", position: 2, name: "About" },
+          ],
+        }),
+      },
+    ],
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(settingsQO),
   component: AboutPage,
@@ -57,6 +71,7 @@ function AboutPage() {
             <h1 className="mt-2 font-display text-4xl font-bold leading-tight text-white sm:text-5xl">
               {t("Solo, slow, and almost always uphill.")}
             </h1>
+            <PageBreadcrumbs items={[{ label: "About" }]} />
           </div>
         </div>
       </section>
