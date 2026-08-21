@@ -13,6 +13,7 @@ import { PostCard } from "@/components/blog/PostCard";
 import { BlogPostMap } from "@/components/blog/BlogPostMap";
 import { ReadingProgress } from "@/components/blog/ReadingProgress";
 import { NewsletterForm } from "@/components/layout/NewsletterForm";
+import { AuthorProfile } from "@/components/blog/AuthorProfile";
 import { toast } from "sonner";
 import { useTranslations, useLanguage } from "@/lib/translate/store";
 
@@ -497,6 +498,8 @@ function PostPage() {
             ))}
           </div>
         )}
+
+        <AuthorProfile authorName={postAuthor} />
 
         <ShareBar title={localizedPost.title} />
 
