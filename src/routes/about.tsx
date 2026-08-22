@@ -76,26 +76,28 @@ function AboutPage() {
         </div>
       </section>
 
-      <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6">
+      <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
         <h2 className="sr-only">{t("Solo, slow, and almost always uphill.")}</h2>
 
-        <div className="mt-10 grid gap-12 lg:grid-cols-[5fr_7fr]">
-          <img
-            src={portraitSrc}
-            alt="ndsolotravel portrait"
-            className="aspect-[3/4] w-full rounded-3xl object-cover"
-          />
-          <div className="space-y-5 text-base leading-relaxed text-muted-foreground">
+        <div className="mt-10 grid gap-12 lg:grid-cols-2 lg:items-center">
+          <div className="relative overflow-hidden rounded-3xl border border-border shadow-xl">
+            <img
+              src={portraitSrc}
+              alt="ndsolotravel portrait"
+              className="aspect-[3/4] w-full object-cover object-center transition-transform duration-700 hover:scale-[1.02]"
+            />
+          </div>
+          <div className="space-y-6 text-base leading-relaxed text-muted-foreground sm:text-lg">
             {BIO.map((p) => (
               <p key={p}>{t(p)}</p>
             ))}
           </div>
         </div>
 
-        <section className="mt-16 rounded-3xl bg-muted/40 p-8">
-          <h2 className="font-display text-2xl font-bold">{t("Travel philosophy")}</h2>
-          <p className="mt-4 text-lg italic leading-relaxed text-muted-foreground">
-            {t("Solo travel is where the journey becomes the destination")}
+        <section className="mt-16 rounded-3xl bg-muted/40 p-8 sm:p-10 border border-border/50 shadow-sm">
+          <h2 className="font-display text-2xl font-bold sm:text-3xl">{t("Travel philosophy")}</h2>
+          <p className="mt-4 text-xl italic leading-relaxed text-foreground/90">
+            "{t("Solo travel is where the journey becomes the destination")}"
           </p>
         </section>
       </div>
