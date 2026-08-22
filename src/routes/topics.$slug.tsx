@@ -68,7 +68,7 @@ export const Route = createFileRoute("/topics/$slug")({
   },
   loader: async ({ context, params }) => {
     const topic = await context.queryClient.ensureQueryData(topicQO(params.slug));
-    if (!topic) throw notFound();
+    if (!topic || topic.posts.length === 0) throw notFound();
     return { topic };
   },
   component: TopicPage,

@@ -6,12 +6,12 @@ import { z } from "zod";
 import { listPosts } from "@/lib/posts.functions";
 import { listDestinations } from "@/lib/destinations.functions";
 import { getBlogAuthorName } from "@/lib/settings.functions";
+import { listActiveTopics } from "@/lib/topics.functions";
 import { PostCard } from "@/components/blog/PostCard";
 import { PostCardSkeleton } from "@/components/blog/Skeletons";
 import { CATEGORIES } from "@/lib/site";
 import { useTranslations } from "@/lib/translate/store";
 import { PageBreadcrumbs, BreadcrumbJsonLd } from "@/components/layout/PageBreadcrumbs";
-import { TOPIC_CLUSTERS } from "@/lib/topics";
 
 const searchSchema = z.object({
   category: z.string().optional(),
@@ -35,6 +35,11 @@ const destQO = queryOptions({
 const authorNameQO = queryOptions({
   queryKey: ["blog-author-name"],
   queryFn: () => getBlogAuthorName(),
+});
+
+const activeTopicsQO = queryOptions({
+  queryKey: ["active-topics"],
+  queryFn: () => listActiveTopics(),
 });
 
 export const Route = createFileRoute("/blog/")({
@@ -74,6 +79,7 @@ export const Route = createFileRoute("/blog/")({
       ),
       context.queryClient.ensureQueryData(destQO),
       context.queryClient.ensureQueryData(authorNameQO),
+      context.queryClient.ensureQueryData(activeTopicsQO),
     ]);
   },
   component: BlogIndex,
@@ -90,6 +96,7 @@ function BlogIndex() {
     blogQO({ category: search.category, tag: search.tag, search: search.q, sort: search.sort }),
   );
   const { data: destinations } = useSuspenseQuery(destQO);
+  const { data: activeTopics } = useSuspenseQuery(activeTopicsQO);
 
   const { data: globalAuthor } = useQuery(authorNameQO);
   const authorName = globalAuthor || "Hussain";
@@ -139,18 +146,17 @@ function BlogIndex() {
       </section>
 
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        {/* Editorial Featured Story Hero Card */}
+        <BreadcrumbJsonLd items={[{ name: "Home", item: "https://ndsolotravel.com" }, { name: "Stories" }]} />
+
+        {/* Featured Story */}
         {featuredPost && (
           <div className="mb-14">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-accent">
-              {t("Featured Dispatch")}
-            </p>
             <Link
               to="/blog/$slug"
               params={{ slug: featuredPost.slug }}
-              className="group grid gap-8 overflow-hidden rounded-3xl border border-border bg-card p-4 sm:p-8 transition-all duration-300 hover:border-accent/40 hover:shadow-xl lg:grid-cols-2"
+              className="group grid overflow-hidden rounded-3xl border border-border bg-card shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-xl md:grid-cols-2"
             >
-              <div className="relative aspect-[16/10] overflow-hidden rounded-2xl bg-muted">
+              <div className="relative aspect-[16/10] md:aspect-auto overflow-hidden bg-muted">
                 {featuredPost.cover_image && (
                   <img
                     src={featuredPost.cover_image}
@@ -158,36 +164,45 @@ function BlogIndex() {
                     className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                {featuredPost.destinations?.title && (
-                  <span className="absolute bottom-4 left-4 inline-flex items-center gap-1 rounded-full bg-black/70 px-3 py-1 text-xs font-medium text-amber-300 backdrop-blur-md">
-                    <MapPin className="h-3 w-3" /> {t(featuredPost.destinations.title)}
-                  </span>
-                )}
-              </div>
-              <div className="flex flex-col justify-center">
-                <div className="flex items-center gap-3 text-xs font-medium text-accent">
-                  <span className="uppercase tracking-wider">{t(featuredPost.category)}</span>
-                  <span aria-hidden>·</span>
-                  <span className="inline-flex items-center gap-1 text-muted-foreground">
-                    <Clock className="h-3 w-3" /> {featuredPost.reading_minutes} {t("min read")}
+                <div className="absolute top-4 left-4">
+                  <span className="rounded-full bg-accent px-3 py-1 text-xs font-semibold text-accent-foreground shadow">
+                    {t("Featured Story")}
                   </span>
                 </div>
-                <h2 className="mt-3 font-display text-3xl font-bold leading-snug sm:text-4xl group-hover:text-accent transition-colors">
-                  {t(featuredPost.title)}
-                </h2>
-                {featuredPost.excerpt && (
-                  <p className="mt-4 text-sm sm:text-base text-muted-foreground line-clamp-3 leading-relaxed">
-                    {t(featuredPost.excerpt)}
-                  </p>
-                )}
-                <div className="mt-6 flex items-center justify-between border-t border-border/60 pt-4">
-                  <span className="text-xs text-muted-foreground">
-                    By {featuredPost.author_name || authorName || "Noman"} · {new Date(featuredPost.published_at ?? featuredPost.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                  </span>
-                  <span className="inline-flex items-center gap-1 text-xs font-semibold text-accent group-hover:translate-x-1 transition-transform">
-                    {t("Read story")} <ArrowRight className="h-3.5 w-3.5 rtl:rotate-180" />
-                  </span>
+              </div>
+              <div className="flex flex-col justify-between p-6 sm:p-8 lg:p-10">
+                <div>
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                    {featuredPost.category && (
+                      <span className="rounded-md bg-accent/10 px-2 py-0.5 font-medium text-accent">
+                        {t(featuredPost.category)}
+                      </span>
+                    )}
+                    <span className="inline-flex items-center gap-1">
+                      <Clock className="h-3 w-3" /> {featuredPost.reading_minutes} {t("min read")}
+                    </span>
+                    {featuredPost.location_name && (
+                      <span className="inline-flex items-center gap-1">
+                        <MapPin className="h-3 w-3" /> {featuredPost.location_name}
+                      </span>
+                    )}
+                  </div>
+                  <h2 className="mt-4 font-display text-2xl font-bold leading-tight text-foreground transition-colors group-hover:text-accent sm:text-3xl">
+                    {t(featuredPost.title)}
+                  </h2>
+                  {featuredPost.excerpt && (
+                    <p className="mt-4 text-sm sm:text-base text-muted-foreground line-clamp-3 leading-relaxed">
+                      {t(featuredPost.excerpt)}
+                    </p>
+                  )}
+                  <div className="mt-6 flex items-center justify-between border-t border-border/60 pt-4">
+                    <span className="text-xs text-muted-foreground">
+                      By {featuredPost.author_name || authorName || "Noman"} · {new Date(featuredPost.published_at ?? featuredPost.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                    </span>
+                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-accent group-hover:translate-x-1 transition-transform">
+                      {t("Read story")} <ArrowRight className="h-3.5 w-3.5 rtl:rotate-180" />
+                    </span>
+                  </div>
                 </div>
               </div>
             </Link>
@@ -195,7 +210,7 @@ function BlogIndex() {
         )}
 
         {/* Topic Clusters */}
-        {!hasActiveFilters && (
+        {!hasActiveFilters && activeTopics.length > 0 && (
           <div className="mb-14">
             <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-accent">
               {t("Explore Topics")}
@@ -204,7 +219,7 @@ function BlogIndex() {
               {t("Deep dives into the places and adventures that matter.")}
             </h2>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {TOPIC_CLUSTERS.map((topic) => (
+              {activeTopics.map((topic) => (
                 <Link
                   key={topic.slug}
                   to="/topics/$slug"
@@ -213,7 +228,7 @@ function BlogIndex() {
                 >
                   <div className="relative h-36 overflow-hidden">
                     <img
-                      src={topic.heroImage}
+                      src={topic.previewImage || topic.heroImage}
                       alt={topic.title}
                       className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />

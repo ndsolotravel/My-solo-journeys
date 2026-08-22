@@ -19,6 +19,7 @@ import { listPosts, getJourneyStats } from "../lib/posts.functions";
 import { listDestinations } from "../lib/destinations.functions";
 import { listGallery } from "../lib/gallery.functions";
 import { getHomepageConfig } from "../lib/homepage.functions";
+import { listActiveTopics, type ActiveTopic } from "../lib/topics.functions";
 import { CountUp } from "../components/dashboard/CountUp";
 import { useGsapReveal } from "../hooks/use-gsap-reveal";
 import { PostCard } from "../components/blog/PostCard";
@@ -74,6 +75,10 @@ const homepageQO = queryOptions({
   queryKey: ["home", "homepage-config"],
   queryFn: () => getHomepageConfig(),
 });
+const topicsQO = queryOptions({
+  queryKey: ["home", "active-topics"],
+  queryFn: () => listActiveTopics(),
+});
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -101,57 +106,35 @@ export const Route = createFileRoute("/")({
       context.queryClient.ensureQueryData(motoQO),
       context.queryClient.ensureQueryData(journeyStatsQO),
       context.queryClient.ensureQueryData(homepageQO),
+      context.queryClient.ensureQueryData(topicsQO),
     ]);
   },
   component: HomePage,
 });
 
-const CAT_ICONS: Record<string, typeof Mountain> = {
-  Trekking: Mountain,
-  Mountains: Mountain,
-  "Motorcycle Adventure Travel": Bike,
-  Photography: Camera,
-  "Solo Travel": Compass,
-};
-
-const JOURNEY_CARDS = [
-  {
-    title: "Solo Travel",
-    body: "Diaries, lessons and practical notes from travelling alone — the slow way.",
-    to: "/blog",
-    search: { category: "Solo Travel" as const },
-    icon: Compass,
-    img: "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=900&q=70",
-  },
-  {
-    title: "Motorcycle Journeys",
-    body: "Karakoram, Deosai and beyond — long rides, route notes and machine prep.",
-    to: "/blog",
-    search: { category: "Motorcycle Adventure Travel" as const },
-    icon: Bike,
-    img: "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=900&q=70",
-  },
-  {
-    title: "Trekking Guides",
-    body: "Step-by-step trekking guides, gear, altitude advice and trip planning.",
-    to: "/blog",
-    search: { category: "Trekking" as const },
-    icon: Mountain,
-    img: "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=900&q=70",
-  },
-] as const;
+function getTopicIcon(topic: ActiveTopic) {
+  const text = `${topic.slug} ${topic.title} ${topic.categories.join(" ")} ${topic.tags.join(" ")}`.toLowerCase();
+  if (text.includes("motorcycle") || text.includes("bike") || text.includes("ride")) return Bike;
+  if (text.includes("trek") || text.includes("hike") || text.includes("mountain")) return Mountain;
+  if (text.includes("photo") || text.includes("camera")) return Camera;
+  if (text.includes("guide") || text.includes("tourism") || text.includes("pakistan")) return Globe2;
+  return Compass;
+}
 
 function HomePage() {
   const t = useTranslations();
   const { data: postsData } = useSuspenseQuery(postsQO);
   const { data: featuredData } = useSuspenseQuery(featuredQO);
   const { data: destinationsData } = useSuspenseQuery(destQO);
+  const { data: activeTopicsData } = useSuspenseQuery(topicsQO);
   const popular = useQuery(popularQO);
   const guides = useQuery(guidesQO);
   const { data: galleryData } = useSuspenseQuery(galleryQO);
   const { data: motoData } = useSuspenseQuery(motoQO);
   const { data: journeyStats } = useSuspenseQuery(journeyStatsQO);
   const { data: homepageConfig } = useSuspenseQuery(homepageQO);
+
+  const activeTopics = activeTopicsData ?? [];
 
   const featuredList = featuredData.posts;
   const latest = postsData.posts;
@@ -364,50 +347,59 @@ function HomePage() {
         </div>
       </section>
 
-      {/* 2. Choose Your Journey (Start your journey) */}
-      <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-        <div className="mb-10 max-w-2xl">
-          <p className="text-xs uppercase tracking-[0.2em] text-accent">{t("Start here")}</p>
-          <h2 className="mt-1 font-display text-3xl font-bold sm:text-4xl">
-            {t("Choose Your Journey")}
-          </h2>
-          <p className="mt-3 text-sm text-muted-foreground">
-            {t("Three pathways into the wild — pick the route that pulls you in.")}
-          </p>
-        </div>
-<div className="grid gap-6 md:grid-cols-3">
-          {JOURNEY_CARDS.map((c) => {
-            const Icon = c.icon;
-            return (
-              <Link
-                key={c.title}
-                to={c.to}
-                search={c.search as any}
-                className="group relative block overflow-hidden rounded-2xl border border-border"
-              >
-                <div className="aspect-[4/5] w-full overflow-hidden">
-                  <img
-                    src={c.img}
-                    alt={c.title}
-                    loading="lazy"
-                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
-                  />
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
-                <div className="absolute inset-x-0 bottom-0 p-6 text-white">
-                  <Icon className="h-5 w-5 text-accent" />
-                  <h3 className="mt-3 font-display text-2xl font-semibold">{t(c.title)}</h3>
-                  <p className="mt-2 text-sm text-white/80">{t(c.body)}</p>
-                  <span className="mt-4 inline-flex items-center gap-1 text-xs font-medium text-accent">
-                    {t("Explore")}
-                    <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1 rtl:rotate-180" />
-                  </span>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-      </section>
+      {/* 2. Explore Topics (Choose Your Journey) */}
+      {activeTopics.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+          <div className="mb-10 max-w-2xl">
+            <p className="text-xs uppercase tracking-[0.2em] text-accent">{t("Start here")}</p>
+            <h2 className="mt-1 font-display text-3xl font-bold sm:text-4xl">
+              {t("Explore Topics")}
+            </h2>
+            <p className="mt-3 text-sm text-muted-foreground">
+              {t("Deep dives and curated journeys into the wild — each backed by published stories and route guides.")}
+            </p>
+          </div>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {activeTopics.slice(0, 6).map((topic) => {
+              const Icon = getTopicIcon(topic);
+              return (
+                <Link
+                  key={topic.slug}
+                  to="/topics/$slug"
+                  params={{ slug: topic.slug }}
+                  className="group relative block overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-lg"
+                >
+                  <div className="aspect-[4/5] w-full overflow-hidden">
+                    <img
+                      src={topic.previewImage || topic.heroImage}
+                      alt={topic.title}
+                      loading="lazy"
+                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                    />
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+                  <div className="absolute inset-x-0 bottom-0 p-6 text-white">
+                    <div className="inline-flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-[10px] uppercase tracking-[0.2em] text-accent backdrop-blur-md border border-white/10 mb-2">
+                      <Icon className="h-3 w-3" />
+                      <span>{topic.postCount} {topic.postCount === 1 ? t("story") : t("stories")}</span>
+                    </div>
+                    <h3 className="font-display text-2xl font-semibold leading-tight text-white group-hover:text-accent transition-colors">
+                      {t(topic.title)}
+                    </h3>
+                    <p className="mt-2 text-sm text-white/80 line-clamp-2">
+                      {t(topic.subtitle || topic.description)}
+                    </p>
+                    <span className="mt-4 inline-flex items-center gap-1 text-xs font-medium text-accent">
+                      {t("Explore")}
+                      <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1 rtl:rotate-180" />
+                    </span>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {/* 3. Featured Expedition */}
       {featured && (

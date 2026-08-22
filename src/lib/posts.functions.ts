@@ -75,9 +75,27 @@ export const listPosts = createServerFn({ method: "GET" })
         .eq("published", true);
       if (data.sort === "popular") q = q.order("views", { ascending: false });
       else q = q.order("published_at", { ascending: false });
-      if (data.category) q = q.eq("category", data.category);
-      if (data.categories && data.categories.length) q = q.in("category", data.categories);
-      if (data.tag) q = q.contains("tags", [data.tag]);
+      if (data.category) {
+        const cat = data.category;
+        const catLower = cat.toLowerCase();
+        const catCap = cat.charAt(0).toUpperCase() + cat.slice(1);
+        q = q.or(`category.ilike.${cat},tags.cs.{${cat}},tags.cs.{${catLower}},tags.cs.{${catCap}}`);
+      }
+      if (data.categories && data.categories.length) {
+        const catFilters = data.categories.flatMap((c) => [
+          `category.ilike.${c}`,
+          `tags.cs.{${c}}`,
+          `tags.cs.{${c.toLowerCase()}}`,
+        ]);
+        const uniqueCatFilters = Array.from(new Set(catFilters));
+        q = q.or(uniqueCatFilters.join(","));
+      }
+      if (data.tag) {
+        const tag = data.tag;
+        const tagLower = tag.toLowerCase();
+        const tagCap = tag.charAt(0).toUpperCase() + tag.slice(1);
+        q = q.or(`tags.cs.{${tag}},tags.cs.{${tagLower}},tags.cs.{${tagCap}}`);
+      }
       if (data.search) q = q.ilike("title", `%${data.search}%`);
       if (data.featuredOnly) q = q.eq("featured", true);
       if (data.sinceDays) {
