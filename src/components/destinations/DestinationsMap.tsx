@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import "leaflet/dist/leaflet.css";
 import type { Destination } from "@/lib/destinations.functions";
 
@@ -22,30 +22,82 @@ function coordsFor(d: Destination): [number, number] | null {
 export function DestinationsMap({ destinations }: { destinations: Destination[] }) {
   const ref = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<any>(null);
+  const [mapLoaded, setMapLoaded] = useState(false);
 
   useEffect(() => {
-    if (typeof window === "undefined" || !ref.current || mapRef.current) return;
+    if (typeof window === "undefined" || !ref.current) return;
     let isMounted = true;
+
+    // Ensure any previously attached Leaflet instance on this container is cleanly removed
+    if (mapRef.current) {
+      try {
+        mapRef.current.remove();
+      } catch (e) {
+        // ignore cleanup error
+      }
+      mapRef.current = null;
+    }
+    if ((ref.current as any)._leaflet_id) {
+      delete (ref.current as any)._leaflet_id;
+    }
 
     import("leaflet").then((LModule) => {
       if (!isMounted || !ref.current || mapRef.current) return;
       const L = LModule.default || LModule;
 
-      const markerIcon = L.icon({
-        iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-        iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-        shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        shadowSize: [41, 41],
+      // Fix container re-attachment check
+      if ((ref.current as any)._leaflet_id) {
+        delete (ref.current as any)._leaflet_id;
+      }
+
+      const map = L.map(ref.current, {
+        scrollWheelZoom: false,
+        zoomControl: true,
+      }).setView([35.5, 74.5], 6);
+
+      // Primary tile layer: CartoDB Voyager (high reliability, beautiful cartography, fast CDN)
+      const primaryTileLayer = L.tileLayer(
+        "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
+        {
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener noreferrer">CARTO</a>',
+          maxZoom: 19,
+          subdomains: "abcd",
+        },
+      );
+
+      // Fallback to OSM tile server if primary encounters error
+      primaryTileLayer.on("tileerror", () => {
+        if (!map.hasLayer(fallbackTileLayer)) {
+          map.removeLayer(primaryTileLayer);
+          fallbackTileLayer.addTo(map);
+        }
       });
 
-      const map = L.map(ref.current, { scrollWheelZoom: false }).setView([35.5, 74.5], 6);
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        maxZoom: 18,
-      }).addTo(map);
+      const fallbackTileLayer = L.tileLayer(
+        "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
+          maxZoom: 18,
+        },
+      );
+
+      primaryTileLayer.addTo(map);
+
+      // Branded pin icon
+      const pinIcon = L.divIcon({
+        className: "custom-map-pin",
+        html: `
+          <div style="position:relative;display:flex;align-items:center;justify-content:center;">
+            <div style="position:absolute;width:24px;height:24px;border-radius:9999px;background:rgba(255,122,0,0.25);animation:ping 2s cubic-bezier(0,0,0.2,1) infinite;"></div>
+            <div style="width:14px;height:14px;border-radius:9999px;background:#FF7A00;border:2.5px solid #ffffff;box-shadow:0 2px 6px rgba(0,0,0,0.4);position:relative;z-index:2;"></div>
+          </div>
+        `,
+        iconSize: [24, 24],
+        iconAnchor: [12, 12],
+        popupAnchor: [0, -14],
+      });
 
       const bounds: [number, number][] = [];
       destinations.forEach((d) => {
@@ -53,33 +105,53 @@ export function DestinationsMap({ destinations }: { destinations: Destination[] 
         if (!c) return;
         bounds.push(c);
         const popup = `
-          <div style="min-width:160px">
-            <strong>${d.title}</strong><br/>
-            <span style="font-size:11px;color:#666">${d.country}${d.region ? ` · ${d.region}` : ""}</span><br/>
-            <a href="/destinations/${d.slug}" style="color:#FF7A00;font-size:12px;text-decoration:underline">View guide →</a>
+          <div style="min-width:180px;font-family:system-ui,-apple-system,sans-serif;padding:2px;">
+            ${d.featured_image ? `<img src="${d.featured_image}" alt="${d.title}" style="width:100%;height:85px;object-fit:cover;border-radius:8px;margin-bottom:6px;" onerror="this.style.display='none'"/>` : ""}
+            <strong style="font-size:13px;color:#111;display:block;margin-bottom:2px;">${d.title}</strong>
+            <span style="font-size:11px;color:#666;display:block;margin-bottom:6px;">📍 ${d.country}${d.region ? ` · ${d.region}` : ""}</span>
+            <a href="/destinations/${d.slug}" style="color:#FF7A00;font-size:12px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:3px;">Explore guide →</a>
           </div>`;
-        L.marker(c, { icon: markerIcon, title: d.title }).addTo(map).bindPopup(popup);
+        L.marker(c, { icon: pinIcon, title: d.title }).addTo(map).bindPopup(popup);
       });
-      if (bounds.length > 1) map.fitBounds(bounds as any, { padding: [40, 40] });
-      else if (bounds.length === 1) map.setView(bounds[0], 8);
+
+      if (bounds.length > 1) {
+        map.fitBounds(bounds as any, { padding: [40, 40] });
+      } else if (bounds.length === 1) {
+        map.setView(bounds[0], 8);
+      }
+
       mapRef.current = map;
+      setMapLoaded(true);
     });
 
     return () => {
       isMounted = false;
       if (mapRef.current) {
-        mapRef.current.remove();
+        try {
+          mapRef.current.remove();
+        } catch (e) {
+          // ignore cleanup error
+        }
         mapRef.current = null;
       }
     };
   }, [destinations]);
 
   return (
-    <div
-      ref={ref}
-      role="region"
-      aria-label="Interactive map of destinations"
-      className="h-[480px] w-full overflow-hidden rounded-2xl border border-border"
-    />
+    <div className="relative h-[380px] sm:h-[440px] lg:h-[480px] w-full overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+      {!mapLoaded && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-muted/40 animate-pulse">
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Loading interactive map...
+          </span>
+        </div>
+      )}
+      <div
+        ref={ref}
+        role="region"
+        aria-label="Interactive map of destinations"
+        className="h-full w-full"
+      />
+    </div>
   );
 }
