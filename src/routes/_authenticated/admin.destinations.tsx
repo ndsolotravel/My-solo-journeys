@@ -1,14 +1,15 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Plus, Trash2, Pencil, X, MapPin, Upload, Loader2 } from "lucide-react";
+import { Plus, Trash2, Pencil, X, MapPin, Upload, Loader2, ExternalLink, FileText } from "lucide-react";
 import { toast } from "sonner";
 import {
   adminListDestinations,
   adminUpsertDestination,
   adminDeleteDestination,
   adminUploadImage,
+  resolveMediaUrl,
 } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/destinations")({
@@ -96,32 +97,60 @@ function AdminDestinations() {
         {(data ?? []).map((d: any) => (
           <div
             key={d.id}
-            className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all hover:border-accent/40"
+            className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all hover:border-accent/40 flex flex-col justify-between"
           >
-            {d.featured_image ? (
-              <img
-                src={d.featured_image}
-                alt={d.title}
-                className="aspect-video w-full object-cover"
-              />
-            ) : (
-              <div className="aspect-video w-full bg-muted flex items-center justify-center text-muted-foreground text-xs">
-                No featured image
+            <div>
+              <div className="relative aspect-video w-full bg-muted overflow-hidden">
+                {d.featured_image ? (
+                  <img
+                    src={resolveMediaUrl(d.featured_image)}
+                    alt={d.title}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="h-full w-full flex items-center justify-center text-muted-foreground text-xs">
+                    No featured image
+                  </div>
+                )}
+                <div className="absolute top-2.5 right-2.5">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-background/90 backdrop-blur-xs px-2.5 py-0.5 text-[11px] font-semibold text-foreground shadow-xs">
+                    <FileText className="h-3 w-3 text-accent" />
+                    {d.posts_count ?? 0} {d.posts_count === 1 ? "Story" : "Stories"}
+                  </span>
+                </div>
               </div>
-            )}
-            <div className="p-4">
-              <p className="text-xs font-medium text-accent flex items-center gap-1">
-                <MapPin className="h-3 w-3" />
-                {d.country}
-                {d.region ? ` · ${d.region}` : ""}
-              </p>
-              <h3 className="mt-1 font-display text-base font-semibold">{d.title}</h3>
-              {d.description && (
-                <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
-                  {d.description}
-                </p>
-              )}
-              <div className="mt-4 flex items-center gap-2 border-t border-border/60 pt-3">
+
+              <div className="p-4">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-xs font-medium text-accent flex items-center gap-1">
+                    <MapPin className="h-3 w-3" />
+                    {d.country}
+                    {d.region ? ` · ${d.region}` : ""}
+                  </p>
+                  {d.slug && (
+                    <Link
+                      to="/destinations/$slug"
+                      params={{ slug: d.slug }}
+                      target="_blank"
+                      title="View public destination page"
+                      className="text-muted-foreground hover:text-accent transition-colors"
+                    >
+                      <ExternalLink className="h-3.5 w-3.5" />
+                    </Link>
+                  )}
+                </div>
+
+                <h3 className="mt-1.5 font-display text-base font-semibold">{d.title}</h3>
+                {d.description && (
+                  <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+                    {d.description}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="p-4 pt-0">
+              <div className="flex items-center gap-2 border-t border-border/60 pt-3">
                 <button
                   onClick={() => setEditing(d as Dest)}
                   className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
@@ -130,7 +159,11 @@ function AdminDestinations() {
                 </button>
                 <button
                   onClick={() => {
-                    if (confirm(`Delete "${d.title}"?`)) del.mutate(d.id);
+                    if (d.posts_count > 0) {
+                      toast.error(`Cannot delete "${d.title}" because ${d.posts_count} story(ies) are currently assigned to it.`);
+                      return;
+                    }
+                    if (confirm(`Delete destination "${d.title}"?`)) del.mutate(d.id);
                   }}
                   className="ml-auto inline-flex items-center gap-1 text-xs font-medium text-red-500 hover:text-red-600 transition-colors cursor-pointer"
                 >

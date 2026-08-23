@@ -93,7 +93,15 @@ export function TrendingStories({
                     <Clock className="h-3 w-3" />
                     {primaryPost.reading_minutes} {t("min read")}
                   </span>
-                  {primaryPost.location_name && (
+                  {primaryPost.destinations ? (
+                    <>
+                      <span aria-hidden>·</span>
+                      <span className="inline-flex items-center gap-1 text-[#FF7A00] font-medium">
+                        <MapPin className="h-3 w-3" />
+                        {t(primaryPost.destinations.title)}
+                      </span>
+                    </>
+                  ) : primaryPost.location_name ? (
                     <>
                       <span aria-hidden>·</span>
                       <span className="inline-flex items-center gap-1">
@@ -101,7 +109,7 @@ export function TrendingStories({
                         {primaryPost.location_name}
                       </span>
                     </>
-                  )}
+                  ) : null}
                 </div>
 
                 <h3 className="mt-3 font-display text-2xl font-bold leading-snug text-foreground transition-colors group-hover:text-[#FF7A00] sm:text-3xl">

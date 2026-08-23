@@ -17,7 +17,7 @@ export type Destination = {
 export const listDestinations = createServerFn({ method: "GET" }).handler(async () => {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-  // Fetch destinations with linked published posts
+  // Fetch destinations with linked published posts strictly matching destination_id foreign key
   const { data, error } = await supabaseAdmin
     .from("destinations")
     .select(`
@@ -29,39 +29,22 @@ export const listDestinations = createServerFn({ method: "GET" }).handler(async 
       description,
       featured_image,
       created_at,
-      posts:posts(id, title, slug, cover_image, category, excerpt, reading_minutes, published, published_at, created_at)
+      posts:posts(id, title, slug, cover_image, category, excerpt, reading_minutes, destination_id, published, published_at, created_at)
     `)
     .eq("published", true)
     .order("created_at", { ascending: false });
 
   if (error) throw new Error(error.message);
 
-  // Fetch all published posts as fallback lookup for destination title/slug links
-  const { data: allPosts } = await supabaseAdmin
-    .from("posts")
-    .select("id, title, slug, cover_image, category, excerpt, reading_minutes, destination_id, published, published_at, created_at")
-    .eq("published", true)
-    .order("published_at", { ascending: false, nullsFirst: false });
-
   const resolved = (data ?? []).map((row: any) => {
-    // 1. Find linked published posts through destination_id foreign relation
-    let linkedPosts = (row.posts ?? []).filter((p: any) => p.published !== false);
-    
-    // Fallback: match from all published posts by destination_id or title/slug matching
-    if (linkedPosts.length === 0 && allPosts) {
-      linkedPosts = allPosts.filter(
-        (p: any) =>
-          p.destination_id === row.id ||
-          (p.slug && row.slug && (p.slug.includes(row.slug) || row.slug.includes(p.slug))) ||
-          (p.title && row.title && (p.title.toLowerCase().includes(row.title.toLowerCase()) || row.title.toLowerCase().includes(p.title.toLowerCase())))
-      );
-    }
-
-    linkedPosts.sort((a: any, b: any) => {
-      const timeA = new Date(a.published_at || a.created_at || 0).getTime();
-      const timeB = new Date(b.published_at || b.created_at || 0).getTime();
-      return timeB - timeA;
-    });
+    // Strictly filter published posts that belong to this destination
+    const linkedPosts = (row.posts ?? [])
+      .filter((p: any) => p.published !== false && p.destination_id === row.id)
+      .sort((a: any, b: any) => {
+        const timeA = new Date(a.published_at || a.created_at || 0).getTime();
+        const timeB = new Date(b.published_at || b.created_at || 0).getTime();
+        return timeB - timeA;
+      });
 
     const postsWithCovers = linkedPosts.filter((p: any) => p.cover_image);
     let coverPhoto = postsWithCovers[0]?.cover_image;
@@ -107,32 +90,15 @@ export const getDestinationBySlug = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     if (!row) return null;
 
-    let { data: posts, error: postsError } = await supabaseAdmin
+    // Query posts belonging strictly to this destination by destination_id
+    const { data: posts, error: postsError } = await supabaseAdmin
       .from("posts")
-      .select("*")
+      .select("id, title, slug, excerpt, content, cover_image, category, tags, featured, views, reading_minutes, published_at, created_at, destination_id, travel_date, location_name, latitude, longitude, seo_title, seo_description, og_image_url, author_name, destinations(id,title,slug)")
       .eq("destination_id", row.id)
       .eq("published", true)
       .order("published_at", { ascending: false, nullsFirst: false });
 
     if (postsError) throw new Error(postsError.message);
-
-    // Fallback: If no posts explicitly linked via destination_id, search for posts matching destination slug or title
-    if (!posts || posts.length === 0) {
-      const { data: allPosts } = await supabaseAdmin
-        .from("posts")
-        .select("*")
-        .eq("published", true)
-        .order("published_at", { ascending: false, nullsFirst: false });
-
-      if (allPosts && allPosts.length > 0) {
-        posts = allPosts.filter(
-          (p: any) =>
-            p.destination_id === row.id ||
-            (p.slug && row.slug && (p.slug.includes(row.slug) || row.slug.includes(p.slug))) ||
-            (p.title && row.title && (p.title.toLowerCase().includes(row.title.toLowerCase()) || row.title.toLowerCase().includes(p.title.toLowerCase())))
-        );
-      }
-    }
 
     const linkedPosts = (posts ?? []).filter((p: any) => p.cover_image);
     let coverPhoto = linkedPosts[0]?.cover_image;

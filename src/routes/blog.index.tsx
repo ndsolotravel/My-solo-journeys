@@ -22,10 +22,10 @@ const searchSchema = z.object({
   destination: z.string().optional(),
 });
 
-const blogQO = (params: { category?: string; tag?: string; search?: string; sort?: "latest" | "popular" }) =>
+const blogQO = (params: { category?: string; tag?: string; search?: string; sort?: "latest" | "popular"; destination?: string }) =>
   queryOptions({
     queryKey: ["blog", params],
-    queryFn: () => listPosts({ data: { limit: 50, sort: params.sort ?? "latest", category: params.category, tag: params.tag, search: params.search } }),
+    queryFn: () => listPosts({ data: { limit: 50, sort: params.sort ?? "latest", category: params.category, tag: params.tag, search: params.search, destination: params.destination } }),
   });
 
 const destQO = queryOptions({
@@ -81,7 +81,7 @@ export const Route = createFileRoute("/blog/")({
   loader: async ({ context, deps }) => {
     await Promise.all([
       context.queryClient.ensureQueryData(
-        blogQO({ category: deps.category, tag: deps.tag, search: deps.q, sort: deps.sort }),
+        blogQO({ category: deps.category, tag: deps.tag, search: deps.q, sort: deps.sort, destination: deps.destination }),
       ),
       context.queryClient.ensureQueryData(destQO),
       context.queryClient.ensureQueryData(authorNameQO),
@@ -100,7 +100,7 @@ function BlogIndex() {
   const navigate = Route.useNavigate();
 
   const { data } = useSuspenseQuery(
-    blogQO({ category: search.category, tag: search.tag, search: search.q, sort: search.sort }),
+    blogQO({ category: search.category, tag: search.tag, search: search.q, sort: search.sort, destination: search.destination }),
   );
   const { data: destinations } = useSuspenseQuery(destQO);
   const { data: activeTopics } = useSuspenseQuery(activeTopicsQO);

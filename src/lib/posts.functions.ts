@@ -56,6 +56,7 @@ export const listPosts = createServerFn({ method: "GET" })
         category: z.string().optional(),
         categories: z.array(z.string()).optional(),
         tag: z.string().optional(),
+        destination: z.string().optional(),
         search: z.string().optional(),
         limit: z.number().min(1).max(50).default(24),
         offset: z.number().min(0).default(0),
@@ -68,6 +69,25 @@ export const listPosts = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
+    // Resolve destination filter ID if destination slug was provided
+    let filterDestId: string | null = null;
+    if (data.destination) {
+      const destInput = data.destination.trim();
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(destInput);
+      if (isUuid) {
+        filterDestId = destInput;
+      } else {
+        const { data: dRow } = await supabaseAdmin
+          .from("destinations")
+          .select("id")
+          .eq("slug", destInput)
+          .maybeSingle();
+        if (dRow?.id) {
+          filterDestId = dRow.id;
+        }
+      }
+    }
+
     const buildQuery = (selectCols: string) => {
       let q = (supabaseAdmin
         .from("posts") as any)
@@ -75,6 +95,11 @@ export const listPosts = createServerFn({ method: "GET" })
         .eq("published", true);
       if (data.sort === "popular") q = q.order("views", { ascending: false });
       else q = q.order("published_at", { ascending: false });
+
+      if (filterDestId) {
+        q = q.eq("destination_id", filterDestId);
+      }
+
       if (data.category) {
         const cat = data.category;
         const catLower = cat.toLowerCase();
@@ -114,7 +139,7 @@ export const listPosts = createServerFn({ method: "GET" })
       }));
 
     // Try full query first with destination relation, fallback to basic columns if schema not migrated yet
-    const fullRes = await buildQuery(`${FULL_POST_COLUMNS},destinations(title,slug),post_translations(language_code,title,excerpt)`);
+    const fullRes = await buildQuery(`${FULL_POST_COLUMNS},destinations(id,title,slug),post_translations(language_code,title,excerpt)`);
     if (!fullRes.error && fullRes.data) {
       return { posts: mapPostMedia(fullRes.data), total: fullRes.count ?? 0 };
     }
@@ -131,7 +156,7 @@ export const getPostBySlug = createServerFn({ method: "GET" })
 
     let postRes = await (supabaseAdmin
       .from("posts") as any)
-      .select(`${FULL_POST_COLUMNS},destinations(title,slug),post_gallery(id,image_url,alt_text,sort_order),post_translations(language_code,title,excerpt,content,seo_title,seo_description)`)
+      .select(`${FULL_POST_COLUMNS},destinations(id,title,slug),post_gallery(id,image_url,alt_text,sort_order),post_translations(language_code,title,excerpt,content,seo_title,seo_description)`)
       .eq("slug", data.slug)
       .eq("published", true)
       .maybeSingle();
@@ -174,14 +199,20 @@ export const getPostBySlug = createServerFn({ method: "GET" })
       gallery.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
     }
 
-    const { data: related } = await (supabaseAdmin
+    const { data: rawRelated } = await (supabaseAdmin
       .from("posts") as any)
-      .select(BASE_POST_COLUMNS)
+      .select(`${FULL_POST_COLUMNS},destinations(id,title,slug)`)
       .eq("published", true)
       .eq("category", (post as unknown as Post).category)
       .neq("slug", data.slug)
       .order("published_at", { ascending: false })
       .limit(3);
+
+    const related = (rawRelated ?? []).map((p: any) => ({
+      ...p,
+      cover_image: p.cover_image ? resolveMediaUrl(p.cover_image, supabaseAdmin) : p.cover_image,
+      og_image_url: p.og_image_url ? resolveMediaUrl(p.og_image_url, supabaseAdmin) : p.og_image_url,
+    }));
 
     // fire-and-forget views increment
     await (supabaseAdmin
@@ -196,7 +227,7 @@ export const getPostBySlug = createServerFn({ method: "GET" })
       gallery,
     };
 
-    return { post: fullPost, related: (related ?? []) as Post[] };
+    return { post: fullPost, related: related as Post[] };
   });
 
 export const listAllPostSlugs = createServerFn({ method: "GET" }).handler(async () => {

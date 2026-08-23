@@ -204,7 +204,11 @@ export const adminUpsertPost = createServerFn({ method: "POST" })
         latitude: z.number().min(-90).max(90).nullable().optional(),
         longitude: z.number().min(-180).max(180).nullable().optional(),
         scheduled_at: z.string().nullable().optional(),
-        destination_id: z.string().uuid().nullable().optional(),
+        destination_id: z
+          .string()
+          .nullable()
+          .optional()
+          .transform((v) => (v && v.trim() !== "" ? v.trim() : null)),
         travel_date: z.string().nullable().optional(),
         seo_title: z.string().nullable().optional(),
         seo_description: z.string().nullable().optional(),
@@ -730,10 +734,13 @@ export const adminListDestinations = createServerFn({ method: "GET" })
     const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
     const { data, error } = await client
       .from("destinations")
-      .select("*")
+      .select("*, posts:posts(id, title, slug, published)")
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
-    return data ?? [];
+    return (data ?? []).map((d: any) => ({
+      ...d,
+      posts_count: Array.isArray(d.posts) ? d.posts.length : 0,
+    }));
   });
 
 export const adminUpsertDestination = createServerFn({ method: "POST" })
@@ -768,6 +775,19 @@ export const adminDeleteDestination = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     await assertEditor(context.userId, context.supabase);
     const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
+
+    // Safety check: verify no stories are assigned to this destination
+    const { data: linkedPosts } = await client
+      .from("posts")
+      .select("id, title")
+      .eq("destination_id", data.id);
+
+    if (linkedPosts && linkedPosts.length > 0) {
+      throw new Error(
+        `Cannot delete destination: ${linkedPosts.length} story(ies) are currently assigned to this destination. Please reassign or unlink the stories before deleting.`
+      );
+    }
+
     const { data: deleted, error } = await client.from("destinations").delete().eq("id", data.id).select("id");
     if (error) throw new Error(error.message);
     if (!deleted || deleted.length === 0) {
