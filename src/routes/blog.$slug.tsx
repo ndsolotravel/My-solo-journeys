@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { queryOptions, useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, Fragment, isValidElement, cloneElement, type ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import { Clock, Share2, ArrowLeft, Star, MapPin, Calendar, Image as ImageIcon, X, ChevronLeft, ChevronRight, User, List, ArrowRight as ArrowRightIcon } from "lucide-react";
@@ -133,6 +133,50 @@ const pageTurnVariants = {
   }),
 };
 
+function extractText(node: ReactNode): string {
+  if (node == null || typeof node === "boolean") return "";
+  if (typeof node === "string" || typeof node === "number") return String(node);
+  if (Array.isArray(node)) return node.map(extractText).join("");
+  if (typeof node === "object" && "props" in node && (node as any).props?.children) {
+    return extractText((node as any).props.children);
+  }
+  return "";
+}
+
+function translateMarkdownChildren(
+  node: ReactNode,
+  t: (text: string) => string,
+  isDbTranslated: boolean,
+): ReactNode {
+  if (isDbTranslated || node == null || typeof node === "boolean") return node;
+  if (typeof node === "string") {
+    const trimmed = node.trim();
+    if (!trimmed) return node;
+    // Skip strings that are purely punctuation or numbers
+    if (/^[0-9\s.,/#!$%^&*;:{}=\-_`~()]+$/.test(trimmed)) return node;
+    return t(node);
+  }
+  if (typeof node === "number") return node;
+  if (Array.isArray(node)) {
+    return node.map((child, i) => (
+      <Fragment key={i}>
+        {translateMarkdownChildren(child, t, isDbTranslated)}
+      </Fragment>
+    ));
+  }
+  if (typeof node === "object" && isValidElement(node)) {
+    const el = node as React.ReactElement<any>;
+    if (el.type === "code" || el.type === "pre") return el;
+    if (el.props && "children" in el.props) {
+      return cloneElement(el, {
+        ...el.props,
+        children: translateMarkdownChildren(el.props.children, t, isDbTranslated),
+      });
+    }
+  }
+  return node;
+}
+
 function PostPage() {
   const loaderData = Route.useLoaderData();
   const { post, related } = loaderData;
@@ -145,10 +189,16 @@ function PostPage() {
   const { lang } = useLanguage();
   const t = useTranslations();
 
+  const dbTrans = useMemo(() => {
+    if (!post || lang === "en") return null;
+    return post.post_translations?.find((x: any) => x.language_code === lang) ?? null;
+  }, [post, lang]);
+
+  const isDbTranslated = !!dbTrans;
+
   const localizedPost = useMemo(() => {
     if (!post) return null;
     if (lang === "en") return post;
-    const dbTrans = post.post_translations?.find((x: any) => x.language_code === lang);
     if (dbTrans) {
       return {
         ...post,
@@ -164,12 +214,12 @@ function PostPage() {
       ...post,
       title: t(post.title),
       excerpt: post.excerpt ? t(post.excerpt) : post.excerpt,
-      content: post.content ? t(post.content) : post.content,
+      content: post.content,
       category: t(post.category),
       seo_title: post.seo_title ? t(post.seo_title) : post.seo_title,
       seo_description: post.seo_description ? t(post.seo_description) : post.seo_description,
     };
-  }, [post, lang, t]);
+  }, [post, lang, dbTrans, t]);
 
   const localizedRelated = related;
 
@@ -182,13 +232,14 @@ function PostPage() {
       const match = line.match(/^(#{2,3})\s+(.+)$/);
       if (match) {
         const level = match[1].length;
-        const text = match[2].trim().replace(/[*_~`]/g, "");
-        const id = text.toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-");
+        const rawText = match[2].trim().replace(/[*_~`]/g, "");
+        const id = rawText.toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-");
+        const text = isDbTranslated ? rawText : t(rawText);
         items.push({ id, text, level });
       }
     });
     return items;
-  }, [localizedPost]);
+  }, [localizedPost, isDbTranslated, t]);
 
   const [[activeImageIndex, direction], setActiveImageState] = useState<[number | null, number]>([null, 0]);
 
@@ -339,28 +390,70 @@ function PostPage() {
           <ReactMarkdown
             rehypePlugins={[rehypeRaw]}
             components={{
+              h1: ({ children }) => {
+                const raw = extractText(children);
+                const id = raw.toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-");
+                return (
+                  <h1 id={id} className="scroll-mt-24 font-display text-3xl font-bold mt-10 mb-4 text-foreground">
+                    {translateMarkdownChildren(children, t, isDbTranslated)}
+                  </h1>
+                );
+              },
               h2: ({ children }) => {
-                const text = String(children);
-                const id = text.toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-");
+                const raw = extractText(children);
+                const id = raw.toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-");
                 return (
                   <h2 id={id} className="scroll-mt-24 font-display text-2xl font-bold mt-10 mb-4 text-foreground">
-                    {children}
+                    {translateMarkdownChildren(children, t, isDbTranslated)}
                   </h2>
                 );
               },
               h3: ({ children }) => {
-                const text = String(children);
-                const id = text.toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-");
+                const raw = extractText(children);
+                const id = raw.toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-");
                 return (
                   <h3 id={id} className="scroll-mt-24 font-display text-xl font-semibold mt-8 mb-3 text-foreground">
-                    {children}
+                    {translateMarkdownChildren(children, t, isDbTranslated)}
                   </h3>
                 );
               },
+              h4: ({ children }) => {
+                const raw = extractText(children);
+                const id = raw.toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-");
+                return (
+                  <h4 id={id} className="scroll-mt-24 font-display text-lg font-semibold mt-6 mb-2 text-foreground">
+                    {translateMarkdownChildren(children, t, isDbTranslated)}
+                  </h4>
+                );
+              },
+              p: ({ children }) => (
+                <p className="leading-relaxed mb-5 text-foreground">
+                  {translateMarkdownChildren(children, t, isDbTranslated)}
+                </p>
+              ),
+              li: ({ children }) => (
+                <li className="mb-2 leading-relaxed text-foreground">
+                  {translateMarkdownChildren(children, t, isDbTranslated)}
+                </li>
+              ),
               blockquote: ({ children }) => (
                 <blockquote className="my-6 border-l-4 border-accent bg-muted/40 py-3.5 px-5 italic rounded-r-xl text-base text-foreground shadow-sm">
-                  {children}
+                  {translateMarkdownChildren(children, t, isDbTranslated)}
                 </blockquote>
+              ),
+              figcaption: ({ children }) => (
+                <figcaption className="mt-2 text-center text-xs text-muted-foreground italic">
+                  {translateMarkdownChildren(children, t, isDbTranslated)}
+                </figcaption>
+              ),
+              img: ({ src, alt, ...props }) => (
+                <img
+                  src={src}
+                  alt={alt && !isDbTranslated ? t(alt) : alt}
+                  referrerPolicy="no-referrer"
+                  className="my-6 rounded-2xl w-full object-cover"
+                  {...props}
+                />
               ),
             }}
           >

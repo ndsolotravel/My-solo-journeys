@@ -6,7 +6,7 @@ import {
   useSyncExternalStore,
   type ReactNode,
 } from "react";
-import { getCached, getLangCache, setCached } from "./cache";
+import { getCached, getLangCache, setCached, setCachedBatch } from "./cache";
 import { getDictionaryTranslation, UI_DICTIONARY } from "./dictionary";
 import { translateTexts } from "./translate.functions";
 
@@ -162,7 +162,7 @@ function createStore(): TranslationStore {
         window.setTimeout(() => {
           flushScheduled = false;
           runFlush();
-        }, 1000);
+        }, 50);
       } else {
         flushScheduled = false;
       }
@@ -191,15 +191,17 @@ function createStore(): TranslationStore {
 
       try {
         const result = await translateTexts({ data: { lang: targetLang, texts: batchForFetch } });
+        const batchCache: Record<string, string> = {};
         keys.forEach((k) => {
           const idx = k.indexOf("\u0001");
           const text = k.slice(idx + 1);
           const value = result[text];
           if (value) {
             resolved.set(k, value);
-            setCached(targetLang, text, value);
+            batchCache[text] = value;
           }
         });
+        setCachedBatch(targetLang, batchCache);
         if (failed.size === 0) {
           error = null;
         }
