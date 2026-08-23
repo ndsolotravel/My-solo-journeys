@@ -30,6 +30,7 @@ import { HeroSlider } from "../components/layout/HeroSlider";
 import { SectionHeading } from "../components/home/SectionHeading";
 import { TrendingStories } from "../components/home/TrendingStories";
 import { FeaturedGrid } from "../components/home/FeaturedGrid";
+import { AdSlot } from "../components/ads/AdSlot";
 import { CATEGORIES } from "../lib/site";
 import { useTranslations, useLanguage } from "@/lib/translate/store";
 import { resolveMediaUrl } from "@/lib/admin.functions";
@@ -359,11 +360,13 @@ function HomePage() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.1 }}
-                className="mt-5 max-w-3xl font-display text-4xl font-bold leading-[1.08] text-white sm:text-5xl lg:text-6xl"
+                className="mt-5 max-w-4xl font-display text-4xl font-bold leading-[1.12] text-white sm:text-5xl lg:text-6xl tracking-tight"
               >
-                {t(heroSettings.homepage_hero_title || "Stories from the high places")}{" "}
-                <span className="text-[#FF7A00]">
-                  {t(heroSettings.homepage_hero_title_highlight || "most people only fly over.")}
+                <span className="block">
+                  {t(heroSettings.homepage_hero_title || "Stories from the high places")}
+                </span>
+                <span className="block text-[#FF7A00] mt-1 sm:mt-1.5">
+                  {t(heroSettings.homepage_hero_title_highlight || "Most people only fly over.")}
                 </span>
               </motion.h1>
 
@@ -461,8 +464,19 @@ function HomePage() {
         </div>
       </section>
 
+      {/* ========================================================================= */}
+      {/* AD SPACE 1: Directly below Hero Banner (728x90 desktop / 320x100 mobile)  */}
+      {/* ========================================================================= */}
+      <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 sm:pt-8 lg:px-8">
+        <AdSlot
+          slotId="homepage-hero-bottom"
+          format="horizontal"
+          label={t("Advertisement")}
+        />
+      </div>
+
       {/* Main Content Container */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-20 sm:space-y-24">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-20 sm:space-y-24 mt-8 sm:mt-10">
         {/* ========================================================================= */}
         {/* 2. TRENDING / LATEST STORIES SECTION                                      */}
         {/* ========================================================================= */}
@@ -613,6 +627,17 @@ function HomePage() {
             </div>
           </section>
         )}
+
+        {/* ========================================================================= */}
+        {/* AD SPACE 2: Mid-page Between Major Sections (Explore Topics & Numbers)    */}
+        {/* ========================================================================= */}
+        <div className="pt-2">
+          <AdSlot
+            slotId="homepage-mid-content"
+            format="horizontal"
+            label={t("Advertisement")}
+          />
+        </div>
       </div>
 
       {/* ========================================================================= */}
@@ -974,6 +999,17 @@ function HomePage() {
             </div>
           </section>
         )}
+
+        {/* ========================================================================= */}
+        {/* AD SPACE 3: Above Newsletter / Join the Journey Section                   */}
+        {/* ========================================================================= */}
+        <div className="pt-2">
+          <AdSlot
+            slotId="homepage-above-newsletter"
+            format="horizontal"
+            label={t("Advertisement")}
+          />
+        </div>
 
         {/* ========================================================================= */}
         {/* 8. NEWSLETTER DISPATCH SIGNUP                                             */}

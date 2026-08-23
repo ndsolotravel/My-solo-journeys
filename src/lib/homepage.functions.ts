@@ -40,7 +40,7 @@ const HOMEPAGE_DEFAULTS: Record<string, string> = {
   homepage_hero_image: "",
   homepage_hero_badge: "Solo · Slow · Cinematic",
   homepage_hero_title: "Stories from the high places",
-  homepage_hero_title_highlight: "most people only fly over.",
+  homepage_hero_title_highlight: "Most people only fly over.",
   homepage_hero_description:
     "Solo expeditions, motorcycle journeys and trekking diaries from Pakistan, the Karakoram and the world's wildest borders.",
   homepage_hero_button_text: "Read the stories",
