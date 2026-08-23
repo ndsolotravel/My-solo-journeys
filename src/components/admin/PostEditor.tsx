@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useNavigate } from "@tanstack/react-router";
@@ -35,6 +35,7 @@ import {
   adminDeleteGalleryImage,
   adminSavePostGallery,
 } from "@/lib/admin.functions";
+import { adminListCategories } from "@/lib/categories.functions";
 import { geocodeFromTitle } from "@/lib/geocoding.functions";
 import { CATEGORIES } from "@/lib/site";
 import {
@@ -117,11 +118,25 @@ export function PostEditor({
   const delGalleryImageFn = useServerFn(adminDeleteGalleryImage);
   const saveGalleryFn = useServerFn(adminSavePostGallery);
   const listDestinationsFn = useServerFn(adminListDestinations);
+  const listCategoriesFn = useServerFn(adminListCategories);
 
   const { data: destinations } = useQuery({
     queryKey: ["admin-destinations"],
     queryFn: () => listDestinationsFn(),
   });
+
+  const { data: dbCategories } = useQuery({
+    queryKey: ["admin-categories"],
+    queryFn: () => listCategoriesFn(),
+  });
+
+  const categoryOptions = useMemo(() => {
+    const fromDb = (dbCategories ?? []).map((c) => c.name);
+    const combined = [
+      ...new Set([...fromDb, ...CATEGORIES, initial?.category].filter(Boolean)),
+    ] as string[];
+    return combined;
+  }, [dbCategories, initial?.category]);
 
   const [title, setTitle] = useState(initial?.title ?? "");
   const [slug, setSlug] = useState(initial?.slug ?? "");
@@ -1244,13 +1259,27 @@ export function PostEditor({
 
         {/* Category & Tags */}
         <div className="rounded-2xl border border-border bg-card p-5 space-y-4 shadow-sm">
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Category & Tags
+            </p>
+            <a
+              href="/admin/categories"
+              target="_blank"
+              rel="noreferrer"
+              className="text-[11px] text-accent hover:underline flex items-center gap-1"
+            >
+              Manage categories
+            </a>
+          </div>
+
           <Field label="Category">
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               className={input}
             >
-              {CATEGORIES.map((c) => (
+              {categoryOptions.map((c) => (
                 <option key={c} value={c}>
                   {c}
                 </option>

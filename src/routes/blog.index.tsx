@@ -7,6 +7,7 @@ import { listPosts } from "@/lib/posts.functions";
 import { listDestinations } from "@/lib/destinations.functions";
 import { getBlogAuthorName } from "@/lib/settings.functions";
 import { listActiveTopics } from "@/lib/topics.functions";
+import { listCategories } from "@/lib/categories.functions";
 import { PostCard } from "@/components/blog/PostCard";
 import { PostCardSkeleton } from "@/components/blog/Skeletons";
 import { CATEGORIES } from "@/lib/site";
@@ -40,6 +41,11 @@ const authorNameQO = queryOptions({
 const activeTopicsQO = queryOptions({
   queryKey: ["active-topics"],
   queryFn: () => listActiveTopics(),
+});
+
+const categoriesQO = queryOptions({
+  queryKey: ["categories-list"],
+  queryFn: () => listCategories(),
 });
 
 export const Route = createFileRoute("/blog/")({
@@ -80,6 +86,7 @@ export const Route = createFileRoute("/blog/")({
       context.queryClient.ensureQueryData(destQO),
       context.queryClient.ensureQueryData(authorNameQO),
       context.queryClient.ensureQueryData(activeTopicsQO),
+      context.queryClient.ensureQueryData(categoriesQO),
     ]);
   },
   component: BlogIndex,
@@ -97,6 +104,14 @@ function BlogIndex() {
   );
   const { data: destinations } = useSuspenseQuery(destQO);
   const { data: activeTopics } = useSuspenseQuery(activeTopicsQO);
+  const { data: dynamicCategories } = useQuery(categoriesQO);
+
+  const displayCategories = useMemo(() => {
+    if (dynamicCategories && dynamicCategories.length > 0) {
+      return dynamicCategories.map((c) => c.name);
+    }
+    return [...CATEGORIES];
+  }, [dynamicCategories]);
 
   const { data: globalAuthor } = useQuery(authorNameQO);
   const authorName = globalAuthor || "Hussain";
@@ -342,7 +357,7 @@ function BlogIndex() {
             >
               {t("All")}
             </Link>
-            {CATEGORIES.map((c) => (
+            {displayCategories.map((c) => (
               <Link
                 key={c}
                 to="/blog"

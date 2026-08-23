@@ -2,6 +2,7 @@ import { createFileRoute, Link, Outlet, redirect, useRouterState } from "@tansta
 import {
   LayoutDashboard,
   FileText,
+  FolderTree,
   MapPin,
   MessageSquare,
   Mail,
@@ -47,6 +48,7 @@ const NAV: { to: string; label: string; icon: typeof LayoutDashboard; exact?: bo
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { to: "/admin/analytics", label: "Analytics", icon: BarChart3 },
   { to: "/admin/posts", label: "Posts", icon: FileText },
+  { to: "/admin/categories", label: "Categories", icon: FolderTree },
   { to: "/admin/gallery", label: "Gallery", icon: ImageIcon },
   { to: "/admin/destinations", label: "Destinations", icon: MapPin },
   { to: "/admin/homepage", label: "Homepage", icon: Home },

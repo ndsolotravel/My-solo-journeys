@@ -22,6 +22,7 @@ import { listDestinations } from "../lib/destinations.functions";
 import { listGallery } from "../lib/gallery.functions";
 import { getHomepageConfig } from "../lib/homepage.functions";
 import { listActiveTopics, type ActiveTopic } from "../lib/topics.functions";
+import { slugify } from "../lib/categories.functions";
 import { CountUp } from "../components/dashboard/CountUp";
 import { useGsapReveal } from "../hooks/use-gsap-reveal";
 import { DestinationCardSkeleton } from "../components/blog/Skeletons";
@@ -176,7 +177,7 @@ function HomePage() {
         name,
         count,
         image: matchedTopic?.previewImage || undefined,
-        linkTo: `/blog`,
+        linkTo: `/category/${slugify(name)}`,
       };
     });
 
@@ -184,7 +185,7 @@ function HomePage() {
       return CATEGORIES.slice(0, 5).map((name) => ({
         name,
         count: 1,
-        linkTo: "/blog",
+        linkTo: `/category/${slugify(name)}`,
       }));
     }
     return cats.slice(0, 5);

@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 import { listAllPostSlugs } from "@/lib/posts.functions";
 import { listDestinations } from "@/lib/destinations.functions";
+import { listCategories } from "@/lib/categories.functions";
 
 const BASE_URL = "";
 
@@ -11,6 +12,13 @@ export const Route = createFileRoute("/sitemap.xml")({
       GET: async () => {
         const posts = await listAllPostSlugs();
         const dests = await listDestinations();
+        let categories: any[] = [];
+        try {
+          categories = await listCategories();
+        } catch {
+          // ignore error
+        }
+
         const staticEntries = [
           { path: "/", priority: "1.0", changefreq: "weekly" as const },
           { path: "/blog", priority: "0.9", changefreq: "daily" as const },
@@ -30,7 +38,15 @@ export const Route = createFileRoute("/sitemap.xml")({
           changefreq: "monthly" as const,
           priority: "0.6",
         }));
-        const all = [...staticEntries, ...postEntries, ...destEntries];
+        const categoryEntries = categories
+          .filter((c) => (c.post_count ?? 0) > 0)
+          .map((c) => ({
+            path: `/category/${c.slug}`,
+            changefreq: "weekly" as const,
+            priority: "0.7",
+          }));
+
+        const all = [...staticEntries, ...postEntries, ...destEntries, ...categoryEntries];
         const urls = all.map(
           (e) =>
             `  <url><loc>${BASE_URL}${e.path}</loc>${"lastmod" in e && e.lastmod ? `<lastmod>${e.lastmod}</lastmod>` : ""}<changefreq>${e.changefreq}</changefreq><priority>${e.priority}</priority></url>`,
