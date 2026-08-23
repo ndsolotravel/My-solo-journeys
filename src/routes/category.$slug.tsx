@@ -6,6 +6,7 @@ import type { Post } from "@/lib/posts.functions";
 import { PageBreadcrumbs } from "@/components/layout/PageBreadcrumbs";
 import { PostCard } from "@/components/blog/PostCard";
 import { useTranslations } from "@/lib/translate/store";
+import { resolveMediaUrl } from "@/lib/admin.functions";
 
 const categoryQO = (slug: string) =>
   queryOptions({
@@ -25,10 +26,11 @@ export const Route = createFileRoute("/category/$slug")({
       cat.description ||
       `Explore solo travel journeys, mountain stories, and guides under ${cat.name}.`;
     const canonicalUrl = `https://ndsolotravel.com/category/${cat.slug}`;
-    const heroImg =
+    const rawHeroImg =
       cat.image_url ||
       data.posts[0]?.cover_image ||
       "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1600&q=80";
+    const heroImg = resolveMediaUrl(rawHeroImg);
 
     return {
       meta: [
@@ -94,10 +96,11 @@ function CategoryPage() {
   const t = useTranslations();
   const { category, posts } = Route.useLoaderData();
 
-  const heroImage =
+  const rawHeroImage =
     category.image_url ||
     posts[0]?.cover_image ||
     "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1600&q=80";
+  const heroImage = resolveMediaUrl(rawHeroImage);
 
   return (
     <article className="min-h-screen pb-20">

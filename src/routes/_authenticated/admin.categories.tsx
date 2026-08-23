@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -27,7 +27,7 @@ import {
   slugify,
   type Category,
 } from "@/lib/categories.functions";
-import { adminUploadImage } from "@/lib/admin.functions";
+import { adminUploadImage, resolveMediaUrl } from "@/lib/admin.functions";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -65,6 +65,103 @@ const emptyCategory: CategoryFormState = {
   seo_title: "",
   seo_description: "",
 };
+
+function CategoryImagePreviewBox({
+  imageUrl,
+  onRemove,
+}: {
+  imageUrl: string;
+  onRemove: () => void;
+}) {
+  const [loadError, setLoadError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const cleanUrl = imageUrl.trim();
+  const resolvedUrl = useMemo(() => resolveMediaUrl(cleanUrl), [cleanUrl]);
+
+  // When image URL changes, reset error state and trigger loading
+  useEffect(() => {
+    if (!cleanUrl) {
+      setLoadError(false);
+      setIsLoading(false);
+      return;
+    }
+    setLoadError(false);
+    setIsLoading(true);
+  }, [cleanUrl]);
+
+  if (!cleanUrl) {
+    return (
+      <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-muted/20 py-8 text-center px-4 transition-all">
+        <ImageIcon className="h-8 w-8 text-muted-foreground/40 mb-2" />
+        <p className="text-xs font-medium text-muted-foreground">No image URL entered</p>
+        <p className="text-[11px] text-muted-foreground/70 mt-0.5 max-w-xs">
+          Enter an image URL above or upload a picture (JPG, JPEG, PNG, WEBP, GIF) to see live preview.
+        </p>
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="flex flex-col items-center justify-center rounded-2xl border border-amber-500/30 bg-amber-500/5 py-7 text-center px-4 animate-in fade-in duration-200">
+        <AlertTriangle className="h-7 w-7 text-amber-500 mb-2" />
+        <p className="text-xs font-semibold text-amber-600 dark:text-amber-400">
+          Unable to load image. Please check the image URL.
+        </p>
+        <p className="text-[11px] text-muted-foreground mt-0.5 max-w-sm">
+          Make sure the link is publicly accessible and points to a valid image format (JPG, PNG, WEBP, GIF).
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative w-full overflow-hidden rounded-2xl border border-border bg-black/5 dark:bg-black/40 p-2 min-h-[160px] max-h-56 flex items-center justify-center group animate-in fade-in duration-200">
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-background/60 backdrop-blur-xs z-10">
+          <Loader2 className="h-6 w-6 animate-spin text-accent" />
+        </div>
+      )}
+      <img
+        src={resolvedUrl}
+        alt="Category Preview"
+        onLoad={() => {
+          setIsLoading(false);
+          setLoadError(false);
+        }}
+        onError={() => {
+          setIsLoading(false);
+          setLoadError(true);
+        }}
+        className={`max-h-52 max-w-full rounded-xl object-contain shadow-xs transition-opacity duration-200 ${
+          isLoading ? "opacity-0" : "opacity-100"
+        }`}
+      />
+      {!isLoading && !loadError && (
+        <div className="absolute top-3 right-3 flex items-center gap-1.5 opacity-90 group-hover:opacity-100 transition-opacity">
+          <a
+            href={resolvedUrl}
+            target="_blank"
+            rel="noreferrer"
+            title="Open full image in new tab"
+            className="flex h-7 w-7 items-center justify-center rounded-full bg-black/70 text-white hover:bg-black transition cursor-pointer shadow-sm"
+          >
+            <ExternalLink className="h-3.5 w-3.5" />
+          </a>
+          <button
+            type="button"
+            onClick={onRemove}
+            title="Remove image"
+            className="flex h-7 w-7 items-center justify-center rounded-full bg-red-600/90 text-white hover:bg-red-600 transition cursor-pointer shadow-sm"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function AdminCategoriesPage() {
   const listFn = useServerFn(adminListCategories);
@@ -325,8 +422,11 @@ function AdminCategoriesPage() {
                         <div className="flex items-center gap-3">
                           {c.image_url ? (
                             <img
-                              src={c.image_url}
+                              src={resolveMediaUrl(c.image_url)}
                               alt={c.name}
+                              onError={(e) => {
+                                (e.currentTarget as HTMLImageElement).style.display = "none";
+                              }}
                               className="h-10 w-10 shrink-0 rounded-lg object-cover border border-border shadow-xs"
                             />
                           ) : (
@@ -605,18 +705,30 @@ function AdminCategoriesPage() {
               </div>
 
               {/* Cover Image / Icon */}
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
-                  Category Image URL
-                </label>
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Category Image URL
+                  </label>
+                  {editing.image_url && (
+                    <button
+                      type="button"
+                      onClick={() => setEditing((prev) => (prev ? { ...prev, image_url: "" } : prev))}
+                      className="text-[11px] text-muted-foreground hover:text-red-500 transition-colors flex items-center gap-1 cursor-pointer"
+                    >
+                      <X className="h-3 w-3" /> Clear URL
+                    </button>
+                  )}
+                </div>
+
                 <div className="flex gap-2">
                   <input
-                    type="url"
+                    type="text"
                     value={editing.image_url}
                     onChange={(e) =>
                       setEditing((prev) => (prev ? { ...prev, image_url: e.target.value } : prev))
                     }
-                    placeholder="https://images.unsplash.com/…"
+                    placeholder="https://images.unsplash.com/photo-… or storage URL"
                     className="flex-1 rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm outline-none focus:border-accent transition-colors"
                   />
                   <label className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-muted px-4 py-2.5 text-xs font-medium text-foreground hover:bg-muted/80 transition cursor-pointer shrink-0">
@@ -634,22 +746,19 @@ function AdminCategoriesPage() {
                     />
                   </label>
                 </div>
-                {editing.image_url && (
-                  <div className="mt-2.5 relative w-32 h-20 rounded-xl overflow-hidden border border-border shadow-xs">
-                    <img
-                      src={editing.image_url}
-                      alt="Preview"
-                      className="h-full w-full object-cover"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setEditing((prev) => (prev ? { ...prev, image_url: "" } : prev))}
-                      className="absolute top-1 right-1 rounded-full bg-black/70 p-1 text-white hover:bg-black"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </div>
-                )}
+
+                {/* Live Image Preview Container */}
+                <div className="pt-1">
+                  <label className="block text-[11px] font-medium text-muted-foreground mb-1.5">
+                    Live Image Preview
+                  </label>
+                  <CategoryImagePreviewBox
+                    imageUrl={editing.image_url}
+                    onRemove={() =>
+                      setEditing((prev) => (prev ? { ...prev, image_url: "" } : prev))
+                    }
+                  />
+                </div>
               </div>
 
               {/* SEO & Metadata Section */}
