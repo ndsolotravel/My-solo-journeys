@@ -23,6 +23,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as DestinationsIndexRouteImport } from './routes/destinations.index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as TopicsSlugRouteImport } from './routes/topics.$slug'
+import { Route as NewsSlugRouteImport } from './routes/news.$slug'
 import { Route as DestinationsSlugRouteImport } from './routes/destinations.$slug'
 import { Route as CategorySlugRouteImport } from './routes/category.$slug'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
@@ -31,6 +32,7 @@ import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminSubscribersRouteImport } from './routes/_authenticated/admin.subscribers'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
+import { Route as AuthenticatedAdminNewsRouteImport } from './routes/_authenticated/admin.news'
 import { Route as AuthenticatedAdminMessagesRouteImport } from './routes/_authenticated/admin.messages'
 import { Route as AuthenticatedAdminHomepageRouteImport } from './routes/_authenticated/admin.homepage'
 import { Route as AuthenticatedAdminGalleryRouteImport } from './routes/_authenticated/admin.gallery'
@@ -111,6 +113,11 @@ const TopicsSlugRoute = TopicsSlugRouteImport.update({
   path: '/topics/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NewsSlugRoute = NewsSlugRouteImport.update({
+  id: '/news/$slug',
+  path: '/news/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DestinationsSlugRoute = DestinationsSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
@@ -153,6 +160,11 @@ const AuthenticatedAdminSettingsRoute =
     path: '/settings',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminNewsRoute = AuthenticatedAdminNewsRouteImport.update({
+  id: '/news',
+  path: '/news',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
 const AuthenticatedAdminMessagesRoute =
   AuthenticatedAdminMessagesRouteImport.update({
     id: '/messages',
@@ -230,6 +242,7 @@ export interface FileRoutesByFullPath {
   '/blog/$slug': typeof BlogSlugRoute
   '/category/$slug': typeof CategorySlugRoute
   '/destinations/$slug': typeof DestinationsSlugRoute
+  '/news/$slug': typeof NewsSlugRoute
   '/topics/$slug': typeof TopicsSlugRoute
   '/blog/': typeof BlogIndexRoute
   '/destinations/': typeof DestinationsIndexRoute
@@ -240,6 +253,7 @@ export interface FileRoutesByFullPath {
   '/admin/gallery': typeof AuthenticatedAdminGalleryRoute
   '/admin/homepage': typeof AuthenticatedAdminHomepageRoute
   '/admin/messages': typeof AuthenticatedAdminMessagesRoute
+  '/admin/news': typeof AuthenticatedAdminNewsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/subscribers': typeof AuthenticatedAdminSubscribersRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -260,6 +274,7 @@ export interface FileRoutesByTo {
   '/blog/$slug': typeof BlogSlugRoute
   '/category/$slug': typeof CategorySlugRoute
   '/destinations/$slug': typeof DestinationsSlugRoute
+  '/news/$slug': typeof NewsSlugRoute
   '/topics/$slug': typeof TopicsSlugRoute
   '/blog': typeof BlogIndexRoute
   '/destinations': typeof DestinationsIndexRoute
@@ -270,6 +285,7 @@ export interface FileRoutesByTo {
   '/admin/gallery': typeof AuthenticatedAdminGalleryRoute
   '/admin/homepage': typeof AuthenticatedAdminHomepageRoute
   '/admin/messages': typeof AuthenticatedAdminMessagesRoute
+  '/admin/news': typeof AuthenticatedAdminNewsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/subscribers': typeof AuthenticatedAdminSubscribersRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
@@ -295,6 +311,7 @@ export interface FileRoutesById {
   '/blog/$slug': typeof BlogSlugRoute
   '/category/$slug': typeof CategorySlugRoute
   '/destinations/$slug': typeof DestinationsSlugRoute
+  '/news/$slug': typeof NewsSlugRoute
   '/topics/$slug': typeof TopicsSlugRoute
   '/blog/': typeof BlogIndexRoute
   '/destinations/': typeof DestinationsIndexRoute
@@ -305,6 +322,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/gallery': typeof AuthenticatedAdminGalleryRoute
   '/_authenticated/admin/homepage': typeof AuthenticatedAdminHomepageRoute
   '/_authenticated/admin/messages': typeof AuthenticatedAdminMessagesRoute
+  '/_authenticated/admin/news': typeof AuthenticatedAdminNewsRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/subscribers': typeof AuthenticatedAdminSubscribersRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -330,6 +348,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/category/$slug'
     | '/destinations/$slug'
+    | '/news/$slug'
     | '/topics/$slug'
     | '/blog/'
     | '/destinations/'
@@ -340,6 +359,7 @@ export interface FileRouteTypes {
     | '/admin/gallery'
     | '/admin/homepage'
     | '/admin/messages'
+    | '/admin/news'
     | '/admin/settings'
     | '/admin/subscribers'
     | '/admin/'
@@ -360,6 +380,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/category/$slug'
     | '/destinations/$slug'
+    | '/news/$slug'
     | '/topics/$slug'
     | '/blog'
     | '/destinations'
@@ -370,6 +391,7 @@ export interface FileRouteTypes {
     | '/admin/gallery'
     | '/admin/homepage'
     | '/admin/messages'
+    | '/admin/news'
     | '/admin/settings'
     | '/admin/subscribers'
     | '/admin'
@@ -394,6 +416,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/category/$slug'
     | '/destinations/$slug'
+    | '/news/$slug'
     | '/topics/$slug'
     | '/blog/'
     | '/destinations/'
@@ -404,6 +427,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/gallery'
     | '/_authenticated/admin/homepage'
     | '/_authenticated/admin/messages'
+    | '/_authenticated/admin/news'
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/subscribers'
     | '/_authenticated/admin/'
@@ -425,6 +449,7 @@ export interface RootRouteChildren {
   MapRoute: typeof MapRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   CategorySlugRoute: typeof CategorySlugRoute
+  NewsSlugRoute: typeof NewsSlugRoute
   TopicsSlugRoute: typeof TopicsSlugRoute
 }
 
@@ -528,6 +553,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TopicsSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/news/$slug': {
+      id: '/news/$slug'
+      path: '/news/$slug'
+      fullPath: '/news/$slug'
+      preLoaderRoute: typeof NewsSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/destinations/$slug': {
       id: '/destinations/$slug'
       path: '/$slug'
@@ -582,6 +614,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/admin/settings'
       preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/news': {
+      id: '/_authenticated/admin/news'
+      path: '/news'
+      fullPath: '/admin/news'
+      preLoaderRoute: typeof AuthenticatedAdminNewsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/messages': {
@@ -665,6 +704,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminGalleryRoute: typeof AuthenticatedAdminGalleryRoute
   AuthenticatedAdminHomepageRoute: typeof AuthenticatedAdminHomepageRoute
   AuthenticatedAdminMessagesRoute: typeof AuthenticatedAdminMessagesRoute
+  AuthenticatedAdminNewsRoute: typeof AuthenticatedAdminNewsRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminSubscribersRoute: typeof AuthenticatedAdminSubscribersRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
@@ -681,6 +721,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminGalleryRoute: AuthenticatedAdminGalleryRoute,
   AuthenticatedAdminHomepageRoute: AuthenticatedAdminHomepageRoute,
   AuthenticatedAdminMessagesRoute: AuthenticatedAdminMessagesRoute,
+  AuthenticatedAdminNewsRoute: AuthenticatedAdminNewsRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminSubscribersRoute: AuthenticatedAdminSubscribersRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
@@ -744,6 +785,7 @@ const rootRouteChildren: RootRouteChildren = {
   MapRoute: MapRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   CategorySlugRoute: CategorySlugRoute,
+  NewsSlugRoute: NewsSlugRoute,
   TopicsSlugRoute: TopicsSlugRoute,
 }
 export const routeTree = rootRouteImport

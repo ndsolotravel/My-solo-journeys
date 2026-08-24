@@ -22,6 +22,7 @@ import { listDestinations } from "../lib/destinations.functions";
 import { listGallery } from "../lib/gallery.functions";
 import { getHomepageConfig } from "../lib/homepage.functions";
 import { listActiveTopics, type ActiveTopic } from "../lib/topics.functions";
+import { listActiveBreakingNews } from "../lib/news.functions";
 import { slugify } from "../lib/categories.functions";
 import { CountUp } from "../components/dashboard/CountUp";
 import { useGsapReveal } from "../hooks/use-gsap-reveal";
@@ -31,6 +32,7 @@ import { HeroSlider } from "../components/layout/HeroSlider";
 import { SectionHeading } from "../components/home/SectionHeading";
 import { TrendingStories } from "../components/home/TrendingStories";
 import { FeaturedGrid } from "../components/home/FeaturedGrid";
+import { BreakingNewsSection } from "../components/home/BreakingNewsSection";
 import { AdSlot } from "../components/ads/AdSlot";
 import { CATEGORIES } from "../lib/site";
 import { useTranslations, useLanguage } from "@/lib/translate/store";
@@ -77,6 +79,10 @@ const topicsQO = queryOptions({
   queryKey: ["home", "active-topics"],
   queryFn: () => listActiveTopics(),
 });
+const breakingNewsQO = queryOptions({
+  queryKey: ["home", "breaking-news"],
+  queryFn: () => listActiveBreakingNews(),
+});
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -103,6 +109,7 @@ export const Route = createFileRoute("/")({
       context.queryClient.ensureQueryData(journeyStatsQO),
       context.queryClient.ensureQueryData(homepageQO),
       context.queryClient.ensureQueryData(topicsQO),
+      context.queryClient.ensureQueryData(breakingNewsQO),
     ]);
   },
   component: HomePage,
@@ -137,6 +144,7 @@ function HomePage() {
   const { data: motoData } = useSuspenseQuery(motoQO);
   const { data: journeyStats } = useSuspenseQuery(journeyStatsQO);
   const { data: homepageConfig } = useSuspenseQuery(homepageQO);
+  const { data: breakingNews } = useSuspenseQuery(breakingNewsQO);
 
   const activeTopics = activeTopicsData ?? [];
   const allPosts = postsData.posts ?? [];
@@ -305,7 +313,7 @@ function HomePage() {
       {/* ========================================================================= */}
       {/* 1. HERO BANNER (Cinematic + 2 Floating Story Preview Cards)               */}
       {/* ========================================================================= */}
-      <section className="relative min-h-[max(100svh,620px)] overflow-hidden">
+      <section className="relative min-h-[max(100svh,620px)] overflow-hidden flex flex-col justify-between">
         <HeroSlider
           slides={
             heroSettings.homepage_hero_image
@@ -344,7 +352,12 @@ function HomePage() {
           }
         />
 
-        <div className="pointer-events-none relative mx-auto flex min-h-[max(100svh,620px)] max-w-7xl flex-col justify-end px-4 pb-12 pt-28 sm:px-6 sm:pb-20 sm:pt-36 lg:px-8">
+        {/* Breaking News Ticker: Top of Hero picture right under navigation */}
+        <div className="pointer-events-auto relative z-20 w-full pt-20 sm:pt-22 lg:pt-24">
+          <BreakingNewsSection items={breakingNews ?? []} />
+        </div>
+
+        <div className="pointer-events-none relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col justify-end px-4 pb-12 pt-6 sm:px-6 sm:pb-20 sm:pt-8 lg:px-8">
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:items-end">
             {/* Left: Main Hero Content */}
             <div className="lg:col-span-8">
