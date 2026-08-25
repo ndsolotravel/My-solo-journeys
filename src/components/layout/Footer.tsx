@@ -41,13 +41,13 @@ export function Footer() {
             <p className="mt-3 max-w-sm text-sm text-secondary-foreground/70">
               {t(SITE.description)}
             </p>
-            <div className="mt-5 flex gap-3">
+            <div className="mt-5 flex flex-wrap gap-2.5 sm:gap-3">
               <a
                 href={SITE.socials.instagram}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full text-white transition-transform duration-200 hover:scale-110"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full text-white transition-transform duration-200 hover:scale-110 shrink-0"
                 style={{
                   background:
                     "radial-gradient(circle at 30% 110%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%)",
@@ -60,7 +60,7 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="TikTok"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-black text-white transition-transform duration-200 hover:scale-110"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-black text-white transition-transform duration-200 hover:scale-110 shrink-0"
               >
                 <TikTokIcon className="h-4 w-4" />
               </a>
@@ -69,7 +69,7 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="YouTube"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#FF0000] text-white transition-transform duration-200 hover:scale-110"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#FF0000] text-white transition-transform duration-200 hover:scale-110 shrink-0"
               >
                 <Youtube className="h-4 w-4" />
               </a>
@@ -78,7 +78,7 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="X"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-black text-white transition-transform duration-200 hover:scale-110"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-black text-white transition-transform duration-200 hover:scale-110 shrink-0"
               >
                 <Twitter className="h-4 w-4" />
               </a>
@@ -87,7 +87,7 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Facebook"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#1877F2] text-white transition-transform duration-200 hover:scale-110"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#1877F2] text-white transition-transform duration-200 hover:scale-110 shrink-0"
               >
                 <Facebook className="h-4 w-4" />
               </a>
@@ -96,7 +96,7 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="LinkedIn"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#0A66C2] text-white transition-transform duration-200 hover:scale-110"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#0A66C2] text-white transition-transform duration-200 hover:scale-110 shrink-0"
               >
                 <Linkedin className="h-4 w-4" />
               </a>
@@ -105,7 +105,7 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Pinterest"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#E60023] text-white transition-transform duration-200 hover:scale-110"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#E60023] text-white transition-transform duration-200 hover:scale-110 shrink-0"
               >
                 <PinterestIcon className="h-4 w-4" />
               </a>

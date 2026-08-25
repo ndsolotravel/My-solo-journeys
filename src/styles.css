@@ -22,6 +22,8 @@
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-success: var(--success);
@@ -55,9 +57,11 @@
   --secondary-foreground: oklch(0.98 0.003 247);
   --muted: oklch(0.968 0.006 247);
   --muted-foreground: oklch(0.5 0.024 257);
-  /* #0EA5E9 accent */
-  --accent: oklch(0.715 0.157 234);
-  --accent-foreground: oklch(0.99 0.005 240);
+  /* #FF7A00 Signature Brand Accent */
+  --brand: #FF7A00;
+  --brand-foreground: #FFFFFF;
+  --accent: #FF7A00;
+  --accent-foreground: #FFFFFF;
   /* #10B981 success */
   --success: oklch(0.7 0.149 162);
   --success-foreground: oklch(0.99 0.005 162);
@@ -65,7 +69,7 @@
   --destructive-foreground: oklch(0.98 0.003 247);
   --border: oklch(0.92 0.011 256);
   --input: oklch(0.92 0.011 256);
-  --ring: oklch(0.715 0.157 234);
+  --ring: #FF7A00;
 }
 
 .dark {
@@ -82,15 +86,17 @@
   --secondary-foreground: oklch(0.98 0.003 247);
   --muted: oklch(0.24 0.034 264);
   --muted-foreground: oklch(0.7 0.024 257);
-  --accent: oklch(0.715 0.157 234);
-  --accent-foreground: oklch(0.13 0.029 264);
+  --brand: #FF7A00;
+  --brand-foreground: #FFFFFF;
+  --accent: #FF7A00;
+  --accent-foreground: #FFFFFF;
   --success: oklch(0.72 0.149 162);
   --success-foreground: oklch(0.13 0.029 264);
   --destructive: oklch(0.65 0.21 22);
   --destructive-foreground: oklch(0.98 0.003 247);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.715 0.157 234);
+  --ring: #FF7A00;
 }
 
 @layer base {
@@ -99,6 +105,8 @@
   }
   html {
     scroll-behavior: smooth;
+    overflow-x: hidden;
+    max-width: 100%;
   }
   body {
     background-color: var(--color-background);
@@ -108,6 +116,9 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+    max-width: 100%;
+    min-width: 0;
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
