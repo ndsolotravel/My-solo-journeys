@@ -18,17 +18,15 @@ This directory contains the production build deployment package for **NDSOLOTRAV
 - (Optional) `SUPABASE_SERVICE_ROLE_KEY`: for privileged server-side operations
 - `CONTACT_NOTIFICATION_EMAIL`: `ndsolotravel@gmail.com` — notification recipient for contact submissions
 
-### Contact Form Email Delivery (Configure either Option A or B):
+### Contact Form Email Delivery (Gmail SMTP):
+Configure these variables in Hostinger Node.js Environment Settings:
+- `SMTP_HOST`: `smtp.gmail.com`
+- `SMTP_PORT`: `587`
+- `SMTP_SECURE`: `false`
+- `SMTP_USER`: `ndsolotravel@gmail.com`
+- `SMTP_PASS`: Your 16-character Gmail App Password (generated in Google Account → Security → 2-Step Verification → App Passwords)
+- `SMTP_FROM`: `NDSOLOTRAVEL <ndsolotravel@gmail.com>`
+- `CONTACT_NOTIFICATION_EMAIL`: `ndsolotravel@gmail.com`
 
-#### Option A: Hostinger Webmail SMTP (Recommended for Hostinger)
-- `SMTP_HOST`: `smtp.hostinger.com`
-- `SMTP_PORT`: `465` (SSL)
-- `SMTP_USER`: `contact@ndsolotravel.com` (or your domain mailbox)
-- `SMTP_PASS`: Your Hostinger email account password
-- `SMTP_FROM`: `NDSOLOTRAVEL Contact <contact@ndsolotravel.com>`
-
-#### Option B: Resend REST API (https://resend.com)
-- `RESEND_API_KEY`: Your Resend API key (starts with `re_`)
-- `RESEND_FROM`: `NDSOLOTRAVEL Contact <contact@ndsolotravel.com>` (or verified domain sender)
 
 

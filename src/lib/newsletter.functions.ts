@@ -215,8 +215,7 @@ export const sendContact = createServerFn({ method: "POST" })
     if (data.website && data.website.length > 0) {
       return { ok: true, message: "Message sent successfully." };
     }
-
-    console.log(`[sendContact] Processing submission from: ${data.name} <${data.email}>`);
+    console.log(`[sendContact] Contact submission received from: ${data.name} <${data.email}>`);
 
     const { supabase } = await import("@/integrations/supabase/client");
 
@@ -244,10 +243,10 @@ export const sendContact = createServerFn({ method: "POST" })
     }
 
     console.log(
-      `[sendContact] Database insert successful: Stored message in Supabase messages table.`,
+      `[sendContact] Supabase insert successful: Stored message in Supabase messages table.`,
     );
 
-    // 2. Email notification dispatch (independent operation)
+    // 2. Email notification dispatch via Gmail SMTP (independent operation)
     const emailResult = await dispatchContactNotification({
       name: data.name,
       email: data.email,
@@ -262,7 +261,9 @@ export const sendContact = createServerFn({ method: "POST" })
       messageId: emailResult.id,
       recipient: emailResult.recipient,
       emailReason: emailResult.reason,
-      message: emailResult.sent ? "Message sent successfully." : "Message saved successfully.",
+      message: emailResult.sent
+        ? "Database saved and email sent"
+        : "Database saved but email notification failed",
     };
   });
 
@@ -275,7 +276,7 @@ interface ContactNotificationParams {
 
 interface NotificationResult {
   sent: boolean;
-  provider: "smtp" | "resend" | "webhook" | "none";
+  provider: "gmail-smtp" | "none";
   id?: string;
   reason?: string;
   recipient: string;
@@ -284,15 +285,11 @@ interface NotificationResult {
 async function dispatchContactNotification(
   params: ContactNotificationParams,
 ): Promise<NotificationResult> {
-  const recipient =
-    process.env.CONTACT_NOTIFICATION_EMAIL ||
-    process.env.NOTIFICATION_EMAIL ||
-    process.env.RESEND_TO ||
-    "ndsolotravel@gmail.com";
+  const recipient = process.env.CONTACT_NOTIFICATION_EMAIL || "ndsolotravel@gmail.com";
 
   const cleanName = params.name.replace(/["\\]/g, "").trim();
   const replyTo = `"${cleanName}" <${params.email}>`;
-  const emailSubject = `[NDSOLOTRAVEL Contact] ${params.subject ? `${params.subject} - ` : ""}Message from ${cleanName}`;
+  const emailSubject = `[NDSOLOTRAVEL Contact Form] ${params.subject ? `${params.subject} - ` : ""}Message from ${cleanName}`;
 
   const escape = (str: string) =>
     str
@@ -302,36 +299,40 @@ async function dispatchContactNotification(
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#039;");
 
+  const submissionDate = new Date().toUTCString();
+
   const htmlContent = `
-    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
       <div style="background-color: #0B1E36; padding: 24px; text-align: center;">
         <h1 style="color: #ffffff; margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.5px;">NDSOLOTRAVEL</h1>
-        <p style="color: #FA8128; margin: 6px 0 0 0; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">New Contact Submission</p>
+        <p style="color: #FA8128; margin: 6px 0 0 0; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">NDSOLOTRAVEL Contact Form</p>
       </div>
       <div style="padding: 24px 28px; color: #1e293b; line-height: 1.6;">
-        <p style="margin: 0 0 16px 0; font-size: 15px;">A new message was submitted via the NDSOLOTRAVEL website contact form.</p>
-        <div style="background-color: #f8fafc; border-left: 4px solid #FA8128; border-radius: 4px; padding: 14px 18px; margin-bottom: 20px;">
-          <p style="margin: 0 0 8px 0; font-size: 14px;"><strong>From:</strong> ${escape(cleanName)} (&lt;<a href="mailto:${escape(params.email)}" style="color: #2563eb; text-decoration: none;">${escape(params.email)}</a>&gt;)</p>
+        <p style="margin: 0 0 16px 0; font-size: 15px;">A new contact message has been submitted on NDSOLOTRAVEL:</p>
+        <div style="background-color: #f8fafc; border-left: 4px solid #FA8128; border-radius: 4px; padding: 16px 18px; margin-bottom: 20px;">
+          <p style="margin: 0 0 8px 0; font-size: 14px;"><strong>Visitor Name:</strong> ${escape(cleanName)}</p>
+          <p style="margin: 0 0 8px 0; font-size: 14px;"><strong>Visitor Email:</strong> <a href="mailto:${escape(params.email)}" style="color: #2563eb; text-decoration: none;">${escape(params.email)}</a></p>
           <p style="margin: 0 0 8px 0; font-size: 14px;"><strong>Subject:</strong> ${params.subject ? escape(params.subject) : "N/A"}</p>
-          <p style="margin: 0; font-size: 14px;"><strong>Submitted At:</strong> ${new Date().toUTCString()}</p>
+          <p style="margin: 0; font-size: 14px;"><strong>Submission Date and Time:</strong> ${submissionDate}</p>
         </div>
         <div style="margin-bottom: 24px;">
-          <strong style="font-size: 14px; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">Message Content:</strong>
+          <strong style="font-size: 14px; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">Message:</strong>
           <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-top: 8px; font-size: 15px; color: #0f172a; white-space: pre-wrap; word-break: break-word;">${escape(params.message)}</div>
         </div>
         <div style="border-top: 1px solid #e2e8f0; padding-top: 16px; font-size: 12px; color: #64748b;">
-          <p style="margin: 0 0 4px 0;"><strong>Reply-To:</strong> Directly reply to this email to respond to <a href="mailto:${escape(params.email)}" style="color: #2563eb;">${escape(params.email)}</a>.</p>
-          <p style="margin: 0;">Delivered to configured notification recipient: <strong>${escape(recipient)}</strong></p>
+          <p style="margin: 0 0 4px 0;"><strong>Reply-To:</strong> Replying to this email will directly reach <a href="mailto:${escape(params.email)}" style="color: #2563eb;">${escape(params.email)}</a>.</p>
+          <p style="margin: 0;">Delivered via Gmail SMTP to: <strong>${escape(recipient)}</strong></p>
         </div>
       </div>
     </div>
   `;
 
-  const textContent = `New Contact Form Message on NDSOLOTRAVEL
+  const textContent = `NDSOLOTRAVEL Contact Form
 
-From: ${cleanName} <${params.email}>
+Visitor Name: ${cleanName}
+Visitor Email: ${params.email}
 Subject: ${params.subject || "N/A"}
-Date: ${new Date().toUTCString()}
+Submission Date and Time: ${submissionDate}
 
 Message:
 ${params.message}
@@ -340,206 +341,75 @@ ${params.message}
 Delivered to: ${recipient}
 Direct replies will go to: ${params.email}`;
 
-  let lastError: string | undefined;
+  // Gmail SMTP configuration
+  const smtpHost = process.env.SMTP_HOST || "smtp.gmail.com";
+  const smtpPort = Number(process.env.SMTP_PORT) || 587;
+  const smtpSecure = process.env.SMTP_SECURE === "true"; // false for port 587 (STARTTLS)
+  const smtpUser = process.env.SMTP_USER || "ndsolotravel@gmail.com";
+  const smtpPass = process.env.SMTP_PASS?.trim();
+  const smtpFrom = process.env.SMTP_FROM || "NDSOLOTRAVEL <ndsolotravel@gmail.com>";
 
-  // -------------------------------------------------------------
-  // Provider 1: SMTP Delivery (e.g. Hostinger SMTP / Custom SMTP)
-  // -------------------------------------------------------------
-  const smtpHost = process.env.SMTP_HOST || process.env.SMTP_SERVER;
-  const smtpUser = process.env.SMTP_USER || process.env.SMTP_USERNAME;
-  const smtpPass = process.env.SMTP_PASS || process.env.SMTP_PASSWORD;
-  const smtpPort = Number(process.env.SMTP_PORT) || 465;
-  const smtpFrom =
-    process.env.SMTP_FROM ||
-    (smtpUser
-      ? `NDSOLOTRAVEL Contact <${smtpUser}>`
-      : `NDSOLOTRAVEL Contact <contact@ndsolotravel.com>`);
-
-  if (smtpHost && smtpUser && smtpPass) {
-    console.log(
-      `[sendContact] Email notification attempted: Provider: SMTP (Host: ${smtpHost}, Port: ${smtpPort}) -> ${recipient}`,
-    );
-    try {
-      const nodemailer = (await import("nodemailer")).default;
-      const transporter = nodemailer.createTransport({
-        host: smtpHost,
-        port: smtpPort,
-        secure: smtpPort === 465,
-        auth: {
-          user: smtpUser,
-          pass: smtpPass,
-        },
-        tls: {
-          rejectUnauthorized: false,
-        },
-      });
-
-      const info = await transporter.sendMail({
-        from: smtpFrom,
-        to: recipient,
-        replyTo,
-        subject: emailSubject,
-        text: textContent,
-        html: htmlContent,
-      });
-
-      console.log(
-        `[sendContact] Email provider accepted message: SMTP (Message ID: ${info.messageId})`,
-      );
-      return {
-        sent: true,
-        provider: "smtp",
-        id: info.messageId,
-        recipient,
-      };
-    } catch (smtpErr: unknown) {
-      const errMessage = smtpErr instanceof Error ? smtpErr.message : String(smtpErr);
-      console.error(`[sendContact] Email notification failed: SMTP error: ${errMessage}`);
-      lastError = `SMTP error: ${errMessage}`;
-    }
-  }
-
-  // -------------------------------------------------------------
-  // Provider 2: Resend REST API (https://resend.com)
-  // -------------------------------------------------------------
-  const resendApiKey = process.env.RESEND_API_KEY;
-  const defaultResendFrom =
-    process.env.RESEND_FROM ||
-    process.env.RESEND_FROM_EMAIL ||
-    "NDSOLOTRAVEL Contact <contact@ndsolotravel.com>";
-
-  if (resendApiKey) {
-    console.log(`[sendContact] Email notification attempted: Provider: Resend API -> ${recipient}`);
-    try {
-      let activeFrom = defaultResendFrom;
-      let res = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${resendApiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          from: activeFrom,
-          to: [recipient],
-          reply_to: replyTo,
-          subject: emailSubject,
-          text: textContent,
-          html: htmlContent,
-        }),
-      });
-
-      let resData = (await res.json().catch(() => null)) as {
-        id?: string;
-        message?: string;
-        name?: string;
-      } | null;
-
-      // Handle unverified domain fallback
-      if (
-        !res.ok &&
-        activeFrom.includes("@ndsolotravel.com") &&
-        JSON.stringify(resData).toLowerCase().includes("not verified")
-      ) {
-        console.warn(
-          `[sendContact] Resend rejected custom domain (${activeFrom}). Retrying with onboarding@resend.dev...`,
-        );
-        activeFrom = "NDSOLOTRAVEL Contact <onboarding@resend.dev>";
-        res = await fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${resendApiKey}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            from: activeFrom,
-            to: [recipient],
-            reply_to: replyTo,
-            subject: emailSubject,
-            text: textContent,
-            html: htmlContent,
-          }),
-        });
-        resData = (await res.json().catch(() => null)) as {
-          id?: string;
-          message?: string;
-          name?: string;
-        } | null;
-      }
-
-      if (!res.ok) {
-        const errMsg = resData?.message || `HTTP ${res.status}`;
-        console.error(`[sendContact] Email notification failed: Resend API error: ${errMsg}`);
-        lastError = `Resend error: ${errMsg}`;
-      } else if (resData?.id) {
-        console.log(
-          `[sendContact] Email provider accepted message: Resend (Message ID: ${resData.id})`,
-        );
-        return {
-          sent: true,
-          provider: "resend",
-          id: resData.id,
-          recipient,
-        };
-      }
-    } catch (resendErr: unknown) {
-      const errMessage = resendErr instanceof Error ? resendErr.message : String(resendErr);
-      console.error(`[sendContact] Email notification failed: Resend error: ${errMessage}`);
-      lastError = `Resend connection error: ${errMessage}`;
-    }
-  }
-
-  // -------------------------------------------------------------
-  // Provider 3: Webhook (if NOTIFICATION_WEBHOOK_URL is configured)
-  // -------------------------------------------------------------
-  if (process.env.NOTIFICATION_WEBHOOK_URL) {
-    console.log(`[sendContact] Email notification attempted: Provider: Webhook -> ${recipient}`);
-    try {
-      await fetch(process.env.NOTIFICATION_WEBHOOK_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: "contact_submission",
-          name: cleanName,
-          email: params.email,
-          subject: params.subject,
-          message: params.message,
-          recipient,
-        }),
-      });
-      console.log(`[sendContact] Email provider accepted message: Webhook successfully called.`);
-      return {
-        sent: true,
-        provider: "webhook",
-        recipient,
-      };
-    } catch (whErr: unknown) {
-      const errMessage = whErr instanceof Error ? whErr.message : String(whErr);
-      console.error(`[sendContact] Email notification failed: Webhook error: ${errMessage}`);
-      lastError = `Webhook error: ${errMessage}`;
-    }
-  }
-
-  // -------------------------------------------------------------
-  // If no providers are configured in the environment
-  // -------------------------------------------------------------
-  if (!smtpHost && !resendApiKey && !process.env.NOTIFICATION_WEBHOOK_URL) {
-    const notice =
-      "No email provider credentials configured in environment variables. To receive email notifications at ndsolotravel@gmail.com, configure Hostinger SMTP (SMTP_HOST, SMTP_USER, SMTP_PASS) or Resend (RESEND_API_KEY) in your environment settings.";
-    console.warn(`[sendContact] Email notification failed: ${notice} (Target: ${recipient})`);
+  if (!smtpPass) {
+    const reason =
+      "Gmail App Password (SMTP_PASS) is not configured in server environment variables.";
+    console.warn(`[sendContact] Email delivery failed: ${reason} (Target: ${recipient})`);
     return {
       sent: false,
       provider: "none",
-      reason: notice,
+      reason,
       recipient,
     };
   }
 
-  return {
-    sent: false,
-    provider: "none",
-    reason: lastError || "Email notification delivery could not be completed.",
-    recipient,
-  };
+  try {
+    const nodemailer = (await import("nodemailer")).default;
+    const transporter = nodemailer.createTransport({
+      host: smtpHost,
+      port: smtpPort,
+      secure: smtpSecure,
+      auth: {
+        user: smtpUser,
+        pass: smtpPass,
+      },
+    });
+
+    // Verify SMTP connection before dispatching
+    try {
+      await transporter.verify();
+      console.log(
+        `[sendContact] SMTP connection successful: Connected to ${smtpHost}:${smtpPort} as ${smtpUser}`,
+      );
+    } catch (verifyErr: unknown) {
+      const verifyMsg = verifyErr instanceof Error ? verifyErr.message : String(verifyErr);
+      console.warn(`[sendContact] SMTP verify notice: ${verifyMsg}`);
+    }
+
+    const info = await transporter.sendMail({
+      from: smtpFrom,
+      to: recipient,
+      replyTo,
+      subject: emailSubject,
+      text: textContent,
+      html: htmlContent,
+    });
+
+    console.log(`[sendContact] Email accepted by Gmail SMTP (Message ID: ${info.messageId})`);
+    return {
+      sent: true,
+      provider: "gmail-smtp",
+      id: info.messageId,
+      recipient,
+    };
+  } catch (err: unknown) {
+    const errMessage = err instanceof Error ? err.message : String(err);
+    console.error(`[sendContact] Email delivery failed: ${errMessage}`);
+    return {
+      sent: false,
+      provider: "gmail-smtp",
+      reason: errMessage,
+      recipient,
+    };
+  }
 }
 
 export const sendContactReply = createServerFn({ method: "POST" }).handler(async () => ({

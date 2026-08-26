@@ -111,7 +111,15 @@ function ContactPage() {
 
       if (result && result.ok) {
         setSubmitted(true);
-        toast.success(t("Message sent successfully. I'll reply when I'm back from the trail."));
+        if (result.emailDelivered === false) {
+          toast.warning(
+            t(
+              "Your message was received and saved, but the email notification could not be delivered.",
+            ),
+          );
+        } else {
+          toast.success(t("Message sent successfully. I'll reply when I'm back from the trail."));
+        }
         setForm({ name: "", email: "", subject: "", message: "", website: "" });
       } else {
         toast.error(t("Could not send message. Please try again."));
