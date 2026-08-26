@@ -111,19 +111,7 @@ function ContactPage() {
 
       if (result && result.ok) {
         setSubmitted(true);
-        if (result.emailDelivered) {
-          toast.success(t("Message sent successfully. I'll reply when I'm back from the trail."));
-        } else {
-          console.warn(
-            "[contact] Message saved but notification email failed:",
-            result.emailReason,
-          );
-          toast.warning(
-            t(
-              "Your message was received and saved, but the notification email could not be sent. If it's urgent, please email contact@ndsolotravel.com directly.",
-            ),
-          );
-        }
+        toast.success(t("Message sent successfully. I'll reply when I'm back from the trail."));
         setForm({ name: "", email: "", subject: "", message: "", website: "" });
       } else {
         toast.error(t("Could not send message. Please try again."));
@@ -279,7 +267,10 @@ function ContactPage() {
                         htmlFor="contact-subject"
                         className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2"
                       >
-                        {t("Subject")} <span className="text-muted-foreground/60 text-[10px]">({t("Optional")})</span>
+                        {t("Subject")}{" "}
+                        <span className="text-muted-foreground/60 text-[10px]">
+                          ({t("Optional")})
+                        </span>
                       </label>
                       <input
                         id="contact-subject"
