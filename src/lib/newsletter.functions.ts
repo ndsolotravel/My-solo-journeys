@@ -108,7 +108,9 @@ export const adminListSubscribers = createServerFn({ method: "GET" })
       return (fullData as SubscriberRow[]).map((r) => ({
         id: r.id,
         email: r.email,
-        status: (r.status === "unsubscribed" ? "unsubscribed" : "active") as "active" | "unsubscribed",
+        status: (r.status === "unsubscribed" ? "unsubscribed" : "active") as
+          | "active"
+          | "unsubscribed",
         subscribed_at: r.subscribed_at,
       }));
     }
@@ -223,39 +225,56 @@ export const sendContact = createServerFn({ method: "POST" })
       getRequestHeader("cf-connecting-ip") ||
       getRequestHeader("x-forwarded-for")?.split(",")[0]?.trim() ||
       "unknown";
-    const ipHash = await sha256(`ndsolo:${ip}`);
     const subject = data.subject?.trim() || null;
 
-    // 1. Insert into public.contact_messages via anon client (honoring RLS insert-only policy)
-    const { error: cmError } = await supabase.from("contact_messages").insert({
-      name: data.name,
-      email: data.email.toLowerCase(),
-      subject: subject,
-      message: data.message,
-      ip_hash: ipHash,
-      status: "new",
-    });
-
-    // 2. Synchronize to public.messages table for admin CMS compatibility
+    // 1. Insert record into public.messages table via public anon client (honoring RLS insert-only policy)
     const { error: msgError } = await supabase.from("messages").insert({
       name: data.name,
       email: data.email.toLowerCase(),
       subject: subject,
       message: data.message,
-      is_read: false,
+      status: "new",
     });
 
-    if (cmError && msgError) {
-      console.error(`[sendContact] Supabase insert failed:`, cmError?.message || msgError?.message);
+    if (msgError) {
+      console.error(`[sendContact] Database insert failed for messages:`, msgError.message);
       throw new Error(
         "Your message could not be saved. Please try again later or email us directly at contact@ndsolotravel.com.",
       );
     }
 
-    console.log(`[sendContact] Successfully stored contact message in Supabase.`);
+    console.log(`[sendContact] Successfully stored contact message in messages table.`);
+
+    // 2. Email notification dispatch (if configured)
+    let emailSent = true;
+    const notificationEmail = process.env.CONTACT_NOTIFICATION_EMAIL || "contact@ndsolotravel.com";
+
+    // If an external email provider webhook or SMTP is configured in the future, dispatch here
+    // Database insert remains completely independent of email delivery
+    try {
+      if (process.env.NOTIFICATION_WEBHOOK_URL) {
+        await fetch(process.env.NOTIFICATION_WEBHOOK_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            type: "contact_submission",
+            name: data.name,
+            email: data.email,
+            subject,
+            message: data.message,
+            recipient: notificationEmail,
+          }),
+        });
+      }
+    } catch (emailErr) {
+      console.warn(`[sendContact] Email notification delivery failed:`, emailErr);
+      emailSent = false;
+    }
+
     return {
       ok: true,
-      message: "Message sent successfully.",
+      emailSent,
+      message: emailSent ? "Message sent successfully." : "Message saved successfully.",
     };
   });
 

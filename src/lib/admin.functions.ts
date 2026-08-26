@@ -865,29 +865,32 @@ export const adminListMessages = createServerFn({ method: "GET" })
       context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
     const { data: msgData, error: msgError } = await client
       .from("messages")
-      .select("id,name,email,subject,message,is_read,created_at")
+      .select("id,name,email,subject,message,status,is_read,created_at,updated_at")
       .order("created_at", { ascending: false })
       .limit(500);
 
-    if (!msgError && msgData) {
-      return msgData.map((m: any) => ({
-        ...m,
-        is_read: Boolean(m.is_read),
-        status: m.is_read ? "read" : "new",
-      }));
-    }
+    type MessageRow = {
+      id: string;
+      name: string;
+      email: string;
+      subject: string | null;
+      message: string;
+      status: string | null;
+      is_read: boolean | null;
+      created_at: string;
+      updated_at: string | null;
+    };
 
-    const { data: cmData, error: cmError } = await client
-      .from("contact_messages")
-      .select("id,name,email,subject,message,status,created_at")
-      .order("created_at", { ascending: false })
-      .limit(500);
-
-    if (cmError) throw new Error(cmError.message);
-    return (cmData ?? []).map((m: any) => ({
-      ...m,
-      is_read: m.status === "read" || m.status === "replied",
-      status: m.status || "new",
+    return ((msgData as unknown as MessageRow[]) ?? []).map((m) => ({
+      id: m.id,
+      name: m.name,
+      email: m.email,
+      subject: m.subject,
+      message: m.message,
+      status: m.status || (m.is_read ? "read" : "new"),
+      is_read: Boolean(m.is_read || m.status === "read" || m.status === "replied"),
+      created_at: m.created_at,
+      updated_at: m.updated_at || m.created_at,
     }));
   });
 
@@ -907,29 +910,19 @@ export const adminUpdateMessageStatus = createServerFn({ method: "POST" })
     const client =
       context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
 
-    const isRead =
-      typeof data.is_read === "boolean"
-        ? data.is_read
-        : data.status === "read" || data.status === "replied";
+    const status =
+      data.status || (typeof data.is_read === "boolean" ? (data.is_read ? "read" : "new") : "read");
 
     const { error: msgErr } = await client
       .from("messages")
-      .update({ is_read: isRead })
+      .update({
+        status,
+        is_read: status === "read" || status === "replied",
+        updated_at: new Date().toISOString(),
+      })
       .eq("id", data.id);
 
-    if (data.status) {
-      try {
-        await client.from("contact_messages").update({ status: data.status }).eq("id", data.id);
-      } catch {}
-    }
-
-    if (msgErr) {
-      const { error: cmErr } = await client
-        .from("contact_messages")
-        .update({ status: data.status || (isRead ? "read" : "new") })
-        .eq("id", data.id);
-      if (cmErr) throw new Error(msgErr.message);
-    }
+    if (msgErr) throw new Error(msgErr.message);
     return { ok: true };
   });
 
@@ -941,13 +934,7 @@ export const adminDeleteMessage = createServerFn({ method: "POST" })
     const client =
       context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
     const { error: msgErr } = await client.from("messages").delete().eq("id", data.id);
-    try {
-      await client.from("contact_messages").delete().eq("id", data.id);
-    } catch {}
-    if (msgErr) {
-      const { error: cmErr } = await client.from("contact_messages").delete().eq("id", data.id);
-      if (cmErr) throw new Error(msgErr.message);
-    }
+    if (msgErr) throw new Error(msgErr.message);
     return { ok: true };
   });
 
