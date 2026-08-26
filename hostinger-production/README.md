@@ -16,5 +16,5 @@ This directory contains the production build deployment package for **NDSOLOTRAV
 - `NEXT_PUBLIC_SUPABASE_URL`: `https://mqoybarqgzzvillignbr.supabase.co`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: `sb_publishable_quAPYI3nYdGK50erwAPnfg_YJWBq2u5`
 - (Optional) `SUPABASE_SERVICE_ROLE_KEY`: for privileged server-side operations
-- `CONTACT_NOTIFICATION_EMAIL`: `contact@ndsolotravel.com` — contact email displayed across the site
+- `CONTACT_NOTIFICATION_EMAIL`: `ndsolotravel@gmail.com` — contact email notification recipient for contact messages and subscriptions
 

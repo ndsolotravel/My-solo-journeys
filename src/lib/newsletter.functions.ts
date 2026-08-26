@@ -46,13 +46,13 @@ export const subscribe = createServerFn({ method: "POST" })
     if (dbError) {
       console.error(`[subscribe] Supabase newsletter_subscribe RPC error: ${dbError.message}`);
       throw new Error(
-        "Subscription could not be saved. Please try again later or email us directly at contact@ndsolotravel.com.",
+        "Subscription could not be saved. Please try again later or email us directly at ndsolotravel@gmail.com.",
       );
     }
     if (!rpcData?.id) {
       console.error(`[subscribe] Subscriber insert returned no id (RLS or insert blocked).`);
       throw new Error(
-        "Subscription could not be saved. Please try again later or email us directly at contact@ndsolotravel.com.",
+        "Subscription could not be saved. Please try again later or email us directly at ndsolotravel@gmail.com.",
       );
     }
 
@@ -239,19 +239,75 @@ export const sendContact = createServerFn({ method: "POST" })
     if (msgError) {
       console.error(`[sendContact] Database insert failed for messages:`, msgError.message);
       throw new Error(
-        "Your message could not be saved. Please try again later or email us directly at contact@ndsolotravel.com.",
+        "Your message could not be saved. Please try again later or email us directly at ndsolotravel@gmail.com.",
       );
     }
 
     console.log(`[sendContact] Successfully stored contact message in messages table.`);
 
-    // 2. Email notification dispatch (if configured)
+    // 2. Email notification dispatch
     let emailSent = true;
-    const notificationEmail = process.env.CONTACT_NOTIFICATION_EMAIL || "contact@ndsolotravel.com";
+    const notificationRecipient =
+      process.env.CONTACT_NOTIFICATION_EMAIL || "ndsolotravel@gmail.com";
+    const fromAddress =
+      process.env.RESEND_FROM_EMAIL || "NDSOLOTRAVEL Contact <contact@ndsolotravel.com>";
 
-    // If an external email provider webhook or SMTP is configured in the future, dispatch here
+    console.log(`[sendContact] Email notification recipient target: ${notificationRecipient}`);
+
+    // If Resend, SMTP, or Webhook is configured, dispatch the notification
     // Database insert remains completely independent of email delivery
     try {
+      // 2a. Resend API notification (if RESEND_API_KEY is configured)
+      if (process.env.RESEND_API_KEY) {
+        const escape = (str: string) =>
+          str
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+
+        const resendRes = await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            from: fromAddress,
+            to: [notificationRecipient],
+            reply_to: data.email,
+            subject: `[NDSOLOTRAVEL Contact] ${subject || "New Message"} from ${data.name}`,
+            html: `
+              <div style="font-family: sans-serif; line-height: 1.6; color: #111;">
+                <h2>New Contact Form Message</h2>
+                <p><strong>Name:</strong> ${escape(data.name)}</p>
+                <p><strong>Email:</strong> <a href="mailto:${escape(data.email)}">${escape(data.email)}</a></p>
+                ${subject ? `<p><strong>Subject:</strong> ${escape(subject)}</p>` : ""}
+                <p><strong>Message:</strong></p>
+                <div style="background: #f4f4f5; padding: 16px; border-radius: 8px; white-space: pre-wrap;">${escape(data.message)}</div>
+                <hr style="margin-top: 24px; border: none; border-top: 1px solid #e4e4e7;" />
+                <p style="font-size: 12px; color: #71717a;">Delivered to notification recipient: ${notificationRecipient}</p>
+              </div>
+            `,
+          }),
+        });
+
+        if (!resendRes.ok) {
+          const resendErr = await resendRes.text();
+          console.warn(
+            `[sendContact] Resend notification to ${notificationRecipient} failed:`,
+            resendErr,
+          );
+          emailSent = false;
+        } else {
+          console.log(
+            `[sendContact] Resend notification successfully dispatched to ${notificationRecipient}`,
+          );
+        }
+      }
+
+      // 2b. Webhook notification (if NOTIFICATION_WEBHOOK_URL is configured)
       if (process.env.NOTIFICATION_WEBHOOK_URL) {
         await fetch(process.env.NOTIFICATION_WEBHOOK_URL, {
           method: "POST",
@@ -262,7 +318,7 @@ export const sendContact = createServerFn({ method: "POST" })
             email: data.email,
             subject,
             message: data.message,
-            recipient: notificationEmail,
+            recipient: notificationRecipient,
           }),
         });
       }
@@ -274,6 +330,7 @@ export const sendContact = createServerFn({ method: "POST" })
     return {
       ok: true,
       emailSent,
+      recipient: notificationRecipient,
       message: emailSent ? "Message sent successfully." : "Message saved successfully.",
     };
   });
