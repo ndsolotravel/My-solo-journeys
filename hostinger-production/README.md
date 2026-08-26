@@ -16,5 +16,19 @@ This directory contains the production build deployment package for **NDSOLOTRAV
 - `NEXT_PUBLIC_SUPABASE_URL`: `https://mqoybarqgzzvillignbr.supabase.co`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: `sb_publishable_quAPYI3nYdGK50erwAPnfg_YJWBq2u5`
 - (Optional) `SUPABASE_SERVICE_ROLE_KEY`: for privileged server-side operations
-- `CONTACT_NOTIFICATION_EMAIL`: `ndsolotravel@gmail.com` — contact email notification recipient for contact messages and subscriptions
+- `CONTACT_NOTIFICATION_EMAIL`: `ndsolotravel@gmail.com` — notification recipient for contact submissions
+
+### Contact Form Email Delivery (Configure either Option A or B):
+
+#### Option A: Hostinger Webmail SMTP (Recommended for Hostinger)
+- `SMTP_HOST`: `smtp.hostinger.com`
+- `SMTP_PORT`: `465` (SSL)
+- `SMTP_USER`: `contact@ndsolotravel.com` (or your domain mailbox)
+- `SMTP_PASS`: Your Hostinger email account password
+- `SMTP_FROM`: `NDSOLOTRAVEL Contact <contact@ndsolotravel.com>`
+
+#### Option B: Resend REST API (https://resend.com)
+- `RESEND_API_KEY`: Your Resend API key (starts with `re_`)
+- `RESEND_FROM`: `NDSOLOTRAVEL Contact <contact@ndsolotravel.com>` (or verified domain sender)
+
 
