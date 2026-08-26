@@ -17,6 +17,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ScrollToTop } from "@/components/layout/ScrollToTop";
 import { NewsletterPopup } from "@/components/layout/NewsletterPopup";
+import { PublicMessagePopup } from "@/components/layout/PublicMessagePopup";
 import { supabase } from "@/integrations/supabase/client";
 import { TranslationProvider, useT, LANGUAGES } from "@/lib/translate/store";
 import { usePageAnalytics } from "@/hooks/use-page-analytics";
@@ -178,6 +179,7 @@ function RootComponent() {
         <Toaster position="top-center" richColors />
         <ScrollToTop />
         <NewsletterPopup />
+        <PublicMessagePopup />
         <TitleTranslator />
         <PageAnalyticsTracker pathname={pathname} />
       </QueryClientProvider>
@@ -199,4 +201,3 @@ function TitleTranslator() {
   }, [translated, title]);
   return null;
 }
-

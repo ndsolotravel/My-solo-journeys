@@ -13,6 +13,7 @@ import {
   Image as ImageIcon,
   Settings,
   Home,
+  Megaphone,
 } from "lucide-react";
 import { getMyRoles } from "@/lib/admin.functions";
 import { supabase } from "@/integrations/supabase/client";
@@ -57,6 +58,7 @@ const NAV: { to: string; label: string; icon: typeof LayoutDashboard; exact?: bo
   { to: "/admin/comments", label: "Comments", icon: MessageSquare },
   { to: "/admin/subscribers", label: "Subscribers", icon: Users },
   { to: "/admin/messages", label: "Messages", icon: Mail },
+  { to: "/admin/public-message", label: "Public Message", icon: Megaphone },
   { to: "/admin/settings", label: "Settings", icon: Settings },
 ];
 
