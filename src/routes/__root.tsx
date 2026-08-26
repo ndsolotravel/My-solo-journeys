@@ -18,6 +18,7 @@ import { Footer } from "@/components/layout/Footer";
 import { ScrollToTop } from "@/components/layout/ScrollToTop";
 import { NewsletterPopup } from "@/components/layout/NewsletterPopup";
 import { PublicMessagePopup } from "@/components/layout/PublicMessagePopup";
+import { ReadingProgressBar } from "@/components/layout/ReadingProgressBar";
 import { supabase } from "@/integrations/supabase/client";
 import { TranslationProvider, useT, LANGUAGES } from "@/lib/translate/store";
 import { usePageAnalytics } from "@/hooks/use-page-analytics";
@@ -169,6 +170,7 @@ function RootComponent() {
   return (
     <TranslationProvider>
       <QueryClientProvider client={queryClient}>
+        <ReadingProgressBar />
         <div className="flex min-h-screen flex-col">
           <Header />
           <main className={`flex-1 ${isHome ? "" : "pt-16"}`}>
