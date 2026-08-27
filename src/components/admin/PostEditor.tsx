@@ -93,6 +93,7 @@ type Post = {
   featured?: boolean | null;
   published?: boolean | null;
   author_name?: string | null;
+  author_image_url?: string | null;
   location_name?: string | null;
   latitude?: number | null;
   longitude?: number | null;
@@ -148,6 +149,9 @@ export function PostEditor({
   const [featured, setFeatured] = useState(!!initial?.featured);
   const [published, setPublished] = useState(!!initial?.published);
   const [authorName, setAuthorName] = useState(initial?.author_name ?? "Hussain");
+  const [authorImageUrl, setAuthorImageUrl] = useState(
+    initial?.author_image_url ? resolveImageUrl(initial.author_image_url) : "",
+  );
   const [locationName, setLocationName] = useState(initial?.location_name ?? "");
   const [latitude, setLatitude] = useState<string>(initial?.latitude != null ? String(initial.latitude) : "");
   const [longitude, setLongitude] = useState<string>(initial?.longitude != null ? String(initial.longitude) : "");
@@ -183,6 +187,7 @@ export function PostEditor({
     setFeatured(!!initial.featured);
     setPublished(!!initial.published);
     setAuthorName(initial.author_name ?? "Hussain");
+    setAuthorImageUrl(initial.author_image_url ? resolveImageUrl(initial.author_image_url) : "");
     setLocationName(initial.location_name ?? "");
     setLatitude(initial.latitude != null ? String(initial.latitude) : "");
     setLongitude(initial.longitude != null ? String(initial.longitude) : "");
@@ -207,7 +212,7 @@ export function PostEditor({
   }, [initial]);
 
   const [galleryUrlInput, setGalleryUrlInput] = useState("");
-  const [uploading, setUploading] = useState<"cover" | "inline" | "gallery" | null>(null);
+  const [uploading, setUploading] = useState<"cover" | "inline" | "gallery" | "author" | null>(null);
   const [uploadProgress, setUploadProgress] = useState<{ current: number; total: number } | null>(null);
   const [isDropzoneActive, setIsDropzoneActive] = useState(false);
 
@@ -228,6 +233,7 @@ export function PostEditor({
   const coverInput = useRef<HTMLInputElement>(null);
   const inlineInput = useRef<HTMLInputElement>(null);
   const galleryInput = useRef<HTMLInputElement>(null);
+  const authorImageInput = useRef<HTMLInputElement>(null);
   const formId = "post-editor-form";
 
   const geocodeFn = useServerFn(geocodeFromTitle);
@@ -281,10 +287,19 @@ export function PostEditor({
     onError: (e: Error) => toast.error(e.message),
   });
 
-  // Single file uploader for cover and inline
-  async function uploadFile(file: File, kind: "cover" | "inline") {
+  // Single file uploader for cover, inline, and author
+  async function uploadFile(file: File, kind: "cover" | "inline" | "author") {
     setUploading(kind);
     try {
+      const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/avif", "image/jpg"];
+      const type = file.type.toLowerCase();
+      if (!allowedTypes.includes(type) && !type.startsWith("image/")) {
+        throw new Error(`"${file.name}" is not a supported format. Please use JPG, PNG, WebP, or AVIF.`);
+      }
+      const maxBytes = 8 * 1024 * 1024; // 8 MB
+      if (file.size > maxBytes) {
+        throw new Error(`"${file.name}" exceeds the 8 MB size limit.`);
+      }
       const buf = await file.arrayBuffer();
       const base64 = btoa(String.fromCharCode(...new Uint8Array(buf)));
       const { url } = await uploadFn({
@@ -292,8 +307,9 @@ export function PostEditor({
       });
       const resolved = resolveImageUrl(url);
       if (kind === "cover") setCover(resolved);
+      else if (kind === "author") setAuthorImageUrl(resolved);
       else if (kind === "inline") setContent((c) => `${c}\n\n![](${resolved})\n`);
-      toast.success("Image uploaded");
+      toast.success(kind === "author" ? "Author picture uploaded" : "Image uploaded");
     } catch (e) {
       toast.error((e as Error).message);
     } finally {
@@ -580,6 +596,7 @@ export function PostEditor({
       featured,
       published,
       author_name: authorName.trim() || "Hussain",
+      author_image_url: authorImageUrl.trim() || null,
       location_name: locationName.trim() || null,
       latitude: parsedLat,
       longitude: parsedLng,
@@ -1082,6 +1099,97 @@ export function PostEditor({
               maxLength={100}
               className={input}
             />
+          </Field>
+
+          <Field label="Author Picture" hint="Profile portrait shown on author bio & story">
+            <div className="space-y-3">
+              {authorImageUrl ? (
+                <div className="flex flex-col sm:flex-row items-center gap-4 rounded-xl border border-border bg-muted/20 p-3 sm:p-4">
+                  <div className="relative shrink-0">
+                    <img
+                      src={authorImageUrl}
+                      alt={authorName || "Author"}
+                      className="h-16 w-16 sm:h-20 sm:w-20 rounded-full object-cover ring-2 ring-accent/30 shadow-sm"
+                    />
+                    {uploading === "author" && (
+                      <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50 backdrop-blur-xs">
+                        <Loader2 className="h-6 w-6 animate-spin text-white" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex flex-1 flex-col items-center sm:items-start text-center sm:text-left gap-1.5 min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate max-w-full">
+                      {authorName || "Author"} Picture
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Custom profile photo for this story
+                    </p>
+                    <div className="mt-1 flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => authorImageInput.current?.click()}
+                        disabled={uploading === "author"}
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-2.5 py-1 text-xs font-medium text-foreground hover:bg-accent/10 hover:text-accent transition disabled:opacity-50"
+                      >
+                        {uploading === "author" ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <Upload className="h-3.5 w-3.5" />
+                        )}
+                        Replace picture
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setAuthorImageUrl("")}
+                        disabled={uploading === "author"}
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-border/60 bg-background/50 px-2.5 py-1 text-xs font-medium text-muted-foreground hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/30 transition disabled:opacity-50"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => authorImageInput.current?.click()}
+                  disabled={uploading === "author"}
+                  className="group flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-background/50 p-5 text-sm text-muted-foreground shadow-xs transition hover:border-accent hover:bg-accent/5 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:opacity-50"
+                >
+                  {uploading === "author" ? (
+                    <Loader2 className="h-6 w-6 animate-spin text-accent" />
+                  ) : (
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/10 text-accent transition-transform duration-200 group-hover:scale-110">
+                      <Upload className="h-5 w-5" />
+                    </div>
+                  )}
+                  <div className="text-center">
+                    <span className="font-medium text-foreground group-hover:text-accent">
+                      Browse author portrait
+                    </span>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      JPG, PNG, WebP or AVIF (max 8 MB)
+                    </p>
+                  </div>
+                </button>
+              )}
+
+              <input
+                ref={authorImageInput}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/avif"
+                className="hidden"
+                onChange={(e) => e.target.files?.[0] && uploadFile(e.target.files[0], "author")}
+              />
+
+              <input
+                value={authorImageUrl}
+                onChange={(e) => setAuthorImageUrl(e.target.value)}
+                placeholder="…or paste author image URL"
+                className={input}
+              />
+            </div>
           </Field>
         </div>
 

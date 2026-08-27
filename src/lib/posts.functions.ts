@@ -23,6 +23,7 @@ export type Post = {
   published_at: string | null;
   created_at: string;
   author_name?: string | null;
+  author_image_url?: string | null;
   destination_id?: string | null;
   destinations?: { title: string; slug: string } | null;
   travel_date?: string | null;
@@ -44,10 +45,10 @@ export type Post = {
 };
 
 const BASE_POST_COLUMNS =
-  "id,title,slug,excerpt,content,cover_image,category,tags,featured,views,reading_minutes,published_at,created_at,author_name,location_name,latitude,longitude";
+  "id,title,slug,excerpt,content,cover_image,category,tags,featured,views,reading_minutes,published_at,created_at,author_name,author_image_url,location_name,latitude,longitude";
 
 const FULL_POST_COLUMNS =
-  "id,title,slug,excerpt,content,cover_image,category,tags,featured,views,reading_minutes,published_at,created_at,destination_id,travel_date,location_name,latitude,longitude,seo_title,seo_description,og_image_url,author_name";
+  "id,title,slug,excerpt,content,cover_image,category,tags,featured,views,reading_minutes,published_at,created_at,destination_id,travel_date,location_name,latitude,longitude,seo_title,seo_description,og_image_url,author_name,author_image_url";
 
 export const listPosts = createServerFn({ method: "GET" })
   .inputValidator((input) =>
@@ -136,6 +137,7 @@ export const listPosts = createServerFn({ method: "GET" })
         ...p,
         cover_image: p.cover_image ? resolveMediaUrl(p.cover_image, supabaseAdmin) : p.cover_image,
         og_image_url: p.og_image_url ? resolveMediaUrl(p.og_image_url, supabaseAdmin) : p.og_image_url,
+        author_image_url: p.author_image_url ? resolveMediaUrl(p.author_image_url, supabaseAdmin) : p.author_image_url,
       }));
 
     // Try full query first with destination relation, fallback to basic columns if schema not migrated yet
@@ -212,6 +214,7 @@ export const getPostBySlug = createServerFn({ method: "GET" })
       ...p,
       cover_image: p.cover_image ? resolveMediaUrl(p.cover_image, supabaseAdmin) : p.cover_image,
       og_image_url: p.og_image_url ? resolveMediaUrl(p.og_image_url, supabaseAdmin) : p.og_image_url,
+      author_image_url: p.author_image_url ? resolveMediaUrl(p.author_image_url, supabaseAdmin) : p.author_image_url,
     }));
 
     // fire-and-forget views increment
@@ -224,6 +227,9 @@ export const getPostBySlug = createServerFn({ method: "GET" })
       ...(post as unknown as Post),
       cover_image: resolveMediaUrl((post as any).cover_image, supabaseAdmin),
       og_image_url: resolveMediaUrl((post as any).og_image_url, supabaseAdmin),
+      author_image_url: (post as any).author_image_url
+        ? resolveMediaUrl((post as any).author_image_url, supabaseAdmin)
+        : (post as any).author_image_url,
       gallery,
     };
 

@@ -318,8 +318,17 @@ function PostPage() {
             {localizedPost.title}
           </h1>
           <div className="mt-5 flex flex-wrap items-center gap-4 text-xs text-white/80">
-            <span className="inline-flex items-center gap-1 font-semibold text-white">
-              <User className="h-3.5 w-3.5 text-accent" /> By {postAuthor} · ndsolotravel
+            <span className="inline-flex items-center gap-1.5 font-semibold text-white">
+              {post.author_image_url ? (
+                <img
+                  src={post.author_image_url}
+                  alt={postAuthor}
+                  className="h-4 w-4 rounded-full object-cover ring-1 ring-white/30"
+                />
+              ) : (
+                <User className="h-3.5 w-3.5 text-accent" />
+              )}
+              By {postAuthor} · ndsolotravel
             </span>
             <span aria-hidden>·</span>
             <span>{date}</span>
@@ -590,7 +599,11 @@ function PostPage() {
           </div>
         )}
 
-        <AuthorProfile authorName={postAuthor} postTitle={localizedPost.title} />
+        <AuthorProfile
+          authorName={postAuthor}
+          postTitle={localizedPost.title}
+          authorImage={post.author_image_url}
+        />
 
         <ShareBar title={localizedPost.title} />
 

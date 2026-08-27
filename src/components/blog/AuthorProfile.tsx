@@ -17,9 +17,11 @@ function getInitials(name: string): string {
 export function AuthorProfile({
   authorName,
   postTitle,
+  authorImage,
 }: {
   authorName: string;
   postTitle?: string;
+  authorImage?: string | null;
 }) {
   const t = useTranslations();
   const fetchProfile = useServerFn(getAuthorProfile);
@@ -103,7 +105,7 @@ export function AuthorProfile({
     (isHussain
       ? "Solo traveler, motorcyclist, and explorer capturing the wild landscapes and hidden roads of the Himalayas, Karakoram, and beyond."
       : null);
-  const avatar = isHussain ? "/images/author-hussain.jpg" : profile?.avatar_url;
+  const avatar = authorImage?.trim() || (isHussain ? "/images/author-hussain.jpg" : profile?.avatar_url);
   const initials = getInitials(name);
 
   return (

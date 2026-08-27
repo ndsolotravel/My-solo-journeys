@@ -134,10 +134,10 @@ export function extractBlogMediaPath(url: string | null | undefined): string | n
 // ---------------- POSTS ----------------
 
 const BASE_POST_COLS =
-  "id,title,slug,excerpt,content,cover_image,category,tags,featured,published,published_at,scheduled_at,reading_minutes,views,created_at,updated_at,author_name,location_name,latitude,longitude";
+  "id,title,slug,excerpt,content,cover_image,category,tags,featured,published,published_at,scheduled_at,reading_minutes,views,created_at,updated_at,author_name,author_image_url,location_name,latitude,longitude";
 
 const POST_COLS =
-  "id,title,slug,excerpt,content,cover_image,category,tags,featured,published,published_at,scheduled_at,reading_minutes,views,created_at,updated_at,destination_id,travel_date,location_name,latitude,longitude,seo_title,seo_description,og_image_url,author_name";
+  "id,title,slug,excerpt,content,cover_image,category,tags,featured,published,published_at,scheduled_at,reading_minutes,views,created_at,updated_at,destination_id,travel_date,location_name,latitude,longitude,seo_title,seo_description,og_image_url,author_name,author_image_url";
 
 export const adminListPosts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -202,6 +202,7 @@ export const adminUpsertPost = createServerFn({ method: "POST" })
         featured: z.boolean().default(false),
         published: z.boolean().default(false),
         author_name: z.string().nullable().optional(),
+        author_image_url: z.string().nullable().optional(),
         location_name: z.string().nullable().optional(),
         latitude: z.number().min(-90).max(90).nullable().optional(),
         longitude: z.number().min(-180).max(180).nullable().optional(),
@@ -257,6 +258,9 @@ export const adminUpsertPost = createServerFn({ method: "POST" })
 
     if (data.author_name !== undefined) {
       payload.author_name = data.author_name ? data.author_name.trim() : "Hussain";
+    }
+    if (data.author_image_url !== undefined) {
+      payload.author_image_url = data.author_image_url ? data.author_image_url.trim() : null;
     }
     if (data.location_name !== undefined) {
       payload.location_name = data.location_name ? data.location_name.trim() : null;

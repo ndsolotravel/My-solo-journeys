@@ -1,4 +1,4 @@
-﻿export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export type Database = {
   // Allows to automatically instantiate createClient with right options
@@ -573,6 +573,7 @@ export type Database = {
       posts: {
         Row: {
           author_id: string | null;
+          author_image_url: string | null;
           author_name: string | null;
           category: string;
           category_id: string | null;
@@ -602,6 +603,7 @@ export type Database = {
         };
         Insert: {
           author_id?: string | null;
+          author_image_url?: string | null;
           author_name?: string | null;
           category?: string;
           category_id?: string | null;
@@ -631,6 +633,7 @@ export type Database = {
         };
         Update: {
           author_id?: string | null;
+          author_image_url?: string | null;
           author_name?: string | null;
           category?: string;
           category_id?: string | null;
