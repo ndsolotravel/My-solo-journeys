@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { resolveMediaUrl, extractBlogMediaPath } from "@/lib/media";
 
 export async function assertEditor(userId: string, client?: any) {
   let roles: string[] = [];
