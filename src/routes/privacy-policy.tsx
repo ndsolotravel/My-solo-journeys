@@ -1,8 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import ReactMarkdown from "react-markdown";
-import rehypeRaw from "rehype-raw";
 import { useTranslations } from "@/lib/translate/store";
 import { PageBreadcrumbs } from "@/components/layout/PageBreadcrumbs";
+import { TranslatedMarkdown } from "@/components/common/TranslatedMarkdown";
 import { getLegalPageBySlug } from "@/lib/legal.functions";
 
 export const Route = createFileRoute("/privacy-policy")({
@@ -78,7 +77,7 @@ function PrivacyPolicyPage() {
       {/* Main Body */}
       <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
         <article className="prose prose-gray dark:prose-invert max-w-none text-base leading-relaxed text-muted-foreground prose-headings:font-display prose-headings:font-bold prose-headings:text-foreground prose-a:text-brand hover:prose-a:underline prose-strong:text-foreground prose-ul:list-disc prose-ol:list-decimal space-y-6">
-          <ReactMarkdown rehypePlugins={[rehypeRaw]}>{content}</ReactMarkdown>
+          <TranslatedMarkdown content={content} />
         </article>
       </div>
     </div>

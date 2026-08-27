@@ -1,7 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { queryOptions } from "@tanstack/react-query";
-import ReactMarkdown from "react-markdown";
-import rehypeRaw from "rehype-raw";
+import { TranslatedMarkdown } from "@/components/common/TranslatedMarkdown";
 import { Clock, ArrowLeft, MapPin, BookOpen } from "lucide-react";
 import { getTopicCluster, type TopicWithPosts } from "@/lib/topics.functions";
 import type { Post } from "@/lib/posts.functions";
@@ -110,7 +109,7 @@ function TopicPage() {
       {/* Pillar Content */}
       <div className="mx-auto mt-12 max-w-4xl px-4 sm:px-6">
         <div className="prose-blog">
-          <ReactMarkdown rehypePlugins={[rehypeRaw]}>{topic.pillarContent}</ReactMarkdown>
+          <TranslatedMarkdown content={topic.pillarContent} />
         </div>
 
         {/* Clustered Posts */}

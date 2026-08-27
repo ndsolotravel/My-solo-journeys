@@ -10,7 +10,7 @@
 const serverCache = new Map<string, string>(); // "lang:text" -> translated
 
 const BATCH_SIZE = 15;
-const FETCH_TIMEOUT_MS = 3500;
+const FETCH_TIMEOUT_MS = 6000;
 const USER_AGENT =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
 
@@ -145,33 +145,47 @@ export async function requestTranslations(
     const cleanText = text.trim();
     const cacheKey = `${targetLang}:${cleanText}`;
     if (serverCache.has(cacheKey)) {
-      result.set(text, serverCache.get(cacheKey)!);
+      const val = serverCache.get(cacheKey)!;
+      result.set(text, val);
+      result.set(cleanText, val);
     } else {
-      uncached.push(cleanText);
+      if (!uncached.includes(cleanText)) {
+        uncached.push(cleanText);
+      }
     }
   }
 
-  if (!uncached.length) return result;
+  if (uncached.length) {
+    // Split uncached into batches of BATCH_SIZE
+    const chunks: string[][] = [];
+    for (let i = 0; i < uncached.length; i += BATCH_SIZE) {
+      chunks.push(uncached.slice(i, i + BATCH_SIZE));
+    }
 
-  // Split uncached into batches of BATCH_SIZE
-  const chunks: string[][] = [];
-  for (let i = 0; i < uncached.length; i += BATCH_SIZE) {
-    chunks.push(uncached.slice(i, i + BATCH_SIZE));
+    // Execute all batches in parallel
+    const chunkResults = await Promise.all(
+      chunks.map((chunk) => translateBatch(chunk, targetLang)),
+    );
+
+    // Merge results and populate server cache
+    for (const map of chunkResults) {
+      map.forEach((val, key) => {
+        if (val) {
+          result.set(key, val);
+          serverCache.set(`${targetLang}:${key}`, val);
+        }
+      });
+    }
   }
 
-  // Execute all batches in parallel
-  const chunkResults = await Promise.all(
-    chunks.map((chunk) => translateBatch(chunk, targetLang)),
-  );
-
-  // Merge results and populate server cache
-  for (const map of chunkResults) {
-    map.forEach((val, key) => {
-      if (val) {
-        result.set(key, val);
-        serverCache.set(`${targetLang}:${key}`, val);
-      }
-    });
+  // Ensure all original texts get a translation if their trimmed version was translated
+  for (const text of texts) {
+    if (!text) continue;
+    const clean = text.trim();
+    const val = result.get(clean) || serverCache.get(`${targetLang}:${clean}`);
+    if (val) {
+      result.set(text, val);
+    }
   }
 
   return result;

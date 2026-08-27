@@ -154,7 +154,11 @@ function translateMarkdownChildren(
     if (!trimmed) return node;
     // Skip strings that are purely punctuation or numbers
     if (/^[0-9\s.,/#!$%^&*;:{}=\-_`~()]+$/.test(trimmed)) return node;
-    return t(node);
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed) || /^https?:\/\//.test(trimmed)) return node;
+    const translated = t(trimmed);
+    const leading = node.match(/^\s*/)?.[0] || "";
+    const trailing = node.match(/\s*$/)?.[0] || "";
+    return leading + translated + trailing;
   }
   if (typeof node === "number") return node;
   if (Array.isArray(node)) {

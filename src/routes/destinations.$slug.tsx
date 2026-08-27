@@ -183,7 +183,7 @@ function DestinationPage() {
                 {t("Field Notes")}
               </p>
               <h2 className="mt-1 font-display text-3xl font-bold sm:text-4xl">
-                {t("Exploration dispatches from")} {d.title}
+                {t("Exploration dispatches from")} {t(d.title)}
               </h2>
             </div>
 

@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import { getCached, getLangCache, setCached, setCachedBatch } from "./cache";
-import { getDictionaryTranslation, UI_DICTIONARY } from "./dictionary";
+import { getDictionaryTranslation, UI_DICTIONARY, LEGAL_DICTIONARY } from "./dictionary";
 import { translateTexts } from "./translate.functions";
 
 export interface LanguageOption {
@@ -131,6 +131,12 @@ function createStore(): TranslationStore {
         resolved.set(ctxKey(targetLang, text), value);
       }
     }
+    const legal = LEGAL_DICTIONARY[targetLang];
+    if (legal) {
+      for (const [text, value] of Object.entries(legal)) {
+        resolved.set(ctxKey(targetLang, text), value);
+      }
+    }
     const map = getLangCache(targetLang);
     map.forEach((value, text) => {
       resolved.set(ctxKey(targetLang, text), value);
@@ -195,10 +201,13 @@ function createStore(): TranslationStore {
         keys.forEach((k) => {
           const idx = k.indexOf("\u0001");
           const text = k.slice(idx + 1);
-          const value = result[text];
+          const trimmed = text.trim();
+          const value = result[text] || result[trimmed];
           if (value) {
             resolved.set(k, value);
+            resolved.set(ctxKey(targetLang, trimmed), value);
             batchCache[text] = value;
+            batchCache[trimmed] = value;
           }
         });
         setCachedBatch(targetLang, batchCache);
@@ -246,7 +255,9 @@ function createStore(): TranslationStore {
   const register = (targetLang: string, texts: string[]) => {
     if (targetLang === "en" || !texts.length) return;
     let added = false;
-    for (const text of texts) {
+    for (const rawText of texts) {
+      if (!rawText) continue;
+      const text = rawText.trim();
       if (!text) continue;
       const k = ctxKey(targetLang, text);
       if (resolved.has(k) || inFlight.has(k) || failed.has(k)) continue;
@@ -277,17 +288,24 @@ function createStore(): TranslationStore {
 
   const get = (targetLang: string, text: string): string | null => {
     if (targetLang === "en" || !text) return null;
+    const trimmed = text.trim();
     const k = ctxKey(targetLang, text);
-    const v = resolved.get(k);
+    const kTrimmed = ctxKey(targetLang, trimmed);
+
+    const v = resolved.get(k) ?? resolved.get(kTrimmed);
     if (v) return v;
-    const dictValue = getDictionaryTranslation(targetLang, text);
+
+    const dictValue = getDictionaryTranslation(targetLang, text) ?? getDictionaryTranslation(targetLang, trimmed);
     if (dictValue) {
       resolved.set(k, dictValue);
+      resolved.set(kTrimmed, dictValue);
       return dictValue;
     }
-    const cached = getCached(targetLang, text);
+
+    const cached = getCached(targetLang, text) ?? getCached(targetLang, trimmed);
     if (cached) {
       resolved.set(k, cached);
+      resolved.set(kTrimmed, cached);
       return cached;
     }
     return null;
