@@ -7676,5 +7676,28 @@ class GoTrueClient {
 GoTrueClient.nextInstanceID = {};
 const AuthClient = GoTrueClient;
 export {
-  AuthClient as A
+  AuthClient as A,
+  CustomAuthError as C,
+  GoTrueAdminApi as G,
+  SIGN_OUT_SCOPES as S,
+  AuthApiError as a,
+  AuthError as b,
+  AuthImplicitGrantRedirectError as c,
+  AuthInvalidCredentialsError as d,
+  AuthInvalidJwtError as e,
+  AuthInvalidTokenResponseError as f,
+  AuthPKCECodeVerifierMissingError as g,
+  AuthPKCEGrantCodeExchangeError as h,
+  AuthRefreshDiscardedError as i,
+  AuthRetryableFetchError as j,
+  AuthSessionMissingError as k,
+  AuthUnknownError as l,
+  AuthWeakPasswordError as m,
+  GoTrueClient as n,
+  isAuthApiError as o,
+  isAuthError as p,
+  isAuthImplicitGrantRedirectError as q,
+  isAuthRefreshDiscardedError as r,
+  isAuthRetryableFetchError as s,
+  isAuthSessionMissingError as t
 };

@@ -1,8 +1,16 @@
 import { P as PostgrestClient } from "./supabase__postgrest-js.mjs";
+import { a } from "./supabase__postgrest-js.mjs";
 import { R as RealtimeClient } from "./supabase__realtime-js.mjs";
+import { a as a2, b, c, d, e, f, W } from "./supabase__realtime-js.mjs";
 import { S as StorageClient } from "./supabase__storage-js.mjs";
+import { a as a3 } from "./supabase__storage-js.mjs";
 import { A as AuthClient } from "./supabase__auth-js.mjs";
+import { a as a4, b as b2, c as c2, d as d2, e as e2, f as f2, g, h, i, j, k, l, m, C, G, n, S, o, p, q, r, s, t } from "./supabase__auth-js.mjs";
 import { F as FunctionsClient } from "./supabase__functions-js.mjs";
+import { a as a5, b as b3, c as c3, d as d3, e as e3 } from "./supabase__functions-js.mjs";
+import "./supabase__phoenix.mjs";
+import "./iceberg-js.mjs";
+import "tslib";
 const version = "2.108.1";
 let JS_ENV = "";
 let JS_RUNTIME_VERSION;
@@ -43,15 +51,15 @@ function __awaiter(thisArg, _arguments, P, generator) {
     function fulfilled(value) {
       try {
         step(generator.next(value));
-      } catch (e) {
-        reject(e);
+      } catch (e4) {
+        reject(e4);
       }
     }
     function rejected(value) {
       try {
         step(generator["throw"](value));
-      } catch (e) {
-        reject(e);
+      } catch (e4) {
+        reject(e4);
       }
     }
     function step(result) {
@@ -150,56 +158,56 @@ function getDefaultPropagationTargets(supabaseUrl) {
   targets.push("localhost", "127.0.0.1", "[::1]");
   return targets;
 }
-function _typeof(o) {
+function _typeof(o2) {
   "@babel/helpers - typeof";
   return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(o$1) {
     return typeof o$1;
   } : function(o$1) {
     return o$1 && "function" == typeof Symbol && o$1.constructor === Symbol && o$1 !== Symbol.prototype ? "symbol" : typeof o$1;
-  }, _typeof(o);
+  }, _typeof(o2);
 }
-function toPrimitive(t, r) {
-  if ("object" != _typeof(t) || !t) return t;
-  var e = t[Symbol.toPrimitive];
-  if (void 0 !== e) {
-    var i = e.call(t, r);
-    if ("object" != _typeof(i)) return i;
+function toPrimitive(t2, r2) {
+  if ("object" != _typeof(t2) || !t2) return t2;
+  var e4 = t2[Symbol.toPrimitive];
+  if (void 0 !== e4) {
+    var i2 = e4.call(t2, r2);
+    if ("object" != _typeof(i2)) return i2;
     throw new TypeError("@@toPrimitive must return a primitive value.");
   }
-  return ("string" === r ? String : Number)(t);
+  return ("string" === r2 ? String : Number)(t2);
 }
-function toPropertyKey(t) {
-  var i = toPrimitive(t, "string");
-  return "symbol" == _typeof(i) ? i : i + "";
+function toPropertyKey(t2) {
+  var i2 = toPrimitive(t2, "string");
+  return "symbol" == _typeof(i2) ? i2 : i2 + "";
 }
-function _defineProperty(e, r, t) {
-  return (r = toPropertyKey(r)) in e ? Object.defineProperty(e, r, {
-    value: t,
+function _defineProperty(e4, r2, t2) {
+  return (r2 = toPropertyKey(r2)) in e4 ? Object.defineProperty(e4, r2, {
+    value: t2,
     enumerable: true,
     configurable: true,
     writable: true
-  }) : e[r] = t, e;
+  }) : e4[r2] = t2, e4;
 }
-function ownKeys(e, r) {
-  var t = Object.keys(e);
+function ownKeys(e4, r2) {
+  var t2 = Object.keys(e4);
   if (Object.getOwnPropertySymbols) {
-    var o = Object.getOwnPropertySymbols(e);
-    r && (o = o.filter(function(r$1) {
-      return Object.getOwnPropertyDescriptor(e, r$1).enumerable;
-    })), t.push.apply(t, o);
+    var o2 = Object.getOwnPropertySymbols(e4);
+    r2 && (o2 = o2.filter(function(r$1) {
+      return Object.getOwnPropertyDescriptor(e4, r$1).enumerable;
+    })), t2.push.apply(t2, o2);
   }
-  return t;
+  return t2;
 }
-function _objectSpread2(e) {
-  for (var r = 1; r < arguments.length; r++) {
-    var t = null != arguments[r] ? arguments[r] : {};
-    r % 2 ? ownKeys(Object(t), true).forEach(function(r$1) {
-      _defineProperty(e, r$1, t[r$1]);
-    }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function(r$1) {
-      Object.defineProperty(e, r$1, Object.getOwnPropertyDescriptor(t, r$1));
+function _objectSpread2(e4) {
+  for (var r2 = 1; r2 < arguments.length; r2++) {
+    var t2 = null != arguments[r2] ? arguments[r2] : {};
+    r2 % 2 ? ownKeys(Object(t2), true).forEach(function(r$1) {
+      _defineProperty(e4, r$1, t2[r$1]);
+    }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e4, Object.getOwnPropertyDescriptors(t2)) : ownKeys(Object(t2)).forEach(function(r$1) {
+      Object.defineProperty(e4, r$1, Object.getOwnPropertyDescriptor(t2, r$1));
     });
   }
-  return e;
+  return e4;
 }
 const resolveFetch = (customFetch) => {
   if (customFetch) return (...args) => customFetch(...args);
@@ -534,7 +542,7 @@ var SupabaseClient = class {
       accessToken: this._getAccessToken.bind(this),
       fetch: this.fetch
     }, settings.realtime));
-    if (this.accessToken) Promise.resolve(this.accessToken()).then((token) => this.realtime.setAuth(token)).catch((e) => console.warn("Failed to set initial Realtime auth token:", e));
+    if (this.accessToken) Promise.resolve(this.accessToken()).then((token) => this.realtime.setAuth(token)).catch((e4) => console.warn("Failed to set initial Realtime auth token:", e4));
     this.rest = new PostgrestClient(new URL("rest/v1", baseUrl).href, {
       headers: this.headers,
       schema: settings.db.schema,
@@ -727,5 +735,45 @@ function shouldShowDeprecationWarning() {
 }
 if (shouldShowDeprecationWarning()) console.warn("⚠️  Node.js 18 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 20 or later. For more information, visit: https://github.com/orgs/supabase/discussions/37217");
 export {
-  createClient as c
+  a4 as AuthApiError,
+  AuthClient,
+  b2 as AuthError,
+  c2 as AuthImplicitGrantRedirectError,
+  d2 as AuthInvalidCredentialsError,
+  e2 as AuthInvalidJwtError,
+  f2 as AuthInvalidTokenResponseError,
+  g as AuthPKCECodeVerifierMissingError,
+  h as AuthPKCEGrantCodeExchangeError,
+  i as AuthRefreshDiscardedError,
+  j as AuthRetryableFetchError,
+  k as AuthSessionMissingError,
+  l as AuthUnknownError,
+  m as AuthWeakPasswordError,
+  C as CustomAuthError,
+  a5 as FunctionRegion,
+  b3 as FunctionsError,
+  c3 as FunctionsFetchError,
+  d3 as FunctionsHttpError,
+  e3 as FunctionsRelayError,
+  G as GoTrueAdminApi,
+  n as GoTrueClient,
+  a as PostgrestError,
+  a2 as REALTIME_LISTEN_TYPES,
+  b as REALTIME_POSTGRES_CHANGES_LISTEN_EVENT,
+  c as REALTIME_PRESENCE_LISTEN_EVENTS,
+  d as REALTIME_SUBSCRIBE_STATES,
+  e as RealtimeChannel,
+  RealtimeClient,
+  f as RealtimePresence,
+  S as SIGN_OUT_SCOPES,
+  a3 as StorageApiError,
+  SupabaseClient,
+  W as WebSocketFactory,
+  createClient,
+  o as isAuthApiError,
+  p as isAuthError,
+  q as isAuthImplicitGrantRedirectError,
+  r as isAuthRefreshDiscardedError,
+  s as isAuthRetryableFetchError,
+  t as isAuthSessionMissingError
 };

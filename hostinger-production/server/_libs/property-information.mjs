@@ -1217,5 +1217,6 @@ export {
   hastToReact as a,
   find as f,
   html as h,
+  normalize as n,
   svg as s
 };

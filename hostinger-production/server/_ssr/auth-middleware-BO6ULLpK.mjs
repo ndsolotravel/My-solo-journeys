@@ -1,5 +1,5 @@
 import { a as createMiddleware, g as getRequest } from "./server-7Z2Wk8DL.mjs";
-import { c as createClient } from "../_libs/supabase__supabase-js.mjs";
+import { createClient } from "../_libs/supabase__supabase-js.mjs";
 import { W as WebSocket } from "../_libs/ws.mjs";
 const DEFAULT_SUPABASE_URL = "https://mqoybarqgzzvillignbr.supabase.co";
 const DEFAULT_SUPABASE_ANON_KEY = "sb_publishable_quAPYI3nYdGK50erwAPnfg_YJWBq2u5";

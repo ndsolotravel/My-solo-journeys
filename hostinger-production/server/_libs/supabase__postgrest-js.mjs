@@ -5055,5 +5055,6 @@ var PostgrestClient = class PostgrestClient2 {
   }
 };
 export {
-  PostgrestClient as P
+  PostgrestClient as P,
+  PostgrestError as a
 };

@@ -1,4 +1,4 @@
-import { c as createClient } from "../_libs/supabase__supabase-js.mjs";
+import { createClient } from "../_libs/supabase__supabase-js.mjs";
 import { W as WebSocket } from "../_libs/ws.mjs";
 import "../_libs/supabase__postgrest-js.mjs";
 import "../_libs/supabase__realtime-js.mjs";

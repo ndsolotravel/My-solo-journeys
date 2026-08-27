@@ -2690,5 +2690,6 @@ var StorageClient = class extends StorageBucketApi {
   }
 };
 export {
-  StorageClient as S
+  StorageClient as S,
+  StorageApiError as a
 };

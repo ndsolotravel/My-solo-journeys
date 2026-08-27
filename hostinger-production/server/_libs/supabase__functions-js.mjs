@@ -318,5 +318,10 @@ class FunctionsClient {
   }
 }
 export {
-  FunctionsClient as F
+  FunctionsClient as F,
+  FunctionRegion as a,
+  FunctionsError as b,
+  FunctionsFetchError as c,
+  FunctionsHttpError as d,
+  FunctionsRelayError as e
 };

@@ -2122,5 +2122,12 @@ Option 2: Install and provide the "ws" package:
   }
 }
 export {
-  RealtimeClient as R
+  RealtimeClient as R,
+  WebSocketFactory as W,
+  REALTIME_LISTEN_TYPES as a,
+  REALTIME_POSTGRES_CHANGES_LISTEN_EVENT as b,
+  REALTIME_PRESENCE_LISTEN_EVENTS as c,
+  REALTIME_SUBSCRIBE_STATES as d,
+  RealtimeChannel as e,
+  RealtimePresence as f
 };
