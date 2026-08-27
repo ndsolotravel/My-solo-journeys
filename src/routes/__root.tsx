@@ -168,16 +168,29 @@ function RootComponent() {
   }, [router, queryClient]);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isHome = pathname === "/";
+  const isAdmin = pathname.startsWith("/admin");
+
+  // On the CMS (md+ viewports) the root becomes a fixed-height app shell where
+  // only the main content area scrolls, keeping the fixed header and sidebar
+  // usable. Public pages keep natural page scrolling. On smaller screens the
+  // CMS falls back to natural page scrolling too.
+  const shellClass = isAdmin
+    ? "flex min-h-screen flex-col md:h-dvh md:overflow-hidden"
+    : "flex min-h-screen flex-col overflow-x-clip";
+  const mainClass = `flex-1 ${isHome ? "" : "pt-16"} ${
+    isAdmin ? "md:min-h-0 md:overflow-y-auto md:overflow-x-hidden" : ""
+  }`;
+
   return (
     <TranslationProvider>
       <QueryClientProvider client={queryClient}>
         <ReadingProgressBar />
-        <div className="flex min-h-screen flex-col overflow-x-clip">
+        <div className={shellClass}>
           <Header />
-          <main className={`flex-1 ${isHome ? "" : "pt-16"}`}>
+          <main className={mainClass}>
             <Outlet />
           </main>
-          <Footer />
+          {!isAdmin && <Footer />}
         </div>
         <Toaster position="top-center" richColors />
         <ScrollToTop />

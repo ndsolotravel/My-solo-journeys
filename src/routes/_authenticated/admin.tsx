@@ -73,7 +73,7 @@ function AdminLayout() {
 
   return (
     <div className="mx-auto grid min-h-[80vh] max-w-7xl gap-8 px-4 py-10 sm:px-6 md:grid-cols-[220px_1fr] lg:px-8">
-      <aside className="md:sticky md:top-24 md:self-start">
+      <aside className="md:sticky md:top-24 md:self-start md:max-h-[calc(100dvh-8rem)] md:overflow-y-auto md:overscroll-contain">
         <div className="rounded-2xl border border-border bg-background p-3">
           <p className="px-3 pb-2 pt-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
             CMS
@@ -108,9 +108,9 @@ function AdminLayout() {
           </button>
         </div>
       </aside>
-      <main>
+      <div className="min-w-0">
         <Outlet />
-      </main>
+      </div>
     </div>
   );
 }

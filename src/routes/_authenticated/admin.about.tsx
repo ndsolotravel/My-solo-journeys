@@ -298,7 +298,7 @@ function AdminAboutPage() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-16">
       {/* Header Bar */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border pb-6">
+      <div className="sticky top-16 z-20 flex flex-col gap-4 border-b border-border bg-background pb-6 pt-2 sm:flex-row sm:items-center sm:justify-between sm:pt-0">
         <div className="flex items-center gap-3">
           <div className="p-2.5 rounded-2xl bg-brand/10 text-brand">
             <User className="h-6 w-6 text-accent" />
