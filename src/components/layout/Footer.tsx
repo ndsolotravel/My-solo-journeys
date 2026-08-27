@@ -4,6 +4,7 @@ import { SITE } from "@/lib/site";
 import { NewsletterForm } from "./NewsletterForm";
 import { LanguageSelector } from "./LanguageSelector";
 import { useTranslations } from "@/lib/translate/store";
+import { openCookieConsentModal } from "@/lib/cookie-consent";
 import logoPath from "@/assets/ndsolo-travel-logo.png";
 
 function TikTokIcon({ className }: { className?: string }) {
@@ -164,6 +165,14 @@ export function Footer() {
             <Link to="/disclaimer" className="hover:text-accent transition-colors">
               {t("Disclaimer")}
             </Link>
+            <span aria-hidden="true">·</span>
+            <button
+              type="button"
+              onClick={openCookieConsentModal}
+              className="hover:text-accent transition-colors cursor-pointer"
+            >
+              {t("Cookie Preferences")}
+            </button>
             <span className="hidden sm:inline" aria-hidden="true">·</span>
             <p className="hidden sm:inline">{t("Built for solo travellers, by a solo traveller.")}</p>
           </div>

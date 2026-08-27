@@ -18,6 +18,7 @@ import { Footer } from "@/components/layout/Footer";
 import { ScrollToTop } from "@/components/layout/ScrollToTop";
 import { NewsletterPopup } from "@/components/layout/NewsletterPopup";
 import { PublicMessagePopup } from "@/components/layout/PublicMessagePopup";
+import { CookieConsentPopup } from "@/components/layout/CookieConsentPopup";
 import { ReadingProgressBar } from "@/components/layout/ReadingProgressBar";
 import { supabase } from "@/integrations/supabase/client";
 import { TranslationProvider, useT, LANGUAGES } from "@/lib/translate/store";
@@ -182,6 +183,7 @@ function RootComponent() {
         <ScrollToTop />
         <NewsletterPopup />
         <PublicMessagePopup />
+        <CookieConsentPopup />
         <TitleTranslator />
         <PageAnalyticsTracker pathname={pathname} />
       </QueryClientProvider>
