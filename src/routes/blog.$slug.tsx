@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState, Fragment, isValidElement, cloneElement, type ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
-import { Clock, Share2, ArrowLeft, Star, Calendar, Image as ImageIcon, X, ChevronLeft, ChevronRight, User, List, ArrowRight as ArrowRightIcon } from "lucide-react";
+import { Clock, ArrowLeft, Star, Calendar, Image as ImageIcon, X, ChevronLeft, ChevronRight, User, List, ArrowRight as ArrowRightIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getPostBySlug, type Post } from "@/lib/posts.functions";
 import { getBlogAuthorName } from "@/lib/settings.functions";
@@ -605,8 +605,6 @@ function PostPage() {
           authorImage={post.author_image_url}
         />
 
-        <ShareBar title={localizedPost.title} />
-
         {/* Previous / Next Story Navigation */}
         {(prevStory || nextStory) && (
           <div className="mt-12 grid gap-4 sm:grid-cols-2 border-t border-border pt-8">
@@ -667,54 +665,6 @@ function PostPage() {
         </div>
       )}
     </article>
-  );
-}
-
-function ShareBar({ title }: { title: string }) {
-  const t = useTranslations();
-  const [url, setUrl] = useState("");
-  useEffect(() => setUrl(window.location.href), []);
-  const enc = encodeURIComponent(url);
-  const tt = encodeURIComponent(title);
-  return (
-    <div className="mt-10 flex items-center gap-3 border-y border-border py-4">
-      <Share2 className="h-4 w-4 text-muted-foreground" />
-      <span className="text-xs text-muted-foreground">{t("Share")}</span>
-      <a
-        href={`https://twitter.com/intent/tweet?url=${enc}&text=${tt}`}
-        target="_blank"
-        rel="noreferrer"
-        className="text-xs hover:text-accent"
-      >
-        X
-      </a>
-      <a
-        href={`https://www.facebook.com/sharer/sharer.php?u=${enc}`}
-        target="_blank"
-        rel="noreferrer"
-        className="text-xs hover:text-accent"
-      >
-        Facebook
-      </a>
-      <a
-        href={`https://www.linkedin.com/sharing/share-offsite/?url=${enc}`}
-        target="_blank"
-        rel="noreferrer"
-        className="text-xs hover:text-accent"
-      >
-        LinkedIn
-      </a>
-      <button
-        type="button"
-        onClick={() => {
-          navigator.clipboard.writeText(url);
-          toast.success(t("Link copied"));
-        }}
-        className="ml-auto text-xs text-muted-foreground hover:text-accent"
-      >
-        {t("Copy link")}
-      </button>
-    </div>
   );
 }
 
