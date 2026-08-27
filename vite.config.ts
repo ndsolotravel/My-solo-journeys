@@ -7,13 +7,13 @@ import { nitro } from "nitro/vite";
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
-  const port = Number(env.PORT || process.env.PORT) || 3001;
+  const port = Number(env.PORT || process.env.PORT) || 3000;
 
   return {
     envPrefix: ["VITE_", "NEXT_PUBLIC_"],
     server: {
       port,
-      strictPort: false,
+      strictPort: true,
       host: true,
     },
     preview: {

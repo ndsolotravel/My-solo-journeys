@@ -313,7 +313,7 @@ function PostPage() {
             />
             {/* Single clean, precise location badge */}
             {post.location_name ? (
-              dest ? (
+              dest?.slug ? (
                 <Link
                   to="/destinations/$slug"
                   params={{ slug: dest.slug }}
@@ -326,7 +326,7 @@ function PostPage() {
                   <MapPin className="h-3 w-3" /> {post.location_name}
                 </span>
               )
-            ) : dest ? (
+            ) : dest?.slug ? (
               <Link
                 to="/destinations/$slug"
                 params={{ slug: dest.slug }}
@@ -334,6 +334,10 @@ function PostPage() {
               >
                 <MapPin className="h-3 w-3" /> {t(dest.title)}
               </Link>
+            ) : dest?.title ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-accent/20 backdrop-blur-md px-3 py-1 text-xs font-medium text-amber-300">
+                <MapPin className="h-3 w-3" /> {t(dest.title)}
+              </span>
             ) : null}
           </div>
 

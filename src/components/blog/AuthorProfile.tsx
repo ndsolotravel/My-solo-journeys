@@ -28,7 +28,9 @@ export function AuthorProfile({
   const copyTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
-    fetchProfile({ data: { name: authorName } }).then(setProfile);
+    fetchProfile({ data: { name: authorName } })
+      .then(setProfile)
+      .catch(() => {});
   }, [authorName, fetchProfile]);
 
   useEffect(() => {
