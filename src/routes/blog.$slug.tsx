@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState, Fragment, isValidElement, cloneElement, type ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
-import { Clock, Share2, ArrowLeft, Star, MapPin, Calendar, Image as ImageIcon, X, ChevronLeft, ChevronRight, User, List, ArrowRight as ArrowRightIcon } from "lucide-react";
+import { Clock, Share2, ArrowLeft, Star, Calendar, Image as ImageIcon, X, ChevronLeft, ChevronRight, User, List, ArrowRight as ArrowRightIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getPostBySlug, type Post } from "@/lib/posts.functions";
 import { getBlogAuthorName } from "@/lib/settings.functions";
@@ -283,8 +283,6 @@ function PostPage() {
     })
     : null;
 
-  const dest = post.destinations as { title: string; slug: string } | null;
-
   const prevStory = localizedRelated[0] ?? null;
   const nextStory = localizedRelated[1] ?? null;
 
@@ -311,34 +309,6 @@ function PostPage() {
                 { label: localizedPost.title },
               ]}
             />
-            {/* Single clean, precise location badge */}
-            {post.location_name ? (
-              dest?.slug ? (
-                <Link
-                  to="/destinations/$slug"
-                  params={{ slug: dest.slug }}
-                  className="inline-flex items-center gap-1 rounded-full bg-accent/20 backdrop-blur-md px-3 py-1 text-xs font-medium text-amber-300 hover:bg-accent/30 transition-colors"
-                >
-                  <MapPin className="h-3 w-3" /> {post.location_name}
-                </Link>
-              ) : (
-                <span className="inline-flex items-center gap-1 rounded-full bg-accent/20 backdrop-blur-md px-3 py-1 text-xs font-medium text-amber-300">
-                  <MapPin className="h-3 w-3" /> {post.location_name}
-                </span>
-              )
-            ) : dest?.slug ? (
-              <Link
-                to="/destinations/$slug"
-                params={{ slug: dest.slug }}
-                className="inline-flex items-center gap-1 rounded-full bg-accent/20 backdrop-blur-md px-3 py-1 text-xs font-medium text-amber-300 hover:bg-accent/30 transition-colors"
-              >
-                <MapPin className="h-3 w-3" /> {t(dest.title)}
-              </Link>
-            ) : dest?.title ? (
-              <span className="inline-flex items-center gap-1 rounded-full bg-accent/20 backdrop-blur-md px-3 py-1 text-xs font-medium text-amber-300">
-                <MapPin className="h-3 w-3" /> {t(dest.title)}
-              </span>
-            ) : null}
           </div>
 
           <p className="mt-4 text-xs uppercase tracking-[0.2em] text-accent">
