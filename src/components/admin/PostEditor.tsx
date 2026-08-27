@@ -148,7 +148,11 @@ export function PostEditor({
   const [tags, setTags] = useState((initial?.tags ?? []).join(", "));
   const [featured, setFeatured] = useState(!!initial?.featured);
   const [published, setPublished] = useState(!!initial?.published);
-  const [authorName, setAuthorName] = useState(initial?.author_name ?? "Hussain");
+  const initialAuthor =
+    initial?.author_name && initial.author_name.trim().toLowerCase() !== "noman"
+      ? initial.author_name
+      : "Hussain";
+  const [authorName, setAuthorName] = useState(initialAuthor);
   const [authorImageUrl, setAuthorImageUrl] = useState(
     initial?.author_image_url ? resolveImageUrl(initial.author_image_url) : "",
   );
@@ -186,7 +190,11 @@ export function PostEditor({
     setTags((initial.tags ?? []).join(", "));
     setFeatured(!!initial.featured);
     setPublished(!!initial.published);
-    setAuthorName(initial.author_name ?? "Hussain");
+    const effectiveAuthor =
+      initial.author_name && initial.author_name.trim().toLowerCase() !== "noman"
+        ? initial.author_name
+        : "Hussain";
+    setAuthorName(effectiveAuthor);
     setAuthorImageUrl(initial.author_image_url ? resolveImageUrl(initial.author_image_url) : "");
     setLocationName(initial.location_name ?? "");
     setLatitude(initial.latitude != null ? String(initial.latitude) : "");
@@ -595,7 +603,10 @@ export function PostEditor({
         .filter(Boolean),
       featured,
       published,
-      author_name: authorName.trim() || "Hussain",
+      author_name:
+        authorName.trim() && authorName.trim().toLowerCase() !== "noman"
+          ? authorName.trim()
+          : "Hussain",
       author_image_url: authorImageUrl.trim() || null,
       location_name: locationName.trim() || null,
       latitude: parsedLat,

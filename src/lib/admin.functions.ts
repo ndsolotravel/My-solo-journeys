@@ -254,10 +254,12 @@ export const adminUpsertPost = createServerFn({ method: "POST" })
       scheduled_at: data.scheduled_at ? new Date(data.scheduled_at).toISOString() : null,
       reading_minutes,
       updated_at: new Date().toISOString(),
+      author_name: "Hussain",
     };
 
     if (data.author_name !== undefined) {
-      payload.author_name = data.author_name ? data.author_name.trim() : "Hussain";
+      const trimmed = data.author_name ? data.author_name.trim() : "";
+      payload.author_name = trimmed && trimmed.toLowerCase() !== "noman" ? trimmed : "Hussain";
     }
     if (data.author_image_url !== undefined) {
       payload.author_image_url = data.author_image_url ? data.author_image_url.trim() : null;

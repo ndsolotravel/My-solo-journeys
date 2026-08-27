@@ -97,7 +97,8 @@ export function AuthorProfile({
 
   const isHussain =
     (profile?.username && profile.username.trim().toLowerCase() === "hussain") ||
-    authorName.trim().toLowerCase() === "hussain";
+    authorName.trim().toLowerCase() === "hussain" ||
+    authorName.trim().toLowerCase() === "noman";
 
   const name = profile?.username || (isHussain ? "Hussain" : authorName);
   const bio =

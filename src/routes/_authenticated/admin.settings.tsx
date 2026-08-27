@@ -227,7 +227,7 @@ function AdminSettingsPage() {
                       setIsDirty(true);
                     }}
                     disabled={isLoading}
-                    placeholder="e.g. Noman or Hussain"
+                    placeholder="e.g. Hussain"
                     maxLength={100}
                     className="w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-4 text-sm font-medium outline-none focus:border-accent focus:ring-1 focus:ring-accent disabled:opacity-50 transition-colors"
                   />
