@@ -28,7 +28,7 @@ import { getPublicSiteSettings } from "@/lib/settings.functions";
 import { resolveMediaUrl } from "@/lib/media";
 import { PageBreadcrumbs, BreadcrumbJsonLd } from "@/components/layout/PageBreadcrumbs";
 
-const settingsQO = queryOptions({
+export const settingsQO = queryOptions({
   queryKey: ["public-site-settings"],
   queryFn: () => getPublicSiteSettings(),
 });
@@ -72,9 +72,42 @@ export const Route = createFileRoute("/about")({
 function AboutPage() {
   const t = useTranslations();
   const { data: settings } = useSuspenseQuery(settingsQO);
-  const portraitSrc = settings?.about_image_url
-    ? resolveMediaUrl(settings.about_image_url)
-    : aboutPortrait;
+
+  // CMS-managed fields with resilient defaults preserving the redesigned layout
+  const heroImage = settings?.about_hero_image
+    ? resolveMediaUrl(settings.about_hero_image)
+    : "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1920&q=80&auto=format";
+  const heroImageAlt =
+    settings?.about_hero_image_alt || "Karakoram mountain pass and solo road";
+
+  const portraitSrc = settings?.about_profile_image
+    ? resolveMediaUrl(settings.about_profile_image)
+    : settings?.about_image_url
+      ? resolveMediaUrl(settings.about_image_url)
+      : aboutPortrait;
+  const profileImageAlt =
+    settings?.about_profile_image_alt || "Hussain — Solo explorer behind NDSOLOTRAVEL";
+
+  const heroLabel =
+    settings?.about_hero_label || "The Story Behind NDSOLOTRAVEL";
+  const heroHeadline =
+    settings?.about_hero_headline || "Solo, slow, and almost always uphill.";
+
+  const biographyTitle =
+    settings?.about_biography_title ||
+    "From Engineering Problem-Solving to the Freedom of the Open Road";
+  const biographyIntro =
+    settings?.about_biography_intro ||
+    "Welcome to NDSOLOTRAVEL, a space created from a passion for exploring the world, discovering new places, and experiencing the freedom of traveling solo.";
+
+  const philosophyQuote =
+    settings?.about_philosophy_quote ||
+    "Solo travel is where the journey becomes the destination.";
+  const philosophyDescription =
+    settings?.about_philosophy_description ||
+    "You do not need a tour operator, a large budget, or a 100-page itinerary to discover the world. You simply need the curiosity to listen, the humility to respect local cultures, and the bravery to take that first solo step.";
+  const philosophyTitle =
+    settings?.about_philosophy_title || "Travel Philosophy";
 
   return (
     <div className="min-h-screen w-full overflow-x-clip bg-background text-foreground selection:bg-brand/20 selection:text-brand">
@@ -87,8 +120,16 @@ function AboutPage() {
         {/* Background Image with Cinematic Overlay */}
         <div className="absolute inset-0 z-0 overflow-hidden">
           <img
-            src="https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1920&q=80&auto=format"
-            alt="Karakoram mountain pass and solo road"
+            src={heroImage}
+            alt={heroImageAlt}
+            loading="eager"
+            fetchPriority="high"
+            referrerPolicy="no-referrer"
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src =
+                "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1920&q=80&auto=format";
+            }}
             className="h-full w-full object-cover object-center transform motion-safe:animate-fade-in duration-1000"
           />
           {/* Gradients for depth and legibility */}
@@ -107,7 +148,7 @@ function AboutPage() {
               className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-semibold uppercase tracking-[0.2em] text-accent"
             >
               <Compass className="w-3.5 h-3.5 text-accent animate-pulse" />
-              <span>{t("The Story Behind NDSOLOTRAVEL")}</span>
+              <span>{t(heroLabel)}</span>
             </motion.div>
 
             {/* Headline */}
@@ -117,7 +158,7 @@ function AboutPage() {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="font-display text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.1]"
             >
-              {t("Solo, slow, and almost always uphill.")}
+              {t(heroHeadline)}
             </motion.h1>
 
             {/* Sub-headline */}
@@ -182,7 +223,13 @@ function AboutPage() {
                 <div className="relative overflow-hidden rounded-[2rem] border border-border/80 bg-card shadow-2xl">
                   <img
                     src={portraitSrc}
-                    alt="Hussain — Solo explorer behind NDSOLOTRAVEL"
+                    alt={profileImageAlt}
+                    loading="eager"
+                    referrerPolicy="no-referrer"
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = aboutPortrait;
+                    }}
                     className="w-full aspect-[4/5] object-cover object-center transition-transform duration-700 group-hover:scale-[1.03]"
                   />
 
@@ -267,16 +314,14 @@ function AboutPage() {
                   <span>{t("Introduction")}</span>
                 </div>
                 <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight leading-tight">
-                  {t("From Engineering Problem-Solving to the Freedom of the Open Road")}
+                  {t(biographyTitle)}
                 </h2>
               </div>
 
               {/* Core Bio Paragraphs */}
               <div className="prose prose-lg dark:prose-invert max-w-none text-muted-foreground space-y-5 leading-relaxed">
                 <p className="text-foreground/90 font-medium text-lg leading-relaxed">
-                  {t(
-                    "Welcome to NDSOLOTRAVEL, a space created from a passion for exploring the world, discovering new places, and experiencing the freedom of traveling solo."
-                  )}
+                  {t(biographyIntro)}
                 </p>
 
                 <p>
@@ -602,13 +647,11 @@ function AboutPage() {
               </div>
 
               <blockquote className="font-display text-2xl sm:text-3xl lg:text-4xl font-extrabold text-foreground leading-tight tracking-tight">
-                "{t("Solo travel is where the journey becomes the destination.")}"
+                "{t(philosophyQuote)}"
               </blockquote>
 
               <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-2xl mx-auto font-light">
-                {t(
-                  "You do not need a tour operator, a large budget, or a 100-page itinerary to discover the world. You simply need the curiosity to listen, the humility to respect local cultures, and the bravery to take that first solo step."
-                )}
+                {t(philosophyDescription)}
               </p>
             </div>
           </div>
