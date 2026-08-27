@@ -364,8 +364,8 @@ function AboutPage() {
               className="h-full w-full object-cover object-center transform motion-safe:animate-fade-in duration-1000"
             />
             {/* Gradients for depth and legibility */}
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-black/70" />
-            <div className="absolute inset-0 bg-radial-at-c from-transparent via-black/40 to-black/80" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/60" />
+            <div className="absolute inset-0 [background:radial-gradient(ellipse_at_center,transparent_0%,rgba(0,0,0,0.3)_50%,rgba(0,0,0,0.7)_100%)]" />
           </div>
 
           {/* Hero Content */}
