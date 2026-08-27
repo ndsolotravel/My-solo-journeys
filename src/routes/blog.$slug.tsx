@@ -606,7 +606,7 @@ function PostPage() {
           </div>
         )}
 
-        <AuthorProfile authorName={postAuthor} />
+        <AuthorProfile authorName={postAuthor} postTitle={localizedPost.title} />
 
         <ShareBar title={localizedPost.title} />
 
