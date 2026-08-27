@@ -13,6 +13,7 @@ import {
   Image as ImageIcon,
   Settings,
   Home,
+  User,
   Megaphone,
   Scale,
 } from "lucide-react";
@@ -56,6 +57,7 @@ const NAV: { to: string; label: string; icon: typeof LayoutDashboard; exact?: bo
   { to: "/admin/gallery", label: "Gallery", icon: ImageIcon },
   { to: "/admin/destinations", label: "Destinations", icon: MapPin },
   { to: "/admin/homepage", label: "Homepage", icon: Home },
+  { to: "/admin/about", label: "About Page", icon: User },
   { to: "/admin/legal", label: "Legal Pages", icon: Scale },
   { to: "/admin/comments", label: "Comments", icon: MessageSquare },
   { to: "/admin/subscribers", label: "Subscribers", icon: Users },
