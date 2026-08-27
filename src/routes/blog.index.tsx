@@ -196,9 +196,9 @@ function BlogIndex() {
                     <span className="inline-flex items-center gap-1">
                       <Clock className="h-3 w-3" /> {featuredPost.reading_minutes} {t("min read")}
                     </span>
-                    {featuredPost.location_name && (
+                    {(featuredPost.location_name || (featuredPost.destinations as any)?.title) && (
                       <span className="inline-flex items-center gap-1">
-                        <MapPin className="h-3 w-3" /> {featuredPost.location_name}
+                        <MapPin className="h-3 w-3" /> {featuredPost.location_name || (featuredPost.destinations as any)?.title}
                       </span>
                     )}
                   </div>

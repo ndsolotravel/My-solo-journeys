@@ -311,7 +311,22 @@ function PostPage() {
                 { label: localizedPost.title },
               ]}
             />
-            {dest && (
+            {/* Single clean, precise location badge */}
+            {post.location_name ? (
+              dest ? (
+                <Link
+                  to="/destinations/$slug"
+                  params={{ slug: dest.slug }}
+                  className="inline-flex items-center gap-1 rounded-full bg-accent/20 backdrop-blur-md px-3 py-1 text-xs font-medium text-amber-300 hover:bg-accent/30 transition-colors"
+                >
+                  <MapPin className="h-3 w-3" /> {post.location_name}
+                </Link>
+              ) : (
+                <span className="inline-flex items-center gap-1 rounded-full bg-accent/20 backdrop-blur-md px-3 py-1 text-xs font-medium text-amber-300">
+                  <MapPin className="h-3 w-3" /> {post.location_name}
+                </span>
+              )
+            ) : dest ? (
               <Link
                 to="/destinations/$slug"
                 params={{ slug: dest.slug }}
@@ -319,12 +334,7 @@ function PostPage() {
               >
                 <MapPin className="h-3 w-3" /> {t(dest.title)}
               </Link>
-            )}
-            {post.location_name && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-accent/20 backdrop-blur-md px-3 py-1 text-xs font-medium text-amber-300">
-                <MapPin className="h-3 w-3" /> {post.location_name}
-              </span>
-            )}
+            ) : null}
           </div>
 
           <p className="mt-4 text-xs uppercase tracking-[0.2em] text-accent">

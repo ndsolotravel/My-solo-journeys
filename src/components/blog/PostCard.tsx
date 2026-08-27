@@ -81,16 +81,21 @@ export function PostCard({ post, index = 0 }: { post: Post; index?: number }) {
             <span className="rounded-full bg-background/90 px-3 py-1 text-xs font-medium text-foreground backdrop-blur-xs shadow-xs">
               {t(localizedPost.category)}
             </span>
-            {destination && (
+            {destination ? (
               <Link
                 to="/destinations/$slug"
                 params={{ slug: destination.slug }}
                 className="inline-flex items-center gap-1 rounded-full bg-accent/90 px-2.5 py-1 text-xs font-medium text-white shadow-xs hover:bg-accent transition-colors backdrop-blur-xs"
               >
                 <MapPin className="h-3 w-3" />
-                <span>{t(destination.title)}</span>
+                <span>{localizedPost.location_name || t(destination.title)}</span>
               </Link>
-            )}
+            ) : localizedPost.location_name ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-accent/90 px-2.5 py-1 text-xs font-medium text-white shadow-xs backdrop-blur-xs">
+                <MapPin className="h-3 w-3" />
+                <span>{localizedPost.location_name}</span>
+              </span>
+            ) : null}
           </div>
         </div>
 
@@ -101,17 +106,24 @@ export function PostCard({ post, index = 0 }: { post: Post; index?: number }) {
             <Clock className="h-3 w-3" />
             {localizedPost.reading_minutes} {t("min read")}
           </span>
-          {destination && (
+          {(destination || localizedPost.location_name) && (
             <>
               <span aria-hidden>·</span>
-              <Link
-                to="/destinations/$slug"
-                params={{ slug: destination.slug }}
-                className="inline-flex items-center gap-1 text-accent hover:underline font-medium"
-              >
-                <MapPin className="h-3 w-3" />
-                {t(destination.title)}
-              </Link>
+              {destination ? (
+                <Link
+                  to="/destinations/$slug"
+                  params={{ slug: destination.slug }}
+                  className="inline-flex items-center gap-1 text-accent hover:underline font-medium"
+                >
+                  <MapPin className="h-3 w-3" />
+                  {localizedPost.location_name || t(destination.title)}
+                </Link>
+              ) : (
+                <span className="inline-flex items-center gap-1 text-accent font-medium">
+                  <MapPin className="h-3 w-3" />
+                  {localizedPost.location_name}
+                </span>
+              )}
             </>
           )}
         </div>

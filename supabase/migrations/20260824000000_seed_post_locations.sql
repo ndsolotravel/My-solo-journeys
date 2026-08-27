@@ -39,9 +39,9 @@ WHERE id = '0b1ee170-5858-47a0-a1ac-f94eb85627b4'
 
 UPDATE public.posts
 SET
-  location_name = 'Karakoram, Skardu',
-  latitude = 35.2971,
-  longitude = 75.6333,
+  location_name = 'Karimabad, Hunza Valley',
+  latitude = 36.3257,
+  longitude = 74.6625,
   updated_at = now()
 WHERE id = '9da10e0f-a5ec-4b51-a52f-5e9f37691edb'
    OR title ILIKE '%Budget Travel in the Karakoram%';

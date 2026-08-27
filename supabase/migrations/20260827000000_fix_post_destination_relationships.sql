@@ -26,14 +26,14 @@ WHERE id = 'b0d8841d-d77b-46fe-b7b3-5dd68bfd5dc2'
 
 UPDATE public.posts
 SET
-  destination_id = '084a1d80-b5e7-4e6f-b5a3-7ea0df1d27da', -- Karakoram Highway
+  destination_id = '3b361ee0-86bb-432a-b12d-1c485c33c378', -- Hunza Valley (Karimabad)
   updated_at = now()
 WHERE id = '9da10e0f-a5ec-4b51-a52f-5e9f37691edb'
    OR title ILIKE '%Budget Travel in the Karakoram%';
 
 UPDATE public.posts
 SET
-  destination_id = '3b361ee0-86bb-432a-b12d-1c485c33c378', -- Hunza Valley
+  destination_id = NULL, -- High Himalaya, Nepal is independent from Pakistan regional destinations
   updated_at = now()
 WHERE id = '0b1ee170-5858-47a0-a1ac-f94eb85627b4'
    OR title ILIKE '%Photographing the High Himalaya%';
