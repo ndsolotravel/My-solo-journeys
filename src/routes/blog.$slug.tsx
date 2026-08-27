@@ -36,11 +36,11 @@ export const Route = createFileRoute("/blog/$slug")({
       context.queryClient.ensureQueryData(authorNameQO),
     ]);
     if (!data.post) throw notFound();
-    return { ...data, authorName: authorName || "Noman" };
+    return { ...data, authorName: authorName || "Hussain" };
   },
   head: ({ loaderData, params }) => {
     const p = loaderData?.post;
-    const authorName = p?.author_name || loaderData?.authorName || "Noman";
+    const authorName = p?.author_name || loaderData?.authorName || "Hussain";
     const title = p?.seo_title || (p ? `${p.title} — ndsolotravel` : "Story — ndsolotravel");
     const desc = p?.seo_description || p?.excerpt || "A solo travel story from ndsolotravel.";
     const image = p?.og_image_url || p?.cover_image;
@@ -184,8 +184,8 @@ function PostPage() {
     ...authorNameQO,
     initialData: loaderData?.authorName,
   });
-  const authorName = globalAuthor || loaderData?.authorName || "Noman";
-  const postAuthor = post?.author_name || authorName || "Noman";
+  const authorName = globalAuthor || loaderData?.authorName || "Hussain";
+  const postAuthor = post?.author_name || authorName || "Hussain";
   const { lang } = useLanguage();
   const t = useTranslations();
 

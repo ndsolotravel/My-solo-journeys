@@ -91,9 +91,17 @@ export function AuthorProfile({
     }
   };
 
-  const name = profile?.username || authorName;
-  const bio = profile?.bio;
-  const avatar = profile?.avatar_url;
+  const isHussain =
+    (profile?.username && profile.username.trim().toLowerCase() === "hussain") ||
+    authorName.trim().toLowerCase() === "hussain";
+
+  const name = profile?.username || (isHussain ? "Hussain" : authorName);
+  const bio =
+    profile?.bio ||
+    (isHussain
+      ? "Solo traveler, motorcyclist, and explorer capturing the wild landscapes and hidden roads of the Himalayas, Karakoram, and beyond."
+      : null);
+  const avatar = isHussain ? "/images/author-hussain.jpg" : profile?.avatar_url;
   const initials = getInitials(name);
 
   return (
@@ -104,7 +112,7 @@ export function AuthorProfile({
           <img
             src={avatar}
             alt={name}
-            className="h-20 w-20 shrink-0 rounded-full object-cover ring-2 ring-accent/20"
+            className="h-20 w-20 shrink-0 rounded-full object-cover ring-2 ring-accent/20 shadow-sm"
           />
         ) : (
           <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-accent/10 ring-2 ring-accent/20">

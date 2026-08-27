@@ -52,7 +52,7 @@ function AdminSettingsPage() {
     queryFn: () => listStaffFn(),
   });
 
-  const [blogAuthorName, setBlogAuthorName] = useState("Noman");
+  const [blogAuthorName, setBlogAuthorName] = useState("Hussain");
   const [aboutImageUrl, setAboutImageUrl] = useState("");
   const [isDirty, setIsDirty] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -81,7 +81,7 @@ function AdminSettingsPage() {
       await updateSettingFn({
         data: {
           key: "blog_author_name",
-          value: payload.authorName.trim() || "Noman",
+          value: payload.authorName.trim() || "Hussain",
           description: "Global author name displayed on blog stories and listings",
         },
       });
@@ -257,7 +257,7 @@ function AdminSettingsPage() {
                   <div className="mt-2.5 flex flex-wrap items-center gap-3 text-xs text-muted-foreground border-t border-border/40 pt-2">
                     <span className="inline-flex items-center gap-1 font-semibold text-foreground">
                       <User className="h-3.5 w-3.5 text-accent" /> By{" "}
-                      {blogAuthorName.trim() || "Noman"} · ndsolotravel
+                      {blogAuthorName.trim() || "Hussain"} · ndsolotravel
                     </span>
                     <span aria-hidden>·</span>
                     <span>Nov 18, 2025</span>

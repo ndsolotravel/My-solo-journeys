@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-const DEFAULT_BLOG_AUTHOR = "Noman";
+const DEFAULT_BLOG_AUTHOR = "Hussain";
 
 async function assertEditor(userId: string, client?: any) {
   let roles: string[] = [];

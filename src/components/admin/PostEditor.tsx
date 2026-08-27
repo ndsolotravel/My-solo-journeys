@@ -147,7 +147,7 @@ export function PostEditor({
   const [tags, setTags] = useState((initial?.tags ?? []).join(", "));
   const [featured, setFeatured] = useState(!!initial?.featured);
   const [published, setPublished] = useState(!!initial?.published);
-  const [authorName, setAuthorName] = useState(initial?.author_name ?? "Noman");
+  const [authorName, setAuthorName] = useState(initial?.author_name ?? "Hussain");
   const [locationName, setLocationName] = useState(initial?.location_name ?? "");
   const [latitude, setLatitude] = useState<string>(initial?.latitude != null ? String(initial.latitude) : "");
   const [longitude, setLongitude] = useState<string>(initial?.longitude != null ? String(initial.longitude) : "");
@@ -182,7 +182,7 @@ export function PostEditor({
     setTags((initial.tags ?? []).join(", "));
     setFeatured(!!initial.featured);
     setPublished(!!initial.published);
-    setAuthorName(initial.author_name ?? "Noman");
+    setAuthorName(initial.author_name ?? "Hussain");
     setLocationName(initial.location_name ?? "");
     setLatitude(initial.latitude != null ? String(initial.latitude) : "");
     setLongitude(initial.longitude != null ? String(initial.longitude) : "");
@@ -579,7 +579,7 @@ export function PostEditor({
         .filter(Boolean),
       featured,
       published,
-      author_name: authorName.trim() || "Noman",
+      author_name: authorName.trim() || "Hussain",
       location_name: locationName.trim() || null,
       latitude: parsedLat,
       longitude: parsedLng,
@@ -1078,7 +1078,7 @@ export function PostEditor({
             <input
               value={authorName}
               onChange={(e) => setAuthorName(e.target.value)}
-              placeholder="Noman"
+              placeholder="Hussain"
               maxLength={100}
               className={input}
             />

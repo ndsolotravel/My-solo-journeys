@@ -256,7 +256,7 @@ export const adminUpsertPost = createServerFn({ method: "POST" })
     };
 
     if (data.author_name !== undefined) {
-      payload.author_name = data.author_name ? data.author_name.trim() : "Noman";
+      payload.author_name = data.author_name ? data.author_name.trim() : "Hussain";
     }
     if (data.location_name !== undefined) {
       payload.location_name = data.location_name ? data.location_name.trim() : null;
