@@ -36,7 +36,7 @@ import { BreakingNewsSection } from "../components/home/BreakingNewsSection";
 import { AdSlot } from "../components/ads/AdSlot";
 import { CATEGORIES } from "../lib/site";
 import { useTranslations, useLanguage } from "@/lib/translate/store";
-import { resolveMediaUrl } from "@/lib/admin.functions";
+import { resolveMediaUrl } from "@/lib/media";
 
 const DestinationsMap = lazy(() =>
   import("@/components/destinations/DestinationsMap").then((m) => ({

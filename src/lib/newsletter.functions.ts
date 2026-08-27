@@ -17,7 +17,7 @@ type SubscriberRow = {
 };
 
 export const subscribe = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => {
+  .validator((input: unknown) => {
     const raw =
       input && typeof input === "object" && "data" in input
         ? (input as { data: unknown }).data
@@ -132,7 +132,7 @@ export const adminListSubscribers = createServerFn({ method: "GET" })
 
 export const adminUpdateSubscriberStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => {
+  .validator((input: unknown) => {
     const raw =
       input && typeof input === "object" && "data" in input
         ? (input as { data: unknown }).data
@@ -158,7 +158,7 @@ export const adminUpdateSubscriberStatus = createServerFn({ method: "POST" })
 
 export const adminDeleteSubscriber = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => {
+  .validator((input: unknown) => {
     const raw =
       input && typeof input === "object" && "data" in input
         ? (input as { data: unknown }).data
@@ -195,7 +195,7 @@ async function sha256(input: string) {
 }
 
 export const sendContact = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => {
+  .validator((input: unknown) => {
     const raw =
       input && typeof input === "object" && "data" in input
         ? (input as { data: unknown }).data

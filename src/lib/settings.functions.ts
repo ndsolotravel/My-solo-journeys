@@ -89,7 +89,7 @@ export const adminGetSettings = createServerFn({ method: "GET" })
 
 export const adminUpdateSetting = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) =>
+  .validator((input) =>
     z
       .object({
         key: z.string().min(1),

@@ -1,7 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { assertEditor, resolveMediaUrl } from "@/lib/admin.functions";
+import { assertEditor } from "@/lib/admin.functions";
+import { resolveMediaUrl } from "@/lib/media";
 
 // ---------------------------------------------------------------------------
 // Homepage settings keys and defaults (mirror the original hardcoded homepage)
@@ -219,7 +220,7 @@ export const adminGetHomepageEditor = createServerFn({ method: "GET" })
 
 export const adminSaveHomepageSettings = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) => {
+  .validator((input) => {
     const raw = input ?? {};
     const settings: Record<string, string> = {};
     for (const key of HOMEPAGE_KEYS) {

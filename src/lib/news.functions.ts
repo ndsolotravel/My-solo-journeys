@@ -1,7 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { assertEditor, resolveMediaUrl } from "@/lib/admin.functions";
+import { assertEditor } from "@/lib/admin.functions";
+import { resolveMediaUrl } from "@/lib/media";
 
 export type NewsItem = {
   id: string;
@@ -71,7 +72,7 @@ export const listActiveBreakingNews = createServerFn({ method: "GET" }).handler(
  * Get a single news item by its slug for permalink pages / modals.
  */
 export const getNewsBySlug = createServerFn({ method: "GET" })
-  .inputValidator((i) => z.object({ slug: z.string().min(1) }).parse(i))
+  .validator((i) => z.object({ slug: z.string().min(1) }).parse(i))
   .handler(async ({ data: input }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const now = new Date().toISOString();
@@ -139,7 +140,7 @@ export const adminListNews = createServerFn({ method: "GET" })
  */
 export const adminGetNews = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ context, data: input }) => {
     await assertEditor(context.userId, context.supabase);
     const client =
@@ -166,7 +167,7 @@ export const adminGetNews = createServerFn({ method: "GET" })
  */
 export const adminUpsertNews = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i) =>
+  .validator((i) =>
     z
       .object({
         id: z.string().uuid().optional(),
@@ -251,7 +252,7 @@ export const adminUpsertNews = createServerFn({ method: "POST" })
  */
 export const adminDeleteNews = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ context, data: input }) => {
     await assertEditor(context.userId, context.supabase);
     const client =
@@ -269,7 +270,7 @@ export const adminDeleteNews = createServerFn({ method: "POST" })
  */
 export const adminToggleNewsField = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i) =>
+  .validator((i) =>
     z
       .object({
         id: z.string().uuid(),

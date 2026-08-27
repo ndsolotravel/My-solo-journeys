@@ -12,7 +12,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { getNewsBySlug, type NewsItem } from "@/lib/news.functions";
-import { resolveMediaUrl } from "@/lib/admin.functions";
+import { resolveMediaUrl } from "@/lib/media";
 
 export const Route = createFileRoute("/news/$slug")({
   loader: async ({ params }) => {

@@ -6,7 +6,7 @@ import { getDestinationBySlug, listDestinations, type Destination } from "@/lib/
 import type { Post } from "@/lib/posts.functions";
 import { PostCard } from "@/components/blog/PostCard";
 import { useTranslations } from "@/lib/translate/store";
-import { resolveMediaUrl } from "@/lib/admin.functions";
+import { resolveMediaUrl } from "@/lib/media";
 import { PageBreadcrumbs, BreadcrumbJsonLd } from "@/components/layout/PageBreadcrumbs";
 
 const qo = (slug: string) =>

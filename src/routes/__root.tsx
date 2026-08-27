@@ -172,7 +172,7 @@ function RootComponent() {
     <TranslationProvider>
       <QueryClientProvider client={queryClient}>
         <ReadingProgressBar />
-        <div className="flex min-h-screen flex-col">
+        <div className="flex min-h-screen flex-col overflow-x-clip">
           <Header />
           <main className={`flex-1 ${isHome ? "" : "pt-16"}`}>
             <Outlet />

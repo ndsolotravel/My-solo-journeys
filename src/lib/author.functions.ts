@@ -14,7 +14,7 @@ export const HUSSAIN_PROFILE: AuthorProfile = {
 };
 
 export const getAuthorProfile = createServerFn({ method: "GET" })
-  .inputValidator((input) => z.object({ name: z.string().min(1) }).parse(input))
+  .validator((input) => z.object({ name: z.string().min(1) }).parse(input))
   .handler(async ({ data }): Promise<AuthorProfile | null> => {
     const trimmed = data.name.trim();
     const isHussain = trimmed.toLowerCase() === "hussain" || trimmed.toLowerCase() === "noman";

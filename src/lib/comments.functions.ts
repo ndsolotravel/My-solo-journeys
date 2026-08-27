@@ -13,7 +13,7 @@ export type CommentRow = {
 };
 
 export const listComments = createServerFn({ method: "GET" })
-  .inputValidator((input) => z.object({ post_id: z.string().uuid() }).parse(input))
+  .validator((input) => z.object({ post_id: z.string().uuid() }).parse(input))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: rows, error } = await supabaseAdmin
@@ -42,7 +42,7 @@ export const listComments = createServerFn({ method: "GET" })
   });
 
 export const getPostRatingStats = createServerFn({ method: "GET" })
-  .inputValidator((input) => z.object({ post_id: z.string().uuid() }).parse(input))
+  .validator((input) => z.object({ post_id: z.string().uuid() }).parse(input))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: rows, error } = await supabaseAdmin
@@ -60,7 +60,7 @@ export const getPostRatingStats = createServerFn({ method: "GET" })
 const recentSubmissions = new Map<string, number>();
 
 export const postComment = createServerFn({ method: "POST" })
-  .inputValidator((input) =>
+  .validator((input) =>
     z
       .object({
         post_id: z.string().uuid(),

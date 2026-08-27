@@ -264,7 +264,7 @@ export const listCategories = createServerFn({ method: "GET" }).handler(
 );
 
 export const getCategoryBySlug = createServerFn({ method: "GET" })
-  .inputValidator((input) =>
+  .validator((input) =>
     z
       .object({
         slug: z.string().min(1),
@@ -351,7 +351,7 @@ export const adminListCategories = createServerFn({ method: "GET" })
 
 export const adminUpsertCategory = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) =>
+  .validator((input) =>
     z
       .object({
         id: z.string().optional(),
@@ -455,7 +455,7 @@ export const adminUpsertCategory = createServerFn({ method: "POST" })
 
 export const adminDeleteCategory = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) =>
+  .validator((input) =>
     z
       .object({
         id: z.string().min(1),

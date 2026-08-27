@@ -51,7 +51,7 @@ const FULL_POST_COLUMNS =
   "id,title,slug,excerpt,content,cover_image,category,tags,featured,views,reading_minutes,published_at,created_at,destination_id,travel_date,location_name,latitude,longitude,seo_title,seo_description,og_image_url,author_name,author_image_url";
 
 export const listPosts = createServerFn({ method: "GET" })
-  .inputValidator((input) =>
+  .validator((input) =>
     z
       .object({
         category: z.string().optional(),
@@ -152,7 +152,7 @@ export const listPosts = createServerFn({ method: "GET" })
   });
 
 export const getPostBySlug = createServerFn({ method: "GET" })
-  .inputValidator((input) => z.object({ slug: z.string().min(1) }).parse(input))
+  .validator((input) => z.object({ slug: z.string().min(1) }).parse(input))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 

@@ -111,7 +111,7 @@ export const listActiveTopics = createServerFn({ method: "GET" })
   });
 
 export const getTopicCluster = createServerFn({ method: "GET" })
-  .inputValidator((input) => z.object({ slug: z.string().min(1) }).parse(input))
+  .validator((input) => z.object({ slug: z.string().min(1) }).parse(input))
   .handler(async ({ data }): Promise<TopicWithPosts | null> => {
     const topic = getTopicBySlug(data.slug);
     if (!topic) return null;

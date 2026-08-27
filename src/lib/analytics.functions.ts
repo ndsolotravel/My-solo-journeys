@@ -176,7 +176,7 @@ function unwrapInput(input: any) {
 
 /** Server function to ping session heartbeat and optionally record a page view. */
 export const recordPageViewAndPing = createServerFn({ method: "POST" })
-  .inputValidator((input: any) =>
+  .validator((input: any) =>
     z
       .object({
         sessionId: z.string().min(1).max(128),
@@ -298,7 +298,7 @@ export type PeriodOption = "7d" | "30d" | "90d" | "all";
 /** Server function to fetch complete Analytics Dashboard data for Admin panel. */
 export const getAdminAnalyticsDetails = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: any) =>
+  .validator((input: any) =>
     z
       .object({
         period: z.enum(["7d", "30d", "90d", "all"]).optional().default("30d"),

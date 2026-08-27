@@ -6,7 +6,7 @@ import type { Post } from "@/lib/posts.functions";
 import { PageBreadcrumbs } from "@/components/layout/PageBreadcrumbs";
 import { PostCard } from "@/components/blog/PostCard";
 import { useTranslations } from "@/lib/translate/store";
-import { resolveMediaUrl } from "@/lib/admin.functions";
+import { resolveMediaUrl } from "@/lib/media";
 
 const categoryQO = (slug: string) =>
   queryOptions({

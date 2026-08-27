@@ -53,83 +53,7 @@ export const getMyRoles = createServerFn({ method: "GET" })
     return roles;
   });
 
-const DEFAULT_SUPABASE_URL = "https://mqoybarqgzzvillignbr.supabase.co";
-
-export function resolveMediaUrl(urlOrPath: string | null | undefined, client?: any): string {
-  if (!urlOrPath || typeof urlOrPath !== "string") return "";
-  const trimmed = urlOrPath.trim();
-  if (!trimmed) return "";
-
-  // Convert Google Drive sharing/file links into direct renderable CDN image links
-  if (trimmed.includes("drive.google.com")) {
-    const fileIdMatch =
-      trimmed.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-    if (fileIdMatch && fileIdMatch[1]) {
-      return `https://lh3.googleusercontent.com/d/${fileIdMatch[1]}`;
-    }
-  }
-
-  // If it's already an absolute HTTP(S) URL or data/blob URI
-  if (
-    trimmed.startsWith("http://") ||
-    trimmed.startsWith("https://") ||
-    trimmed.startsWith("data:") ||
-    trimmed.startsWith("blob:")
-  ) {
-    return trimmed;
-  }
-
-  // It's a storage path in blog-media (e.g. "userId/filename.jpg" or "/blog-media/userId/filename.jpg")
-  let cleanPath = trimmed.replace(/^\/+/, "");
-  if (cleanPath.startsWith("blog-media/")) {
-    cleanPath = cleanPath.slice("blog-media/".length);
-  }
-
-  if (client?.storage?.from) {
-    try {
-      const { data } = client.storage.from("blog-media").getPublicUrl(cleanPath);
-      if (data?.publicUrl) return data.publicUrl;
-    } catch {
-      // fallback
-    }
-  }
-
-  const baseUrl =
-    (typeof process !== "undefined"
-      ? process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
-      : "") || DEFAULT_SUPABASE_URL;
-
-  return `${baseUrl.replace(/\/+$/, "")}/storage/v1/object/public/blog-media/${cleanPath}`;
-}
-
-export function extractBlogMediaPath(url: string | null | undefined): string | null {
-  if (!url || typeof url !== "string") return null;
-  try {
-    const cleanUrl = url.split("?")[0].split("#")[0].trim();
-    const marker = "/blog-media/";
-    const markerIdx = cleanUrl.indexOf(marker);
-    if (markerIdx !== -1) {
-      const extracted = cleanUrl.slice(markerIdx + marker.length);
-      return decodeURIComponent(extracted.replace(/^\/+/, ""));
-    }
-    // If it's a relative path (e.g. userId/filename.jpg or blog-media/userId/filename.jpg)
-    if (
-      !cleanUrl.startsWith("http://") &&
-      !cleanUrl.startsWith("https://") &&
-      !cleanUrl.startsWith("data:") &&
-      !cleanUrl.startsWith("blob:")
-    ) {
-      let path = cleanUrl.replace(/^\/+/, "");
-      if (path.startsWith("blog-media/")) {
-        path = path.slice("blog-media/".length);
-      }
-      return decodeURIComponent(path);
-    }
-  } catch (e) {
-    console.warn("[extractBlogMediaPath] Failed to parse url:", url, e);
-  }
-  return null;
-}
+export { resolveMediaUrl, extractBlogMediaPath } from "./media";
 
 // ---------------- POSTS ----------------
 
@@ -162,7 +86,7 @@ export const adminListPosts = createServerFn({ method: "GET" })
 
 export const adminGetPost = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ context, data }) => {
     await assertEditor(context.userId, context.supabase);
     const client =
@@ -188,7 +112,7 @@ const slugify = (s: string) =>
 
 export const adminUpsertPost = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i) =>
+  .validator((i) =>
     z
       .object({
         id: z.string().uuid().optional(),
@@ -364,7 +288,7 @@ export const adminUpsertPost = createServerFn({ method: "POST" })
 
 export const adminDeleteGalleryImage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i) =>
+  .validator((i) =>
     z
       .object({
         postId: z.string().uuid().optional(),
@@ -566,7 +490,7 @@ export const adminListGalleries = createServerFn({ method: "GET" })
 
 export const adminSavePostGallery = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i) =>
+  .validator((i) =>
     z
       .object({
         postId: z.string().uuid(),
@@ -633,7 +557,7 @@ export const adminSavePostGallery = createServerFn({ method: "POST" })
 
 export const adminDeletePost = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ context, data }) => {
     await assertEditor(context.userId, context.supabase);
     const client =
@@ -715,7 +639,7 @@ export const adminDeletePost = createServerFn({ method: "POST" })
 
 export const adminTogglePublish = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i) => z.object({ id: z.string().uuid(), published: z.boolean() }).parse(i))
+  .validator((i) => z.object({ id: z.string().uuid(), published: z.boolean() }).parse(i))
   .handler(async ({ context, data }) => {
     await assertEditor(context.userId, context.supabase);
     const client =
@@ -768,7 +692,7 @@ export const adminListDestinations = createServerFn({ method: "GET" })
 
 export const adminUpsertDestination = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i) => destInputSchema.parse(i))
+  .validator((i) => destInputSchema.parse(i))
   .handler(async ({ context, data }) => {
     await assertEditor(context.userId, context.supabase);
     const client =
@@ -795,7 +719,7 @@ export const adminUpsertDestination = createServerFn({ method: "POST" })
 
 export const adminDeleteDestination = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ context, data }) => {
     await assertEditor(context.userId, context.supabase);
     const client =
@@ -844,7 +768,7 @@ export const adminListComments = createServerFn({ method: "GET" })
 
 export const adminDeleteComment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ context, data }) => {
     await assertEditor(context.userId, context.supabase);
     const client =
@@ -902,7 +826,7 @@ export const adminListMessages = createServerFn({ method: "GET" })
 
 export const adminUpdateMessageStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i) =>
+  .validator((i) =>
     z
       .object({
         id: z.string().uuid(),
@@ -934,7 +858,7 @@ export const adminUpdateMessageStatus = createServerFn({ method: "POST" })
 
 export const adminDeleteMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i) => z.object({ id: z.string().uuid() }).parse(i))
+  .validator((i) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ context, data }) => {
     await assertEditor(context.userId, context.supabase);
     const client =
@@ -986,7 +910,7 @@ export const adminAnalytics = createServerFn({ method: "GET" })
 
 export const adminUploadImage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i) =>
+  .validator((i) =>
     z
       .object({
         filename: z.string().min(1).max(200),
@@ -1058,7 +982,7 @@ export const adminUploadImage = createServerFn({ method: "POST" })
 
 export const adminCreateAdminUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => {
+  .validator((input: unknown) => {
     const raw =
       input && typeof input === "object" && "data" in input
         ? (input as { data: unknown }).data

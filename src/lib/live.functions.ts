@@ -24,7 +24,7 @@ function unwrapInput(input: any) {
 
 /** Upsert one heartbeat row for a visitor session. */
 export const pingVisitor = createServerFn({ method: "POST" })
-  .inputValidator((input: any) =>
+  .validator((input: any) =>
     z
       .object({
         sessionId: z.string().min(1).max(MAX_SESSION_ID_LEN),

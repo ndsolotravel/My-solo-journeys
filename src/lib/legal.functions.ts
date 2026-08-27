@@ -119,7 +119,7 @@ async function assertEditor(userId: string, client?: any) {
 // ---------------- Public Server Functions ----------------
 
 export const getLegalPageBySlug = createServerFn({ method: "GET" })
-  .inputValidator((input) => z.object({ slug: z.string().min(1) }).parse(input))
+  .validator((input) => z.object({ slug: z.string().min(1) }).parse(input))
   .handler(async ({ data }): Promise<{ legalPage: LegalPage | null }> => {
     try {
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -159,7 +159,7 @@ export const adminListLegalPages = createServerFn({ method: "GET" })
 
 export const adminGetLegalPage = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) => z.object({ slug: z.string().min(1) }).parse(input))
+  .validator((input) => z.object({ slug: z.string().min(1) }).parse(input))
   .handler(async ({ context, data }): Promise<LegalPage | null> => {
     await assertEditor(context.userId, context.supabase);
     const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
@@ -178,7 +178,7 @@ export const adminGetLegalPage = createServerFn({ method: "GET" })
 
 export const adminUpsertLegalPage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) =>
+  .validator((input) =>
     z
       .object({
         slug: z.string().min(1),

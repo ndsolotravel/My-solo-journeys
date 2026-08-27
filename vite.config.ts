@@ -24,6 +24,7 @@ export default defineConfig(({ mode }) => {
       tsconfigPaths({ projects: ["./tsconfig.json"] }),
       tanstackStart({
         server: { entry: "./src/server.ts" },
+        serverFns: { disableCsrfMiddlewareWarning: true },
       }),
       nitro({
         preset: "node-server",

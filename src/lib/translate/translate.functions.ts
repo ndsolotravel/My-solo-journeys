@@ -3,7 +3,7 @@ import { z } from "zod";
 import { requestTranslations } from "./gtx";
 
 export const translateTexts = createServerFn({ method: "POST" })
-  .inputValidator((input) =>
+  .validator((input) =>
     z
       .object({
         lang: z.string().min(2).max(8),

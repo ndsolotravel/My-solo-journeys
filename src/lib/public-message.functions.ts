@@ -233,7 +233,7 @@ export const adminGetPublicMessage = createServerFn({ method: "GET" })
  */
 export const adminUpdatePublicMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => {
+  .validator((input: unknown) => {
     const raw =
       input && typeof input === "object" && "data" in input
         ? (input as { data: unknown }).data

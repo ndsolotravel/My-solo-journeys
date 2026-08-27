@@ -79,7 +79,7 @@ export const listDestinations = createServerFn({ method: "GET" }).handler(async 
 });
 
 export const getDestinationBySlug = createServerFn({ method: "GET" })
-  .inputValidator((input) => z.object({ slug: z.string() }).parse(input))
+  .validator((input) => z.object({ slug: z.string() }).parse(input))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: row, error } = await supabaseAdmin

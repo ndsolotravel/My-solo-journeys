@@ -6,7 +6,7 @@ export type SearchResult =
   | { kind: "destination"; id: string; title: string; slug: string; country: string; region: string | null };
 
 export const searchSite = createServerFn({ method: "GET" })
-  .inputValidator((input) =>
+  .validator((input) =>
     z.object({ q: z.string().min(1).max(120), limit: z.number().min(1).max(20).default(8) }).parse(input),
   )
   .handler(async ({ data }) => {
