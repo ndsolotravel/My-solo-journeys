@@ -37,6 +37,7 @@ import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminPublicMessageRouteImport } from './routes/_authenticated/admin.public-message'
 import { Route as AuthenticatedAdminNewsRouteImport } from './routes/_authenticated/admin.news'
 import { Route as AuthenticatedAdminMessagesRouteImport } from './routes/_authenticated/admin.messages'
+import { Route as AuthenticatedAdminLegalRouteImport } from './routes/_authenticated/admin.legal'
 import { Route as AuthenticatedAdminHomepageRouteImport } from './routes/_authenticated/admin.homepage'
 import { Route as AuthenticatedAdminGalleryRouteImport } from './routes/_authenticated/admin.gallery'
 import { Route as AuthenticatedAdminDestinationsRouteImport } from './routes/_authenticated/admin.destinations'
@@ -190,6 +191,11 @@ const AuthenticatedAdminMessagesRoute =
     path: '/messages',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminLegalRoute = AuthenticatedAdminLegalRouteImport.update({
+  id: '/legal',
+  path: '/legal',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
 const AuthenticatedAdminHomepageRoute =
   AuthenticatedAdminHomepageRouteImport.update({
     id: '/homepage',
@@ -273,6 +279,7 @@ export interface FileRoutesByFullPath {
   '/admin/destinations': typeof AuthenticatedAdminDestinationsRoute
   '/admin/gallery': typeof AuthenticatedAdminGalleryRoute
   '/admin/homepage': typeof AuthenticatedAdminHomepageRoute
+  '/admin/legal': typeof AuthenticatedAdminLegalRoute
   '/admin/messages': typeof AuthenticatedAdminMessagesRoute
   '/admin/news': typeof AuthenticatedAdminNewsRoute
   '/admin/public-message': typeof AuthenticatedAdminPublicMessageRoute
@@ -308,6 +315,7 @@ export interface FileRoutesByTo {
   '/admin/destinations': typeof AuthenticatedAdminDestinationsRoute
   '/admin/gallery': typeof AuthenticatedAdminGalleryRoute
   '/admin/homepage': typeof AuthenticatedAdminHomepageRoute
+  '/admin/legal': typeof AuthenticatedAdminLegalRoute
   '/admin/messages': typeof AuthenticatedAdminMessagesRoute
   '/admin/news': typeof AuthenticatedAdminNewsRoute
   '/admin/public-message': typeof AuthenticatedAdminPublicMessageRoute
@@ -348,6 +356,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/destinations': typeof AuthenticatedAdminDestinationsRoute
   '/_authenticated/admin/gallery': typeof AuthenticatedAdminGalleryRoute
   '/_authenticated/admin/homepage': typeof AuthenticatedAdminHomepageRoute
+  '/_authenticated/admin/legal': typeof AuthenticatedAdminLegalRoute
   '/_authenticated/admin/messages': typeof AuthenticatedAdminMessagesRoute
   '/_authenticated/admin/news': typeof AuthenticatedAdminNewsRoute
   '/_authenticated/admin/public-message': typeof AuthenticatedAdminPublicMessageRoute
@@ -388,6 +397,7 @@ export interface FileRouteTypes {
     | '/admin/destinations'
     | '/admin/gallery'
     | '/admin/homepage'
+    | '/admin/legal'
     | '/admin/messages'
     | '/admin/news'
     | '/admin/public-message'
@@ -423,6 +433,7 @@ export interface FileRouteTypes {
     | '/admin/destinations'
     | '/admin/gallery'
     | '/admin/homepage'
+    | '/admin/legal'
     | '/admin/messages'
     | '/admin/news'
     | '/admin/public-message'
@@ -462,6 +473,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/destinations'
     | '/_authenticated/admin/gallery'
     | '/_authenticated/admin/homepage'
+    | '/_authenticated/admin/legal'
     | '/_authenticated/admin/messages'
     | '/_authenticated/admin/news'
     | '/_authenticated/admin/public-message'
@@ -690,6 +702,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminMessagesRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/legal': {
+      id: '/_authenticated/admin/legal'
+      path: '/legal'
+      fullPath: '/admin/legal'
+      preLoaderRoute: typeof AuthenticatedAdminLegalRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/homepage': {
       id: '/_authenticated/admin/homepage'
       path: '/homepage'
@@ -763,6 +782,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminDestinationsRoute: typeof AuthenticatedAdminDestinationsRoute
   AuthenticatedAdminGalleryRoute: typeof AuthenticatedAdminGalleryRoute
   AuthenticatedAdminHomepageRoute: typeof AuthenticatedAdminHomepageRoute
+  AuthenticatedAdminLegalRoute: typeof AuthenticatedAdminLegalRoute
   AuthenticatedAdminMessagesRoute: typeof AuthenticatedAdminMessagesRoute
   AuthenticatedAdminNewsRoute: typeof AuthenticatedAdminNewsRoute
   AuthenticatedAdminPublicMessageRoute: typeof AuthenticatedAdminPublicMessageRoute
@@ -781,6 +801,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminDestinationsRoute: AuthenticatedAdminDestinationsRoute,
   AuthenticatedAdminGalleryRoute: AuthenticatedAdminGalleryRoute,
   AuthenticatedAdminHomepageRoute: AuthenticatedAdminHomepageRoute,
+  AuthenticatedAdminLegalRoute: AuthenticatedAdminLegalRoute,
   AuthenticatedAdminMessagesRoute: AuthenticatedAdminMessagesRoute,
   AuthenticatedAdminNewsRoute: AuthenticatedAdminNewsRoute,
   AuthenticatedAdminPublicMessageRoute: AuthenticatedAdminPublicMessageRoute,

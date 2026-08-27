@@ -14,6 +14,7 @@ import {
   Settings,
   Home,
   Megaphone,
+  Scale,
 } from "lucide-react";
 import { getMyRoles } from "@/lib/admin.functions";
 import { supabase } from "@/integrations/supabase/client";
@@ -55,6 +56,7 @@ const NAV: { to: string; label: string; icon: typeof LayoutDashboard; exact?: bo
   { to: "/admin/gallery", label: "Gallery", icon: ImageIcon },
   { to: "/admin/destinations", label: "Destinations", icon: MapPin },
   { to: "/admin/homepage", label: "Homepage", icon: Home },
+  { to: "/admin/legal", label: "Legal Pages", icon: Scale },
   { to: "/admin/comments", label: "Comments", icon: MessageSquare },
   { to: "/admin/subscribers", label: "Subscribers", icon: Users },
   { to: "/admin/messages", label: "Messages", icon: Mail },

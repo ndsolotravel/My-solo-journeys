@@ -81,7 +81,7 @@ function getResponse() {
 }
 var HEADERS = { TSS_SHELL: "X-TSS_SHELL" };
 async function getStartManifest(matchedRoutes) {
-  const { tsrStartManifest } = await import("../_tanstack-start-manifest_v-BbpNejlx.mjs");
+  const { tsrStartManifest } = await import("../_tanstack-start-manifest_v-sZgFNO8z.mjs");
   const startManifest = tsrStartManifest();
   let routes = startManifest.routes;
   routes[rootRouteId];
@@ -108,6 +108,10 @@ const manifest = {
   "0ac3c0c7e3bd6449b88bf9e9bf78bba822626bc00b1d55fcd99d9ac232885844": {
     functionName: "adminGetPublicMessage_createServerFn_handler",
     importer: () => import("./public-message.functions-B5Mf3_oO.mjs")
+  },
+  "0cba286ad598fb5f9554cd4673826fb7d9646b907528efe28484beb04f47758c": {
+    functionName: "adminGetLegalPage_createServerFn_handler",
+    importer: () => import("./legal.functions-Dgb-XCA4.mjs")
   },
   "1032c4f50ff9d1b08d12ac5e025fafed9684ba93d59634e544902732947b5f98": {
     functionName: "adminDeleteCategory_createServerFn_handler",
@@ -201,6 +205,10 @@ const manifest = {
     functionName: "postComment_createServerFn_handler",
     importer: () => import("./comments.functions-CbgGEeyL.mjs")
   },
+  "56452cb7e711caee85d85482cc59588f72ad00e02c519971992aaf7576ba8ef3": {
+    functionName: "adminListLegalPages_createServerFn_handler",
+    importer: () => import("./legal.functions-Dgb-XCA4.mjs")
+  },
   "584ce841751771fbef6119f99552b491ccebe94a948e7f3bed85100b354de852": {
     functionName: "adminListNews_createServerFn_handler",
     importer: () => import("./news.functions-D_EqaRde.mjs")
@@ -245,6 +253,10 @@ const manifest = {
     functionName: "adminDeleteSubscriber_createServerFn_handler",
     importer: () => import("./newsletter.functions-BW2ROWSC.mjs")
   },
+  "778ec9633cb0adcb3eb8cb30c2a7968a85e3490a27fccb0807eaacfbd6dd15b2": {
+    functionName: "getLegalPageBySlug_createServerFn_handler",
+    importer: () => import("./legal.functions-Dgb-XCA4.mjs")
+  },
   "7d4026e9578e6fdf78470f8c8447b5536226df925c9d7afda40f0c5417bd2f77": {
     functionName: "adminUpsertDestination_createServerFn_handler",
     importer: () => import("./admin.functions-D-QzXQcP.mjs")
@@ -264,6 +276,10 @@ const manifest = {
   "9161b4436f201e809bf5082c23fa618ba73a6a57ac9f0eb8d0f3c04852e32d0d": {
     functionName: "listActiveTopics_createServerFn_handler",
     importer: () => import("./topics.functions-DmzE_0cw.mjs")
+  },
+  "937009e7484166943d38c7957e6d738ecb9686e3d926481b72569119f35d5c81": {
+    functionName: "adminUpsertLegalPage_createServerFn_handler",
+    importer: () => import("./legal.functions-Dgb-XCA4.mjs")
   },
   "93b11c49e51b9e7b809eeaf78d25b25dc2804f4931c5d974ae247b05eeacb608": {
     functionName: "adminListStaffUsers_createServerFn_handler",
@@ -1611,7 +1627,7 @@ var getBaseManifest = getProdBaseManifest;
 var createEarlyHintsForRequest = createEarlyHintsCollector;
 async function loadEntries() {
   const [routerEntry, startEntry, pluginAdapters] = await Promise.all([
-    import("./router-O-u3479-.mjs").then((n) => n.a0),
+    import("./router-C1RUja_2.mjs").then((n) => n.a5),
     import("./start-CXz9-GTr.mjs"),
     import("./empty-plugin-adapters-BFgPZ6_d.mjs")
   ]);
