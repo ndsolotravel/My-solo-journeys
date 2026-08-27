@@ -10,8 +10,10 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
 import { Route as MapRouteImport } from './routes/map'
 import { Route as GalleryRouteImport } from './routes/gallery'
+import { Route as DisclaimerRouteImport } from './routes/disclaimer'
 import { Route as DestinationsRouteImport } from './routes/destinations'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -50,6 +52,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyPolicyRoute = PrivacyPolicyRouteImport.update({
+  id: '/privacy-policy',
+  path: '/privacy-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MapRoute = MapRouteImport.update({
   id: '/map',
   path: '/map',
@@ -58,6 +65,11 @@ const MapRoute = MapRouteImport.update({
 const GalleryRoute = GalleryRouteImport.update({
   id: '/gallery',
   path: '/gallery',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DisclaimerRoute = DisclaimerRouteImport.update({
+  id: '/disclaimer',
+  path: '/disclaimer',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DestinationsRoute = DestinationsRouteImport.update({
@@ -241,8 +253,10 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/destinations': typeof DestinationsRouteWithChildren
+  '/disclaimer': typeof DisclaimerRoute
   '/gallery': typeof GalleryRoute
   '/map': typeof MapRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/account': typeof AuthenticatedAccountRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
@@ -275,8 +289,10 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
+  '/disclaimer': typeof DisclaimerRoute
   '/gallery': typeof GalleryRoute
   '/map': typeof MapRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/account': typeof AuthenticatedAccountRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -312,8 +328,10 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
   '/destinations': typeof DestinationsRouteWithChildren
+  '/disclaimer': typeof DisclaimerRoute
   '/gallery': typeof GalleryRoute
   '/map': typeof MapRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/account': typeof AuthenticatedAccountRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
@@ -350,8 +368,10 @@ export interface FileRouteTypes {
     | '/contact'
     | '/dashboard'
     | '/destinations'
+    | '/disclaimer'
     | '/gallery'
     | '/map'
+    | '/privacy-policy'
     | '/sitemap.xml'
     | '/account'
     | '/admin'
@@ -384,8 +404,10 @@ export interface FileRouteTypes {
     | '/auth'
     | '/contact'
     | '/dashboard'
+    | '/disclaimer'
     | '/gallery'
     | '/map'
+    | '/privacy-policy'
     | '/sitemap.xml'
     | '/account'
     | '/blog/$slug'
@@ -420,8 +442,10 @@ export interface FileRouteTypes {
     | '/contact'
     | '/dashboard'
     | '/destinations'
+    | '/disclaimer'
     | '/gallery'
     | '/map'
+    | '/privacy-policy'
     | '/sitemap.xml'
     | '/_authenticated/account'
     | '/_authenticated/admin'
@@ -458,8 +482,10 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   DashboardRoute: typeof DashboardRoute
   DestinationsRoute: typeof DestinationsRouteWithChildren
+  DisclaimerRoute: typeof DisclaimerRoute
   GalleryRoute: typeof GalleryRoute
   MapRoute: typeof MapRoute
+  PrivacyPolicyRoute: typeof PrivacyPolicyRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   CategorySlugRoute: typeof CategorySlugRoute
   NewsSlugRoute: typeof NewsSlugRoute
@@ -475,6 +501,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy-policy': {
+      id: '/privacy-policy'
+      path: '/privacy-policy'
+      fullPath: '/privacy-policy'
+      preLoaderRoute: typeof PrivacyPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/map': {
       id: '/map'
       path: '/map'
@@ -487,6 +520,13 @@ declare module '@tanstack/react-router' {
       path: '/gallery'
       fullPath: '/gallery'
       preLoaderRoute: typeof GalleryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/disclaimer': {
+      id: '/disclaimer'
+      path: '/disclaimer'
+      fullPath: '/disclaimer'
+      preLoaderRoute: typeof DisclaimerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/destinations': {
@@ -803,8 +843,10 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   DashboardRoute: DashboardRoute,
   DestinationsRoute: DestinationsRouteWithChildren,
+  DisclaimerRoute: DisclaimerRoute,
   GalleryRoute: GalleryRoute,
   MapRoute: MapRoute,
+  PrivacyPolicyRoute: PrivacyPolicyRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   CategorySlugRoute: CategorySlugRoute,
   NewsSlugRoute: NewsSlugRoute,

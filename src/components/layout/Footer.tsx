@@ -156,7 +156,18 @@ export function Footer() {
         </div>
         <div className="mt-12 flex flex-col gap-3 border-t border-white/10 pt-6 text-xs text-secondary-foreground/60 sm:flex-row sm:items-center sm:justify-between">
           <p>© {year} {SITE.name}. {t("All stories made on the move.")}</p>
-          <p>{t("Built for solo travellers, by a solo traveller.")}</p>
+          <div className="flex flex-wrap items-center gap-3">
+            <Link to="/privacy-policy" className="hover:text-accent transition-colors">
+              {t("Privacy Policy")}
+            </Link>
+            <span aria-hidden="true">·</span>
+            <Link to="/disclaimer" className="hover:text-accent transition-colors">
+              {t("Disclaimer")}
+            </Link>
+            <span className="hidden sm:inline" aria-hidden="true">·</span>
+            <p className="hidden sm:inline">{t("Built for solo travellers, by a solo traveller.")}</p>
+          </div>
+          <p className="sm:hidden">{t("Built for solo travellers, by a solo traveller.")}</p>
         </div>
       </div>
     </footer>
