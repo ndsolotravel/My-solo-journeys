@@ -63,7 +63,7 @@ function AdminHomepagePage() {
   const [isDirty, setIsDirty] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const heroImageInputRef = useRef<HTMLInputElement>(null);
+  const heroImageFieldRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   useEffect(() => {
     if (data) {
@@ -137,7 +137,7 @@ function AdminHomepagePage() {
     saveMutation.mutate();
   };
 
-  const handleHeroImageUpload = async (file: File) => {
+  const handleHeroImageUpload = async (file: File, fieldKey: string) => {
     try {
       setUploadingImage(true);
       const reader = new FileReader();
@@ -156,14 +156,16 @@ function AdminHomepagePage() {
       });
 
       if (res?.url) {
-        set("homepage_hero_image", res.url);
+        set(fieldKey, res.url);
         toast.success("Hero image uploaded successfully!");
       }
     } catch (err: any) {
       toast.error(`Upload failed: ${err.message}`);
     } finally {
       setUploadingImage(false);
-      if (heroImageInputRef.current) heroImageInputRef.current.value = "";
+      if (heroImageFieldRefs.current[fieldKey]) {
+        heroImageFieldRefs.current[fieldKey]!.value = "";
+      }
     }
   };
 
@@ -174,7 +176,14 @@ function AdminHomepagePage() {
     ? resolveMediaUrl(draft.homepage_hero_image)
     : "";
   const heroMode = draft.homepage_hero_mode === "manual" ? "manual" : "auto";
+  const heroImagesMode = draft.homepage_hero_images_mode === "manual" ? "manual" : "auto";
   const featuredMode = draft.homepage_featured_mode === "manual" ? "manual" : "auto";
+
+  const HERO_IMAGE_FIELDS = [
+    { key: "homepage_hero_image", label: "Hero Image 1 URL", slot: 1 },
+    { key: "homepage_hero_image_2", label: "Hero Image 2 URL", slot: 2 },
+    { key: "homepage_hero_image_3", label: "Hero Image 3 URL", slot: 3 },
+  ] as const;
 
   if (isLoading) {
     return (
@@ -321,67 +330,128 @@ function AdminHomepagePage() {
               )}
             </div>
 
-            {/* Hero background image */}
-            <div className="space-y-2">
+            {/* Hero images (slideshow) */}
+            <div className="space-y-3">
               <label className="block text-sm font-semibold text-foreground">
-                Hero Background Image
+                Hero Slideshow Images
               </label>
-              {heroImage ? (
-                <div className="relative overflow-hidden rounded-xl border border-border">
-                  <img
-                    src={heroImage}
-                    alt="Hero background preview"
-                    className="h-44 w-full object-cover"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => set("homepage_hero_image", "")}
-                    className="absolute right-2 top-2 rounded-full bg-black/70 p-1.5 text-white hover:bg-black/90 transition cursor-pointer"
-                    title="Remove image"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              ) : (
-                <div className="flex h-32 items-center justify-center rounded-xl border border-dashed border-border bg-muted/30 text-sm text-muted-foreground">
-                  No custom image — the default Unsplash slideshow is used.
-                </div>
-              )}
-              <div className="flex flex-wrap items-center gap-2">
-                <input
-                  ref={heroImageInputRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) handleHeroImageUpload(file);
-                  }}
-                />
+              <div className="grid gap-2 sm:grid-cols-2">
                 <button
                   type="button"
-                  disabled={uploadingImage}
-                  onClick={() => heroImageInputRef.current?.click()}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted transition cursor-pointer"
+                  onClick={() => set("homepage_hero_images_mode", "auto")}
+                  className={`flex items-center gap-2 rounded-xl border px-4 py-3 text-left text-sm transition cursor-pointer ${
+                    heroImagesMode === "auto"
+                      ? "border-accent bg-accent/10 text-accent"
+                      : "border-border bg-background hover:bg-muted"
+                  }`}
                 >
-                  {uploadingImage ? (
-                    <>
-                      <Loader2 className="h-3 w-3 animate-spin" /> Uploading…
-                    </>
-                  ) : (
-                    <>
-                      <Upload className="h-3 w-3" /> Upload Image
-                    </>
-                  )}
+                  <Sparkles className="h-4 w-4" />
+                  <span>
+                    <span className="block font-semibold">Auto</span>
+                    <span className="block text-xs text-muted-foreground">
+                      Covers of the 3 latest published posts
+                    </span>
+                  </span>
                 </button>
-                <input
-                  type="text"
-                  value={draft.homepage_hero_image ?? ""}
-                  onChange={(e) => set("homepage_hero_image", e.target.value)}
-                  placeholder="…or paste an image URL directly"
-                  className="flex-1 min-w-40 rounded-xl border border-border bg-background py-2 px-3 text-xs outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
-                />
+                <button
+                  type="button"
+                  onClick={() => set("homepage_hero_images_mode", "manual")}
+                  className={`flex items-center gap-2 rounded-xl border px-4 py-3 text-left text-sm transition cursor-pointer ${
+                    heroImagesMode === "manual"
+                      ? "border-accent bg-accent/10 text-accent"
+                      : "border-border bg-background hover:bg-muted"
+                  }`}
+                >
+                  <ImagePlus className="h-4 w-4" />
+                  <span>
+                    <span className="block font-semibold">Manual</span>
+                    <span className="block text-xs text-muted-foreground">
+                      Set 3 image URLs yourself
+                    </span>
+                  </span>
+                </button>
               </div>
+
+              {heroImagesMode === "manual" && (
+                <div className="space-y-4 pt-1">
+                  {HERO_IMAGE_FIELDS.map((field) => {
+                    const value = draft[field.key] ?? "";
+                    const preview = value.trim() ? resolveMediaUrl(value) : "";
+                    return (
+                      <div
+                        key={field.key}
+                        className="space-y-2 rounded-xl border border-border p-3"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <label className="block text-xs font-semibold text-foreground">
+                            {field.label}
+                          </label>
+                          {preview && (
+                            <button
+                              type="button"
+                              onClick={() => set(field.key, "")}
+                              className="inline-flex items-center gap-1 text-xs text-red-500 hover:text-red-600 transition cursor-pointer"
+                            >
+                              <X className="h-3 w-3" /> Remove
+                            </button>
+                          )}
+                        </div>
+                        {preview ? (
+                          <img
+                            src={preview}
+                            alt={`Hero image ${field.slot} preview`}
+                            className="h-32 w-full rounded-lg border border-border object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-24 items-center justify-center rounded-lg border border-dashed border-border bg-muted/30 text-xs text-muted-foreground">
+                            No image — default slide shown
+                          </div>
+                        )}
+                        <div className="flex flex-wrap items-center gap-2">
+                          <input
+                            ref={(el) => {
+                              heroImageFieldRefs.current[field.key] = el;
+                            }}
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) handleHeroImageUpload(file, field.key);
+                            }}
+                          />
+                          <button
+                            type="button"
+                            disabled={uploadingImage}
+                            onClick={() => heroImageFieldRefs.current[field.key]?.click()}
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-muted/40 px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted transition cursor-pointer"
+                          >
+                            {uploadingImage ? (
+                              <>
+                                <Loader2 className="h-3 w-3 animate-spin" /> Uploading…
+                              </>
+                            ) : (
+                              <>
+                                <Upload className="h-3 w-3" /> Upload Image
+                              </>
+                            )}
+                          </button>
+                          <input
+                            type="text"
+                            value={value}
+                            onChange={(e) => set(field.key, e.target.value)}
+                            placeholder="…or paste an image URL directly"
+                            className="flex-1 min-w-40 rounded-xl border border-border bg-background py-2 px-3 text-xs outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                  <p className="text-xs text-muted-foreground">
+                    Any empty field falls back to the default Unsplash slideshow automatically.
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Hero text */}
@@ -803,8 +873,11 @@ function AdminHomepagePage() {
             )}
             <p className="text-xs text-muted-foreground">
               {heroMode === "auto"
-                ? "Hero will show the latest published post automatically."
-                : "Hero will use the post you selected manually."}
+                ? "Hero story uses the latest published post automatically."
+                : "Hero story uses the post you selected manually."}{" "}
+              {heroImagesMode === "auto"
+                ? "Slideshow images come from the 3 latest posts."
+                : "Slideshow images use your 3 manual URLs."}
             </p>
           </div>
 

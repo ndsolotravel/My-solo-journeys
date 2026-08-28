@@ -44,6 +44,21 @@ const DestinationsMap = lazy(() =>
   })),
 );
 
+const DEFAULT_HERO_SLIDES = [
+  {
+    src: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=2000&q=80",
+    alt: "Nanga Parbat at sunrise",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?w=2000&q=80",
+    alt: "Mountain road at dusk",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=2000&q=80",
+    alt: "Trekker on alpine ridge",
+  },
+];
+
 const postsQO = queryOptions({
   queryKey: ["home", "posts"],
   queryFn: () => listPosts({ data: { limit: 12 } }),
@@ -161,6 +176,30 @@ function HomePage() {
 
   // Floating preview cards in hero (2nd and 3rd latest stories)
   const heroFloatingPosts = allPosts.slice(1, 3);
+
+  // Hero slideshow images: Auto => 3 latest published posts' covers, Manual => 3 URL fields.
+  // Empty/missing entries fall back to the default Unsplash slideshow.
+  const heroImagesMode = heroSettings.homepage_hero_images_mode === "manual" ? "manual" : "auto";
+  const heroImagePosts = homepageConfig?.heroImagePosts ?? [];
+  const manualHeroImageUrls = [
+    heroSettings.homepage_hero_image,
+    heroSettings.homepage_hero_image_2,
+    heroSettings.homepage_hero_image_3,
+  ];
+  const heroSlides = Array.from({ length: 3 }, (_, i) => {
+    let src: string | null = null;
+    let alt = DEFAULT_HERO_SLIDES[i].alt;
+    if (heroImagesMode === "manual") {
+      src = manualHeroImageUrls[i]?.trim() || null;
+      alt = `Hero background ${i + 1}`;
+    } else {
+      const p = heroImagePosts[i];
+      src = p?.cover_image ?? null;
+      alt = p?.title || DEFAULT_HERO_SLIDES[i].alt;
+    }
+    if (src) return { src: resolveMediaUrl(src), alt };
+    return DEFAULT_HERO_SLIDES[i];
+  });
 
   // Trending / Latest Stories section data:
   // Left: primary story (allPosts[0] or next in line)
@@ -314,43 +353,7 @@ function HomePage() {
       {/* 1. HERO BANNER (Cinematic + 2 Floating Story Preview Cards)               */}
       {/* ========================================================================= */}
       <section className="relative min-h-[max(100svh,600px)] overflow-hidden flex flex-col justify-between w-full">
-        <HeroSlider
-          slides={
-            heroSettings.homepage_hero_image
-              ? [{ src: resolveMediaUrl(heroSettings.homepage_hero_image), alt: "Custom hero background" }]
-              : heroMode === "manual" && heroSource?.cover_image
-                ? [{ src: heroSource.cover_image, alt: heroSource.title }]
-                : heroPost?.cover_image
-                  ? [
-                      {
-                        src: resolveMediaUrl(heroPost.cover_image),
-                        alt: heroPost.title,
-                      },
-                      {
-                        src: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=2000&q=80",
-                        alt: "Nanga Parbat at sunrise",
-                      },
-                      {
-                        src: "https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?w=2000&q=80",
-                        alt: "Mountain road at dusk",
-                      },
-                    ]
-                  : [
-                      {
-                        src: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=2000&q=80",
-                        alt: "Nanga Parbat at sunrise",
-                      },
-                      {
-                        src: "https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?w=2000&q=80",
-                        alt: "Mountain road at dusk",
-                      },
-                      {
-                        src: "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=2000&q=80",
-                        alt: "Trekker on alpine ridge",
-                      },
-                    ]
-          }
-        />
+        <HeroSlider slides={heroSlides} />
 
         {/* Breaking News Ticker: Top of Hero picture right under navigation */}
         <div className="pointer-events-auto relative z-20 w-full pt-20 sm:pt-22 lg:pt-24">

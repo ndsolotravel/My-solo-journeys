@@ -12,7 +12,10 @@ const HOMEPAGE_KEYS = [
   // Hero Banner
   "homepage_hero_mode",
   "homepage_hero_post_id",
+  "homepage_hero_images_mode",
   "homepage_hero_image",
+  "homepage_hero_image_2",
+  "homepage_hero_image_3",
   "homepage_hero_badge",
   "homepage_hero_title",
   "homepage_hero_title_highlight",
@@ -38,7 +41,10 @@ const HOMEPAGE_KEYS = [
 const HOMEPAGE_DEFAULTS: Record<string, string> = {
   homepage_hero_mode: "auto",
   homepage_hero_post_id: "",
+  homepage_hero_images_mode: "auto",
   homepage_hero_image: "",
+  homepage_hero_image_2: "",
+  homepage_hero_image_3: "",
   homepage_hero_badge: "Solo · Slow · Cinematic",
   homepage_hero_title: "Stories from the high places",
   homepage_hero_title_highlight: "Most people only fly over.",
@@ -73,6 +79,7 @@ export type HomepagePost = {
 export type HomepageConfig = {
   settings: Record<string, string>;
   heroPost: HomepagePost | null;
+  heroImagePosts: HomepagePost[];
   featuredPost: HomepagePost | null;
 };
 
@@ -140,6 +147,19 @@ async function resolveLatestPost(client: any): Promise<HomepagePost | null> {
   };
 }
 
+async function resolveLatestPosts(client: any, limit = 3): Promise<HomepagePost[]> {
+  const { data, error } = await (client.from("posts") as any)
+    .select(POST_COLS)
+    .eq("published", true)
+    .order("published_at", { ascending: false })
+    .limit(limit);
+  if (error || !Array.isArray(data)) return [];
+  return (data as { cover_image: string | null }[]).map((row: any) => ({
+    ...row,
+    cover_image: row.cover_image ? resolveMediaUrl(row.cover_image, client) : null,
+  }));
+}
+
 async function resolveLatestFeatured(client: any): Promise<HomepagePost | null> {
   const { data, error } = await (client.from("posts") as any)
     .select(POST_COLS)
@@ -172,6 +192,13 @@ export const getHomepageConfig = createServerFn({ method: "GET" }).handler(async
     heroPost = await resolveLatestPost(supabaseAdmin);
   }
 
+  // Resolve hero slideshow images based on hero images mode
+  // Auto => the 3 latest published posts' covers; Manual => 3 URL fields (no posts needed)
+  const heroImagesMode = settings.homepage_hero_images_mode === "manual" ? "manual" : "auto";
+  let heroImagePosts: HomepagePost[] = [];
+  if (heroImagesMode === "auto") {
+    heroImagePosts = await resolveLatestPosts(supabaseAdmin, 3);
+  }
   // Resolve featured post based on mode
   const featuredMode = settings.homepage_featured_mode === "manual" ? "manual" : "auto";
   let featuredPost: HomepagePost | null = null;
@@ -184,7 +211,7 @@ export const getHomepageConfig = createServerFn({ method: "GET" }).handler(async
     if (!featuredPost) featuredPost = await resolveLatestPost(supabaseAdmin);
   }
 
-  return { settings, heroPost, featuredPost } satisfies HomepageConfig;
+  return { settings, heroPost, heroImagePosts, featuredPost } satisfies HomepageConfig;
 });
 
 // ------------------------- Admin functions -------------------------

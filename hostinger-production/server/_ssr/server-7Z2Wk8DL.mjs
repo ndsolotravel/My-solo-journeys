@@ -81,7 +81,7 @@ function getResponse() {
 }
 var HEADERS = { TSS_SHELL: "X-TSS_SHELL" };
 async function getStartManifest(matchedRoutes) {
-  const { tsrStartManifest } = await import("../_tanstack-start-manifest_v-DOLlnAEo.mjs");
+  const { tsrStartManifest } = await import("../_tanstack-start-manifest_v-DMvJSkPc.mjs");
   const startManifest = tsrStartManifest();
   let routes = startManifest.routes;
   routes[rootRouteId];
@@ -135,7 +135,7 @@ const manifest = {
   },
   "1e527b6631307654bc7f81cb758bd7a871fe81f3441e69d22bb529f27b5e4965": {
     functionName: "listDestinations_createServerFn_handler",
-    importer: () => import("./destinations.functions-BrOBqM7v.mjs")
+    importer: () => import("./destinations.functions-CKxlRKdf.mjs")
   },
   "22dbf5a0bd1aa4105a7bf3eff794bd8738e2b5fef5f61aec5d79f152ea65a351": {
     functionName: "adminDeleteDestination_createServerFn_handler",
@@ -147,7 +147,7 @@ const manifest = {
   },
   "2c83b3f1c75595fb9433f21f8203d59a19d372de43711193f4d2661393212e46": {
     functionName: "adminGetHomepageEditor_createServerFn_handler",
-    importer: () => import("./homepage.functions-D3OTlNgf.mjs")
+    importer: () => import("./homepage.functions-Cx3KZQfu.mjs")
   },
   "35a26a0d373d3402f12b62248b04295a44839f563a7aadf486bfec03bb13a626": {
     functionName: "adminDeleteGalleryImage_createServerFn_handler",
@@ -171,7 +171,7 @@ const manifest = {
   },
   "3e97ad3a62fc506fb723a5239d751961bd75cff65bde1dcc51d7ac0d10a99c0c": {
     functionName: "adminSaveHomepageSettings_createServerFn_handler",
-    importer: () => import("./homepage.functions-D3OTlNgf.mjs")
+    importer: () => import("./homepage.functions-Cx3KZQfu.mjs")
   },
   "4184e107b02cc5d3386f814d73d2a7f40796b5b94d0a73f13fa8faa643f6df33": {
     functionName: "adminUpsertCategory_createServerFn_handler",
@@ -179,7 +179,7 @@ const manifest = {
   },
   "42d8c5a0f2ac4a51b2ee36862863046dc42ef21708bdbe47e53e1eb60378f141": {
     functionName: "getDestinationBySlug_createServerFn_handler",
-    importer: () => import("./destinations.functions-BrOBqM7v.mjs")
+    importer: () => import("./destinations.functions-CKxlRKdf.mjs")
   },
   "453b18f745aa96dd18df7e1f0f8568922912665dd1f16e9349f48327f9a275eb": {
     functionName: "adminGetSettings_createServerFn_handler",
@@ -299,7 +299,7 @@ const manifest = {
   },
   "9af9309080664fa919d9f0ccc1d1b1233ba78f5ec575fcd3aaab715c0a8a455b": {
     functionName: "listGallery_createServerFn_handler",
-    importer: () => import("./gallery.functions-DDuiVFLn.mjs")
+    importer: () => import("./gallery.functions-DCzhFhdm.mjs")
   },
   "9c8084edff95c284c741e3785ab938a71693bfe26e2c07e4c0272b47d311afc2": {
     functionName: "getPostBySlug_createServerFn_handler",
@@ -391,7 +391,7 @@ const manifest = {
   },
   "ed839ac608e04e2b639d981cb6f852fa1aeb890692636d81932865c4d88aa08c": {
     functionName: "getHomepageConfig_createServerFn_handler",
-    importer: () => import("./homepage.functions-D3OTlNgf.mjs")
+    importer: () => import("./homepage.functions-Cx3KZQfu.mjs")
   },
   "ffadc0811b3c311e38a0c7f23a5dfb1b1778216f1639c80b541652ff3643bed2": {
     functionName: "adminCreateAdminUser_createServerFn_handler",
@@ -1636,7 +1636,7 @@ var getBaseManifest = getProdBaseManifest;
 var createEarlyHintsForRequest = createEarlyHintsCollector;
 async function loadEntries() {
   const [routerEntry, startEntry, pluginAdapters] = await Promise.all([
-    import("./router-CFyxGYDP.mjs").then((n) => n.a5),
+    import("./router-CwfUlP7t.mjs").then((n) => n.a5),
     import("./start-E4neGHSV.mjs"),
     import("./empty-plugin-adapters-BFgPZ6_d.mjs")
   ]);

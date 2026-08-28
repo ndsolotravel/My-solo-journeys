@@ -28,7 +28,11 @@ export function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="mt-24 border-t border-border bg-secondary text-secondary-foreground">
+    <footer className="relative mt-24 border-t border-border bg-secondary text-secondary-foreground">
+      <div
+        aria-hidden="true"
+        className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/70 to-transparent"
+      />
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid gap-12 md:grid-cols-3">
           <div>
@@ -48,7 +52,7 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full text-white transition-transform duration-200 hover:scale-110 shrink-0"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full text-white transition-transform duration-200 hover:scale-110 hover:ring-2 hover:ring-accent/60 hover:ring-offset-2 hover:ring-offset-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-secondary shrink-0"
                 style={{
                   background:
                     "radial-gradient(circle at 30% 110%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%)",
@@ -61,7 +65,7 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="TikTok"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-black text-white transition-transform duration-200 hover:scale-110 shrink-0"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-black text-white transition-transform duration-200 hover:scale-110 hover:ring-2 hover:ring-accent/60 hover:ring-offset-2 hover:ring-offset-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-secondary shrink-0"
               >
                 <TikTokIcon className="h-4 w-4" />
               </a>
@@ -70,7 +74,7 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="YouTube"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#FF0000] text-white transition-transform duration-200 hover:scale-110 shrink-0"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#FF0000] text-white transition-transform duration-200 hover:scale-110 hover:ring-2 hover:ring-accent/60 hover:ring-offset-2 hover:ring-offset-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-secondary shrink-0"
               >
                 <Youtube className="h-4 w-4" />
               </a>
@@ -79,7 +83,7 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="X"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-black text-white transition-transform duration-200 hover:scale-110 shrink-0"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-black text-white transition-transform duration-200 hover:scale-110 hover:ring-2 hover:ring-accent/60 hover:ring-offset-2 hover:ring-offset-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-secondary shrink-0"
               >
                 <Twitter className="h-4 w-4" />
               </a>
@@ -88,7 +92,7 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Facebook"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#1877F2] text-white transition-transform duration-200 hover:scale-110 shrink-0"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#1877F2] text-white transition-transform duration-200 hover:scale-110 hover:ring-2 hover:ring-accent/60 hover:ring-offset-2 hover:ring-offset-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-secondary shrink-0"
               >
                 <Facebook className="h-4 w-4" />
               </a>
@@ -97,7 +101,7 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="LinkedIn"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#0A66C2] text-white transition-transform duration-200 hover:scale-110 shrink-0"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#0A66C2] text-white transition-transform duration-200 hover:scale-110 hover:ring-2 hover:ring-accent/60 hover:ring-offset-2 hover:ring-offset-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-secondary shrink-0"
               >
                 <Linkedin className="h-4 w-4" />
               </a>
@@ -106,7 +110,7 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Pinterest"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#E60023] text-white transition-transform duration-200 hover:scale-110 shrink-0"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#E60023] text-white transition-transform duration-200 hover:scale-110 hover:ring-2 hover:ring-accent/60 hover:ring-offset-2 hover:ring-offset-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-secondary shrink-0"
               >
                 <PinterestIcon className="h-4 w-4" />
               </a>
@@ -119,27 +123,27 @@ export function Footer() {
             <h4 className="text-sm font-semibold uppercase tracking-wider">{t("Explore")}</h4>
             <ul className="mt-4 space-y-2 text-sm text-secondary-foreground/70">
               <li>
-                <Link to="/blog" className="hover:text-accent">
+                <Link to="/blog" className="transition-colors duration-200 hover:text-accent">
                   {t("Stories")}
                 </Link>
               </li>
               <li>
-                <Link to="/destinations" className="hover:text-accent">
+                <Link to="/destinations" className="transition-colors duration-200 hover:text-accent">
                   {t("Destinations")}
                 </Link>
               </li>
               <li>
-                <Link to="/gallery" className="hover:text-accent">
+                <Link to="/gallery" className="transition-colors duration-200 hover:text-accent">
                   {t("Gallery")}
                 </Link>
               </li>
               <li>
-                <Link to="/about" className="hover:text-accent">
+                <Link to="/about" className="transition-colors duration-200 hover:text-accent">
                   {t("About")}
                 </Link>
               </li>
               <li>
-                <Link to="/contact" className="hover:text-accent">
+                <Link to="/contact" className="transition-colors duration-200 hover:text-accent">
                   {t("Contact")}
                 </Link>
               </li>
