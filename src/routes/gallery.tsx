@@ -97,7 +97,7 @@ function GalleryPage() {
 
   return (
     <>
-      <section className="relative h-[45vh] min-h-[280px] w-full overflow-hidden">
+      <section className="banner-hover relative h-[45vh] min-h-[280px] w-full overflow-hidden">
         <img
           src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=2000&q=80"
           alt="Yosemite valley golden hour"

@@ -137,7 +137,7 @@ function BlogIndex() {
   return (
     <>
       {/* Hero Banner */}
-      <section className="relative h-[45vh] min-h-[320px] w-full overflow-hidden">
+      <section className="banner-hover relative h-[45vh] min-h-[320px] w-full overflow-hidden">
         <img
           src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=2000&q=80"
           alt="Expedition trail at sunrise"

@@ -105,7 +105,7 @@ function DestinationPage() {
   return (
     <article className="min-h-screen">
       {/* Cover Header */}
-      <div className="relative h-[65vh] min-h-[440px] w-full overflow-hidden">
+      <div className="banner-hover relative h-[65vh] min-h-[440px] w-full overflow-hidden">
         {d.featured_image && (
           <img
             src={resolveMediaUrl(d.featured_image)}

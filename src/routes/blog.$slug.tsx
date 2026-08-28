@@ -295,7 +295,7 @@ function PostPage() {
       <ReadingProgress />
 
       {/* Cover */}
-      <div className="relative h-[60vh] min-h-[420px] w-full overflow-hidden">
+      <div className="banner-hover relative h-[60vh] min-h-[420px] w-full overflow-hidden">
         {post.cover_image && (
           <img
             src={post.cover_image}

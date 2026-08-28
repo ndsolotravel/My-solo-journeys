@@ -219,3 +219,14 @@ html[dir="rtl"] .flex-row { flex-direction: row-reverse; }
   }
 }
 
+/* Internal-page banner mouse-hover highlight (subtle, cinematic) */
+.banner-hover img {
+  transition: filter 400ms ease;
+  will-change: filter;
+}
+@media (hover: hover) and (pointer: fine) {
+  .banner-hover:hover img {
+    filter: brightness(1.3) saturate(1.1);
+  }
+}
+

@@ -80,7 +80,7 @@ function TopicPage() {
   return (
     <article className="min-h-screen">
       {/* Hero */}
-      <div className="relative h-[55vh] min-h-[380px] w-full overflow-hidden">
+      <div className="banner-hover relative h-[55vh] min-h-[380px] w-full overflow-hidden">
         <img
           src={topic.heroImage}
           alt={topic.title}

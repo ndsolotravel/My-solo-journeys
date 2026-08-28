@@ -54,7 +54,7 @@ function DisclaimerPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Hero Header */}
-      <section className="relative h-[30vh] min-h-[220px] w-full overflow-hidden flex flex-col justify-center items-center">
+      <section className="banner-hover relative h-[30vh] min-h-[220px] w-full overflow-hidden flex flex-col justify-center items-center">
         <img
           src={heroImage}
           alt={title}

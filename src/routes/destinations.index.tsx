@@ -72,7 +72,7 @@ function DestinationsPage() {
 
   return (
     <>
-      <section className="relative h-[45vh] min-h-[280px] w-full overflow-hidden">
+      <section className="banner-hover relative h-[45vh] min-h-[280px] w-full overflow-hidden">
         <img
           src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=2000&q=80"
           alt="Mountain peaks at golden hour"

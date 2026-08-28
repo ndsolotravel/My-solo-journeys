@@ -105,7 +105,7 @@ function CategoryPage() {
   return (
     <article className="min-h-screen pb-20">
       {/* Cinematic Hero Banner */}
-      <div className="relative h-[48vh] min-h-[360px] w-full overflow-hidden bg-zinc-950">
+      <div className="banner-hover relative h-[48vh] min-h-[360px] w-full overflow-hidden bg-zinc-950">
         <img
           src={heroImage}
           alt={category.name}

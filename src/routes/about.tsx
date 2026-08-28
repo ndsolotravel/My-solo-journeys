@@ -347,7 +347,7 @@ function AboutPage() {
           1. CINEMATIC HERO SECTION
          ------------------------------------------------------------- */}
       {heroEnabled && (
-        <section className="relative min-h-[65vh] lg:min-h-[75vh] w-full flex items-end overflow-hidden bg-zinc-950">
+        <section className="banner-hover relative min-h-[65vh] lg:min-h-[75vh] w-full flex items-end overflow-hidden bg-zinc-950">
           {/* Background Image with Cinematic Overlay */}
           <div className="absolute inset-0 z-0 overflow-hidden">
             <img
@@ -651,7 +651,6 @@ function AboutPage() {
                   alt={motorcycleImageAlt}
                   className="h-full w-full object-cover object-center"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-zinc-950 via-zinc-950/40 to-transparent" />
                 {motorcycleBadge && (
                   <div className="absolute bottom-6 left-6 right-6">
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-xs font-semibold uppercase tracking-wider text-accent">
