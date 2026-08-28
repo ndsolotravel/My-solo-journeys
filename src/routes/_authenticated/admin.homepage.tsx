@@ -16,6 +16,9 @@ import {
   Rocket,
   BarChart3,
   BookMarked,
+  Maximize2,
+  ImageOff,
+  RefreshCw,
 } from "lucide-react";
 import { toast } from "sonner";
 import { adminGetHomepageEditor, adminSaveHomepageSettings } from "@/lib/homepage.functions";
@@ -39,12 +42,103 @@ type PostOption = {
   featured: boolean;
   published: boolean;
   published_at: string | null;
+  cover_image: string | null;
 };
 
 type EditorData = {
   settings: Record<string, string>;
   posts: PostOption[];
 };
+
+type HeroSlotPreview = {
+  slot: number;
+  label: string;
+  src: string;
+  source: "manual" | "auto-post";
+  caption: string;
+};
+
+function HeroImageTile({
+  slot,
+  label,
+  src,
+  caption,
+  onOpen,
+  aspectClass,
+}: {
+  slot: number;
+  label: string;
+  src: string;
+  caption: string;
+  onOpen: (s: { src: string; label: string }) => void;
+  aspectClass: string;
+}) {
+  const [status, setStatus] = useState<"loading" | "error" | "ok">("loading");
+  const [attempt, setAttempt] = useState(0);
+
+  useEffect(() => {
+    setStatus(src ? "loading" : "error");
+  }, [src, attempt]);
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div
+        className={`relative w-full overflow-hidden rounded-xl border border-border bg-zinc-950 ${aspectClass}`}
+      >
+        {src ? (
+          status === "error" ? (
+            <button
+              type="button"
+              onClick={() => setAttempt((a) => a + 1)}
+              className="group flex h-full w-full flex-col items-center justify-center gap-2 bg-muted text-muted-foreground transition hover:bg-muted/70"
+            >
+              <ImageOff className="h-6 w-6" />
+              <span className="text-xs font-medium">Image unavailable</span>
+              <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground/80">
+                <RefreshCw className="h-3 w-3" /> Retry
+              </span>
+            </button>
+          ) : status === "loading" ? (
+            <div className="flex h-full w-full items-center justify-center bg-muted">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            </div>
+          ) : (
+            <div className="relative h-full w-full">
+              <img
+                src={src}
+                alt={`${label} preview`}
+                className="h-full w-full object-cover"
+                onLoad={() => setStatus("ok")}
+                onError={() => setStatus("error")}
+              />
+              <button
+                type="button"
+                onClick={() => onOpen({ src, label })}
+                title="Open full preview"
+                className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition hover:bg-black/30 hover:opacity-100"
+              >
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-black/60 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur-sm">
+                  <Maximize2 className="h-3.5 w-3.5" /> View full image
+                </span>
+              </button>
+            </div>
+          )
+        ) : (
+          <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-muted/40 text-muted-foreground">
+            <ImagePlus className="h-6 w-6 opacity-60" />
+            <span className="px-4 text-center text-xs">
+              No image — default Unsplash slide shown
+            </span>
+          </div>
+        )}
+      </div>
+      <div className="flex items-center justify-between gap-2 px-0.5">
+        <span className="text-xs font-semibold text-foreground">{label}</span>
+        <span className="truncate text-[11px] text-muted-foreground">{caption}</span>
+      </div>
+    </div>
+  );
+}
 
 function AdminHomepagePage() {
   const getEditorFn = useServerFn(adminGetHomepageEditor);
@@ -64,6 +158,7 @@ function AdminHomepagePage() {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const heroImageFieldRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const [lightbox, setLightbox] = useState<{ src: string; label: string } | null>(null);
 
   useEffect(() => {
     if (data) {
@@ -84,6 +179,15 @@ function AdminHomepagePage() {
       return next;
     });
   };
+
+  useEffect(() => {
+    if (!lightbox) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setLightbox(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [lightbox]);
 
   const saveMutation = useMutation({
     mutationFn: () => saveSettingsFn({ data: { settings: draft } }),
@@ -185,6 +289,31 @@ function AdminHomepagePage() {
     { key: "homepage_hero_image_3", label: "Hero Image 3 URL", slot: 3 },
   ] as const;
 
+  // Ordered published posts (server returns them sorted by published_at desc).
+  const latestPosts = posts.slice(0, 3);
+
+  const heroSlots: HeroSlotPreview[] = HERO_IMAGE_FIELDS.map((field, i) => {
+    if (heroImagesMode === "manual") {
+      const raw = draft[field.key] ?? "";
+      return {
+        slot: field.slot,
+        label: `Hero Image ${field.slot}`,
+        src: raw.trim() ? resolveMediaUrl(raw.trim()) : "",
+        source: "manual",
+        caption: raw.trim() ? "Manual URL" : "Default slide",
+      };
+    }
+    const post = latestPosts[i];
+    const cover = post?.cover_image?.trim() ? resolveMediaUrl(post.cover_image.trim()) : "";
+    return {
+      slot: field.slot,
+      label: `Hero Image ${field.slot}`,
+      src: cover,
+      source: "auto-post",
+      caption: cover ? (post?.title ?? "Latest post") : "Default slide",
+    };
+  });
+
   if (isLoading) {
     return (
       <div className="flex min-h-[50vh] items-center justify-center">
@@ -236,6 +365,57 @@ function AdminHomepagePage() {
           </button>
         </div>
       </div>
+
+      {/* Hero Banner Preview — how the 3 hero images actually appear on the homepage */}
+      <section className="rounded-2xl border border-border bg-card p-6 shadow-xs space-y-5">
+        <div className="flex flex-wrap items-start justify-between gap-4 border-b border-border/60 pb-4">
+          <div>
+            <h2 className="font-display text-lg font-semibold flex items-center gap-2">
+              <ImagePlus className="h-5 w-5 text-accent" /> Hero Banner Preview
+            </h2>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              {heroImagesMode === "auto"
+                ? "Auto mode — showing the cover images of the 3 latest published posts exactly as they appear on the homepage."
+                : "Manual mode — showing your 3 hero image URLs exactly as they appear on the homepage."}
+            </p>
+          </div>
+          <span
+            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${
+              heroImagesMode === "auto"
+                ? "bg-accent/10 text-accent"
+                : "bg-muted text-muted-foreground"
+            }`}
+          >
+            {heroImagesMode === "auto" ? "Auto" : "Manual"}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {heroSlots.map((s, i) => (
+            <HeroImageTile
+              key={s.slot}
+              slot={s.slot}
+              label={s.label}
+              src={s.src}
+              caption={s.source === "auto-post" ? latestPosts[i]?.title || s.caption : s.caption}
+              onOpen={setLightbox}
+              aspectClass="aspect-[4/5] sm:aspect-[3/4]"
+            />
+          ))}
+        </div>
+
+        <div className="flex flex-wrap items-center gap-4 rounded-xl border border-border bg-muted/30 p-3 text-xs text-muted-foreground">
+          <span className="inline-flex items-center gap-1.5">
+            <Maximize2 className="h-3.5 w-3.5" /> Click any image for a full-size preview
+          </span>
+          <span className="hidden h-3 w-px bg-border sm:inline-block" />
+          <span>
+            {heroImagesMode === "auto"
+              ? "Crops use the same object-fit: cover and centering as the live homepage hero."
+              : "Empty fields fall back to the default Unsplash slideshow automatically."}
+          </span>
+        </div>
+      </section>
 
       <form onSubmit={handleSave} className="grid gap-6 lg:grid-cols-[1fr_340px]">
         {/* Main form */}
@@ -923,6 +1103,44 @@ function AdminHomepagePage() {
           </div>
         </aside>
       </form>
+
+      {/* Lightbox for full-size image inspection */}
+      {lightbox && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
+          onClick={() => setLightbox(null)}
+        >
+          <button
+            type="button"
+            onClick={() => setLightbox(null)}
+            className="absolute right-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20 cursor-pointer"
+            aria-label="Close preview"
+          >
+            <X className="h-5 w-5" />
+          </button>
+          <div
+            className="max-h-full max-w-5xl w-full overflow-hidden rounded-2xl border border-white/10 bg-black shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between gap-3 border-b border-white/10 px-5 py-3">
+              <span className="text-sm font-semibold text-white">{lightbox.label}</span>
+              <a
+                href={lightbox.src}
+                target="_blank"
+                rel="noreferrer"
+                className="text-xs text-white/70 underline-offset-2 hover:underline"
+              >
+                Open in new tab
+              </a>
+            </div>
+            <img
+              src={lightbox.src}
+              alt={`${lightbox.label} full preview`}
+              className="max-h-[78vh] w-full bg-zinc-950 object-contain"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -227,7 +227,7 @@ export const adminGetHomepageEditor = createServerFn({ method: "GET" })
     const settings = mergeDefaults(rows);
 
     const { data: posts, error } = await (client.from("posts") as any)
-      .select("id,title,slug,featured,published,scheduled_at,published_at,created_at")
+      .select("id,title,slug,featured,published,scheduled_at,published_at,created_at,cover_image")
       .order("published_at", { ascending: false });
 
     if (error) throw new Error(error.message);
@@ -241,6 +241,7 @@ export const adminGetHomepageEditor = createServerFn({ method: "GET" })
         featured: boolean;
         published: boolean;
         published_at: string | null;
+        cover_image: string | null;
       }>,
     };
   });
