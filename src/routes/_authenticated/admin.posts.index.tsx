@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Plus, Eye, EyeOff, Trash2, Clock, Search, MapPin, Loader2, Image as ImageIcon, Navigation, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
-import { adminListPosts, adminTogglePublish, adminDeletePost } from "@/lib/admin.functions";
+import { adminListPosts, adminTogglePublish, adminDeletePost, resolveMediaUrl } from "@/lib/admin.functions";
 import { batchGeocodePosts } from "@/lib/geocoding.functions";
 import {
   AlertDialog,
@@ -170,6 +170,7 @@ function AdminPostsList() {
         <table className="w-full text-sm">
           <thead className="bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
             <tr>
+              <th className="px-4 py-3">Cover</th>
               <th className="px-4 py-3">Title</th>
               <th className="px-4 py-3 hidden sm:table-cell">Status</th>
               <th className="px-4 py-3 hidden lg:table-cell">Map Location</th>
@@ -181,7 +182,7 @@ function AdminPostsList() {
           <tbody>
             {isLoading && (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
+                <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">
                   Loading posts…
                 </td>
               </tr>
@@ -191,6 +192,9 @@ function AdminPostsList() {
               const hasCoords = p.latitude != null && p.longitude != null && !isNaN(p.latitude) && !isNaN(p.longitude);
               return (
                 <tr key={p.id} className="border-t border-border hover:bg-muted/30">
+                  <td className="px-4 py-3">
+                    <PostThumb cover={p.cover_image} />
+                  </td>
                   <td className="px-4 py-3">
                     <Link
                       to="/admin/posts/$id"
@@ -266,7 +270,7 @@ function AdminPostsList() {
             })}
             {!isLoading && filteredPosts.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
+                <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
                   {data?.length === 0
                     ? "No posts yet — create your first story."
                     : "No posts match your active filters."}
@@ -349,5 +353,29 @@ function IconBtn({
     >
       {children}
     </button>
+  );
+}
+
+function PostThumb({ cover }: { cover: string | null | undefined }) {
+  const [failed, setFailed] = useState(false);
+  const src = cover && !failed ? resolveMediaUrl(cover) : "";
+  return (
+    <div className="relative aspect-[16/9] w-16 overflow-hidden rounded-lg bg-muted sm:w-24 md:w-28">
+      {src ? (
+        <img
+          src={src}
+          alt=""
+          loading="lazy"
+          referrerPolicy="no-referrer"
+          onError={() => setFailed(true)}
+          className="h-full w-full object-cover"
+        />
+      ) : (
+        <div className="flex h-full w-full flex-col items-center justify-center gap-1 bg-muted text-muted-foreground">
+          <ImageIcon className="h-5 w-5" />
+          <span className="text-[10px] uppercase tracking-wider">No Image</span>
+        </div>
+      )}
+    </div>
   );
 }
