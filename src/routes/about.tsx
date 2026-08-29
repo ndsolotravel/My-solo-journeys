@@ -642,18 +642,20 @@ function AboutPage() {
             4. SOLO MOTORCYCLE ADVENTURES (TWO WHEELS & OPEN HORIZONS)
            ------------------------------------------------------------- */}
         {motorcycleEnabled && (
-          <section className="rounded-3xl border border-border/80 bg-zinc-950 text-white overflow-hidden shadow-2xl">
-            <div className="grid lg:grid-cols-12 items-center">
-              {/* Left: Atmospheric Image */}
-              <div className="lg:col-span-6 relative h-[360px] lg:h-[540px] w-full overflow-hidden">
+          <section className="rounded-3xl border border-border/80 bg-zinc-950 text-white overflow-hidden shadow-2xl isolate">
+            <div className="grid lg:grid-cols-12 items-stretch">
+              {/* Left: Atmospheric Image Frame */}
+              <div className="lg:col-span-6 relative h-[360px] sm:h-[440px] lg:h-auto lg:min-h-[540px] w-full overflow-hidden rounded-t-3xl lg:rounded-l-3xl lg:rounded-tr-none lg:rounded-br-none isolate">
                 <img
                   src={motorcycleImage}
                   alt={motorcycleImageAlt}
-                  className="h-full w-full object-cover object-center"
+                  loading="eager"
+                  referrerPolicy="no-referrer"
+                  className="absolute inset-0 block h-full w-full max-w-none object-cover object-center"
                 />
                 {motorcycleBadge && (
-                  <div className="absolute bottom-6 left-6 right-6">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-xs font-semibold uppercase tracking-wider text-accent">
+                  <div className="absolute bottom-4 sm:bottom-6 left-4 sm:left-6 right-4 sm:right-6 z-10 pointer-events-none">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-xs font-semibold uppercase tracking-wider text-accent pointer-events-auto">
                       <Bike className="w-3.5 h-3.5" />
                       <span>{t(motorcycleBadge)}</span>
                     </div>
@@ -662,7 +664,7 @@ function AboutPage() {
               </div>
 
               {/* Right: Text & Motorcycle Identity */}
-              <div className="lg:col-span-6 p-8 sm:p-12 lg:p-14 space-y-6">
+              <div className="lg:col-span-6 p-8 sm:p-12 lg:p-14 space-y-6 flex flex-col justify-center">
                 <div className="space-y-2">
                   <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">
                     {t(motorcycleEyebrow)}

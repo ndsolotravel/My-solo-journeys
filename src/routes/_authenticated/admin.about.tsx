@@ -1368,7 +1368,7 @@ function AdminAboutPage() {
                 <img
                   src={resolveMediaUrl(draft.about_motorcycle_image || ABOUT_DEFAULTS.about_motorcycle_image)}
                   alt="Preview"
-                  className="h-full w-full object-cover"
+                  className="h-full w-full object-cover object-[25%_center]"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent p-4 flex flex-col justify-end text-white">
                   <span className="text-[10px] font-bold uppercase tracking-widest text-accent">
