@@ -1,1 +1,0 @@
-import{k as c}from"./index-BaZVauwH.js";const e=[["circle",{cx:"18.5",cy:"17.5",r:"3.5",key:"15x4ox"}],["circle",{cx:"5.5",cy:"17.5",r:"3.5",key:"1noe27"}],["circle",{cx:"15",cy:"5",r:"1",key:"19l28e"}],["path",{d:"M12 17.5V14l-3-3 4-3 2 3h2",key:"1npguv"}]],t=c("bike",e);const o=[["path",{d:"m8 3 4 8 5-5 5 15H2L8 3z",key:"otkl63"}]],i=c("mountain",o);export{t as B,i as M};
