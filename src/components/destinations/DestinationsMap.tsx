@@ -4,8 +4,10 @@ import type { Destination } from "@/lib/destinations.functions";
 
 // Curated coordinates by slug, with country-centroid fallback.
 const SLUG_COORDS: Record<string, [number, number]> = {
+  "k2-base-camp-concordia": [35.7444, 76.525],
   "nanga-parbat-base-camp": [35.2375, 74.589],
   "hunza-valley": [36.3167, 74.65],
+  "skardu-autumn": [35.2971, 75.6333],
   "skardu-deosai": [35.2971, 75.6333],
   "karakoram-highway": [35.92, 74.31],
   "phander-valley": [36.1667, 72.9333],
@@ -16,18 +18,17 @@ const COUNTRY_COORDS: Record<string, [number, number]> = {
 };
 
 function coordsFor(d: Destination): [number, number] | null {
-  // Support explicit destination latitude/longitude from CMS/database
-  const dLat = (d as any).latitude;
-  const dLng = (d as any).longitude;
+  // 1. HIGHEST PRIORITY: Manual destination latitude/longitude from database
+  const dLat = typeof d.latitude === "number" ? d.latitude : Number((d as any).latitude);
+  const dLng = typeof d.longitude === "number" ? d.longitude : Number((d as any).longitude);
   if (
-    typeof dLat === "number" &&
-    typeof dLng === "number" &&
     !isNaN(dLat) &&
     !isNaN(dLng) &&
     dLat >= -90 &&
     dLat <= 90 &&
     dLng >= -180 &&
-    dLng <= 180
+    dLng <= 180 &&
+    (d.latitude != null || (d as any).latitude != null)
   ) {
     return [dLat, dLng];
   }

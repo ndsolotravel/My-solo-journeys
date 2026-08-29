@@ -46,9 +46,9 @@ const KNOWN_DESTINATIONS: KnownLocationEntry[] = [
       /\bgodwin[- ]austen\b/i,
     ],
     locationName: "K2 Base Camp, Concordia",
-    latitude: 35.8825,
-    longitude: 76.5133,
-    displayName: "K2 Base Camp, Concordia, Gilgit-Baltistan, Pakistan",
+    latitude: 35.7444,
+    longitude: 76.525,
+    displayName: "Concordia, Karakoram, Gilgit-Baltistan, Pakistan",
   },
   {
     patterns: [

@@ -11,6 +11,8 @@ export type Destination = {
   region: string | null;
   description: string | null;
   featured_image: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
   posts?: Post[];
 };
 
@@ -28,6 +30,8 @@ export const listDestinations = createServerFn({ method: "GET" }).handler(async 
       region,
       description,
       featured_image,
+      latitude,
+      longitude,
       created_at,
       posts:posts(id, title, slug, cover_image, category, excerpt, reading_minutes, destination_id, published, published_at, created_at)
     `)
@@ -71,6 +75,8 @@ export const listDestinations = createServerFn({ method: "GET" }).handler(async 
       region: row.region,
       description: row.description,
       featured_image: resolvedImage,
+      latitude: typeof row.latitude === "number" && !isNaN(row.latitude) ? row.latitude : null,
+      longitude: typeof row.longitude === "number" && !isNaN(row.longitude) ? row.longitude : null,
       posts: resolvedPosts as Post[],
     } as Destination;
   });

@@ -672,6 +672,8 @@ const destInputSchema = z.object({
   description: z.string().max(4000).optional().nullable(),
   featured_image: z.string().url().optional().nullable().or(z.literal("")),
   published: z.boolean().default(true),
+  latitude: z.number().min(-90).max(90).nullable().optional(),
+  longitude: z.number().min(-180).max(180).nullable().optional(),
 });
 
 export const adminListDestinations = createServerFn({ method: "GET" })
@@ -699,7 +701,7 @@ export const adminUpsertDestination = createServerFn({ method: "POST" })
     const client =
       context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
     const slug = (data.slug && data.slug.trim()) || slugify(data.title);
-    const payload = {
+    const payload: Record<string, any> = {
       title: data.title,
       slug,
       country: data.country,
@@ -707,15 +709,29 @@ export const adminUpsertDestination = createServerFn({ method: "POST" })
       description: data.description || null,
       featured_image: data.featured_image || null,
       published: data.published,
+      latitude:
+        typeof data.latitude === "number" && !isNaN(data.latitude) ? data.latitude : null,
+      longitude:
+        typeof data.longitude === "number" && !isNaN(data.longitude) ? data.longitude : null,
     };
     if (data.id) {
-      const { error } = await client.from("destinations").update(payload).eq("id", data.id);
+      const { data: updated, error } = await client
+        .from("destinations")
+        .update(payload)
+        .eq("id", data.id)
+        .select("*")
+        .single();
       if (error) throw new Error(error.message);
+      return { ok: true, destination: updated };
     } else {
-      const { error } = await client.from("destinations").insert(payload);
+      const { data: inserted, error } = await client
+        .from("destinations")
+        .insert(payload)
+        .select("*")
+        .single();
       if (error) throw new Error(error.message);
+      return { ok: true, destination: inserted };
     }
-    return { ok: true };
   });
 
 export const adminDeleteDestination = createServerFn({ method: "POST" })
