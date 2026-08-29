@@ -296,7 +296,7 @@ function HomePage() {
   const stats = [
     {
       icon: Globe2,
-      label: t("Countries Visited"),
+      label: t("Countries Visited Blogs"),
       value: countries,
       suffix: "",
       featured: false,
@@ -700,7 +700,7 @@ function HomePage() {
                 <div className="mt-2.5 sm:mt-3 font-display text-xl sm:text-2xl lg:text-3xl font-bold text-foreground truncate">
                   <CountUp end={s.value} suffix={s.suffix} />
                 </div>
-                <div className="mt-0.5 sm:mt-1 text-[11px] sm:text-xs text-muted-foreground truncate">{s.label}</div>
+                <div className="mt-0.5 sm:mt-1 text-[11px] sm:text-xs text-muted-foreground leading-snug min-w-0">{s.label}</div>
               </div>
             ))}
           </div>
