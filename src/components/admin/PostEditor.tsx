@@ -1906,7 +1906,7 @@ export function PostEditor({
   }
 
   return (
-    <div className="space-y-6 relative max-w-7xl mx-auto">
+    <div className="space-y-6 relative max-w-7xl mx-auto pb-24">
       {/* Top Header Bar matching Homepage Visual Hierarchy */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-6">
         <div className="flex items-center gap-3">
@@ -1967,7 +1967,7 @@ export function PostEditor({
       {body}
 
       {/* Fixed Sticky Save Button Bar */}
-      <div className="sticky bottom-0 z-40 w-full border-t border-border bg-card/95 backdrop-blur-md px-4 sm:px-6 py-3.5 shadow-[0_-4px_24px_rgba(0,0,0,0.08)] transition-all">
+      <div className="fixed bottom-0 left-0 right-0 z-50 w-full border-t border-border bg-card/95 backdrop-blur-md px-4 sm:px-6 py-3.5 shadow-[0_-4px_24px_rgba(0,0,0,0.08)] transition-all">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3">
           {/* Left: View Live link, Title & Publication Status, Save Status Badge */}
           <div className="flex items-center gap-3 min-w-0">
