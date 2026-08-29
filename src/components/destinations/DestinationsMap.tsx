@@ -16,6 +16,40 @@ const COUNTRY_COORDS: Record<string, [number, number]> = {
 };
 
 function coordsFor(d: Destination): [number, number] | null {
+  // Support explicit destination latitude/longitude from CMS/database
+  const dLat = (d as any).latitude;
+  const dLng = (d as any).longitude;
+  if (
+    typeof dLat === "number" &&
+    typeof dLng === "number" &&
+    !isNaN(dLat) &&
+    !isNaN(dLng) &&
+    dLat >= -90 &&
+    dLat <= 90 &&
+    dLng >= -180 &&
+    dLng <= 180
+  ) {
+    return [dLat, dLng];
+  }
+
+  // Check if any linked post in this destination has coordinates
+  if (d.posts && Array.isArray(d.posts)) {
+    const postWithCoords = d.posts.find(
+      (p: any) =>
+        typeof p.latitude === "number" &&
+        typeof p.longitude === "number" &&
+        !isNaN(p.latitude) &&
+        !isNaN(p.longitude) &&
+        p.latitude >= -90 &&
+        p.latitude <= 90 &&
+        p.longitude >= -180 &&
+        p.longitude <= 180,
+    );
+    if (postWithCoords) {
+      return [(postWithCoords as any).latitude, (postWithCoords as any).longitude];
+    }
+  }
+
   return SLUG_COORDS[d.slug] ?? COUNTRY_COORDS[d.country] ?? null;
 }
 
@@ -41,6 +75,8 @@ export function DestinationsMap({ destinations }: { destinations: Destination[] 
       delete (ref.current as any)._leaflet_id;
     }
 
+    let resizeObserver: ResizeObserver | null = null;
+
     import("leaflet").then((LModule) => {
       if (!isMounted || !ref.current || mapRef.current) return;
       const L = LModule.default || LModule;
@@ -55,35 +91,16 @@ export function DestinationsMap({ destinations }: { destinations: Destination[] 
         zoomControl: true,
       }).setView([35.5, 74.5], 6);
 
-      // Primary tile layer: CartoDB Voyager (high reliability, beautiful cartography, fast CDN)
-      const primaryTileLayer = L.tileLayer(
-        "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
-        {
-          attribution:
-            '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener noreferrer">CARTO</a>',
-          maxZoom: 19,
-          subdomains: "abcd",
-        },
-      );
-
-      // Fallback to OSM tile server if primary encounters error
-      primaryTileLayer.on("tileerror", () => {
-        if (!map.hasLayer(fallbackTileLayer)) {
-          map.removeLayer(primaryTileLayer);
-          fallbackTileLayer.addTo(map);
-        }
-      });
-
-      const fallbackTileLayer = L.tileLayer(
+      // OpenStreetMap standard tile layer (free, reliable, no API key, no watermarks)
+      const osmTileLayer = L.tileLayer(
         "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
         {
           attribution:
             '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
-          maxZoom: 18,
+          maxZoom: 19,
         },
       );
-
-      primaryTileLayer.addTo(map);
+      osmTileLayer.addTo(map);
 
       // Branded pin icon
       const pinIcon = L.divIcon({
@@ -114,10 +131,28 @@ export function DestinationsMap({ destinations }: { destinations: Destination[] 
         L.marker(c, { icon: pinIcon, title: d.title }).addTo(map).bindPopup(popup);
       });
 
+      // Automatically fit all available destination markers
       if (bounds.length > 1) {
-        map.fitBounds(bounds as any, { padding: [40, 40] });
+        map.fitBounds(bounds as any, { padding: [40, 40], maxZoom: 12 });
       } else if (bounds.length === 1) {
         map.setView(bounds[0], 8);
+      }
+
+      // Invalidate size once container layout is settled
+      setTimeout(() => {
+        if (mapRef.current) {
+          mapRef.current.invalidateSize();
+        }
+      }, 150);
+
+      // Responsive resize observer to re-center and adapt map
+      if (ref.current && typeof ResizeObserver !== "undefined") {
+        resizeObserver = new ResizeObserver(() => {
+          if (mapRef.current) {
+            mapRef.current.invalidateSize();
+          }
+        });
+        resizeObserver.observe(ref.current);
       }
 
       mapRef.current = map;
@@ -126,6 +161,9 @@ export function DestinationsMap({ destinations }: { destinations: Destination[] 
 
     return () => {
       isMounted = false;
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+      }
       if (mapRef.current) {
         try {
           mapRef.current.remove();

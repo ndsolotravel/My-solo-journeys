@@ -148,12 +148,38 @@ async function resolveLatestPost(client: any): Promise<HomepagePost | null> {
 }
 
 async function resolveLatestPosts(client: any, limit = 3): Promise<HomepagePost[]> {
+  // First attempt to retrieve latest published posts with a non-empty cover_image
+  const { data: withCover, error: coverErr } = await (client.from("posts") as any)
+    .select(POST_COLS)
+    .eq("published", true)
+    .not("cover_image", "is", null)
+    .neq("cover_image", "")
+    .order("published_at", { ascending: false })
+    .limit(limit);
+
+  if (!coverErr && Array.isArray(withCover) && withCover.length >= limit) {
+    return withCover.map((row: any) => ({
+      ...row,
+      cover_image: row.cover_image ? resolveMediaUrl(row.cover_image, client) : null,
+    }));
+  }
+
+  // If fewer than limit posts have cover_image, fetch latest published posts in general
   const { data, error } = await (client.from("posts") as any)
     .select(POST_COLS)
     .eq("published", true)
     .order("published_at", { ascending: false })
     .limit(limit);
-  if (error || !Array.isArray(data)) return [];
+
+  if (error || !Array.isArray(data)) {
+    return Array.isArray(withCover)
+      ? withCover.map((row: any) => ({
+          ...row,
+          cover_image: row.cover_image ? resolveMediaUrl(row.cover_image, client) : null,
+        }))
+      : [];
+  }
+
   return (data as { cover_image: string | null }[]).map((row: any) => ({
     ...row,
     cover_image: row.cover_image ? resolveMediaUrl(row.cover_image, client) : null,

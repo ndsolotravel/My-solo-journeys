@@ -37,6 +37,8 @@ export function BlogPostMap({ locationName, latitude, longitude, title }: BlogPo
       delete (ref.current as any)._leaflet_id;
     }
 
+    let resizeObserver: ResizeObserver | null = null;
+
     import("leaflet").then((LModule) => {
       if (!isMounted || !ref.current || mapRef.current) return;
       const L = LModule.default || LModule;
@@ -50,34 +52,16 @@ export function BlogPostMap({ locationName, latitude, longitude, title }: BlogPo
         zoomControl: true,
       }).setView([latitude, longitude], 10);
 
-      // Primary tile layer: CartoDB Voyager
-      const primaryTileLayer = L.tileLayer(
-        "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
-        {
-          attribution:
-            '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener noreferrer">CARTO</a>',
-          maxZoom: 19,
-          subdomains: "abcd",
-        },
-      );
-
-      primaryTileLayer.on("tileerror", () => {
-        if (!map.hasLayer(fallbackTileLayer)) {
-          map.removeLayer(primaryTileLayer);
-          fallbackTileLayer.addTo(map);
-        }
-      });
-
-      const fallbackTileLayer = L.tileLayer(
+      // OpenStreetMap standard tile layer (free, reliable, no API key, no watermarks)
+      const osmTileLayer = L.tileLayer(
         "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
         {
           attribution:
             '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
-          maxZoom: 18,
+          maxZoom: 19,
         },
       );
-
-      primaryTileLayer.addTo(map);
+      osmTileLayer.addTo(map);
 
       // Branded pin icon
       const pinIcon = L.divIcon({
@@ -106,12 +90,30 @@ export function BlogPostMap({ locationName, latitude, longitude, title }: BlogPo
         .bindPopup(popupContent)
         .openPopup();
 
+      setTimeout(() => {
+        if (mapRef.current) {
+          mapRef.current.invalidateSize();
+        }
+      }, 150);
+
+      if (ref.current && typeof ResizeObserver !== "undefined") {
+        resizeObserver = new ResizeObserver(() => {
+          if (mapRef.current) {
+            mapRef.current.invalidateSize();
+          }
+        });
+        resizeObserver.observe(ref.current);
+      }
+
       mapRef.current = map;
       setMapLoaded(true);
     });
 
     return () => {
       isMounted = false;
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+      }
       if (mapRef.current) {
         try {
           mapRef.current.remove();

@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export type HeroSlide = {
   src: string;
@@ -15,6 +16,16 @@ type Props = {
 export function HeroSlider({ slides, intervalMs = 10000, className = "" }: Props) {
   const [index, setIndex] = useState(0);
   const count = slides.length;
+
+  const prevSlide = useCallback(() => {
+    if (count < 2) return;
+    setIndex((i) => (i - 1 + count) % count);
+  }, [count]);
+
+  const nextSlide = useCallback(() => {
+    if (count < 2) return;
+    setIndex((i) => (i + 1) % count);
+  }, [count]);
 
   useEffect(() => {
     if (count < 2) return;
@@ -40,6 +51,28 @@ export function HeroSlider({ slides, intervalMs = 10000, className = "" }: Props
       </AnimatePresence>
       <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/80" />
 
+      {/* Navigation Arrows: Desktop and Tablet only, hidden on mobile */}
+      {count > 1 && (
+        <>
+          <button
+            type="button"
+            onClick={prevSlide}
+            aria-label="Previous Hero image"
+            className="hidden md:inline-flex absolute left-4 sm:left-6 lg:left-8 top-1/2 -translate-y-1/2 z-30 h-11 w-11 lg:h-12 lg:w-12 items-center justify-center rounded-full border border-white/25 bg-black/30 text-white/85 backdrop-blur-md transition-all duration-200 hover:bg-black/65 hover:text-white hover:border-white/50 hover:scale-105 active:scale-95 shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 cursor-pointer pointer-events-auto group"
+          >
+            <ChevronLeft className="h-5 w-5 lg:h-6 lg:w-6 transition-transform duration-200 group-hover:-translate-x-0.5" />
+          </button>
+          <button
+            type="button"
+            onClick={nextSlide}
+            aria-label="Next Hero image"
+            className="hidden md:inline-flex absolute right-4 sm:right-6 lg:right-8 top-1/2 -translate-y-1/2 z-30 h-11 w-11 lg:h-12 lg:w-12 items-center justify-center rounded-full border border-white/25 bg-black/30 text-white/85 backdrop-blur-md transition-all duration-200 hover:bg-black/65 hover:text-white hover:border-white/50 hover:scale-105 active:scale-95 shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 cursor-pointer pointer-events-auto group"
+          >
+            <ChevronRight className="h-5 w-5 lg:h-6 lg:w-6 transition-transform duration-200 group-hover:translate-x-0.5" />
+          </button>
+        </>
+      )}
+
       {count > 1 && (
         <div className="absolute bottom-5 left-1/2 z-20 flex -translate-x-1/2 gap-2">
           {slides.map((_, i) => (
@@ -58,3 +91,4 @@ export function HeroSlider({ slides, intervalMs = 10000, className = "" }: Props
     </div>
   );
 }
+

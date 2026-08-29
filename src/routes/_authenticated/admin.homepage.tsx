@@ -391,6 +391,34 @@ function LiveHeroSimulator({
           </div>
         </div>
 
+        {/* Navigation Arrows in Simulator (Desktop & Tablet only, hidden on mobile) */}
+        {slots.length > 1 && (
+          <>
+            <button
+              type="button"
+              onClick={() => {
+                setActiveSlide((prev) => (prev - 1 + slots.length) % slots.length);
+                setIsPlaying(false);
+              }}
+              aria-label="Previous Hero image"
+              className="hidden md:inline-flex absolute left-4 top-1/2 -translate-y-1/2 z-30 h-10 w-10 lg:h-11 lg:w-11 items-center justify-center rounded-full border border-white/25 bg-black/40 text-white/85 backdrop-blur-md transition-all duration-200 hover:bg-black/70 hover:text-white hover:border-white/50 hover:scale-105 active:scale-95 shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 cursor-pointer pointer-events-auto group"
+            >
+              <ChevronLeft className="h-5 w-5 transition-transform duration-200 group-hover:-translate-x-0.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setActiveSlide((prev) => (prev + 1) % slots.length);
+                setIsPlaying(false);
+              }}
+              aria-label="Next Hero image"
+              className="hidden md:inline-flex absolute right-4 top-1/2 -translate-y-1/2 z-30 h-10 w-10 lg:h-11 lg:w-11 items-center justify-center rounded-full border border-white/25 bg-black/40 text-white/85 backdrop-blur-md transition-all duration-200 hover:bg-black/70 hover:text-white hover:border-white/50 hover:scale-105 active:scale-95 shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 cursor-pointer pointer-events-auto group"
+            >
+              <ChevronRight className="h-5 w-5 transition-transform duration-200 group-hover:translate-x-0.5" />
+            </button>
+          </>
+        )}
+
         {/* Live Slide Navigation Dots (replicating Homepage HeroSlider dots) */}
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 bg-black/50 px-3 py-1.5 rounded-full backdrop-blur-md border border-white/15 pointer-events-auto">
           <button
@@ -695,6 +723,17 @@ function AdminHomepagePage() {
     if (draft.homepage_featured_mode === "manual" && !draft.homepage_featured_post_id) {
       nextErrors.homepage_featured_post_id = "Select a blog post when Manual mode is enabled";
     }
+    // Validation for Manual mode image URLs (if provided)
+    if (draft.homepage_hero_images_mode === "manual") {
+      const urlPattern = /^(https?:\/\/|\/|data:image\/)/i;
+      for (const field of HERO_IMAGE_FIELDS) {
+        const val = draft[field.key]?.trim();
+        if (val && !urlPattern.test(val)) {
+          nextErrors[field.key] = "Please enter a valid URL (starting with https:// or /)";
+        }
+      }
+    }
+
     for (const [key, msg] of required) {
       if (!draft[key] || !draft[key].trim()) {
         nextErrors[key] = msg;
@@ -768,7 +807,9 @@ function AdminHomepagePage() {
   ] as const;
 
   // Ordered published posts (server returns them sorted by published_at desc).
-  const latestPosts = posts.slice(0, 3);
+  // In Auto mode: prioritize published posts with cover images, matching resolveLatestPosts
+  const postsWithCover = posts.filter((p) => p.cover_image && p.cover_image.trim());
+  const autoPosts = postsWithCover.length >= 3 ? postsWithCover.slice(0, 3) : posts.slice(0, 3);
 
   // Resolved Hero Slots Preview (matches actual homepage Hero logic)
   const heroSlots: HeroSlotPreview[] = HERO_IMAGE_FIELDS.map((field, i) => {
@@ -785,7 +826,7 @@ function AdminHomepagePage() {
         caption: raw.trim() ? "Custom Manual URL" : "Default Unsplash Slide",
       };
     }
-    const post = latestPosts[i];
+    const post = autoPosts[i];
     const cover = post?.cover_image?.trim() ? resolveMediaUrl(post.cover_image.trim()) : "";
     return {
       slot: field.slot,
@@ -794,7 +835,11 @@ function AdminHomepagePage() {
       defaultSrc: defaultSlide.src,
       defaultAlt: defaultSlide.alt,
       source: "auto-post",
-      caption: cover ? (post?.title ?? "Latest post") : "Default Unsplash Slide",
+      caption: cover
+        ? (post?.title ?? "Latest post")
+        : post
+          ? `${post.title} (no cover image — default slide used)`
+          : "Default Unsplash Slide",
       postTitle: post?.title,
       postSlug: post?.slug,
     };
@@ -1100,45 +1145,126 @@ function AdminHomepagePage() {
 
             {/* Hero slideshow images mode */}
             <div className="space-y-3 pt-2">
-              <label className="block text-xs font-medium text-foreground">
-                Hero Slideshow Images Mode
-              </label>
-              <div className="grid gap-2 sm:grid-cols-2">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <label className="block text-xs font-medium text-foreground">
+                  Hero Slideshow Images Mode
+                </label>
+                <span
+                  className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                    heroImagesMode === "auto"
+                      ? "bg-accent/15 text-accent border border-accent/30"
+                      : "bg-brand/10 text-brand border border-brand/25"
+                  }`}
+                >
+                  <span
+                    className={`h-1.5 w-1.5 rounded-full ${
+                      heroImagesMode === "auto" ? "bg-accent animate-pulse" : "bg-brand"
+                    }`}
+                  />
+                  <span>
+                    Mode: {heroImagesMode === "auto" ? "Auto (3 Latest Posts)" : "Manual (Custom URLs)"}
+                  </span>
+                </span>
+              </div>
+
+              <div className="grid gap-2.5 sm:grid-cols-2">
                 <button
                   type="button"
                   onClick={() => set("homepage_hero_images_mode", "auto")}
-                  className={`flex items-center gap-2 rounded-xl border px-4 py-3 text-left text-sm transition cursor-pointer ${
+                  className={`flex items-center gap-3 rounded-xl border p-3.5 text-left text-sm transition cursor-pointer ${
                     heroImagesMode === "auto"
-                      ? "border-accent bg-accent/10 text-accent font-medium"
+                      ? "border-accent bg-accent/10 text-accent font-medium shadow-xs"
                       : "border-border bg-background hover:bg-muted"
                   }`}
                 >
-                  <Sparkles className="h-4 w-4" />
-                  <span>
+                  <div
+                    className={`p-2 rounded-lg ${
+                      heroImagesMode === "auto"
+                        ? "bg-accent/20 text-accent"
+                        : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    <Sparkles className="h-4 w-4" />
+                  </div>
+                  <div>
                     <span className="block font-semibold">Auto Mode</span>
                     <span className="block text-xs text-muted-foreground">
-                      Covers of the 3 latest published posts
+                      Cover images from the 3 latest published posts
                     </span>
-                  </span>
+                  </div>
                 </button>
+
                 <button
                   type="button"
                   onClick={() => set("homepage_hero_images_mode", "manual")}
-                  className={`flex items-center gap-2 rounded-xl border px-4 py-3 text-left text-sm transition cursor-pointer ${
+                  className={`flex items-center gap-3 rounded-xl border p-3.5 text-left text-sm transition cursor-pointer ${
                     heroImagesMode === "manual"
-                      ? "border-accent bg-accent/10 text-accent font-medium"
+                      ? "border-brand bg-brand/10 text-brand font-medium shadow-xs"
                       : "border-border bg-background hover:bg-muted"
                   }`}
                 >
-                  <ImagePlus className="h-4 w-4" />
-                  <span>
+                  <div
+                    className={`p-2 rounded-lg ${
+                      heroImagesMode === "manual"
+                        ? "bg-brand/20 text-brand"
+                        : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    <ImagePlus className="h-4 w-4" />
+                  </div>
+                  <div>
                     <span className="block font-semibold">Manual Mode</span>
                     <span className="block text-xs text-muted-foreground">
-                      Set 3 image URLs yourself
+                      Configure 3 separate custom image URLs
                     </span>
-                  </span>
+                  </div>
                 </button>
               </div>
+
+              {/* Auto Mode Info Card */}
+              {heroImagesMode === "auto" && (
+                <div className="rounded-xl border border-accent/25 bg-accent/5 p-4 space-y-3 animate-fade-in">
+                  <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+                    <span className="font-semibold text-foreground flex items-center gap-1.5">
+                      <Sparkles className="h-3.5 w-3.5 text-accent" />
+                      <span>3 Latest Published Posts Selected Automatically</span>
+                    </span>
+                    <span className="text-muted-foreground text-[11px]">
+                      Updates automatically as new posts are published
+                    </span>
+                  </div>
+                  <div className="grid gap-2 sm:grid-cols-3 text-xs">
+                    {autoPosts.map((p, idx) => (
+                      <div
+                        key={p.id || idx}
+                        className="rounded-lg border border-border/80 bg-card p-2.5 space-y-1 shadow-2xs"
+                      >
+                        <div className="flex items-center justify-between text-[11px]">
+                          <span className="font-semibold text-foreground">Hero Image {idx + 1}</span>
+                          {p.cover_image ? (
+                            <span className="text-emerald-600 dark:text-emerald-400 font-semibold text-[10px]">
+                              Has cover
+                            </span>
+                          ) : (
+                            <span className="text-amber-600 dark:text-amber-400 font-semibold text-[10px]">
+                              Default slide
+                            </span>
+                          )}
+                        </div>
+                        <p
+                          className="truncate font-medium text-foreground text-[11px]"
+                          title={p.title}
+                        >
+                          {p.title}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    Note: Your manually entered image URLs are safely preserved in the background and will be restored if you switch back to Manual mode.
+                  </p>
+                </div>
+              )}
 
               {/* Manual Mode Fields with 16:9 thumbnails and immediate reactive preview */}
               {heroImagesMode === "manual" && (
@@ -1147,10 +1273,13 @@ function AdminHomepagePage() {
                     const value = draft[field.key] ?? "";
                     const preview = value.trim() ? resolveMediaUrl(value) : "";
                     const isUploading = uploadingImageField === field.key;
+                    const fieldError = errors[field.key];
                     return (
                       <div
                         key={field.key}
-                        className="space-y-3 rounded-xl border border-border/80 bg-background/50 p-4 shadow-2xs"
+                        className={`space-y-3 rounded-xl border bg-background/50 p-4 shadow-2xs transition-colors ${
+                          fieldError ? "border-red-500/80" : "border-border/80"
+                        }`}
                       >
                         <div className="flex items-center justify-between gap-2">
                           <label className="block text-xs font-semibold text-foreground">
@@ -1230,10 +1359,18 @@ function AdminHomepagePage() {
                             type="text"
                             value={value}
                             onChange={(e) => set(field.key, e.target.value)}
-                            placeholder="…or paste image URL directly"
-                            className="flex-1 min-w-48 rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                            placeholder="…or paste image URL directly (e.g. https://... or /assets/...)"
+                            className={`flex-1 min-w-48 rounded-xl border bg-background px-3.5 py-2.5 text-sm text-foreground outline-none focus:ring-1 transition-colors ${
+                              fieldError
+                                ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                                : "border-border focus:border-accent focus:ring-accent"
+                            }`}
                           />
                         </div>
+
+                        {fieldError && (
+                          <p className="text-xs text-red-500 font-medium">{fieldError}</p>
+                        )}
                       </div>
                     );
                   })}

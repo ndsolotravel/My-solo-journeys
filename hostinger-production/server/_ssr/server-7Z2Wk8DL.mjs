@@ -81,7 +81,7 @@ function getResponse() {
 }
 var HEADERS = { TSS_SHELL: "X-TSS_SHELL" };
 async function getStartManifest(matchedRoutes) {
-  const { tsrStartManifest } = await import("../_tanstack-start-manifest_v-oPXoFO6S.mjs");
+  const { tsrStartManifest } = await import("../_tanstack-start-manifest_v-DMOVS1vg.mjs");
   const startManifest = tsrStartManifest();
   let routes = startManifest.routes;
   routes[rootRouteId];
@@ -147,7 +147,7 @@ const manifest = {
   },
   "2c83b3f1c75595fb9433f21f8203d59a19d372de43711193f4d2661393212e46": {
     functionName: "adminGetHomepageEditor_createServerFn_handler",
-    importer: () => import("./homepage.functions-BT5Pt8tE.mjs")
+    importer: () => import("./homepage.functions-BSraoGdy.mjs")
   },
   "35a26a0d373d3402f12b62248b04295a44839f563a7aadf486bfec03bb13a626": {
     functionName: "adminDeleteGalleryImage_createServerFn_handler",
@@ -171,7 +171,7 @@ const manifest = {
   },
   "3e97ad3a62fc506fb723a5239d751961bd75cff65bde1dcc51d7ac0d10a99c0c": {
     functionName: "adminSaveHomepageSettings_createServerFn_handler",
-    importer: () => import("./homepage.functions-BT5Pt8tE.mjs")
+    importer: () => import("./homepage.functions-BSraoGdy.mjs")
   },
   "4184e107b02cc5d3386f814d73d2a7f40796b5b94d0a73f13fa8faa643f6df33": {
     functionName: "adminUpsertCategory_createServerFn_handler",
@@ -391,7 +391,7 @@ const manifest = {
   },
   "ed839ac608e04e2b639d981cb6f852fa1aeb890692636d81932865c4d88aa08c": {
     functionName: "getHomepageConfig_createServerFn_handler",
-    importer: () => import("./homepage.functions-BT5Pt8tE.mjs")
+    importer: () => import("./homepage.functions-BSraoGdy.mjs")
   },
   "ffadc0811b3c311e38a0c7f23a5dfb1b1778216f1639c80b541652ff3643bed2": {
     functionName: "adminCreateAdminUser_createServerFn_handler",
@@ -1636,7 +1636,7 @@ var getBaseManifest = getProdBaseManifest;
 var createEarlyHintsForRequest = createEarlyHintsCollector;
 async function loadEntries() {
   const [routerEntry, startEntry, pluginAdapters] = await Promise.all([
-    import("./router-DDkqhyL0.mjs").then((n) => n.a5),
+    import("./router-BATWaepB.mjs").then((n) => n.a5),
     import("./start-E4neGHSV.mjs"),
     import("./empty-plugin-adapters-BFgPZ6_d.mjs")
   ]);
