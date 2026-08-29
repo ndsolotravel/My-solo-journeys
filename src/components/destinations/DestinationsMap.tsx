@@ -91,16 +91,21 @@ export function DestinationsMap({ destinations }: { destinations: Destination[] 
         zoomControl: true,
       }).setView([35.5, 74.5], 6);
 
-      // OpenStreetMap standard tile layer (free, reliable, no API key, no watermarks)
-      const osmTileLayer = L.tileLayer(
-        "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+      // CARTO Voyager basemap. The standard OSM tile style renders place labels
+      // in the local language script (e.g. Urdu in Pakistan), while the CARTO
+      // raster basemaps render geographic labels in English/romanized form.
+      // These are free public tiles (basemaps.cartocdn.com) with no API key.
+      const tileLayer = L.tileLayer(
+        "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
         {
-          attribution:
-            '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
+          subdomains: "abcd",
+          minZoom: 2,
           maxZoom: 19,
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener noreferrer">CARTO</a>',
         },
       );
-      osmTileLayer.addTo(map);
+      tileLayer.addTo(map);
 
       // Branded pin icon
       const pinIcon = L.divIcon({
