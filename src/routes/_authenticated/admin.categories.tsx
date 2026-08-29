@@ -278,47 +278,48 @@ function AdminCategoriesPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 max-w-7xl mx-auto pb-16">
       {/* Header */}
       <div className="sticky top-16 z-20 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border bg-background/95 backdrop-blur-md pb-4 pt-3 shadow-2xs">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent/10 text-accent">
-              <FolderTree className="h-5 w-5" />
-            </div>
-            <h1 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-2xl bg-brand/10 text-brand">
+            <FolderTree className="h-6 w-6 text-accent" />
+          </div>
+          <div>
+            <h1 className="font-display text-2xl font-bold text-foreground">
               Category Management
             </h1>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Create, organize, and manage blog categories with auto-slugs and post associations.
+            </p>
           </div>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Create, organize, and manage blog categories with auto-slugs and post associations.
-          </p>
         </div>
         <button
           type="button"
           onClick={openCreateModal}
-          className="inline-flex items-center justify-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background hover:opacity-90 transition cursor-pointer shadow-sm self-start sm:self-auto"
+          className="inline-flex items-center gap-2 rounded-xl bg-brand px-5 py-2 text-xs font-semibold text-white shadow-md shadow-brand/20 hover:bg-brand/90 transition-all cursor-pointer self-start sm:self-auto"
         >
-          <Plus className="h-4 w-4" /> Add Category
+          <Plus className="h-4 w-4" />
+          <span>Add Category</span>
         </button>
       </div>
 
       {/* Filters Bar */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-border bg-card p-4 shadow-xs">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search categories by name, slug or description…"
-            className="w-full rounded-xl border border-border bg-background pl-9 pr-4 py-2 text-sm placeholder:text-muted-foreground/60 outline-none focus:border-accent transition-colors"
+            className="w-full rounded-xl border border-border bg-background pl-9 pr-8 py-2 text-xs font-medium placeholder:text-muted-foreground/60 outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
           />
           {search && (
             <button
               type="button"
               onClick={() => setSearch("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
             >
               <X className="h-3.5 w-3.5" />
             </button>
@@ -326,14 +327,14 @@ function AdminCategoriesPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="flex rounded-xl border border-border bg-background p-1 text-xs">
+          <div className="inline-flex rounded-xl border border-border bg-background p-1 text-xs font-medium">
             <button
               type="button"
               onClick={() => setStatusFilter("all")}
-              className={`rounded-lg px-3 py-1.5 font-medium transition ${
+              className={`rounded-lg px-3 py-1.5 transition-all cursor-pointer ${
                 statusFilter === "all"
-                  ? "bg-foreground text-background"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "bg-brand text-white font-semibold shadow-2xs"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
               }`}
             >
               All ({categories.length})
@@ -341,10 +342,10 @@ function AdminCategoriesPage() {
             <button
               type="button"
               onClick={() => setStatusFilter("active")}
-              className={`rounded-lg px-3 py-1.5 font-medium transition ${
+              className={`rounded-lg px-3 py-1.5 transition-all cursor-pointer ${
                 statusFilter === "active"
-                  ? "bg-emerald-600 text-white"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "bg-brand text-white font-semibold shadow-2xs"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
               }`}
             >
               Active ({categories.filter((c) => c.status === "active").length})
@@ -352,10 +353,10 @@ function AdminCategoriesPage() {
             <button
               type="button"
               onClick={() => setStatusFilter("inactive")}
-              className={`rounded-lg px-3 py-1.5 font-medium transition ${
+              className={`rounded-lg px-3 py-1.5 transition-all cursor-pointer ${
                 statusFilter === "inactive"
-                  ? "bg-zinc-700 text-white"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "bg-brand text-white font-semibold shadow-2xs"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
               }`}
             >
               Inactive ({categories.filter((c) => c.status === "inactive").length})
@@ -371,10 +372,12 @@ function AdminCategoriesPage() {
           <p className="text-sm">Loading categories…</p>
         </div>
       ) : filteredCategories.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border py-16 text-center">
-          <FolderTree className="mx-auto h-12 w-12 text-muted-foreground/40 mb-3" />
-          <h3 className="font-display text-lg font-semibold">No categories found</h3>
-          <p className="text-sm text-muted-foreground mt-1 max-w-sm mx-auto">
+        <div className="rounded-2xl border border-dashed border-border py-12 text-center bg-card shadow-xs">
+          <div className="p-3 rounded-2xl bg-brand/10 text-brand mx-auto mb-3 w-fit">
+            <FolderTree className="h-6 w-6 text-accent" />
+          </div>
+          <h3 className="font-display text-base font-semibold text-foreground">No categories found</h3>
+          <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
             {search
               ? "No categories match your search terms."
               : "Start by adding your first travel blog category."}
@@ -383,9 +386,9 @@ function AdminCategoriesPage() {
             <button
               type="button"
               onClick={openCreateModal}
-              className="mt-4 inline-flex items-center gap-2 rounded-full bg-foreground px-4 py-2 text-xs font-medium text-background hover:opacity-90 transition cursor-pointer"
+              className="mt-4 inline-flex items-center gap-2 rounded-xl bg-brand px-5 py-2 text-xs font-semibold text-white shadow-md shadow-brand/20 hover:bg-brand/90 transition-all cursor-pointer"
             >
-              <Plus className="h-3.5 w-3.5" /> Create Category
+              <Plus className="h-4 w-4" /> Create Category
             </button>
           )}
         </div>
@@ -477,8 +480,8 @@ function AdminCategoriesPage() {
                         <span
                           className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold ${
                             c.status === "active"
-                              ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
-                              : "bg-zinc-500/10 text-zinc-500 border border-zinc-500/20"
+                              ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25"
+                              : "bg-muted text-muted-foreground border border-border/60"
                           }`}
                         >
                           <span
@@ -495,10 +498,10 @@ function AdminCategoriesPage() {
                         <Link
                           to="/admin/posts"
                           title="View posts in this category"
-                          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium transition ${
+                          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium transition-colors ${
                             postCount > 0
-                              ? "bg-accent/10 text-accent hover:bg-accent/20"
-                              : "bg-muted text-muted-foreground"
+                              ? "bg-accent/10 text-accent hover:bg-accent/20 border border-accent/20"
+                              : "bg-muted text-muted-foreground border border-border/60"
                           }`}
                         >
                           <FileText className="h-3 w-3" />
@@ -603,7 +606,7 @@ function AdminCategoriesPage() {
                       });
                     }}
                     placeholder="e.g. Motorcycle Journeys"
-                    className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm outline-none focus:border-accent transition-colors"
+                    className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm font-medium outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
                   />
                 </div>
 
@@ -620,7 +623,7 @@ function AdminCategoriesPage() {
                           prev ? { ...prev, slug: slugify(prev.name) } : prev,
                         );
                       }}
-                      className="text-[11px] text-accent hover:underline flex items-center gap-1 cursor-pointer"
+                      className="text-[11px] text-accent hover:underline flex items-center gap-1 cursor-pointer font-medium"
                     >
                       <Sparkles className="h-3 w-3" /> Auto-sync
                     </button>
@@ -635,7 +638,7 @@ function AdminCategoriesPage() {
                       setEditing((prev) => (prev ? { ...prev, slug: slugify(e.target.value) } : prev));
                     }}
                     placeholder="e.g. motorcycle-journeys"
-                    className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm font-mono outline-none focus:border-accent transition-colors"
+                    className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm font-mono outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
                   />
                   <p className="text-[11px] text-muted-foreground mt-1">
                     Public URL: <span className="font-mono text-foreground">/category/{editing.slug || "slug"}</span>
@@ -656,7 +659,7 @@ function AdminCategoriesPage() {
                     setEditing((prev) => (prev ? { ...prev, description: e.target.value } : prev))
                   }
                   placeholder="Brief summary of what stories belong to this category…"
-                  className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm outline-none focus:border-accent transition-colors resize-y"
+                  className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm font-medium outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors resize-y"
                 />
               </div>
 
@@ -671,11 +674,11 @@ function AdminCategoriesPage() {
                     onChange={(e) =>
                       setEditing((prev) =>
                         prev
-                          ? { ...prev, status: e.target.value as "active" | "inactive" }
+                           ? { ...prev, status: e.target.value as "active" | "inactive" }
                           : prev,
                       )
                     }
-                    className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm outline-none focus:border-accent transition-colors"
+                    className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm font-medium outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
                   >
                     <option value="active">Active (Visible publicly)</option>
                     <option value="inactive">Inactive (Hidden from public navigation)</option>
@@ -696,7 +699,7 @@ function AdminCategoriesPage() {
                         prev ? { ...prev, display_order: parseInt(e.target.value) || 0 } : prev,
                       )
                     }
-                    className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm outline-none focus:border-accent transition-colors"
+                    className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm font-medium outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
                   />
                   <p className="text-[11px] text-muted-foreground mt-1">
                     Lower numbers appear first in lists and menus.
@@ -729,9 +732,9 @@ function AdminCategoriesPage() {
                       setEditing((prev) => (prev ? { ...prev, image_url: e.target.value } : prev))
                     }
                     placeholder="https://images.unsplash.com/photo-… or storage URL"
-                    className="flex-1 rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm outline-none focus:border-accent transition-colors"
+                    className="flex-1 rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm font-medium outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
                   />
-                  <label className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-muted px-4 py-2.5 text-xs font-medium text-foreground hover:bg-muted/80 transition cursor-pointer shrink-0">
+                  <label className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-muted px-4 py-2.5 text-xs font-semibold text-foreground hover:bg-muted/80 transition-colors cursor-pointer shrink-0 shadow-2xs">
                     {uploading ? (
                       <Loader2 className="h-3.5 w-3.5 animate-spin" />
                     ) : (
@@ -779,7 +782,7 @@ function AdminCategoriesPage() {
                       setEditing((prev) => (prev ? { ...prev, seo_title: e.target.value } : prev))
                     }
                     placeholder={`${editing.name || "Category"} — ndsolotravel`}
-                    className="w-full rounded-xl border border-border bg-background px-3 py-2 text-xs outline-none focus:border-accent transition-colors"
+                    className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-xs font-medium outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
                   />
                 </div>
 
@@ -800,7 +803,7 @@ function AdminCategoriesPage() {
                       editing.description ||
                       "Search snippet description displayed in Google results…"
                     }
-                    className="w-full rounded-xl border border-border bg-background px-3 py-2 text-xs outline-none focus:border-accent transition-colors resize-y"
+                    className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-xs font-medium outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors resize-y"
                   />
                 </div>
               </div>
@@ -810,14 +813,14 @@ function AdminCategoriesPage() {
                 <button
                   type="button"
                   onClick={() => setEditing(null)}
-                  className="rounded-full px-5 py-2.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition cursor-pointer"
+                  className="rounded-xl border border-border bg-card px-4 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={saveMutation.isPending}
-                  className="inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-2.5 text-xs font-medium text-background hover:opacity-90 transition disabled:opacity-50 cursor-pointer shadow-sm"
+                  className="inline-flex items-center gap-2 rounded-xl bg-brand px-5 py-2 text-xs font-semibold text-white shadow-md shadow-brand/20 hover:bg-brand/90 disabled:opacity-50 transition-all cursor-pointer"
                 >
                   {saveMutation.isPending ? (
                     <>
@@ -838,17 +841,17 @@ function AdminCategoriesPage() {
         open={!!deleteTarget}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
       >
-        <AlertDialogContent className="rounded-3xl border border-border bg-card">
+        <AlertDialogContent className="rounded-3xl border border-border bg-card shadow-2xl p-6">
           <AlertDialogHeader>
             <div className="flex items-center gap-2 text-amber-500">
               <AlertTriangle className="h-5 w-5" />
-              <AlertDialogTitle>
+              <AlertDialogTitle className="font-display text-lg font-bold text-foreground">
                 {deleteTarget && (deleteTarget.post_count ?? 0) > 0
                   ? "Cannot Delete Category"
                   : "Delete Category?"}
               </AlertDialogTitle>
             </div>
-            <AlertDialogDescription className="text-sm space-y-2 mt-2">
+            <AlertDialogDescription className="text-xs text-muted-foreground space-y-2 mt-2">
               {deleteTarget && (deleteTarget.post_count ?? 0) > 0 ? (
                 <>
                   <p>
@@ -875,14 +878,14 @@ function AdminCategoriesPage() {
               )}
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter className="mt-4">
-            <AlertDialogCancel className="rounded-full cursor-pointer">
+          <AlertDialogFooter className="mt-4 flex items-center justify-end gap-2.5">
+            <AlertDialogCancel className="rounded-xl border border-border bg-card px-4 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors cursor-pointer">
               {deleteTarget && (deleteTarget.post_count ?? 0) > 0 ? "Understood" : "Cancel"}
             </AlertDialogCancel>
             {deleteTarget && (deleteTarget.post_count ?? 0) === 0 && (
               <AlertDialogAction
                 disabled={delMutation.isPending}
-                className="rounded-full bg-red-600 text-white hover:bg-red-700 cursor-pointer shadow-sm"
+                className="rounded-xl bg-red-600 px-4 py-2 text-xs font-semibold text-white shadow-md hover:bg-red-700 disabled:opacity-50 transition-all cursor-pointer"
                 onClick={() => deleteTarget && delMutation.mutate(deleteTarget.id)}
               >
                 {delMutation.isPending ? "Deleting…" : "Delete Category"}

@@ -477,44 +477,49 @@ function AdminGalleryPage() {
   }, [lightboxIndex, displayedItems.length]);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 max-w-7xl mx-auto pb-16">
       {/* Header */}
-      <div className="sticky top-16 z-20 flex flex-wrap items-center justify-between gap-4 border-b border-border bg-background/95 backdrop-blur-md pb-4 pt-3 shadow-2xs">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <div className="rounded-xl bg-accent/15 p-2 text-accent">
-              <ImageIcon className="h-6 w-6" />
-            </div>
-            <h1 className="font-display text-3xl font-bold">Gallery Management</h1>
+      <div className="sticky top-16 z-20 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border bg-background/95 backdrop-blur-md pb-4 pt-3 shadow-2xs">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-2xl bg-brand/10 text-brand">
+            <ImageIcon className="h-6 w-6 text-accent" />
           </div>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Add, inspect, reorder, and remove photo galleries across your solo travel stories.
-          </p>
+          <div>
+            <h1 className="font-display text-2xl font-bold text-foreground">
+              Gallery Management
+            </h1>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Add, inspect, reorder, and remove photo galleries across your solo travel stories.
+            </p>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2.5">
           {activePost && (
             <Link
               to="/admin/posts/$id"
               params={{ id: activePost.id }}
-              className="inline-flex items-center gap-1.5 rounded-full border border-border px-3.5 py-2 text-xs font-medium hover:bg-muted transition-colors"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3.5 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors shadow-2xs"
             >
-              <ExternalLink className="h-3.5 w-3.5" /> Edit Full Story
+              <ExternalLink className="h-3.5 w-3.5 text-accent" />
+              <span>Edit Full Story</span>
             </Link>
           )}
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
-            className="inline-flex items-center gap-2 rounded-full bg-foreground px-4 py-2 text-xs font-medium text-background hover:opacity-90 transition-opacity disabled:opacity-50 cursor-pointer shadow-xs"
+            className="inline-flex items-center gap-2 rounded-xl bg-brand px-5 py-2 text-xs font-semibold text-white shadow-md shadow-brand/20 hover:bg-brand/90 disabled:opacity-50 transition-all cursor-pointer"
           >
             {uploading ? (
               <>
-                <Loader2 className="h-3.5 w-3.5 animate-spin" /> Uploading…
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                <span>Uploading…</span>
               </>
             ) : (
               <>
-                <Upload className="h-3.5 w-3.5" /> Upload Pictures
+                <Upload className="h-3.5 w-3.5" />
+                <span>Upload Pictures</span>
               </>
             )}
           </button>
@@ -578,7 +583,7 @@ function AdminGalleryPage() {
           <select
             value={selectedPostId}
             onChange={(e) => setSelectedPostId(e.target.value)}
-            className="w-full rounded-xl border border-border bg-background px-3 py-2 text-xs outline-none focus:border-accent font-medium"
+            className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-xs outline-none focus:border-accent focus:ring-1 focus:ring-accent font-medium transition-colors"
           >
             <option value="all">-- All Stories ({stats.totalPhotos} photos) --</option>
             {(posts ?? []).map((p) => (
@@ -596,17 +601,18 @@ function AdminGalleryPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search photos & captions…"
-            className="w-full rounded-xl border border-border bg-background pl-9 pr-4 py-2 text-xs outline-none focus:border-accent"
+            className="w-full rounded-xl border border-border bg-background pl-9 pr-4 py-2 text-xs outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
           />
         </div>
       </div>
 
       {/* Upload Dropzone Area */}
-      <div className="rounded-2xl border border-border bg-card p-5 space-y-4 shadow-sm">
-        <div className="flex items-center justify-between">
+      <div className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-5">
+        <div className="flex items-start justify-between gap-4 border-b border-border/60 pb-4">
           <div>
-            <h3 className="font-display text-sm font-semibold flex items-center gap-2">
-              <Upload className="h-4 w-4 text-accent" /> Upload to {activePost ? `"${activePost.title}"` : "Gallery"}
+            <h3 className="font-display text-base font-semibold flex items-center gap-2 text-foreground">
+              <Upload className="h-5 w-5 text-accent" />
+              <span>Upload to {activePost ? `"${activePost.title}"` : "Gallery"}</span>
             </h3>
             <p className="text-xs text-muted-foreground mt-0.5">
               {activePost
@@ -615,7 +621,7 @@ function AdminGalleryPage() {
             </p>
           </div>
           {activePost && (
-            <span className="rounded-full bg-accent/10 px-2.5 py-0.5 text-xs font-semibold text-accent">
+            <span className="inline-flex items-center gap-1 rounded-full bg-accent/10 px-2.5 py-0.5 text-xs font-medium text-accent border border-accent/20">
               {activePost.galleryCount} {activePost.galleryCount === 1 ? "picture" : "pictures"} in story
             </span>
           )}
@@ -673,12 +679,12 @@ function AdminGalleryPage() {
             value={galleryUrlInput}
             onChange={(e) => setGalleryUrlInput(e.target.value)}
             placeholder="…or paste direct image web URL (https://…)"
-            className="flex-1 rounded-xl border border-border bg-background px-3 py-2 text-xs outline-none focus:border-accent"
+            className="flex-1 rounded-xl border border-border bg-background px-3.5 py-2 text-xs outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
           />
           <button
             type="button"
             onClick={handleAddUrl}
-            className="rounded-xl border border-border px-3.5 py-2 text-xs font-medium hover:bg-muted whitespace-nowrap transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3.5 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors shadow-2xs cursor-pointer whitespace-nowrap"
           >
             Add URL
           </button>
@@ -831,8 +837,10 @@ function AdminGalleryPage() {
           </div>
 
         ) : (
-          <div className="rounded-2xl border border-dashed border-border py-12 text-center text-xs text-muted-foreground bg-card">
-            <ImageIcon className="mx-auto h-10 w-10 opacity-30 mb-2" />
+          <div className="rounded-2xl border border-dashed border-border py-12 text-center text-xs text-muted-foreground bg-card shadow-xs">
+            <div className="p-3 rounded-2xl bg-brand/10 text-brand mx-auto mb-3 w-fit">
+              <ImageIcon className="h-6 w-6 text-accent" />
+            </div>
             <p className="font-medium text-foreground text-sm">No gallery pictures found.</p>
             <p className="mt-1">Upload photos using the dropzone above to build your story's photo gallery.</p>
           </div>
@@ -844,10 +852,12 @@ function AdminGalleryPage() {
         open={!!deleteTarget}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
       >
-        <AlertDialogContent>
+        <AlertDialogContent className="rounded-3xl border border-border bg-card shadow-2xl p-6">
           <AlertDialogHeader>
-            <AlertDialogTitle>Remove picture from gallery?</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="font-display text-lg font-bold text-foreground">
+              Remove picture from gallery?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-xs text-muted-foreground mt-1">
               Are you sure you want to remove this picture from{" "}
               <span className="font-semibold text-foreground">
                 {deleteTarget?.item.post_title || "this story"}
@@ -855,10 +865,12 @@ function AdminGalleryPage() {
               The image file will be removed from the gallery and cleaned up from Supabase Storage.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogFooter className="mt-4 flex items-center justify-end gap-2.5">
+            <AlertDialogCancel className="rounded-xl border border-border bg-card px-4 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors cursor-pointer">
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="rounded-xl bg-red-600 px-4 py-2 text-xs font-semibold text-white shadow-md hover:bg-red-700 transition-all cursor-pointer"
               onClick={confirmRemove}
             >
               Remove Picture

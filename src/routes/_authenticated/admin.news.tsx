@@ -459,73 +459,72 @@ function AdminNewsPage() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 max-w-7xl mx-auto pb-16">
       {/* Header */}
-      <div className="sticky top-16 z-20 flex flex-wrap items-center justify-between gap-4 border-b border-border bg-background/95 backdrop-blur-md pb-4 pt-3 shadow-2xs">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FF7A00]/10 text-[#FF7A00]">
-              <Radio className="h-5 w-5 animate-pulse" />
-            </div>
-            <div>
-              <h1 className="font-display text-3xl font-bold tracking-tight">News Management</h1>
-              <p className="text-sm text-muted-foreground mt-0.5">
-                Manage breaking dispatches, travel alerts, and homepage news bulletins
-              </p>
-            </div>
+      <div className="sticky top-16 z-20 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border bg-background/95 backdrop-blur-md pb-4 pt-3 shadow-2xs">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-2xl bg-brand/10 text-brand">
+            <Radio className="h-6 w-6 text-accent animate-pulse" />
+          </div>
+          <div>
+            <h1 className="font-display text-2xl font-bold text-foreground">News Management</h1>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Manage breaking dispatches, travel alerts, and homepage news bulletins
+            </p>
           </div>
         </div>
         <button
           type="button"
           onClick={handleOpenCreate}
-          className="inline-flex items-center gap-2 rounded-full bg-[#FF7A00] px-5 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-[#FF7A00]/90 transition-all hover:scale-[1.02] active:scale-[0.98]"
+          className="inline-flex items-center gap-2 rounded-xl bg-brand px-5 py-2 text-xs font-semibold text-white shadow-md shadow-brand/20 hover:bg-brand/90 transition-all cursor-pointer"
         >
-          <Plus className="h-4 w-4" /> New News Item
+          <Plus className="h-4 w-4" />
+          <span>New News Item</span>
         </button>
       </div>
 
       {/* Metrics Cards */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <div className="rounded-2xl border border-border bg-background p-4 shadow-xs">
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-xs space-y-2">
           <div className="flex items-center justify-between text-muted-foreground">
-            <span className="text-xs font-medium uppercase tracking-wider">Total News</span>
-            <Radio className="h-4 w-4" />
+            <span className="text-xs font-semibold uppercase tracking-wider">Total News</span>
+            <Radio className="h-4 w-4 text-accent" />
           </div>
-          <p className="mt-2 text-2xl font-bold">{metrics.total}</p>
-          <p className="text-[11px] text-muted-foreground mt-0.5">All entries created</p>
+          <p className="font-display text-2xl font-bold text-foreground">{metrics.total}</p>
+          <p className="text-[11px] text-muted-foreground">All entries created</p>
         </div>
 
-        <div className="rounded-2xl border border-[#FF7A00]/30 bg-[#FF7A00]/5 p-4 shadow-xs">
-          <div className="flex items-center justify-between text-[#FF7A00]">
-            <span className="text-xs font-medium uppercase tracking-wider">Active Breaking</span>
-            <Flame className="h-4 w-4" />
+        <div className="rounded-2xl border border-brand/20 bg-brand/5 p-5 shadow-xs space-y-2">
+          <div className="flex items-center justify-between text-brand">
+            <span className="text-xs font-semibold uppercase tracking-wider">Active Breaking</span>
+            <Flame className="h-4 w-4 text-accent fill-accent/20" />
           </div>
-          <p className="mt-2 text-2xl font-bold text-[#FF7A00]">{metrics.breaking}</p>
-          <p className="text-[11px] text-[#FF7A00]/80 mt-0.5">Live on homepage ticker</p>
+          <p className="font-display text-2xl font-bold text-brand">{metrics.breaking}</p>
+          <p className="text-[11px] text-brand/80">Live on homepage ticker</p>
         </div>
 
-        <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-4 shadow-xs">
+        <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-5 shadow-xs space-y-2">
           <div className="flex items-center justify-between text-emerald-600 dark:text-emerald-400">
-            <span className="text-xs font-medium uppercase tracking-wider">Published</span>
-            <CheckCircle2 className="h-4 w-4" />
+            <span className="text-xs font-semibold uppercase tracking-wider">Published</span>
+            <CheckCircle2 className="h-4 w-4 text-emerald-500" />
           </div>
-          <p className="mt-2 text-2xl font-bold text-emerald-600 dark:text-emerald-400">{metrics.published}</p>
-          <p className="text-[11px] text-emerald-600/80 dark:text-emerald-400/80 mt-0.5">Published status</p>
+          <p className="font-display text-2xl font-bold text-emerald-600 dark:text-emerald-400">{metrics.published}</p>
+          <p className="text-[11px] text-emerald-600/80 dark:text-emerald-400/80">Published status</p>
         </div>
 
-        <div className="rounded-2xl border border-border bg-background p-4 shadow-xs">
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-xs space-y-2">
           <div className="flex items-center justify-between text-muted-foreground">
-            <span className="text-xs font-medium uppercase tracking-wider">Drafts</span>
-            <FileText className="h-4 w-4" />
+            <span className="text-xs font-semibold uppercase tracking-wider">Drafts</span>
+            <FileText className="h-4 w-4 text-muted-foreground" />
           </div>
-          <p className="mt-2 text-2xl font-bold">{metrics.drafts}</p>
-          <p className="text-[11px] text-muted-foreground mt-0.5">Unpublished</p>
+          <p className="font-display text-2xl font-bold text-foreground">{metrics.drafts}</p>
+          <p className="text-[11px] text-muted-foreground">Unpublished</p>
         </div>
       </div>
 
       {/* Filter and Search Bar */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-1 rounded-xl border border-border bg-muted/20 p-1">
+        <div className="inline-flex flex-wrap items-center gap-1 rounded-xl border border-border bg-background p-1 text-xs font-medium">
           {(
             [
               { id: "all", label: "All" },
@@ -537,37 +536,38 @@ function AdminNewsPage() {
             ] as const
           ).map((tab) => {
             const Icon = "icon" in tab ? tab.icon : null;
+            const isActive = filter === tab.id;
             return (
               <button
                 key={tab.id}
                 type="button"
                 onClick={() => setFilter(tab.id as NewsFilter)}
-                className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium capitalize transition-colors ${
-                  filter === tab.id
-                    ? "bg-background text-foreground shadow-sm font-semibold"
-                    : "text-muted-foreground hover:text-foreground"
+                className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium capitalize transition-all cursor-pointer ${
+                  isActive
+                    ? "bg-brand text-white font-semibold shadow-2xs"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
                 }`}
               >
-                {Icon && <Icon className="h-3 w-3 text-[#FF7A00]" />}
-                {tab.label}
+                {Icon && <Icon className={`h-3 w-3 ${isActive ? "text-white fill-white/20" : "text-accent"}`} />}
+                <span>{tab.label}</span>
               </button>
             );
           })}
         </div>
 
         <div className="relative flex-1 sm:max-w-xs">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search headline, summary, slug…"
-            className="w-full rounded-xl border border-border bg-background pl-9 pr-4 py-2 text-sm outline-none focus:border-[#FF7A00] transition-colors"
+            className="w-full rounded-xl border border-border bg-background pl-9 pr-4 py-2 text-xs font-medium outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
           />
         </div>
       </div>
 
       {/* News Table */}
-      <div className="overflow-hidden rounded-2xl border border-border bg-background shadow-xs">
+      <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-xs">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
@@ -585,7 +585,7 @@ function AdminNewsPage() {
               {isLoading && (
                 <tr>
                   <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
-                    <Loader2 className="h-6 w-6 animate-spin mx-auto mb-2 text-[#FF7A00]" />
+                    <Loader2 className="h-6 w-6 animate-spin mx-auto mb-2 text-accent" />
                     Loading news items…
                   </td>
                 </tr>
@@ -621,7 +621,7 @@ function AdminNewsPage() {
                         )}
                         <div className="flex-1 overflow-hidden">
                           <div className="flex items-center gap-2">
-                            <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-[#FF7A00] transition-colors">
+                            <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-accent transition-colors">
                               {item.title}
                             </h3>
                             {isLive && (
@@ -655,14 +655,14 @@ function AdminNewsPage() {
                           })
                         }
                         title={isPublished ? "Click to set Draft" : "Click to Publish"}
-                        className="inline-block transition-transform hover:scale-105"
+                        className="inline-block transition-transform hover:scale-105 cursor-pointer"
                       >
                         {isPublished ? (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                             <CheckCircle2 className="h-3 w-3" /> Published
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground border border-border/60">
                             Draft
                           </span>
                         )}
@@ -681,13 +681,13 @@ function AdminNewsPage() {
                           })
                         }
                         title={item.is_breaking ? "Breaking News Enabled (Click to disable)" : "Standard News (Click to enable Breaking)"}
-                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold transition-all hover:scale-105 ${
+                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold transition-all hover:scale-105 cursor-pointer ${
                           item.is_breaking
-                            ? "bg-[#FF7A00]/15 text-[#FF7A00] border border-[#FF7A00]/30 shadow-xs"
-                            : "bg-muted text-muted-foreground"
+                            ? "bg-accent/15 text-accent border border-accent/30 shadow-xs"
+                            : "bg-muted text-muted-foreground border border-border/60"
                         }`}
                       >
-                        <Flame className={`h-3.5 w-3.5 ${item.is_breaking ? "text-[#FF7A00] fill-[#FF7A00]/40 animate-pulse" : ""}`} />
+                        <Flame className={`h-3.5 w-3.5 ${item.is_breaking ? "text-accent fill-accent/40 animate-pulse" : ""}`} />
                         {item.is_breaking ? "Breaking" : "Standard"}
                       </button>
                     </td>
@@ -704,10 +704,10 @@ function AdminNewsPage() {
                           })
                         }
                         title={item.is_active ? "Active (Click to deactivate)" : "Inactive (Click to activate)"}
-                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium transition-all hover:scale-105 ${
+                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium transition-all hover:scale-105 cursor-pointer ${
                           item.is_active
-                            ? "bg-blue-500/10 text-blue-600 dark:text-blue-400"
-                            : "bg-red-500/10 text-red-600 dark:text-red-400"
+                            ? "bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20"
+                            : "bg-muted text-muted-foreground border border-border/60"
                         }`}
                       >
                         {item.is_active ? "Active" : "Inactive"}
@@ -738,7 +738,7 @@ function AdminNewsPage() {
                           type="button"
                           onClick={() => setPreviewTarget(item)}
                           title="Preview News"
-                          className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                          className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
                         >
                           <Eye className="h-4 w-4" />
                         </button>
@@ -746,7 +746,7 @@ function AdminNewsPage() {
                           type="button"
                           onClick={() => handleOpenEdit(item)}
                           title="Edit News"
-                          className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-[#FF7A00] transition-colors"
+                          className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-accent transition-colors cursor-pointer"
                         >
                           <Pencil className="h-4 w-4" />
                         </button>
@@ -754,7 +754,7 @@ function AdminNewsPage() {
                           type="button"
                           onClick={() => setDeleteTarget(item)}
                           title="Delete News"
-                          className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-red-500/10 hover:text-red-600 transition-colors"
+                          className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-red-500/10 hover:text-red-600 transition-colors cursor-pointer"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
@@ -782,25 +782,25 @@ function AdminNewsPage() {
       {/* CREATE / EDIT NEWS MODAL DIALOG                                           */}
       {/* ========================================================================= */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto p-6 sm:p-8">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto p-6 sm:p-8 rounded-3xl border border-border bg-card shadow-2xl">
           <DialogHeader>
             <div className="flex items-center justify-between">
               <div>
-                <DialogTitle className="font-display text-2xl font-bold">
+                <DialogTitle className="font-display text-xl sm:text-2xl font-bold text-foreground">
                   {editingItem ? "Edit News Dispatch" : "Create News Dispatch"}
                 </DialogTitle>
-                <DialogDescription className="text-sm text-muted-foreground mt-1">
+                <DialogDescription className="text-xs text-muted-foreground mt-1">
                   Configure headline, summary, breaking status, scheduling, and expiry.
                 </DialogDescription>
               </div>
-              <div className="flex items-center gap-1 rounded-xl border border-border bg-muted/30 p-1">
+              <div className="inline-flex items-center gap-1 rounded-xl border border-border bg-background p-1 text-xs font-medium">
                 <button
                   type="button"
                   onClick={() => setEditorTab("edit")}
-                  className={`rounded-lg px-3 py-1 text-xs font-medium transition-colors ${
+                  className={`rounded-lg px-3 py-1 text-xs font-medium transition-all cursor-pointer ${
                     editorTab === "edit"
-                      ? "bg-background text-foreground shadow-xs font-semibold"
-                      : "text-muted-foreground hover:text-foreground"
+                      ? "bg-brand text-white font-semibold shadow-2xs"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
                   }`}
                 >
                   Editor
@@ -808,10 +808,10 @@ function AdminNewsPage() {
                 <button
                   type="button"
                   onClick={() => setEditorTab("preview")}
-                  className={`rounded-lg px-3 py-1 text-xs font-medium transition-colors ${
+                  className={`rounded-lg px-3 py-1 text-xs font-medium transition-all cursor-pointer ${
                     editorTab === "preview"
-                      ? "bg-background text-foreground shadow-xs font-semibold"
-                      : "text-muted-foreground hover:text-foreground"
+                      ? "bg-brand text-white font-semibold shadow-2xs"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
                   }`}
                 >
                   Live Preview
@@ -830,11 +830,11 @@ function AdminNewsPage() {
                 }
                 upsertMutation.mutate(formData);
               }}
-              className="mt-6 space-y-6"
+              className="mt-6 space-y-5"
             >
               {/* Headline */}
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
                   Headline / Title <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -843,14 +843,14 @@ function AdminNewsPage() {
                   value={formData.title}
                   onChange={(e) => handleTitleChange(e.target.value)}
                   placeholder="e.g. Karakoram Highway reopened after seasonal pass clearance..."
-                  className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm font-medium outline-none focus:border-[#FF7A00] transition-colors"
+                  className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm font-medium outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
                 />
               </div>
 
               {/* Slug */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     URL Slug
                   </label>
                   <button
@@ -859,7 +859,7 @@ function AdminNewsPage() {
                       setIsSlugManual(false);
                       setFormData((p) => ({ ...p, slug: slugifyNews(p.title) }));
                     }}
-                    className="text-[11px] text-[#FF7A00] hover:underline font-medium"
+                    className="text-[11px] text-accent hover:underline font-medium cursor-pointer"
                   >
                     Reset from headline
                   </button>
@@ -881,7 +881,7 @@ function AdminNewsPage() {
 
               {/* Short Summary */}
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
                   Short Description / Summary
                 </label>
                 <textarea
@@ -889,13 +889,13 @@ function AdminNewsPage() {
                   value={formData.summary}
                   onChange={(e) => setFormData((p) => ({ ...p, summary: e.target.value }))}
                   placeholder="Brief 1-2 sentence overview shown in tickers, previews, and meta summaries..."
-                  className="w-full rounded-xl border border-border bg-background p-3 text-sm outline-none focus:border-[#FF7A00] transition-colors resize-y"
+                  className="w-full rounded-xl border border-border bg-background p-3 text-sm font-medium outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors resize-y"
                 />
               </div>
 
               {/* Full Content */}
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
                   Full News Content (Markdown Supported)
                 </label>
                 <textarea
@@ -903,13 +903,13 @@ function AdminNewsPage() {
                   value={formData.content}
                   onChange={(e) => setFormData((p) => ({ ...p, content: e.target.value }))}
                   placeholder="Detailed news content, route updates, logistics, emergency contacts, or official advisories..."
-                  className="w-full rounded-xl border border-border bg-background p-3 text-sm font-mono outline-none focus:border-[#FF7A00] transition-colors resize-y"
+                  className="w-full rounded-xl border border-border bg-background p-3 text-sm font-mono outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors resize-y"
                 />
               </div>
 
               {/* Featured Image */}
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
                   Featured Image (Optional)
                 </label>
                 <div className="flex flex-col sm:flex-row gap-2 mb-3">
@@ -918,7 +918,7 @@ function AdminNewsPage() {
                     value={formData.image_url}
                     onChange={(e) => setFormData((p) => ({ ...p, image_url: e.target.value }))}
                     placeholder="Enter image URL (https://...) or upload below"
-                    className="flex-1 rounded-xl border border-border bg-background px-4 py-2 text-sm outline-none focus:border-[#FF7A00] transition-colors"
+                    className="flex-1 rounded-xl border border-border bg-background px-3.5 py-2 text-sm font-medium outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
                   />
                   <input
                     type="file"
@@ -931,15 +931,17 @@ function AdminNewsPage() {
                     type="button"
                     disabled={uploadingImage}
                     onClick={() => fileInputRef.current?.click()}
-                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-muted/30 px-4 py-2 text-sm font-medium hover:bg-muted transition-colors disabled:opacity-50"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-muted px-4 py-2 text-xs font-semibold text-foreground hover:bg-muted/80 transition-colors disabled:opacity-50 shadow-2xs cursor-pointer"
                   >
                     {uploadingImage ? (
                       <>
-                        <Loader2 className="h-4 w-4 animate-spin text-[#FF7A00]" /> Uploading…
+                        <Loader2 className="h-4 w-4 animate-spin text-accent" />
+                        <span>Uploading…</span>
                       </>
                     ) : (
                       <>
-                        <Upload className="h-4 w-4 text-[#FF7A00]" /> Upload Image
+                        <Upload className="h-4 w-4 text-accent" />
+                        <span>Upload Image</span>
                       </>
                     )}
                   </button>
@@ -951,16 +953,16 @@ function AdminNewsPage() {
               </div>
 
               {/* Status, Breaking, Active, Order Row */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-4 rounded-2xl border border-border bg-muted/15">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-4 rounded-2xl border border-border bg-card shadow-xs">
                 {/* Status */}
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
                     Status
                   </label>
                   <select
                     value={formData.status}
                     onChange={(e) => setFormData((p) => ({ ...p, status: e.target.value as "draft" | "published" }))}
-                    className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm font-medium outline-none focus:border-[#FF7A00]"
+                    className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm font-medium outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
                   >
                     <option value="draft">Draft</option>
                     <option value="published">Published</option>
@@ -969,37 +971,38 @@ function AdminNewsPage() {
 
                 {/* Breaking News Toggle */}
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
                     Breaking News
                   </label>
                   <button
                     type="button"
                     onClick={() => setFormData((p) => ({ ...p, is_breaking: !p.is_breaking }))}
-                    className={`w-full flex items-center justify-between rounded-xl border px-3 py-2 text-sm font-medium transition-colors ${
+                    className={`w-full flex items-center justify-between rounded-xl border px-3 py-2 text-sm font-medium transition-colors cursor-pointer ${
                       formData.is_breaking
-                        ? "border-[#FF7A00]/40 bg-[#FF7A00]/10 text-[#FF7A00]"
-                        : "border-border bg-background text-muted-foreground"
+                        ? "border-accent bg-accent/10 text-accent font-semibold"
+                        : "border-border bg-background text-muted-foreground hover:bg-muted"
                     }`}
                   >
                     <span className="flex items-center gap-1.5">
-                      <Flame className="h-4 w-4" /> {formData.is_breaking ? "Yes (Breaking)" : "No"}
+                      <Flame className={`h-4 w-4 ${formData.is_breaking ? "text-accent fill-accent/40" : ""}`} />
+                      <span>{formData.is_breaking ? "Yes (Breaking)" : "No"}</span>
                     </span>
-                    <span className={`h-2 w-2 rounded-full ${formData.is_breaking ? "bg-[#FF7A00]" : "bg-muted-foreground"}`} />
+                    <span className={`h-2 w-2 rounded-full ${formData.is_breaking ? "bg-accent" : "bg-muted-foreground"}`} />
                   </button>
                 </div>
 
                 {/* Active Toggle */}
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
                     Active
                   </label>
                   <button
                     type="button"
                     onClick={() => setFormData((p) => ({ ...p, is_active: !p.is_active }))}
-                    className={`w-full flex items-center justify-between rounded-xl border px-3 py-2 text-sm font-medium transition-colors ${
+                    className={`w-full flex items-center justify-between rounded-xl border px-3 py-2 text-sm font-medium transition-colors cursor-pointer ${
                       formData.is_active
-                        ? "border-blue-500/40 bg-blue-500/10 text-blue-600 dark:text-blue-400"
-                        : "border-border bg-background text-muted-foreground"
+                        ? "border-blue-500/30 bg-blue-500/10 text-blue-600 dark:text-blue-400 font-semibold"
+                        : "border-border bg-background text-muted-foreground hover:bg-muted"
                     }`}
                   >
                     <span>{formData.is_active ? "Yes (Active)" : "No (Inactive)"}</span>
@@ -1009,14 +1012,14 @@ function AdminNewsPage() {
 
                 {/* Display Order */}
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
                     Display Order
                   </label>
                   <input
                     type="number"
                     value={formData.display_order}
                     onChange={(e) => setFormData((p) => ({ ...p, display_order: Number(e.target.value) || 0 }))}
-                    className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm font-mono outline-none focus:border-[#FF7A00]"
+                    className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm font-mono outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
                   />
                 </div>
               </div>
@@ -1025,14 +1028,14 @@ function AdminNewsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Published At */}
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
                     Publication Date & Time
                   </label>
                   <input
                     type="datetime-local"
                     value={formData.published_at}
                     onChange={(e) => setFormData((p) => ({ ...p, published_at: e.target.value }))}
-                    className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:border-[#FF7A00]"
+                    className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm font-medium outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
                   />
                   <p className="text-[11px] text-muted-foreground mt-1">
                     Set a future date to schedule publication automatically.
@@ -1042,14 +1045,14 @@ function AdminNewsPage() {
                 {/* Expires At */}
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
-                    <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                       Expiry Date & Time (Optional)
                     </label>
                     {formData.expires_at && (
                       <button
                         type="button"
                         onClick={() => setFormData((p) => ({ ...p, expires_at: "" }))}
-                        className="text-[11px] text-red-500 hover:underline"
+                        className="text-[11px] text-red-500 hover:underline cursor-pointer"
                       >
                         Clear Expiry
                       </button>
@@ -1059,7 +1062,7 @@ function AdminNewsPage() {
                     type="datetime-local"
                     value={formData.expires_at}
                     onChange={(e) => setFormData((p) => ({ ...p, expires_at: e.target.value }))}
-                    className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:border-[#FF7A00]"
+                    className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm font-medium outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
                   />
                   <p className="text-[11px] text-muted-foreground mt-1">
                     News will automatically hide from the homepage after this date.
@@ -1073,14 +1076,14 @@ function AdminNewsPage() {
                   type="button"
                   disabled={upsertMutation.isPending}
                   onClick={() => setIsFormOpen(false)}
-                  className="rounded-full border border-border px-5 py-2.5 text-sm font-medium hover:bg-muted transition-colors disabled:opacity-50"
+                  className="rounded-xl border border-border bg-card px-4 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors cursor-pointer disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={upsertMutation.isPending}
-                  className="inline-flex items-center gap-2 rounded-full bg-[#FF7A00] px-6 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-[#FF7A00]/90 transition-all disabled:opacity-50"
+                  className="inline-flex items-center gap-2 rounded-xl bg-brand px-5 py-2 text-xs font-semibold text-white shadow-md shadow-brand/20 hover:bg-brand/90 transition-all disabled:opacity-50 cursor-pointer"
                 >
                   {upsertMutation.isPending ? (
                     <>
@@ -1184,7 +1187,7 @@ function AdminNewsPage() {
                 <button
                   type="button"
                   onClick={() => setEditorTab("edit")}
-                  className="rounded-full bg-foreground px-6 py-2 text-sm font-semibold text-background hover:opacity-90 transition-opacity"
+                  className="rounded-xl border border-border bg-card px-5 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors cursor-pointer shadow-2xs"
                 >
                   Back to Editor
                 </button>
@@ -1198,24 +1201,24 @@ function AdminNewsPage() {
       {/* QUICK PREVIEW DIALOG FOR TABLE ROWS                                       */}
       {/* ========================================================================= */}
       <Dialog open={!!previewTarget} onOpenChange={(open) => !open && setPreviewTarget(null)}>
-        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto p-6 sm:p-8">
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto p-6 sm:p-8 rounded-3xl border border-border bg-card shadow-2xl">
           {previewTarget && (
             <div className="space-y-4">
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <span className="inline-flex items-center gap-1 rounded-full bg-[#FF7A00]/15 px-2.5 py-0.5 font-bold text-[#FF7A00]">
-                  <Flame className="h-3.5 w-3.5 fill-[#FF7A00]/30" /> DISPATCH
+                <span className="inline-flex items-center gap-1 rounded-full bg-accent/15 px-2.5 py-0.5 font-bold text-accent">
+                  <Flame className="h-3.5 w-3.5 fill-accent/30" /> DISPATCH
                 </span>
                 <span>·</span>
                 <span>{new Date(previewTarget.published_at).toLocaleDateString()}</span>
                 <span>{new Date(previewTarget.published_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
               </div>
 
-              <h2 className="font-display text-2xl font-bold leading-tight">
+              <h2 className="font-display text-2xl font-bold leading-tight text-foreground">
                 {previewTarget.title}
               </h2>
 
               {previewTarget.summary && (
-                <p className="text-sm text-muted-foreground leading-relaxed italic border-l-2 border-[#FF7A00] pl-3">
+                <p className="text-sm text-muted-foreground leading-relaxed italic border-l-2 border-accent pl-3">
                   {previewTarget.summary}
                 </p>
               )}
@@ -1246,9 +1249,9 @@ function AdminNewsPage() {
                     to="/news/$slug"
                     params={{ slug: previewTarget.slug }}
                     target="_blank"
-                    className="inline-flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-xs font-medium hover:bg-muted transition-colors"
+                    className="inline-flex items-center gap-1 rounded-xl border border-border bg-card px-3.5 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors shadow-2xs"
                   >
-                    Open Public Page <ExternalLink className="h-3 w-3" />
+                    <span>Open Public Page</span> <ExternalLink className="h-3.5 w-3.5" />
                   </Link>
                   <button
                     type="button"
@@ -1257,7 +1260,7 @@ function AdminNewsPage() {
                       setPreviewTarget(null);
                       handleOpenEdit(item);
                     }}
-                    className="inline-flex items-center gap-1 rounded-lg bg-[#FF7A00] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#FF7A00]/90 transition-colors"
+                    className="inline-flex items-center gap-1 rounded-xl bg-brand px-4 py-2 text-xs font-semibold text-white shadow-md shadow-brand/20 hover:bg-brand/90 transition-all cursor-pointer"
                   >
                     Edit Item
                   </button>
@@ -1275,19 +1278,26 @@ function AdminNewsPage() {
         open={!!deleteTarget}
         onOpenChange={(open) => !open && !deleteMutation.isPending && setDeleteTarget(null)}
       >
-        <AlertDialogContent>
+        <AlertDialogContent className="rounded-3xl border border-border bg-card shadow-2xl p-6">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete news dispatch?</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="font-display text-lg font-bold text-foreground">
+              Delete news dispatch?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-xs text-muted-foreground mt-1">
               Are you sure you want to permanently delete{" "}
               <span className="font-semibold text-foreground">"{deleteTarget?.title}"</span>?
               This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleteMutation.isPending}>Cancel</AlertDialogCancel>
+          <AlertDialogFooter className="mt-4 flex items-center justify-end gap-2.5">
+            <AlertDialogCancel
+              disabled={deleteMutation.isPending}
+              className="rounded-xl border border-border bg-card px-4 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors cursor-pointer"
+            >
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 inline-flex items-center gap-2"
+              className="rounded-xl bg-red-600 px-4 py-2 text-xs font-semibold text-white shadow-md hover:bg-red-700 disabled:opacity-50 transition-all cursor-pointer inline-flex items-center gap-2"
               disabled={deleteMutation.isPending}
               onClick={(e) => {
                 e.preventDefault();
