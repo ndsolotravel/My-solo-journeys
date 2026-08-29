@@ -347,7 +347,7 @@ function AboutPage() {
           1. CINEMATIC HERO SECTION
          ------------------------------------------------------------- */}
       {heroEnabled && (
-        <section className="banner-hover relative min-h-[65vh] lg:min-h-[75vh] w-full flex items-end overflow-hidden bg-zinc-950">
+        <section className="banner-hover relative min-h-[50vh] lg:min-h-[58vh] w-full flex items-end overflow-hidden bg-zinc-950">
           {/* Background Image with Cinematic Overlay */}
           <div className="absolute inset-0 z-0 overflow-hidden">
             <img
