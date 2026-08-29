@@ -296,7 +296,7 @@ function HomePage() {
   const stats = [
     {
       icon: Globe2,
-      label: t("Countries Visited Blogs"),
+      label: t("Countries Covered in Blogs"),
       value: countries,
       suffix: "",
       featured: false,
