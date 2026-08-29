@@ -21,11 +21,13 @@ function AdminComments() {
   });
 
   return (
-    <div>
-      <h1 className="font-display text-3xl font-bold">Comments & Reviews</h1>
-      <p className="mt-1 text-sm text-muted-foreground">Moderate visitor reviews. Delete inappropriate or spam comments.</p>
+    <div className="space-y-6">
+      <div className="sticky top-16 z-20 flex flex-col gap-1 border-b border-border bg-background/95 backdrop-blur-md pb-4 pt-3 shadow-2xs">
+        <h1 className="font-display text-2xl sm:text-3xl font-bold">Comments & Reviews</h1>
+        <p className="text-sm text-muted-foreground">Moderate visitor reviews. Delete inappropriate or spam comments.</p>
+      </div>
 
-      <div className="mt-6 space-y-3">
+      <div className="space-y-3">
         {isLoading && <p className="text-muted-foreground">Loading…</p>}
         {data?.map((c: any) => {
           const post = (c as { posts?: { title?: string; slug?: string } }).posts;

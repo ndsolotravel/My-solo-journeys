@@ -461,7 +461,7 @@ function AdminNewsPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="sticky top-16 z-20 flex flex-wrap items-center justify-between gap-4 border-b border-border bg-background/95 backdrop-blur-md pb-4 pt-3 shadow-2xs">
         <div>
           <div className="flex items-center gap-2.5">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FF7A00]/10 text-[#FF7A00]">
@@ -1068,7 +1068,7 @@ function AdminNewsPage() {
               </div>
 
               {/* Footer Actions */}
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
+              <div className="sticky bottom-0 z-10 flex items-center justify-end gap-3 pt-3 pb-3 px-6 sm:px-8 -mx-6 sm:-mx-8 -mb-6 sm:-mb-8 border-t border-border bg-card/95 backdrop-blur-md shadow-xs">
                 <button
                   type="button"
                   disabled={upsertMutation.isPending}

@@ -280,7 +280,7 @@ function AdminCategoriesPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="sticky top-16 z-20 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border bg-background/95 backdrop-blur-md pb-4 pt-3 shadow-2xs">
         <div>
           <div className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent/10 text-accent">
@@ -806,7 +806,7 @@ function AdminCategoriesPage() {
               </div>
 
               {/* Footer Actions */}
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-border">
+              <div className="sticky bottom-0 z-10 flex items-center justify-end gap-3 pt-3 pb-3 px-6 -mx-6 -mb-6 border-t border-border bg-card/95 backdrop-blur-md shadow-xs">
                 <button
                   type="button"
                   onClick={() => setEditing(null)}

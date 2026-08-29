@@ -147,9 +147,9 @@ function AdminLegalPage() {
   const activeTabMeta = LEGAL_TABS.find((t) => t.slug === activeSlug);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pb-16">
       {/* Top Header */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="sticky top-16 z-20 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border bg-background/95 backdrop-blur-md pb-4 pt-3 shadow-2xs">
         <div>
           <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-accent">
             <Scale className="h-4 w-4" /> Legal & Governance

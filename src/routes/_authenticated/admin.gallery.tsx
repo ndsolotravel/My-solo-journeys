@@ -479,7 +479,7 @@ function AdminGalleryPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="sticky top-16 z-20 flex flex-wrap items-center justify-between gap-4 border-b border-border bg-background/95 backdrop-blur-md pb-4 pt-3 shadow-2xs">
         <div>
           <div className="flex items-center gap-2.5">
             <div className="rounded-xl bg-accent/15 p-2 text-accent">

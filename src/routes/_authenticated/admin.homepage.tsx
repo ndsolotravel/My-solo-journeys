@@ -858,8 +858,8 @@ function AdminHomepagePage() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-16">
-      {/* Header Bar — matching the About Page Management design style */}
-      <div className="sticky top-16 z-20 flex flex-col gap-4 border-b border-border bg-background pb-6 pt-2 sm:flex-row sm:items-center sm:justify-between sm:pt-0">
+      {/* Header Bar — sticky action bar */}
+      <div className="sticky top-16 z-20 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border bg-background/95 backdrop-blur-md pb-4 pt-3 shadow-2xs">
         <div className="flex items-center gap-3">
           <div className="p-2.5 rounded-2xl bg-brand/10 text-brand">
             <Compass className="h-6 w-6 text-accent" />

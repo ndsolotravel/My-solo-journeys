@@ -85,13 +85,17 @@ function AdminMessages() {
   }, [data]);
 
   return (
-    <div>
-      <h1 className="font-display text-3xl font-bold">Messages</h1>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Contact-form submissions. Mark messages as read or replied once handled.
-      </p>
+    <div className="space-y-6">
+      <div className="sticky top-16 z-20 flex flex-col gap-3 border-b border-border bg-background/95 backdrop-blur-md pb-4 pt-3 shadow-2xs">
+        <div>
+          <h1 className="font-display text-2xl sm:text-3xl font-bold">Messages</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Contact-form submissions. Mark messages as read or replied once handled.
+          </p>
+        </div>
+      </div>
 
-      <div className="mt-6 flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         {(["all", "new", "read", "replied"] as Status[]).map((s) => (
           <button
             key={s}

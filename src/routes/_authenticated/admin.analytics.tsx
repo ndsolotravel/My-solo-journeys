@@ -61,7 +61,7 @@ function AdminAnalyticsPage() {
   return (
     <div className="space-y-8 pb-12">
       {/* Header Bar */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="sticky top-16 z-20 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border bg-background/95 backdrop-blur-md pb-4 pt-3 shadow-2xs">
         <div>
           <div className="flex items-center gap-2">
             <h1 className="font-display text-3xl font-bold tracking-tight">Live Analytics</h1>

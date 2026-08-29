@@ -274,7 +274,7 @@ function AdminDestinations() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-16">
       {/* Header Bar matching About Page Management */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-6">
+      <div className="sticky top-16 z-20 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border bg-background/95 backdrop-blur-md pb-4 pt-3 shadow-2xs">
         <div className="flex items-center gap-3">
           <div className="p-2.5 rounded-2xl bg-brand/10 text-brand">
             <Compass className="h-6 w-6 text-accent" />
@@ -688,7 +688,7 @@ function AdminDestinations() {
             </form>
 
             {/* Modal Footer with Save Status and Controls */}
-            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-6 py-3.5 shrink-0 bg-muted/30">
+            <div className="sticky bottom-0 z-10 flex flex-wrap items-center justify-between gap-3 border-t border-border px-6 py-3.5 shrink-0 bg-card/95 backdrop-blur-md shadow-xs">
               {/* Dynamic Status Indicator */}
               <div className="flex items-center gap-2">
                 {saveStatus === "saved" && (
