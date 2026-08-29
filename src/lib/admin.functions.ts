@@ -766,6 +766,72 @@ export const adminDeleteDestination = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const adminUpdateDestinationCoordinates = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((i) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        latitude: z.number().min(-90).max(90),
+        longitude: z.number().min(-180).max(180),
+      })
+      .parse(i),
+  )
+  .handler(async ({ context, data }) => {
+    await assertEditor(context.userId, context.supabase);
+    const client =
+      context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
+
+    const { data: updated, error } = await client
+      .from("destinations")
+      .update({
+        latitude: data.latitude,
+        longitude: data.longitude,
+      })
+      .eq("id", data.id)
+      .select("*")
+      .single();
+
+    if (error) throw new Error(error.message);
+    return { ok: true, destination: updated };
+  });
+
+export const adminUpdatePostCoordinates = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((i) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        latitude: z.number().min(-90).max(90),
+        longitude: z.number().min(-180).max(180),
+        location_name: z.string().optional().nullable(),
+      })
+      .parse(i),
+  )
+  .handler(async ({ context, data }) => {
+    await assertEditor(context.userId, context.supabase);
+    const client =
+      context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
+
+    const payload: Record<string, any> = {
+      latitude: data.latitude,
+      longitude: data.longitude,
+    };
+    if (data.location_name !== undefined) {
+      payload.location_name = data.location_name ? data.location_name.trim() : null;
+    }
+
+    const { data: updated, error } = await client
+      .from("posts")
+      .update(payload)
+      .eq("id", data.id)
+      .select("id, latitude, longitude, location_name")
+      .single();
+
+    if (error) throw new Error(error.message);
+    return { ok: true, post: updated };
+  });
+
 // ---------------- COMMENTS ----------------
 
 export const adminListComments = createServerFn({ method: "GET" })

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useNavigate } from "@tanstack/react-router";
 import {
@@ -24,12 +24,17 @@ import {
   FileImage,
   User,
   Navigation,
+  CheckCircle2,
+  XCircle,
+  Sparkles,
+  BookOpen,
 } from "lucide-react";
 import { toast } from "sonner";
 import { MarkdownEditor } from "./MarkdownEditor";
 import { DraggableDialog } from "./DraggableDialog";
 import {
   adminUpsertPost,
+  adminUpdatePostCoordinates,
   adminUploadImage,
   adminListDestinations,
   adminDeleteGalleryImage,
@@ -106,6 +111,82 @@ type Post = {
   gallery?: GalleryItemState[] | null;
 };
 
+type PostSnapshot = {
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+  cover: string;
+  category: string;
+  tags: string;
+  featured: boolean;
+  published: boolean;
+  authorName: string;
+  authorImageUrl: string;
+  locationName: string;
+  latitude: string;
+  longitude: string;
+  scheduledAt: string;
+  destinationId: string;
+  travelDate: string;
+  seoTitle: string;
+  seoDescription: string;
+  ogImageUrl: string;
+  galleryLength: number;
+  galleryOrder: string;
+};
+
+function makeSnapshot(data: {
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+  cover: string;
+  category: string;
+  tags: string;
+  featured: boolean;
+  published: boolean;
+  authorName: string;
+  authorImageUrl: string;
+  locationName: string;
+  latitude: string;
+  longitude: string;
+  scheduledAt: string;
+  destinationId: string;
+  travelDate: string;
+  seoTitle: string;
+  seoDescription: string;
+  ogImageUrl: string;
+  gallery: GalleryItemState[];
+}): PostSnapshot {
+  return {
+    title: (data.title || "").trim(),
+    slug: (data.slug || "").trim(),
+    excerpt: (data.excerpt || "").trim(),
+    content: data.content || "",
+    cover: (data.cover || "").trim(),
+    category: data.category || "",
+    tags: (data.tags || "").trim(),
+    featured: !!data.featured,
+    published: !!data.published,
+    authorName: (data.authorName || "").trim(),
+    authorImageUrl: (data.authorImageUrl || "").trim(),
+    locationName: (data.locationName || "").trim(),
+    latitude: (data.latitude || "").trim(),
+    longitude: (data.longitude || "").trim(),
+    scheduledAt: (data.scheduledAt || "").trim(),
+    destinationId: (data.destinationId || "").trim(),
+    travelDate: (data.travelDate || "").trim(),
+    seoTitle: (data.seoTitle || "").trim(),
+    seoDescription: (data.seoDescription || "").trim(),
+    ogImageUrl: (data.ogImageUrl || "").trim(),
+    galleryLength: data.gallery?.length || 0,
+    galleryOrder: (data.gallery || [])
+      .map((g) => `${g.id || ""}:${g.image_url}:${g.alt_text}:${g.sort_order}`)
+      .join("|"),
+  };
+}
+
 export function PostEditor({
   initial,
   asDialog = !initial,
@@ -181,42 +262,89 @@ export function PostEditor({
   // Sync state automatically when `initial` data loads or changes
   useEffect(() => {
     if (!initial) return;
-    setTitle(initial.title ?? "");
-    setSlug(initial.slug ?? "");
-    setExcerpt(initial.excerpt ?? "");
-    setContent(initial.content ?? "");
-    setCover(initial.cover_image ? resolveImageUrl(initial.cover_image) : "");
-    setCategory(initial.category ?? CATEGORIES[0]);
-    setTags((initial.tags ?? []).join(", "));
-    setFeatured(!!initial.featured);
-    setPublished(!!initial.published);
+    const effTitle = initial.title ?? "";
+    const effSlug = initial.slug ?? "";
+    const effExcerpt = initial.excerpt ?? "";
+    const effContent = initial.content ?? "";
+    const effCover = initial.cover_image ? resolveImageUrl(initial.cover_image) : "";
+    const effCategory = initial.category ?? CATEGORIES[0];
+    const effTags = (initial.tags ?? []).join(", ");
+    const effFeatured = !!initial.featured;
+    const effPublished = !!initial.published;
     const effectiveAuthor =
       initial.author_name && initial.author_name.trim().toLowerCase() !== "noman"
         ? initial.author_name
         : "Hussain";
+    const effAuthorImage = initial.author_image_url ? resolveImageUrl(initial.author_image_url) : "";
+    const effLocName = initial.location_name ?? "";
+    const effLat = initial.latitude != null ? String(initial.latitude) : "";
+    const effLng = initial.longitude != null ? String(initial.longitude) : "";
+    const effSched = initial.scheduled_at ? toLocalInput(initial.scheduled_at) : "";
+    const effDestId = initial.destination_id ?? "";
+    const effTravelDate = initial.travel_date ?? "";
+    const effSeoTitle = initial.seo_title ?? "";
+    const effSeoDesc = initial.seo_description ?? "";
+    const effOgImg = initial.og_image_url ? resolveImageUrl(initial.og_image_url) : "";
+
+    setTitle(effTitle);
+    setSlug(effSlug);
+    setExcerpt(effExcerpt);
+    setContent(effContent);
+    setCover(effCover);
+    setCategory(effCategory);
+    setTags(effTags);
+    setFeatured(effFeatured);
+    setPublished(effPublished);
     setAuthorName(effectiveAuthor);
-    setAuthorImageUrl(initial.author_image_url ? resolveImageUrl(initial.author_image_url) : "");
-    setLocationName(initial.location_name ?? "");
-    setLatitude(initial.latitude != null ? String(initial.latitude) : "");
-    setLongitude(initial.longitude != null ? String(initial.longitude) : "");
-    setScheduledAt(initial.scheduled_at ? toLocalInput(initial.scheduled_at) : "");
-    setDestinationId(initial.destination_id ?? "");
-    setTravelDate(initial.travel_date ?? "");
-    setSeoTitle(initial.seo_title ?? "");
-    setSeoDescription(initial.seo_description ?? "");
-    setOgImageUrl(initial.og_image_url ? resolveImageUrl(initial.og_image_url) : "");
+    setAuthorImageUrl(effAuthorImage);
+    setLocationName(effLocName);
+    setLatitude(effLat);
+    setLongitude(effLng);
+    setScheduledAt(effSched);
+    setDestinationId(effDestId);
+    setTravelDate(effTravelDate);
+    setSeoTitle(effSeoTitle);
+    setSeoDescription(effSeoDesc);
+    setOgImageUrl(effOgImg);
 
     const effectiveGallery = (initial.gallery ?? (initial as any).post_gallery) as GalleryItemState[] | undefined;
-    if (effectiveGallery && Array.isArray(effectiveGallery)) {
-      setGallery(
-        effectiveGallery.map((g, idx) => ({
-          id: g.id,
-          image_url: resolveImageUrl(g.image_url),
-          alt_text: g.alt_text ?? "",
-          sort_order: g.sort_order ?? idx,
-        })),
-      );
-    }
+    const galList = (effectiveGallery && Array.isArray(effectiveGallery) ? effectiveGallery : []).map((g, idx) => ({
+      id: g.id,
+      image_url: resolveImageUrl(g.image_url),
+      alt_text: g.alt_text ?? "",
+      sort_order: g.sort_order ?? idx,
+    }));
+    setGallery(galList);
+
+    setSavedSnapshot(
+      makeSnapshot({
+        title: effTitle,
+        slug: effSlug,
+        excerpt: effExcerpt,
+        content: effContent,
+        cover: effCover,
+        category: effCategory,
+        tags: effTags,
+        featured: effFeatured,
+        published: effPublished,
+        authorName: effectiveAuthor,
+        authorImageUrl: effAuthorImage,
+        locationName: effLocName,
+        latitude: effLat,
+        longitude: effLng,
+        scheduledAt: effSched,
+        destinationId: effDestId,
+        travelDate: effTravelDate,
+        seoTitle: effSeoTitle,
+        seoDescription: effSeoDesc,
+        ogImageUrl: effOgImg,
+        gallery: galList,
+      }),
+    );
+    setSaveStatus("idle");
+    setSaveErrorMessage(null);
+    setPostCoordStatus("idle");
+    setPostCoordErrorMessage(null);
   }, [initial]);
 
   const [galleryUrlInput, setGalleryUrlInput] = useState("");
@@ -237,6 +365,130 @@ export function PostEditor({
   // Auto-detect location state
   const [autoDetecting, setAutoDetecting] = useState(false);
   const [autoDetectResult, setAutoDetectResult] = useState<string | null>(null);
+
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saved" | "error">("idle");
+  const [saveErrorMessage, setSaveErrorMessage] = useState<string | null>(null);
+  const [postCoordStatus, setPostCoordStatus] = useState<"idle" | "updated" | "error">("idle");
+  const [postCoordErrorMessage, setPostCoordErrorMessage] = useState<string | null>(null);
+
+  const [savedSnapshot, setSavedSnapshot] = useState<PostSnapshot | null>(() => {
+    if (!initial) {
+      return makeSnapshot({
+        title: "",
+        slug: "",
+        excerpt: "",
+        content: "",
+        cover: "",
+        category: CATEGORIES[0],
+        tags: "",
+        featured: false,
+        published: false,
+        authorName: "Hussain",
+        authorImageUrl: "",
+        locationName: "",
+        latitude: "",
+        longitude: "",
+        scheduledAt: "",
+        destinationId: "",
+        travelDate: "",
+        seoTitle: "",
+        seoDescription: "",
+        ogImageUrl: "",
+        gallery: [],
+      });
+    }
+    return null;
+  });
+
+  const qc = useQueryClient();
+  const updatePostCoordsFn = useServerFn(adminUpdatePostCoordinates);
+
+  const isDirty = useMemo(() => {
+    if (!savedSnapshot) return false;
+    if (!initial?.id) {
+      return Boolean(
+        title.trim() ||
+          content.trim() ||
+          cover.trim() ||
+          excerpt.trim() ||
+          locationName.trim() ||
+          latitude.trim() ||
+          longitude.trim() ||
+          gallery.length > 0,
+      );
+    }
+    const current = makeSnapshot({
+      title,
+      slug,
+      excerpt,
+      content,
+      cover,
+      category,
+      tags,
+      featured,
+      published,
+      authorName,
+      authorImageUrl,
+      locationName,
+      latitude,
+      longitude,
+      scheduledAt,
+      destinationId,
+      travelDate,
+      seoTitle,
+      seoDescription,
+      ogImageUrl,
+      gallery,
+    });
+    return (
+      current.title !== savedSnapshot.title ||
+      current.slug !== savedSnapshot.slug ||
+      current.excerpt !== savedSnapshot.excerpt ||
+      current.content !== savedSnapshot.content ||
+      current.cover !== savedSnapshot.cover ||
+      current.category !== savedSnapshot.category ||
+      current.tags !== savedSnapshot.tags ||
+      current.featured !== savedSnapshot.featured ||
+      current.published !== savedSnapshot.published ||
+      current.authorName !== savedSnapshot.authorName ||
+      current.authorImageUrl !== savedSnapshot.authorImageUrl ||
+      current.locationName !== savedSnapshot.locationName ||
+      current.latitude !== savedSnapshot.latitude ||
+      current.longitude !== savedSnapshot.longitude ||
+      current.scheduledAt !== savedSnapshot.scheduledAt ||
+      current.destinationId !== savedSnapshot.destinationId ||
+      current.travelDate !== savedSnapshot.travelDate ||
+      current.seoTitle !== savedSnapshot.seoTitle ||
+      current.seoDescription !== savedSnapshot.seoDescription ||
+      current.ogImageUrl !== savedSnapshot.ogImageUrl ||
+      current.galleryLength !== savedSnapshot.galleryLength ||
+      current.galleryOrder !== savedSnapshot.galleryOrder
+    );
+  }, [
+    savedSnapshot,
+    initial?.id,
+    title,
+    slug,
+    excerpt,
+    content,
+    cover,
+    category,
+    tags,
+    featured,
+    published,
+    authorName,
+    authorImageUrl,
+    locationName,
+    latitude,
+    longitude,
+    scheduledAt,
+    destinationId,
+    travelDate,
+    seoTitle,
+    seoDescription,
+    ogImageUrl,
+    gallery,
+  ]);
 
   const coverInput = useRef<HTMLInputElement>(null);
   const inlineInput = useRef<HTMLInputElement>(null);
@@ -271,6 +523,7 @@ export function PostEditor({
         setLongitude(String(result.result.longitude));
         setAutoDetectResult(`Detected: ${result.result.displayName}`);
         toast.success(`Location detected: ${result.result.locationName}`);
+        if (saveStatus !== "idle") setSaveStatus("idle");
       } else {
         setAutoDetectResult(result.message || "Could not detect location");
         toast.info(result.message || "Could not detect location from title");
@@ -287,13 +540,121 @@ export function PostEditor({
   const save = useMutation({
     mutationFn: (payload: Record<string, unknown>) => upsertFn({ data: payload as never }),
     onSuccess: (row) => {
-      toast.success(initial?.id ? "Post updated" : "Post created");
+      qc.invalidateQueries({ queryKey: ["admin-posts"] });
+      qc.invalidateQueries({ queryKey: ["posts"] });
+      if (initial?.id) {
+        qc.invalidateQueries({ queryKey: ["admin-post", initial.id] });
+      }
+      setSavedSnapshot(
+        makeSnapshot({
+          title,
+          slug,
+          excerpt,
+          content,
+          cover,
+          category,
+          tags,
+          featured,
+          published,
+          authorName,
+          authorImageUrl,
+          locationName,
+          latitude,
+          longitude,
+          scheduledAt,
+          destinationId,
+          travelDate,
+          seoTitle,
+          seoDescription,
+          ogImageUrl,
+          gallery,
+        }),
+      );
+      setSaveStatus("saved");
+      setSaveErrorMessage(null);
+      toast.success(initial?.id ? "Post updated successfully!" : "Post created successfully!");
       if (!initial?.id && row && typeof row === "object" && "id" in row) {
         navigate({ to: "/admin/posts/$id", params: { id: (row as { id: string }).id } });
       }
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => {
+      setSaveStatus("error");
+      setSaveErrorMessage(e.message || "Database update failed");
+      toast.error(e.message || "Failed to save post");
+    },
   });
+
+  const updatePostCoordsMutation = useMutation({
+    mutationFn: async ({
+      id,
+      latitude,
+      longitude,
+      location_name,
+    }: {
+      id: string;
+      latitude: number;
+      longitude: number;
+      location_name?: string | null;
+    }) => {
+      return await updatePostCoordsFn({
+        data: { id, latitude, longitude, location_name },
+      });
+    },
+    onSuccess: (res: any) => {
+      qc.invalidateQueries({ queryKey: ["admin-posts"] });
+      qc.invalidateQueries({ queryKey: ["posts"] });
+      if (initial?.id) {
+        qc.invalidateQueries({ queryKey: ["admin-post", initial.id] });
+      }
+      if (res?.post) {
+        const savedLat = String(res.post.latitude);
+        const savedLng = String(res.post.longitude);
+        setLatitude(savedLat);
+        setLongitude(savedLng);
+        setSavedSnapshot((prev) =>
+          prev
+            ? {
+                ...prev,
+                latitude: savedLat,
+                longitude: savedLng,
+                locationName: res.post.location_name || prev.locationName,
+              }
+            : prev,
+        );
+      }
+      setPostCoordStatus("updated");
+      setPostCoordErrorMessage(null);
+      toast.success("Coordinates updated successfully!");
+    },
+    onError: (e: Error) => {
+      setPostCoordStatus("error");
+      setPostCoordErrorMessage(e.message || "Failed to update coordinates");
+      toast.error(e.message || "Failed to update coordinates");
+    },
+  });
+
+  function handleUpdatePostCoordinates() {
+    if (!initial?.id) {
+      toast.info("Please save the story first to create the record before updating coordinates.");
+      return;
+    }
+    const latStr = latitude.trim();
+    const lngStr = longitude.trim();
+    if (!latStr || isNaN(Number(latStr)) || Number(latStr) < -90 || Number(latStr) > 90) {
+      toast.error("Please enter a valid Latitude between -90 and 90");
+      return;
+    }
+    if (!lngStr || isNaN(Number(lngStr)) || Number(lngStr) < -180 || Number(lngStr) > 180) {
+      toast.error("Please enter a valid Longitude between -180 and 180");
+      return;
+    }
+    updatePostCoordsMutation.mutate({
+      id: initial.id,
+      latitude: Number(latStr),
+      longitude: Number(lngStr),
+      location_name: locationName.trim() || null,
+    });
+  }
 
   // Single file uploader for cover, inline, and author
   async function uploadFile(file: File, kind: "cover" | "inline" | "author") {
@@ -628,7 +989,7 @@ export function PostEditor({
   const activeLightboxItem = lightboxIndex !== null && gallery[lightboxIndex] ? gallery[lightboxIndex] : null;
 
   const body = (
-    <form id={formId} onSubmit={submit} className="grid gap-6 lg:grid-cols-[1fr_340px]">
+    <form id={formId} onSubmit={submit} className="grid gap-6 lg:grid-cols-[1fr_340px] pb-28 sm:pb-32">
       <div className="space-y-6">
         <Field label="Title">
           <input
@@ -1253,8 +1614,8 @@ export function PostEditor({
             />
           </Field>
 
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="Latitude" hint="e.g. 36.179 (-90 to 90)">
+          <div className="space-y-3">
+            <Field label="Latitude" hint="(-90 to 90)">
               <input
                 type="number"
                 step="any"
@@ -1264,13 +1625,15 @@ export function PostEditor({
                 onChange={(e) => {
                   setLatitude(e.target.value);
                   setAutoDetectResult(null);
+                  setPostCoordStatus("idle");
+                  if (saveStatus !== "idle") setSaveStatus("idle");
                 }}
-                placeholder="36.179"
+                placeholder="e.g. 35.7444"
                 className={input}
               />
             </Field>
 
-            <Field label="Longitude" hint="e.g. 73.751 (-180 to 180)">
+            <Field label="Longitude" hint="(-180 to 180)">
               <input
                 type="number"
                 step="any"
@@ -1280,11 +1643,48 @@ export function PostEditor({
                 onChange={(e) => {
                   setLongitude(e.target.value);
                   setAutoDetectResult(null);
+                  setPostCoordStatus("idle");
+                  if (saveStatus !== "idle") setSaveStatus("idle");
                 }}
-                placeholder="73.751"
+                placeholder="e.g. 76.5250"
                 className={input}
               />
             </Field>
+
+            <div className="flex flex-wrap items-center gap-2.5 pt-1">
+              <button
+                type="button"
+                disabled={updatePostCoordsMutation.isPending || !latitude.trim() || !longitude.trim()}
+                onClick={handleUpdatePostCoordinates}
+                className="inline-flex items-center gap-2 rounded-xl bg-[#FF7A00] px-4 py-2 text-xs sm:text-sm font-semibold text-white shadow-md shadow-[#FF7A00]/25 hover:bg-[#FF7A00]/90 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {updatePostCoordsMutation.isPending ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    <span>Updating Coordinates...</span>
+                  </>
+                ) : (
+                  <>
+                    <Navigation className="h-3.5 w-3.5" />
+                    <span>Update Coordinates</span>
+                  </>
+                )}
+              </button>
+
+              {postCoordStatus === "updated" && (
+                <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 px-3 py-1 text-xs font-semibold text-emerald-600 animate-fade-in shadow-2xs">
+                  <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+                  <span>Coordinates updated</span>
+                </div>
+              )}
+
+              {postCoordStatus === "error" && (
+                <div className="inline-flex items-center gap-1.5 rounded-full bg-red-500/10 border border-red-500/25 px-3 py-1 text-xs font-semibold text-red-600 animate-fade-in shadow-2xs">
+                  <XCircle className="h-3.5 w-3.5 shrink-0" />
+                  <span>{postCoordErrorMessage || "Failed to update coordinates"}</span>
+                </div>
+              )}
+            </div>
           </div>
 
           <p className="text-[11px] text-muted-foreground">
@@ -1420,42 +1820,76 @@ export function PostEditor({
   );
 
   const footerActions = (
-    <>
-      {initial?.slug && (
-        <a
-          href={`/blog/${initial.slug}`}
-          target="_blank"
-          rel="noreferrer"
-          className="mr-auto inline-flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs transition hover:border-accent"
+    <div className="flex w-full flex-wrap items-center justify-between gap-3">
+      <div className="flex items-center gap-2">
+        {initial?.slug && (
+          <a
+            href={`/blog/${initial.slug}`}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1 rounded-xl border border-border bg-card px-3 py-1.5 text-xs text-foreground hover:border-[#FF7A00] transition-colors"
+          >
+            <ExternalLink className="h-3 w-3 text-[#FF7A00]" />
+            <span>View live</span>
+          </a>
+        )}
+
+        {saveStatus === "saved" && (
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 px-2.5 py-0.5 text-xs font-semibold text-emerald-600 shadow-2xs">
+            <CheckCircle2 className="h-3.5 w-3.5" />
+            <span>Saved to database</span>
+          </div>
+        )}
+        {saveStatus === "error" && (
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-red-500/10 border border-red-500/25 px-2.5 py-0.5 text-xs font-semibold text-red-600 shadow-2xs">
+            <XCircle className="h-3.5 w-3.5" />
+            <span>Save failed</span>
+          </div>
+        )}
+      </div>
+
+      <div className="flex items-center gap-2 ml-auto">
+        <label className="flex items-center gap-2 text-xs font-medium text-muted-foreground cursor-pointer">
+          <input
+            type="checkbox"
+            checked={published}
+            onChange={(e) => {
+              setPublished(e.target.checked);
+              if (saveStatus !== "idle") setSaveStatus("idle");
+            }}
+            className="h-3.5 w-3.5 rounded border-border text-[#FF7A00] focus:ring-[#FF7A00]"
+          />
+          <span>Publish</span>
+        </label>
+        <button
+          type="button"
+          onClick={close}
+          className="rounded-xl border border-border bg-card px-4 py-2 text-xs sm:text-sm font-medium text-foreground hover:bg-muted transition-colors cursor-pointer"
         >
-          <ExternalLink className="h-3 w-3" /> View live
-        </a>
-      )}
-      <label className="mr-2 hidden items-center gap-2 text-xs text-muted-foreground sm:flex">
-        <input
-          type="checkbox"
-          checked={published}
-          onChange={(e) => setPublished(e.target.checked)}
-        />
-        Publish
-      </label>
-      <button
-        type="button"
-        onClick={close}
-        className="inline-flex items-center gap-1 rounded-full border border-border px-4 py-2 text-sm transition hover:bg-muted"
-      >
-        Cancel
-      </button>
-      <button
-        type="submit"
-        form={formId}
-        disabled={save.isPending}
-        className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background shadow-sm transition hover:shadow-md disabled:opacity-50"
-      >
-        {save.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}{" "}
-        Save Post
-      </button>
-    </>
+          Cancel
+        </button>
+        <button
+          type="submit"
+          form={formId}
+          disabled={!isDirty || save.isPending}
+          className={`inline-flex items-center gap-2 rounded-xl px-5 py-2 text-xs sm:text-sm font-semibold transition-all ${
+            !isDirty || save.isPending
+              ? "opacity-50 cursor-not-allowed bg-[#FF7A00]/70 text-white"
+              : "bg-[#FF7A00] text-white shadow-md shadow-[#FF7A00]/25 hover:bg-[#FF7A00]/90 cursor-pointer"
+          }`}
+        >
+          {save.isPending ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" /> Saving…
+            </>
+          ) : (
+            <>
+              <Save className="h-4 w-4" /> Save Post
+            </>
+          )}
+        </button>
+      </div>
+    </div>
   );
 
   if (asDialog) {
@@ -1472,20 +1906,167 @@ export function PostEditor({
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="font-display text-3xl font-bold">
-          {initial?.id ? "Edit post" : "New post"}
-        </h1>
-        <div className="flex items-center gap-2">{footerActions}</div>
+    <div className="space-y-6 relative max-w-7xl mx-auto">
+      {/* Top Header Bar matching Homepage Visual Hierarchy */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-6">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-2xl bg-[#FF7A00]/10 text-[#FF7A00]">
+            <BookOpen className="h-6 w-6" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2.5">
+              <h1 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+                {initial?.id ? "Edit Story" : "New Solo Story"}
+              </h1>
+              {published && (
+                <span className="inline-flex items-center rounded-full bg-emerald-500/10 border border-emerald-500/25 px-2.5 py-0.5 text-xs font-semibold text-emerald-600">
+                  Live
+                </span>
+              )}
+            </div>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+              {initial?.title ? `Editing "${initial.title}"` : "Draft a new solo journey chronicle"}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={close}
+            className="rounded-xl border border-border bg-card px-4 py-2 text-xs sm:text-sm font-medium text-foreground hover:bg-muted transition-colors cursor-pointer"
+          >
+            Back to Stories
+          </button>
+          <button
+            type="submit"
+            form={formId}
+            disabled={!isDirty || save.isPending}
+            className={`inline-flex items-center gap-2 rounded-xl px-5 py-2 text-xs sm:text-sm font-semibold transition-all ${
+              !isDirty || save.isPending
+                ? "opacity-50 cursor-not-allowed bg-[#FF7A00]/70 text-white"
+                : "bg-[#FF7A00] text-white shadow-md shadow-[#FF7A00]/25 hover:bg-[#FF7A00]/90 cursor-pointer"
+            }`}
+          >
+            {save.isPending ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span>Saving...</span>
+              </>
+            ) : (
+              <>
+                <Save className="h-4 w-4" />
+                <span>Save Post</span>
+              </>
+            )}
+          </button>
+        </div>
       </div>
+
+      {/* Main Form Body */}
       {body}
+
+      {/* Fixed Sticky Save Button Bar */}
+      <div className="sticky bottom-0 z-40 w-full border-t border-border bg-card/95 backdrop-blur-md px-4 sm:px-6 py-3.5 shadow-[0_-4px_24px_rgba(0,0,0,0.08)] transition-all">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3">
+          {/* Left: View Live link, Title & Publication Status, Save Status Badge */}
+          <div className="flex items-center gap-3 min-w-0">
+            {initial?.slug && (
+              <a
+                href={`/blog/${initial.slug}`}
+                target="_blank"
+                rel="noreferrer"
+                className="hidden md:inline-flex items-center gap-1.5 rounded-xl border border-border bg-background px-3 py-1.5 text-xs text-foreground hover:border-[#FF7A00] transition-colors shrink-0"
+              >
+                <ExternalLink className="h-3 w-3 text-[#FF7A00]" />
+                <span>View live</span>
+              </a>
+            )}
+
+            <div className="hidden sm:block min-w-0">
+              <p className="truncate text-xs font-bold text-foreground font-display max-w-[200px] lg:max-w-xs">
+                {title || "Untitled Story"}
+              </p>
+              <p className="text-[11px] text-muted-foreground">
+                {published ? "Will be published live" : "Draft / unpublished"}
+              </p>
+            </div>
+
+            {/* Dynamic Save Status Indicator */}
+            {saveStatus === "saved" && (
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 px-3 py-1 text-xs font-semibold text-emerald-600 animate-fade-in shadow-2xs">
+                <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+                <span>Saved to database</span>
+              </div>
+            )}
+            {saveStatus === "error" && (
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-red-500/10 border border-red-500/25 px-3 py-1 text-xs font-semibold text-red-600 animate-fade-in shadow-2xs">
+                <XCircle className="h-3.5 w-3.5 shrink-0" />
+                <span>{saveErrorMessage || "Save failed"}</span>
+              </div>
+            )}
+            {saveStatus === "idle" && isDirty && (
+              <div className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-[#FF7A00]/10 border border-[#FF7A00]/25 px-3 py-1 text-xs font-semibold text-[#FF7A00] animate-fade-in">
+                <Sparkles className="h-3 w-3 shrink-0" />
+                <span>Unsaved changes</span>
+              </div>
+            )}
+          </div>
+
+          {/* Right: Publish Toggle, Cancel, and Fixed Save Button */}
+          <div className="flex items-center gap-2.5 ml-auto">
+            <label className="flex items-center gap-2 cursor-pointer rounded-xl border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted transition-colors">
+              <input
+                type="checkbox"
+                checked={published}
+                onChange={(e) => {
+                  setPublished(e.target.checked);
+                  if (saveStatus !== "idle") setSaveStatus("idle");
+                }}
+                className="h-3.5 w-3.5 rounded border-border text-[#FF7A00] focus:ring-[#FF7A00]"
+              />
+              <span>Published</span>
+            </label>
+
+            <button
+              type="button"
+              onClick={close}
+              className="rounded-xl border border-border bg-card px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-medium text-foreground hover:bg-muted transition-colors cursor-pointer"
+            >
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              form={formId}
+              disabled={!isDirty || save.isPending}
+              className={`inline-flex items-center gap-2 rounded-xl px-5 py-2 text-xs sm:text-sm font-semibold transition-all ${
+                !isDirty || save.isPending
+                  ? "opacity-50 cursor-not-allowed bg-[#FF7A00]/70 text-white"
+                  : "bg-[#FF7A00] text-white shadow-md shadow-[#FF7A00]/25 hover:bg-[#FF7A00]/90 cursor-pointer"
+              }`}
+            >
+              {save.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Saving...</span>
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4" />
+                  <span>Save Post</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
 
 const input =
-  "w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm outline-none focus:border-accent";
+  "w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-xs sm:text-sm text-foreground outline-none focus:border-[#FF7A00] focus:ring-1 focus:ring-[#FF7A00] transition-colors shadow-2xs";
 
 function Field({
   label,

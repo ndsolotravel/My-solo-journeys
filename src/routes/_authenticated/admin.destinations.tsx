@@ -23,6 +23,7 @@ import { toast } from "sonner";
 import {
   adminListDestinations,
   adminUpsertDestination,
+  adminUpdateDestinationCoordinates,
   adminDeleteDestination,
   adminUploadImage,
   resolveMediaUrl,
@@ -49,6 +50,7 @@ type Dest = {
 function AdminDestinations() {
   const listFn = useServerFn(adminListDestinations);
   const saveFn = useServerFn(adminUpsertDestination);
+  const updateCoordsFn = useServerFn(adminUpdateDestinationCoordinates);
   const delFn = useServerFn(adminDeleteDestination);
   const uploadFn = useServerFn(adminUploadImage);
   const qc = useQueryClient();
@@ -62,6 +64,8 @@ function AdminDestinations() {
   const [editingForm, setEditingForm] = useState<Dest | null>(null);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saved" | "error">("idle");
   const [saveErrorMessage, setSaveErrorMessage] = useState<string | null>(null);
+  const [coordStatus, setCoordStatus] = useState<"idle" | "updated" | "error">("idle");
+  const [coordErrorMessage, setCoordErrorMessage] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
 
   function handleStartEdit(d: Dest) {
@@ -81,6 +85,8 @@ function AdminDestinations() {
     setEditingForm(initial);
     setSaveStatus("idle");
     setSaveErrorMessage(null);
+    setCoordStatus("idle");
+    setCoordErrorMessage(null);
   }
 
   function handleCloseModal() {
@@ -88,6 +94,8 @@ function AdminDestinations() {
     setEditingForm(null);
     setSaveStatus("idle");
     setSaveErrorMessage(null);
+    setCoordStatus("idle");
+    setCoordErrorMessage(null);
   }
 
   function updateField<K extends keyof Dest>(key: K, value: Dest[K]) {
@@ -173,6 +181,68 @@ function AdminDestinations() {
       toast.error(e.message || "Failed to save destination");
     },
   });
+
+  const updateCoordsMutation = useMutation({
+    mutationFn: async ({ id, latitude, longitude }: { id: string; latitude: number; longitude: number }) => {
+      return await updateCoordsFn({ data: { id, latitude, longitude } });
+    },
+    onSuccess: (res: any) => {
+      qc.invalidateQueries({ queryKey: ["admin-destinations"] });
+      qc.invalidateQueries({ queryKey: ["destinations"] });
+      const savedRow = res?.destination;
+      if (savedRow) {
+        setEditingOriginal((prev) =>
+          prev
+            ? {
+                ...prev,
+                latitude: Number(savedRow.latitude),
+                longitude: Number(savedRow.longitude),
+              }
+            : prev,
+        );
+        setEditingForm((prev) =>
+          prev
+            ? {
+                ...prev,
+                latitude: Number(savedRow.latitude),
+                longitude: Number(savedRow.longitude),
+              }
+            : prev,
+        );
+      }
+      setCoordStatus("updated");
+      setCoordErrorMessage(null);
+      toast.success("Coordinates updated successfully!");
+    },
+    onError: (e: Error) => {
+      setCoordStatus("error");
+      setCoordErrorMessage(e.message || "Failed to update coordinates");
+      toast.error(e.message || "Failed to update coordinates");
+    },
+  });
+
+  function handleUpdateCoordinates() {
+    if (!editingForm) return;
+    if (!editingForm.id) {
+      toast.info("Please save the destination first to create the record before updating coordinates.");
+      return;
+    }
+    const lat = editingForm.latitude;
+    const lng = editingForm.longitude;
+    if (lat === null || lat === undefined || isNaN(Number(lat)) || Number(lat) < -90 || Number(lat) > 90) {
+      toast.error("Please enter a valid Latitude between -90 and 90");
+      return;
+    }
+    if (lng === null || lng === undefined || isNaN(Number(lng)) || Number(lng) < -180 || Number(lng) > 180) {
+      toast.error("Please enter a valid Longitude between -180 and 180");
+      return;
+    }
+    updateCoordsMutation.mutate({
+      id: editingForm.id,
+      latitude: Number(lat),
+      longitude: Number(lng),
+    });
+  }
 
   const del = useMutation({
     mutationFn: (id: string) => delFn({ data: { id } }),
@@ -437,7 +507,7 @@ function AdminDestinations() {
               </div>
 
               {/* Manual Coordinates Box */}
-              <div className="rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-2xs space-y-3">
+              <div className="rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-2xs space-y-4">
                 <div className="flex items-center gap-2">
                   <div className="p-1.5 rounded-xl bg-brand/10 text-brand">
                     <Navigation className="h-4 w-4 text-accent" />
@@ -452,10 +522,10 @@ function AdminDestinations() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                <div className="space-y-3 pt-1">
                   <div>
                     <label className="block text-xs font-medium text-foreground mb-1.5">
-                      Manual Latitude (-90 to 90)
+                      Latitude
                     </label>
                     <input
                       type="number"
@@ -466,14 +536,16 @@ function AdminDestinations() {
                       onChange={(e) => {
                         const val = e.target.value.trim();
                         updateField("latitude", val === "" ? null : parseFloat(val));
+                        setCoordStatus("idle");
                       }}
                       placeholder="e.g. 35.7444"
                       className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-foreground focus:border-accent focus:outline-none font-mono transition-colors"
                     />
                   </div>
+
                   <div>
                     <label className="block text-xs font-medium text-foreground mb-1.5">
-                      Manual Longitude (-180 to 180)
+                      Longitude
                     </label>
                     <input
                       type="number"
@@ -484,10 +556,46 @@ function AdminDestinations() {
                       onChange={(e) => {
                         const val = e.target.value.trim();
                         updateField("longitude", val === "" ? null : parseFloat(val));
+                        setCoordStatus("idle");
                       }}
                       placeholder="e.g. 76.5250"
                       className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-foreground focus:border-accent focus:outline-none font-mono transition-colors"
                     />
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-3 pt-2">
+                    <button
+                      type="button"
+                      disabled={updateCoordsMutation.isPending || editingForm.latitude == null || editingForm.longitude == null}
+                      onClick={handleUpdateCoordinates}
+                      className="inline-flex items-center gap-2 rounded-xl bg-brand px-4 py-2 text-xs sm:text-sm font-semibold text-white shadow-md shadow-brand/20 hover:bg-brand/90 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {updateCoordsMutation.isPending ? (
+                        <>
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          <span>Updating Coordinates...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Navigation className="h-3.5 w-3.5" />
+                          <span>Update Coordinates</span>
+                        </>
+                      )}
+                    </button>
+
+                    {coordStatus === "updated" && (
+                      <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 px-3 py-1 text-xs font-semibold text-emerald-600 animate-fade-in shadow-2xs">
+                        <CheckCircle2 className="h-3.5 w-3.5" />
+                        <span>Coordinates updated</span>
+                      </div>
+                    )}
+
+                    {coordStatus === "error" && (
+                      <div className="inline-flex items-center gap-1.5 rounded-full bg-red-500/10 border border-red-500/25 px-3 py-1 text-xs font-semibold text-red-600 animate-fade-in shadow-2xs">
+                        <XCircle className="h-3.5 w-3.5" />
+                        <span>{coordErrorMessage || "Failed to update coordinates"}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
