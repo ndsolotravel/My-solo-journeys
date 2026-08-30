@@ -394,16 +394,16 @@ function ContactPage() {
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand/15 text-brand shrink-0 mt-0.5">
                       <Mail className="h-5 w-5" />
                     </div>
-                    <div className="flex flex-col space-y-1 min-w-0">
+                    <div className="flex flex-col min-w-0 gap-1.5">
                       <a
                         href="mailto:contact@ndsolotravel.com"
-                        className="text-sm sm:text-base font-medium text-secondary-foreground hover:text-brand transition-colors truncate"
+                        className="block w-full text-sm sm:text-base font-medium text-secondary-foreground hover:text-brand transition-colors break-all leading-snug"
                       >
                         contact@ndsolotravel.com
                       </a>
                       <a
                         href="mailto:ndsolotravel@gmail.com"
-                        className="text-xs sm:text-sm text-secondary-foreground/75 hover:text-brand transition-colors truncate"
+                        className="block w-full text-xs sm:text-sm text-secondary-foreground/75 hover:text-brand transition-colors break-all leading-snug"
                       >
                         ndsolotravel@gmail.com
                       </a>
