@@ -50,15 +50,15 @@ export const Route = createFileRoute("/_authenticated/admin/homepage")({
 
 const DEFAULT_HERO_SLIDES = [
   {
-    src: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=2000&q=80",
+    src: "",
     alt: "Nanga Parbat at sunrise",
   },
   {
-    src: "https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?w=2000&q=80",
+    src: "",
     alt: "Mountain road at dusk",
   },
   {
-    src: "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=2000&q=80",
+    src: "",
     alt: "Trekker on alpine ridge",
   },
 ];
@@ -247,7 +247,7 @@ function HeroImageTile({
                 {source === "auto-post" ? "Post has no cover image" : "No custom image specified"}
               </p>
               <p className="text-[11px] text-muted-foreground max-w-xs">
-                The live Homepage will use the default Unsplash hero slide for position {slot}.
+                The live Homepage will proceed with a dark hero background when no image is set for position {slot}.
               </p>
             </div>
 
@@ -332,12 +332,16 @@ function LiveHeroSimulator({
     <div className="space-y-4">
       <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl border border-border bg-zinc-950 shadow-md">
         {/* Background Image with Ken Burns / cover effect */}
-        <img
-          key={activeSlide}
-          src={activeImage}
-          alt={currentSlot.label}
-          className="absolute inset-0 h-full w-full object-cover object-center animate-fade-in transition-all duration-700"
-        />
+        {activeImage ? (
+          <img
+            key={activeSlide}
+            src={activeImage}
+            alt={currentSlot.label}
+            className="absolute inset-0 h-full w-full object-cover object-center animate-fade-in transition-all duration-700"
+          />
+        ) : (
+          <div className="absolute inset-0 h-full w-full bg-zinc-900" />
+        )}
 
         {/* Authentic Homepage Hero Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/35 to-black/85 pointer-events-none" />
@@ -604,11 +608,17 @@ function HeroLightbox({
           </button>
 
           {/* Full uncropped image display */}
-          <img
-            src={activeSrc}
-            alt={`${currentSlot.label} full inspection`}
-            className="max-h-[68vh] max-w-full rounded-lg object-contain shadow-2xl mx-auto"
-          />
+          {activeSrc ? (
+            <img
+              src={activeSrc}
+              alt={`${currentSlot.label} full inspection`}
+              className="max-h-[68vh] max-w-full rounded-lg object-contain shadow-2xl mx-auto"
+            />
+          ) : (
+            <div className="flex min-h-[40vh] w-full items-center justify-center text-sm text-white/60">
+              No image configured for this slide
+            </div>
+          )}
 
           {/* Next Slide Button */}
           <button
@@ -630,7 +640,7 @@ function HeroLightbox({
                 ? `Latest published post: "${currentSlot.postTitle || "Post"}"`
                 : currentSlot.src
                   ? "Custom Manual URL"
-                  : "Default Unsplash Fallback Slide"}
+                  : "No default slide"}
             </span>
           </div>
 
@@ -823,7 +833,7 @@ function AdminHomepagePage() {
         defaultSrc: defaultSlide.src,
         defaultAlt: defaultSlide.alt,
         source: "manual",
-        caption: raw.trim() ? "Custom Manual URL" : "Default Unsplash Slide",
+        caption: raw.trim() ? "Custom Manual URL" : "No image set",
       };
     }
     const post = autoPosts[i];
@@ -838,8 +848,8 @@ function AdminHomepagePage() {
       caption: cover
         ? (post?.title ?? "Latest post")
         : post
-          ? `${post.title} (no cover image — default slide used)`
-          : "Default Unsplash Slide",
+          ? `${post.title} (no cover image — no slide)`
+          : "No image set",
       postTitle: post?.title,
       postSlug: post?.slug,
     };
@@ -1375,7 +1385,7 @@ function AdminHomepagePage() {
                     );
                   })}
                   <p className="text-xs text-muted-foreground">
-                    Tip: Any empty slot automatically falls back to the default Unsplash hero slide on the live site.
+                    Tip: Any empty slot shows a dark hero background on the live site. Add a cover image or URL to show a photo.
                   </p>
                 </div>
               )}

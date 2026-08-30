@@ -337,7 +337,7 @@ export const ABOUT_DEFAULTS: Record<string, string> = {
   about_hero_subtitle:
     "From engineering blueprints to remote mountain passes, unpaved tracks, and high Himalayan ridges. Documenting authentic exploration on two wheels and on foot.",
   about_hero_image:
-    "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1920&q=80&auto=format",
+    "",
   about_hero_image_alt: "Karakoram mountain pass and solo road",
   about_hero_badges: JSON.stringify(DEFAULT_HERO_BADGES),
 
@@ -379,7 +379,7 @@ export const ABOUT_DEFAULTS: Record<string, string> = {
   about_motorcycle_description:
     "On a motorcycle, there are no frames, windows, or sound barriers. You are directly inside the elements. You feel the temperature plummet as you climb a 4,000m pass, smell the alpine pine after mountain rain, and taste the dust of remote riverbeds.",
   about_motorcycle_image:
-    "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=1200&q=80&auto=format",
+    "",
   about_motorcycle_image_alt: "Solo adventure motorcycle on remote mountain road",
   about_motorcycle_features: JSON.stringify(DEFAULT_MOTORCYCLE_FEATURES),
   about_motorcycle_cta_text: "Explore Motorcycle Destination Guides",
@@ -392,7 +392,7 @@ export const ABOUT_DEFAULTS: Record<string, string> = {
   about_trekking_description:
     "When the track terminates and the wheels can go no further, exploration continues on foot. Trekking high into the Karakoram and Himalayas is an exercise in absolute humility.",
   about_trekking_image:
-    "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80&auto=format",
+    "",
   about_trekking_image_alt: "High altitude mountain peak and glacier",
   about_trekking_location_label: "Himalayan Solitude",
   about_trekking_location_quote: "Against the silence of 8,000-meter giants, the ego evaporates.",

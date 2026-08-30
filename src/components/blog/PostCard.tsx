@@ -61,12 +61,6 @@ export function PostCard({ post, index = 0 }: { post: Post; index?: number }) {
                 alt={localizedPost.title}
                 loading="lazy"
                 referrerPolicy="no-referrer"
-                onError={(e) => {
-                  const target = e.currentTarget as HTMLImageElement;
-                  if (!target.src.includes("unsplash.com")) {
-                    target.src = "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1600&q=80";
-                  }
-                }}
                 className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
             ) : (

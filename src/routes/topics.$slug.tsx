@@ -27,7 +27,9 @@ export const Route = createFileRoute("/topics/$slug")({
         { property: "og:title", content: title },
         { property: "og:description", content: t.description },
         { property: "og:url", content: `/topics/${t.slug}` },
-        { property: "og:image", content: t.heroImage },
+        ...(t.posts[0]?.cover_image
+          ? [{ property: "og:image", content: t.posts[0].cover_image }]
+          : []),
       ],
       links: [{ rel: "canonical", href: `/topics/${t.slug}` }],
       scripts: [
@@ -81,11 +83,18 @@ function TopicPage() {
     <article className="min-h-screen">
       {/* Hero */}
       <div className="banner-hover relative h-[55vh] min-h-[380px] w-full overflow-hidden">
-        <img
-          src={topic.heroImage}
-          alt={topic.title}
-          className="h-full w-full object-cover"
-        />
+        {(() => {
+          const img = topic.posts[0]?.cover_image || topic.heroImage || "";
+          return img ? (
+            <img
+              src={img}
+              alt={topic.title}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <div className="absolute inset-0 h-full w-full bg-zinc-900" />
+          );
+        })()}
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/80" />
         <div className="absolute inset-x-0 bottom-0 mx-auto max-w-4xl px-4 pb-12 text-white sm:px-6">
           <PageBreadcrumbs

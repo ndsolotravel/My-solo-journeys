@@ -3,6 +3,7 @@ import { useTranslations } from "@/lib/translate/store";
 import { PageBreadcrumbs } from "@/components/layout/PageBreadcrumbs";
 import { TranslatedMarkdown } from "@/components/common/TranslatedMarkdown";
 import { getLegalPageBySlug } from "@/lib/legal.functions";
+import { resolveMediaUrl } from "@/lib/media";
 
 export const Route = createFileRoute("/disclaimer")({
   loader: async () => {
@@ -46,20 +47,22 @@ function DisclaimerPage() {
   const { legalPage } = Route.useLoaderData();
 
   const title = legalPage?.title || "Disclaimer";
-  const heroImage =
-    legalPage?.hero_image ||
-    "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=2000&q=80";
+  const heroImage = legalPage?.hero_image ? resolveMediaUrl(legalPage.hero_image) : "";
   const content = legalPage?.content || "";
 
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Hero Header */}
       <section className="banner-hover relative h-[30vh] min-h-[220px] w-full overflow-hidden flex flex-col justify-center items-center">
-        <img
-          src={heroImage}
-          alt={title}
-          className="absolute inset-0 h-full w-full object-cover"
-        />
+        {heroImage ? (
+          <img
+            src={heroImage}
+            alt={title}
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        ) : (
+          <div className="absolute inset-0 h-full w-full bg-zinc-900" />
+        )}
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70" />
         <div className="relative z-10 flex flex-col items-center justify-center text-center px-4 max-w-4xl mx-auto">
           <span className="rounded-full bg-brand px-3.5 py-1 text-xs font-bold uppercase tracking-[0.2em] text-brand-foreground shadow-sm mb-3">

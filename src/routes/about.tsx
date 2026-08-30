@@ -124,7 +124,7 @@ function AboutPage() {
   const heroEnabled = settings?.about_hero_enabled !== "false";
   const heroImage = settings?.about_hero_image
     ? resolveMediaUrl(settings.about_hero_image)
-    : "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1920&q=80&auto=format";
+    : "";
   const heroImageAlt =
     settings?.about_hero_image_alt || "Karakoram mountain pass and solo road";
   const heroLabel =
@@ -350,19 +350,18 @@ function AboutPage() {
         <section className="banner-hover relative min-h-[50vh] lg:min-h-[58vh] w-full flex items-end overflow-hidden bg-zinc-950">
           {/* Background Image with Cinematic Overlay */}
           <div className="absolute inset-0 z-0 overflow-hidden">
-            <img
-              src={heroImage}
-              alt={heroImageAlt}
-              loading="eager"
-              fetchPriority="high"
-              referrerPolicy="no-referrer"
-              onError={(e) => {
-                e.currentTarget.onerror = null;
-                e.currentTarget.src =
-                  "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1920&q=80&auto=format";
-              }}
-              className="h-full w-full object-cover object-center transform motion-safe:animate-fade-in duration-1000"
-            />
+            {heroImage ? (
+              <img
+                src={heroImage}
+                alt={heroImageAlt}
+                loading="eager"
+                fetchPriority="high"
+                referrerPolicy="no-referrer"
+                className="h-full w-full object-cover object-center transform motion-safe:animate-fade-in duration-1000"
+              />
+            ) : (
+              <div className="absolute inset-0 bg-zinc-900" />
+            )}
             {/* Gradients for depth and legibility */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/60" />
             <div className="absolute inset-0 [background:radial-gradient(ellipse_at_center,transparent_0%,rgba(0,0,0,0.3)_50%,rgba(0,0,0,0.7)_100%)]" />
@@ -646,13 +645,17 @@ function AboutPage() {
             <div className="grid lg:grid-cols-12 items-stretch">
               {/* Left: Atmospheric Image Frame */}
               <div className="lg:col-span-6 relative h-[360px] sm:h-[440px] lg:h-auto lg:min-h-[540px] w-full overflow-hidden rounded-t-3xl lg:rounded-l-3xl lg:rounded-tr-none lg:rounded-br-none isolate">
-                <img
-                  src={motorcycleImage}
-                  alt={motorcycleImageAlt}
-                  loading="eager"
-                  referrerPolicy="no-referrer"
-                  className="absolute inset-0 block h-full w-full max-w-none object-cover object-center"
-                />
+                {motorcycleImage ? (
+                  <img
+                    src={motorcycleImage}
+                    alt={motorcycleImageAlt}
+                    loading="eager"
+                    referrerPolicy="no-referrer"
+                    className="absolute inset-0 block h-full w-full max-w-none object-cover object-center"
+                  />
+                ) : (
+                  <div className="absolute inset-0 bg-zinc-900" />
+                )}
                 {motorcycleBadge && (
                   <div className="absolute bottom-4 sm:bottom-6 left-4 sm:left-6 right-4 sm:right-6 z-10 pointer-events-none">
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-xs font-semibold uppercase tracking-wider text-accent pointer-events-auto">
@@ -768,11 +771,15 @@ function AboutPage() {
 
             <div className="lg:col-span-6 order-1 lg:order-2">
               <div className="relative overflow-hidden rounded-3xl border border-border shadow-xl">
-                <img
-                  src={trekkingImage}
-                  alt={trekkingImageAlt}
-                  className="w-full aspect-[4/3] object-cover object-center transition-transform duration-700 hover:scale-[1.03]"
-                />
+                {trekkingImage ? (
+                  <img
+                    src={trekkingImage}
+                    alt={trekkingImageAlt}
+                    className="w-full aspect-[4/3] object-cover object-center transition-transform duration-700 hover:scale-[1.03]"
+                  />
+                ) : (
+                  <div className="w-full aspect-[4/3] bg-zinc-900" />
+                )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                 <div className="absolute bottom-6 left-6 right-6 text-white">
                   {trekkingLocationLabel && (

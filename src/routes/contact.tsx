@@ -151,11 +151,7 @@ function ContactPage() {
     <div className="min-h-screen bg-background text-foreground w-full min-w-0 overflow-x-hidden">
       {/* 1. Hero Section with Cinematic Mountain View & Centered Title */}
       <section className="banner-hover relative h-[38vh] min-h-[260px] sm:min-h-[300px] w-full overflow-hidden flex flex-col justify-center items-center">
-        <img
-          src="https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=2000&q=80"
-          alt="Open mountain landscape"
-          className="absolute inset-0 h-full w-full object-cover"
-        />
+        <div className="absolute inset-0 h-full w-full bg-zinc-900" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/45 to-black/80" />
         <div className="relative z-10 flex flex-col items-center justify-center text-center px-4 max-w-4xl mx-auto">
           <span className="rounded-full bg-brand px-3.5 py-1 text-xs font-bold uppercase tracking-[0.2em] text-brand-foreground shadow-sm mb-3">

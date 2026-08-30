@@ -54,7 +54,7 @@ We may update this Privacy Policy from time to time. Any changes will be posted 
 If you have any questions about this Privacy Policy, please contact us at [contact@ndsolotravel.com](mailto:contact@ndsolotravel.com).`,
     seo_title: "Privacy Policy — ndsolotravel",
     seo_description: "Privacy Policy for ndsolotravel. Learn how we collect, use, and protect your personal information.",
-    hero_image: "https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?w=2000&q=80",
+    hero_image: "",
     published: true,
   },
   disclaimer: {
@@ -86,7 +86,7 @@ By using our website, you hereby consent to our disclaimer and agree to its term
 If you have any questions about this Disclaimer, please contact us at [contact@ndsolotravel.com](mailto:contact@ndsolotravel.com).`,
     seo_title: "Disclaimer — ndsolotravel",
     seo_description: "Disclaimer for ndsolotravel. Read about the terms and conditions for using our travel content and resources.",
-    hero_image: "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=2000&q=80",
+    hero_image: "",
     published: true,
   },
 };

@@ -58,22 +58,18 @@ export function TrendingStories({
         >
           <Link to="/blog/$slug" params={{ slug: primaryPost.slug }} className="flex h-full flex-col w-full min-w-0">
             <div className="relative aspect-[16/10] w-full overflow-hidden bg-muted">
-              <img
-                src={
-                  primaryPost.cover_image
-                    ? resolveMediaUrl(primaryPost.cover_image)
-                    : "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1600&q=80"
-                }
-                alt={getPostTitle(primaryPost)}
-                loading="lazy"
-                onError={(e) => {
-                  const target = e.currentTarget as HTMLImageElement;
-                  if (!target.src.includes("unsplash.com")) {
-                    target.src = "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1600&q=80";
-                  }
-                }}
-                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
+              {primaryPost.cover_image ? (
+                <img
+                  src={resolveMediaUrl(primaryPost.cover_image)}
+                  alt={getPostTitle(primaryPost)}
+                  loading="lazy"
+                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-muted">
+                  <span className="text-xs text-muted-foreground">No image</span>
+                </div>
+              )}
               <div className="absolute left-3 top-3 rtl:left-auto rtl:right-3">
                 <span className="rounded-full bg-[#FF7A00] px-2.5 py-1 text-[11px] sm:px-3 sm:py-1 sm:text-xs font-semibold uppercase tracking-wider text-white shadow-sm">
                   {t(primaryPost.category || "Story")}
@@ -151,22 +147,18 @@ export function TrendingStories({
           >
             <Link to="/blog/$slug" params={{ slug: post.slug }} className="flex items-center gap-3 sm:gap-4 w-full min-w-0">
               <div className="relative h-20 w-22 sm:h-28 sm:w-32 shrink-0 overflow-hidden rounded-xl bg-muted">
-                <img
-                  src={
-                    post.cover_image
-                      ? resolveMediaUrl(post.cover_image)
-                      : "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&q=75"
-                  }
-                  alt={getPostTitle(post)}
-                  loading="lazy"
-                  onError={(e) => {
-                    const target = e.currentTarget as HTMLImageElement;
-                    if (!target.src.includes("unsplash.com")) {
-                      target.src = "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&q=75";
-                    }
-                  }}
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
+                {post.cover_image ? (
+                  <img
+                    src={resolveMediaUrl(post.cover_image)}
+                    alt={getPostTitle(post)}
+                    loading="lazy"
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center bg-muted">
+                    <span className="text-[10px] text-muted-foreground">No image</span>
+                  </div>
+                )}
               </div>
 
               <div className="flex flex-1 flex-col justify-between py-0.5 min-w-0">
@@ -215,13 +207,16 @@ export function TrendingStories({
               to={cat.linkTo as any}
               className="group relative flex items-center justify-between overflow-hidden rounded-xl border border-border/60 bg-muted/30 p-2.5 transition-all duration-200 hover:border-[#FF7A00]/40 hover:bg-muted min-w-0"
             >
-              {cat.image && (
-                <img
-                  src={resolveMediaUrl(cat.image)}
-                  alt={cat.name}
-                  className="absolute inset-0 h-full w-full object-cover opacity-20 transition-opacity duration-300 group-hover:opacity-30"
-                />
-              )}
+              {cat.image && (() => {
+                const catImg = resolveMediaUrl(cat.image);
+                return catImg ? (
+                  <img
+                    src={catImg}
+                    alt={cat.name}
+                    className="absolute inset-0 h-full w-full object-cover opacity-20 transition-opacity duration-300 group-hover:opacity-30"
+                  />
+                ) : null;
+              })()}
               <div className="relative z-10 flex items-center gap-2.5 min-w-0">
                 <span className="font-display text-xs sm:text-sm font-semibold text-foreground group-hover:text-[#FF7A00] transition-colors truncate">
                   {t(cat.name)}

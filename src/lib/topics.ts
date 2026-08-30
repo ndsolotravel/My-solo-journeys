@@ -16,7 +16,7 @@ export const TOPIC_CLUSTERS: TopicCluster[] = [
     subtitle: "Ride the roof of the world",
     description:
       "A complete guide to solo motorcycle adventures across Pakistan — from the Karakoram Highway to Deosai Plains, Hunza Valley, Skardu, and Fairy Meadows.",
-    heroImage: "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=2000&q=80",
+    heroImage: "",
     tags: ["motorcycle", "motorcycle travel", "karakoram highway", "hunza", "skardu", "deosai", "fairy meadows", "gilgit", "bike", "road trip"],
     categories: ["Motorcycle Adventure Travel"],
     pillarContent: `Pakistan is one of the most dramatic motorcycle destinations on earth. The country offers an unmatched combination of towering peaks, ancient trade routes, and warm hospitality — all accessible on two wheels.
@@ -53,7 +53,7 @@ The last 13 kilometres to Fairy Meadows are on one of the world's most dangerous
     subtitle: "Trails through the roof of the world",
     description:
       "From Nanga Parbat base camp to Baltoro Glacier, explore the best trekking routes in Pakistan's Karakoram, Himalaya, and Hindu Kush ranges.",
-    heroImage: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=2000&q=80",
+    heroImage: "",
     tags: ["trekking", "hiking", "nanga parbat", "baltoro", "k2", "base camp", "fairy meadows", "passu", "trail"],
     categories: ["Trekking", "Hiking"],
     pillarContent: `Pakistan sits at the junction of three of the world's greatest mountain ranges — the Karakoram, the Himalaya, and the Hindu Kush. This makes it one of the finest trekking destinations on earth, with trails ranging from gentle valley walks to high-altitude expeditions.
@@ -84,7 +84,7 @@ One of the highest lakes in the world at 4,694 metres, Rush Lake offers panorami
     subtitle: "Where the world's highest peaks meet",
     description:
       "Explore the Karakoram range — home to K2, the Baltoro Glacier, and some of the most dramatic mountain scenery in the world.",
-    heroImage: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=2000&q=80",
+    heroImage: "",
     tags: ["karakoram", "k2", "baltoro", "hunza", "gilgit", "passu", "hopper", "nagar"],
     categories: ["Mountains", "Adventure Travel"],
     pillarContent: `The Karakoram is the world's most concentrated range of high mountains. It contains over 60 peaks above 7,000 metres and four above 8,000 metres, including K2 — the second-highest mountain on earth.
@@ -117,7 +117,7 @@ The Karakoram is accessible from May to October. July and August offer the warme
     subtitle: "The jewel of northern Pakistan",
     description:
       "Everything you need to know about travelling in Gilgit Baltistan — from Hunza and Skardu to the Karakoram Highway and remote valleys.",
-    heroImage: "https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?w=2000&q=80",
+    heroImage: "",
     tags: ["gilgit", "baltistan", "hunza", "skardu", "nagar", "naltar", "ghizer", "shigar", "khaplu"],
     categories: ["Pakistan Tourism", "Adventure Travel"],
     pillarContent: `Gilgit Baltistan is a region of extraordinary beauty and cultural richness. Located in the northernmost part of Pakistan, it is home to some of the world's highest mountains, oldest glaciers, and most hospitable communities.
@@ -152,7 +152,7 @@ Most of Gilgit Baltistan is open to foreign tourists without a special permit. H
     subtitle: "Your guide to exploring Pakistan alone",
     description:
       "Is Pakistan safe for solo travellers? Everything you need to know about solo travel in Pakistan — routes, tips, costs, and real experiences.",
-    heroImage: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=2000&q=80",
+    heroImage: "",
     tags: ["solo travel", "pakistan", "adventure", "budget travel", "travel tips", "safety", "backpacking"],
     categories: ["Solo Travel", "Pakistan Tourism"],
     pillarContent: `Pakistan has emerged as one of the most exciting solo travel destinations in the world. With its dramatic landscapes, rich culture, and incredibly welcoming people, it rewards those who travel independently.
@@ -190,7 +190,7 @@ Pakistan is one of the most affordable travel destinations in the world. Budget 
     subtitle: "Everything you need before you go",
     description:
       "The complete Pakistan travel guide — visa requirements, best time to visit, top destinations, budget tips, and safety advice for first-time visitors.",
-    heroImage: "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=2000&q=80",
+    heroImage: "",
     tags: ["pakistan", "travel guide", "visa", "budget", "safety", "destinations", "tips", "first time"],
     categories: ["Pakistan Tourism", "Travel Tips"],
     pillarContent: `Pakistan is a country of staggering beauty and complexity. From the沙漠 dunes of Sindh to the glaciers of Gilgit Baltistan, it offers experiences that rival any destination on earth.

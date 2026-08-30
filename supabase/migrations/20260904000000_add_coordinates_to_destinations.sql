@@ -52,7 +52,7 @@ BEGIN
       'Pakistan',
       'Gilgit-Baltistan',
       'Concordia, the throne room of the mountain gods at the confluence of the Baltoro and Godwin-Austen glaciers.',
-      'https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=1600&q=80',
+      NULL,
       35.7444,
       76.5250,
       true

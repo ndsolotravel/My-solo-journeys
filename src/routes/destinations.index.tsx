@@ -73,11 +73,7 @@ function DestinationsPage() {
   return (
     <>
       <section className="banner-hover relative h-[45vh] min-h-[280px] w-full overflow-hidden">
-        <img
-          src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=2000&q=80"
-          alt="Mountain peaks at golden hour"
-          className="h-full w-full object-cover"
-        />
+        <div className="absolute inset-0 h-full w-full bg-zinc-900" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/70" />
         <div className="absolute inset-0 flex items-end">
           <div className="mx-auto w-full max-w-7xl px-4 pb-10 sm:px-6 lg:px-8">
@@ -174,12 +170,18 @@ function DestinationsPage() {
                       className="group block"
                     >
                       <div className="relative aspect-[16/10] sm:aspect-[4/5] overflow-hidden rounded-3xl bg-muted">
-                        <img
-                          src={d.featured_image || "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1600&q=80"}
-                          alt={d.title}
-                          loading="lazy"
-                          className="h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
-                        />
+                        {d.featured_image ? (
+                          <img
+                            src={d.featured_image}
+                            alt={d.title}
+                            loading="lazy"
+                            className="h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center bg-muted">
+                            <span className="text-xs text-muted-foreground">No image</span>
+                          </div>
+                        )}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/85 to-transparent" />
                         <div className="absolute inset-x-0 bottom-0 p-6 text-white">
                           <p className="text-xs uppercase tracking-wider text-white/70">

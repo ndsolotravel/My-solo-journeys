@@ -138,11 +138,15 @@ function BlogIndex() {
     <>
       {/* Hero Banner */}
       <section className="banner-hover relative h-[45vh] min-h-[320px] w-full overflow-hidden">
-        <img
-          src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=2000&q=80"
-          alt="Expedition trail at sunrise"
-          className="h-full w-full object-cover object-center"
-        />
+        {featuredPost?.cover_image ? (
+          <img
+            src={featuredPost.cover_image}
+            alt={featuredPost.title || "Expedition trail at sunrise"}
+            className="h-full w-full object-cover object-center"
+          />
+        ) : (
+          <div className="h-full w-full bg-zinc-900" />
+        )}
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/40 to-black/85" />
         <div className="absolute inset-0 flex items-end">
           <div className="mx-auto w-full max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
@@ -242,11 +246,18 @@ function BlogIndex() {
                   className="group relative overflow-hidden rounded-2xl border border-border bg-card transition-all duration-300 hover:border-accent/40 hover:shadow-lg"
                 >
                   <div className="relative h-36 overflow-hidden">
-                    <img
-                      src={topic.previewImage || topic.heroImage}
-                      alt={topic.title}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
+                    {(() => {
+                      const img = topic.previewImage || topic.heroImage;
+                      return img ? (
+                        <img
+                          src={img}
+                          alt={topic.title}
+                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="h-full w-full bg-zinc-900" />
+                      );
+                    })()}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                   </div>
                   <div className="p-4">

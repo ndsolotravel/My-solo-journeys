@@ -77,22 +77,18 @@ export function FeaturedGrid({
         >
           <Link to="/blog/$slug" params={{ slug: mainFeatured.slug }} className="flex h-full flex-col w-full min-w-0">
             <div className="relative aspect-[16/10] w-full overflow-hidden bg-muted">
-              <img
-                src={
-                  mainFeatured.cover_image
-                    ? resolveMediaUrl(mainFeatured.cover_image)
-                    : "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1600&q=80"
-                }
-                alt={getPostTitle(mainFeatured)}
-                loading="lazy"
-                onError={(e) => {
-                  const target = e.currentTarget as HTMLImageElement;
-                  if (!target.src.includes("unsplash.com")) {
-                    target.src = "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1600&q=80";
-                  }
-                }}
-                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
+              {mainFeatured.cover_image ? (
+                <img
+                  src={resolveMediaUrl(mainFeatured.cover_image)}
+                  alt={getPostTitle(mainFeatured)}
+                  loading="lazy"
+                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-muted">
+                  <span className="text-xs text-muted-foreground">No image</span>
+                </div>
+              )}
               <div className="absolute left-3 top-3 rtl:left-auto rtl:right-3">
                 <span className="rounded-full bg-[#FF7A00] px-2.5 py-1 text-[11px] sm:px-3 sm:py-1 sm:text-xs font-semibold uppercase tracking-wider text-white shadow-sm">
                   {t(mainFeatured.category || "Featured")}
@@ -148,22 +144,16 @@ export function FeaturedGrid({
             className="group relative flex-1 overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:border-[#FF7A00]/40 hover:shadow-md min-h-[160px] sm:min-h-[170px] w-full min-w-0"
           >
             <Link to="/blog/$slug" params={{ slug: post.slug }} className="block h-full w-full">
-              <img
-                src={
-                  post.cover_image
-                    ? resolveMediaUrl(post.cover_image)
-                    : "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=800&q=75"
-                }
-                alt={getPostTitle(post)}
-                loading="lazy"
-                onError={(e) => {
-                  const target = e.currentTarget as HTMLImageElement;
-                  if (!target.src.includes("unsplash.com")) {
-                    target.src = "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=800&q=75";
-                  }
-                }}
-                className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
+              {post.cover_image ? (
+                <img
+                  src={resolveMediaUrl(post.cover_image)}
+                  alt={getPostTitle(post)}
+                  loading="lazy"
+                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+              ) : (
+                <div className="absolute inset-0 h-full w-full bg-zinc-900" />
+              )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/30" />
 
               <div className="relative z-10 flex h-full flex-col justify-between p-4 sm:p-5 text-white min-w-0">

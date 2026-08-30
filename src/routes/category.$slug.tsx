@@ -29,7 +29,7 @@ export const Route = createFileRoute("/category/$slug")({
     const rawHeroImg =
       cat.image_url ||
       data.posts[0]?.cover_image ||
-      "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1600&q=80";
+      "";
     const heroImg = resolveMediaUrl(rawHeroImg);
 
     return {
@@ -39,11 +39,15 @@ export const Route = createFileRoute("/category/$slug")({
         { property: "og:title", content: pageTitle },
         { property: "og:description", content: metaDesc },
         { property: "og:url", content: canonicalUrl },
-        { property: "og:image", content: heroImg },
+        ...(heroImg
+          ? [
+              { property: "og:image", content: heroImg },
+              { name: "twitter:image", content: heroImg },
+            ]
+          : []),
         { name: "twitter:card", content: "summary_large_image" },
         { name: "twitter:title", content: pageTitle },
         { name: "twitter:description", content: metaDesc },
-        { name: "twitter:image", content: heroImg },
       ],
       links: [{ rel: "canonical", href: canonicalUrl }],
       scripts: [
@@ -99,18 +103,22 @@ function CategoryPage() {
   const rawHeroImage =
     category.image_url ||
     posts[0]?.cover_image ||
-    "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1600&q=80";
+    "";
   const heroImage = resolveMediaUrl(rawHeroImage);
 
   return (
     <article className="min-h-screen pb-20">
       {/* Cinematic Hero Banner */}
       <div className="banner-hover relative h-[48vh] min-h-[360px] w-full overflow-hidden bg-zinc-950">
-        <img
-          src={heroImage}
-          alt={category.name}
-          className="h-full w-full object-cover opacity-60"
-        />
+        {heroImage ? (
+          <img
+            src={heroImage}
+            alt={category.name}
+            className="h-full w-full object-cover opacity-60"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-zinc-900" />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 mx-auto max-w-5xl px-4 pb-10 sm:px-6">
           <PageBreadcrumbs

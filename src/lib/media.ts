@@ -9,6 +9,14 @@ export function resolveMediaUrl(urlOrPath: string | null | undefined, client?: a
   const trimmed = urlOrPath.trim();
   if (!trimmed) return "";
 
+  // Do not render any media hosted on Unsplash
+  if (
+    trimmed.includes("unsplash.com") ||
+    trimmed.includes("unsplash-photos.com")
+  ) {
+    return "";
+  }
+
   // Convert Google Drive sharing/file links into direct renderable CDN image links
   if (trimmed.includes("drive.google.com")) {
     const fileIdMatch =

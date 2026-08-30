@@ -668,7 +668,7 @@ function AdminDestinations() {
                   <input
                     value={editingForm.featured_image ?? ""}
                     onChange={(e) => updateField("featured_image", e.target.value)}
-                    placeholder="or paste image URL / Unsplash link"
+                    placeholder="or paste image URL"
                     className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-xs text-foreground focus:border-accent focus:outline-none transition-colors"
                   />
                 </div>

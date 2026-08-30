@@ -106,18 +106,14 @@ function DestinationPage() {
     <article className="min-h-screen">
       {/* Cover Header */}
       <div className="banner-hover relative h-[65vh] min-h-[440px] w-full overflow-hidden">
-        {d.featured_image && (
+        {d.featured_image ? (
           <img
             src={resolveMediaUrl(d.featured_image)}
             alt={d.title}
-            onError={(e) => {
-              const target = e.currentTarget as HTMLImageElement;
-              if (!target.src.includes("unsplash.com")) {
-                target.src = "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1600&q=80";
-              }
-            }}
             className="h-full w-full object-cover object-center"
           />
+        ) : (
+          <div className="absolute inset-0 h-full w-full bg-zinc-900" />
         )}
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/85" />
         <div className="absolute inset-x-0 bottom-0 mx-auto max-w-7xl px-4 pb-12 text-white sm:px-6 lg:px-8">
@@ -262,20 +258,19 @@ function DestinationPage() {
                 params={{ slug: item.slug }}
                 className="group relative block aspect-[4/3] overflow-hidden rounded-2xl border border-border"
               >
-                {item.featured_image && (
-                  <img
-                    src={resolveMediaUrl(item.featured_image)}
-                    alt={item.title}
-                    loading="lazy"
-                    onError={(e) => {
-                      const target = e.currentTarget as HTMLImageElement;
-                      if (!target.src.includes("unsplash.com")) {
-                        target.src = "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1600&q=80";
-                      }
-                    }}
-                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
-                )}
+                {item.featured_image ? (() => {
+                  const img = resolveMediaUrl(item.featured_image);
+                  return img ? (
+                    <img
+                      src={img}
+                      alt={item.title}
+                      loading="lazy"
+                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 h-full w-full bg-zinc-900" />
+                  );
+                })() : null}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 p-5 text-white">
                   <p className="text-xs uppercase tracking-wider text-white/70">{t(item.country)}</p>

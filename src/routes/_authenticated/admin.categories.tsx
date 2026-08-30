@@ -731,7 +731,7 @@ function AdminCategoriesPage() {
                     onChange={(e) =>
                       setEditing((prev) => (prev ? { ...prev, image_url: e.target.value } : prev))
                     }
-                    placeholder="https://images.unsplash.com/photo-… or storage URL"
+                    placeholder="https://… or storage URL"
                     className="flex-1 rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm font-medium outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
                   />
                   <label className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-muted px-4 py-2.5 text-xs font-semibold text-foreground hover:bg-muted/80 transition-colors cursor-pointer shrink-0 shadow-2xs">

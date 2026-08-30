@@ -60,7 +60,7 @@ export const listDestinations = createServerFn({ method: "GET" }).handler(async 
 
     const resolvedImage = coverPhoto
       ? resolveMediaUrl(coverPhoto, supabaseAdmin)
-      : "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1600&q=80";
+      : "";
 
     const resolvedPosts = linkedPosts.map((p: any) => ({
       ...p,
@@ -114,7 +114,7 @@ export const getDestinationBySlug = createServerFn({ method: "GET" })
 
     const resolvedImage = coverPhoto
       ? resolveMediaUrl(coverPhoto, supabaseAdmin)
-      : "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1600&q=80";
+      : "";
 
     const resolvedPosts = (posts ?? []).map((p: any) => ({
       ...p,

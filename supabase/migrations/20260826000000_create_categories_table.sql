@@ -63,17 +63,17 @@ CREATE POLICY "Admins and editors have full access to categories"
 -- 5. Pre-seed default categories
 INSERT INTO public.categories (name, slug, description, image_url, display_order, status)
 VALUES
-  ('Solo Travel', 'solo-travel', 'Independent expeditions, solo mindset, and journeys into remote frontiers.', 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1600&q=80', 1, 'active'),
-  ('Motorcycle Journeys', 'motorcycle-journeys', 'Long-distance motorcycle adventures, mountain passes, and highway diaries.', 'https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=1600&q=80', 2, 'active'),
-  ('Trekking', 'trekking', 'High-altitude trails, base camps, glaciers, and wilderness hiking expeditions.', 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&q=80', 3, 'active'),
-  ('Travel Guides', 'travel-guides', 'Honest, detailed route guides, logistics, permits, and preparation advice.', 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1600&q=80', 4, 'active'),
-  ('Destinations', 'destinations', 'Alpine valleys, base camps, and remote frontier settlements across Pakistan.', 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1600&q=80', 5, 'active'),
-  ('Adventure', 'adventure', 'Off-the-beaten-path expeditions and wild frontier crossings.', 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1600&q=80', 6, 'active'),
-  ('Photography', 'photography', 'Visual dispatches, landscape photography, and light from high altitudes.', 'https://images.unsplash.com/photo-1452421822248-d4c2b47f0c81?w=1600&q=80', 7, 'active'),
-  ('Field Notes', 'field-notes', 'Raw observations, reflections, and thoughts recorded on the road.', 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=1600&q=80', 8, 'active'),
-  ('Budget Travel', 'budget-travel', 'Cost breakdowns, local stays, and practical budget tips for mountain travel.', 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1600&q=80', 9, 'active'),
-  ('Nanga Parbat', 'nanga-parbat', 'Expeditions, base camps, and stories around the Killer Mountain.', 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1600&q=80', 10, 'active'),
-  ('Motorcycle Adventure Travel', 'motorcycle-adventure-travel', 'Solo motorcycle expeditions through high mountain passes.', 'https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=1600&q=80', 11, 'active')
+  ('Solo Travel', 'solo-travel', 'Independent expeditions, solo mindset, and journeys into remote frontiers.', NULL, 1, 'active'),
+  ('Motorcycle Journeys', 'motorcycle-journeys', 'Long-distance motorcycle adventures, mountain passes, and highway diaries.', NULL, 2, 'active'),
+  ('Trekking', 'trekking', 'High-altitude trails, base camps, glaciers, and wilderness hiking expeditions.', NULL, 3, 'active'),
+  ('Travel Guides', 'travel-guides', 'Honest, detailed route guides, logistics, permits, and preparation advice.', NULL, 4, 'active'),
+  ('Destinations', 'destinations', 'Alpine valleys, base camps, and remote frontier settlements across Pakistan.', NULL, 5, 'active'),
+  ('Adventure', 'adventure', 'Off-the-beaten-path expeditions and wild frontier crossings.', NULL, 6, 'active'),
+  ('Photography', 'photography', 'Visual dispatches, landscape photography, and light from high altitudes.', NULL, 7, 'active'),
+  ('Field Notes', 'field-notes', 'Raw observations, reflections, and thoughts recorded on the road.', NULL, 8, 'active'),
+  ('Budget Travel', 'budget-travel', 'Cost breakdowns, local stays, and practical budget tips for mountain travel.', NULL, 9, 'active'),
+  ('Nanga Parbat', 'nanga-parbat', 'Expeditions, base camps, and stories around the Killer Mountain.', NULL, 10, 'active'),
+  ('Motorcycle Adventure Travel', 'motorcycle-adventure-travel', 'Solo motorcycle expeditions through high mountain passes.', NULL, 11, 'active')
 ON CONFLICT (name) DO NOTHING;
 
 -- 6. Backfill posts.category_id matching existing category names

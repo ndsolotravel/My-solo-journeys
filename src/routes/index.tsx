@@ -46,15 +46,15 @@ const DestinationsMap = lazy(() =>
 
 const DEFAULT_HERO_SLIDES = [
   {
-    src: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=2000&q=80",
+    src: "",
     alt: "Nanga Parbat at sunrise",
   },
   {
-    src: "https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?w=2000&q=80",
+    src: "",
     alt: "Mountain road at dusk",
   },
   {
-    src: "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=2000&q=80",
+    src: "",
     alt: "Trekker on alpine ridge",
   },
 ];
@@ -178,7 +178,7 @@ function HomePage() {
   const heroFloatingPosts = allPosts.slice(1, 3);
 
   // Hero slideshow images: Auto => 3 latest published posts' covers, Manual => 3 URL fields.
-  // Empty/missing entries fall back to the default Unsplash slideshow.
+  // Slides with no resolvable image are omitted (no third-party fallback).
   const heroImagesMode = heroSettings.homepage_hero_images_mode === "manual" ? "manual" : "auto";
   const heroImagePosts = homepageConfig?.heroImagePosts ?? [];
   const manualHeroImageUrls = [
@@ -197,9 +197,9 @@ function HomePage() {
       src = p?.cover_image ?? null;
       alt = p?.title || DEFAULT_HERO_SLIDES[i].alt;
     }
-    if (src) return { src: resolveMediaUrl(src), alt };
-    return DEFAULT_HERO_SLIDES[i];
-  });
+    const resolved = src ? resolveMediaUrl(src) : "";
+    return resolved ? { src: resolved, alt } : null;
+  }).filter((s): s is { src: string; alt: string } => Boolean(s));
 
   // Trending / Latest Stories section data:
   // Left: primary story (allPosts[0] or next in line)
@@ -455,15 +455,15 @@ function HomePage() {
                   className="group flex items-center gap-3 rounded-2xl border border-white/20 bg-black/50 p-2.5 backdrop-blur-md transition-all duration-300 hover:border-[#FF7A00]/60 hover:bg-black/70 shadow-lg"
                 >
                   <div className="relative h-14 w-18 shrink-0 overflow-hidden rounded-xl bg-muted">
-                    <img
-                      src={
-                        hp.cover_image
-                          ? resolveMediaUrl(hp.cover_image)
-                          : "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=400&q=75"
-                      }
-                      alt={getPostTitle(hp)}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
+                    {hp.cover_image ? (
+                      <img
+                        src={resolveMediaUrl(hp.cover_image)}
+                        alt={getPostTitle(hp)}
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center bg-muted" />
+                    )}
                   </div>
                   <div className="flex-1 overflow-hidden">
                     <div className="flex items-center gap-1.5 text-[10px] text-white/70">
@@ -566,12 +566,19 @@ function HomePage() {
                     params={{ slug: activeTopics[0].slug }}
                     className="group relative flex h-full min-h-[320px] sm:min-h-[380px] lg:min-h-[460px] flex-col justify-end overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:border-[#FF7A00]/40 hover:shadow-lg w-full min-w-0"
                   >
-                    <img
-                      src={activeTopics[0].previewImage || activeTopics[0].heroImage}
-                      alt={activeTopics[0].title}
-                      loading="lazy"
-                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
+                    {(() => {
+                      const img = activeTopics[0].previewImage || activeTopics[0].heroImage;
+                      return img ? (
+                        <img
+                          src={img}
+                          alt={activeTopics[0].title}
+                          loading="lazy"
+                          className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 h-full w-full bg-zinc-900" />
+                      );
+                    })()}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
                     <div className="relative p-4 sm:p-6 text-white min-w-0">
                       <div className="inline-flex items-center gap-1.5 rounded-full bg-[#FF7A00] px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-white shadow-sm mb-3">
@@ -616,12 +623,19 @@ function HomePage() {
                       params={{ slug: topic.slug }}
                       className="group relative flex h-full min-h-[190px] sm:min-h-[210px] flex-col justify-end overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:border-[#FF7A00]/40 hover:shadow-md w-full min-w-0"
                     >
-                      <img
-                        src={topic.previewImage || topic.heroImage}
-                        alt={topic.title}
-                        loading="lazy"
-                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      />
+                      {(() => {
+                        const img = topic.previewImage || topic.heroImage;
+                        return img ? (
+                          <img
+                            src={img}
+                            alt={topic.title}
+                            loading="lazy"
+                            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                          />
+                        ) : (
+                          <div className="absolute inset-0 h-full w-full bg-zinc-900" />
+                        );
+                      })()}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
                       <div className="relative p-4 sm:p-5 text-white min-w-0">
                         <div className="inline-flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#FF7A00] backdrop-blur-md border border-white/10 mb-2">
@@ -714,15 +728,21 @@ function HomePage() {
                 params={{ slug: latestMoto.slug }}
                 className="jin-card group relative block overflow-hidden rounded-2xl border border-border shadow-sm transition-all duration-300 hover:border-[#FF7A00]/50 aspect-[16/10] sm:aspect-[4/3] lg:aspect-auto lg:min-h-[150px] w-full min-w-0"
               >
-                <img
-                  src={
-                    latestMoto.cover_image ||
-                    "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=800&q=75"
-                  }
-                  alt={latestMoto.title}
-                  loading="lazy"
-                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
+                {(() => {
+                  const img = latestMoto.cover_image
+                    ? resolveMediaUrl(latestMoto.cover_image)
+                    : "";
+                  return img ? (
+                    <img
+                      src={img}
+                      alt={latestMoto.title}
+                      loading="lazy"
+                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 h-full w-full bg-zinc-900" />
+                  );
+                })()}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20" />
                 <div className="relative flex h-full flex-col justify-between p-4 text-white min-w-0">
                   <div className="inline-flex w-fit items-center gap-1 rounded-full bg-black/60 px-2 py-0.5 text-[10px] uppercase tracking-wider text-[#FF7A00] backdrop-blur-md border border-white/10">
@@ -742,15 +762,21 @@ function HomePage() {
                 params={{ slug: latestDest.slug }}
                 className="jin-card group relative block overflow-hidden rounded-2xl border border-border shadow-sm transition-all duration-300 hover:border-[#FF7A00]/50 aspect-[16/10] sm:aspect-[4/3] lg:aspect-auto lg:min-h-[150px] w-full min-w-0"
               >
-                <img
-                  src={
-                    latestDest.featured_image ||
-                    "https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=800&q=75"
-                  }
-                  alt={latestDest.title}
-                  loading="lazy"
-                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
+                {(() => {
+                  const img = latestDest.featured_image
+                    ? resolveMediaUrl(latestDest.featured_image)
+                    : "";
+                  return img ? (
+                    <img
+                      src={img}
+                      alt={latestDest.title}
+                      loading="lazy"
+                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 h-full w-full bg-zinc-900" />
+                  );
+                })()}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20" />
                 <div className="relative flex h-full flex-col justify-between p-4 text-white min-w-0">
                   <div className="inline-flex w-fit items-center gap-1 rounded-full bg-black/60 px-2 py-0.5 text-[10px] uppercase tracking-wider text-[#FF7A00] backdrop-blur-md border border-white/10">
@@ -775,12 +801,7 @@ function HomePage() {
               hash="interactive-map"
               className="jin-card group relative block overflow-hidden rounded-2xl border border-border shadow-sm transition-all duration-300 hover:border-[#FF7A00]/50 aspect-[16/10] sm:aspect-[4/3] lg:aspect-auto lg:min-h-[150px] w-full min-w-0"
             >
-              <img
-                src="https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=800&q=75"
-                alt="Karakoram Highway"
-                loading="lazy"
-                className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
+              <div className="absolute inset-0 h-full w-full bg-zinc-900" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20" />
               <div className="relative flex h-full flex-col justify-between p-4 text-white min-w-0">
                 <div className="inline-flex w-fit items-center gap-1 rounded-full bg-black/60 px-2 py-0.5 text-[10px] uppercase tracking-wider text-[#FF7A00] backdrop-blur-md border border-white/10">
@@ -801,15 +822,21 @@ function HomePage() {
                 to="/gallery"
                 className="jin-card group relative block overflow-hidden rounded-2xl border border-border shadow-sm transition-all duration-300 hover:border-[#FF7A00]/50 aspect-[16/10] sm:aspect-[4/3] lg:aspect-auto lg:min-h-[150px] w-full min-w-0"
               >
-                <img
-                  src={
-                    latestPhoto.image_url ||
-                    "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&q=75"
-                  }
-                  alt={latestPhotoCaption || "Gallery photo"}
-                  loading="lazy"
-                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
+                {(() => {
+                  const img = latestPhoto.image_url
+                    ? resolveMediaUrl(latestPhoto.image_url)
+                    : "";
+                  return img ? (
+                    <img
+                      src={img}
+                      alt={latestPhotoCaption || "Gallery photo"}
+                      loading="lazy"
+                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 h-full w-full bg-zinc-900" />
+                  );
+                })()}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20" />
                 <div className="relative flex h-full flex-col justify-between p-4 text-white min-w-0">
                   <div className="inline-flex w-fit items-center gap-1 rounded-full bg-black/60 px-2 py-0.5 text-[10px] uppercase tracking-wider text-[#FF7A00] backdrop-blur-md border border-white/10">
@@ -896,21 +923,18 @@ function HomePage() {
                     >
                       <Link to="/destinations/$slug" params={{ slug: d.slug }} className="block w-full min-w-0">
                         <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-                          <img
-                            src={
-                              d.featured_image ||
-                              "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1600&q=80"
-                            }
-                            alt={d.title}
-                            loading="lazy"
-                            onError={(e) => {
-                              const target = e.currentTarget as HTMLImageElement;
-                              if (!target.src.includes("unsplash.com")) {
-                                target.src = "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1600&q=80";
-                              }
-                            }}
-                            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                          />
+                          {d.featured_image ? (
+                            <img
+                              src={d.featured_image}
+                              alt={d.title}
+                              loading="lazy"
+                              className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                            />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center bg-muted">
+                              <span className="text-xs text-muted-foreground">No image</span>
+                            </div>
+                          )}
                           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
                           <div className="absolute inset-x-0 bottom-0 p-4 text-white min-w-0">
                             <p className="text-[11px] font-semibold uppercase tracking-wider text-[#FF7A00] truncate">
