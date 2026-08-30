@@ -14,7 +14,7 @@ import {
   CheckCircle2,
   Loader2,
 } from "lucide-react";
-import { sendContact } from "@/lib/newsletter.functions";
+import { submitContactMessage } from "@/lib/contact.functions";
 import { getPageHeroConfig } from "@/lib/page-hero.functions";
 import { toast } from "sonner";
 import { SITE } from "@/lib/site";
@@ -76,7 +76,7 @@ export const Route = createFileRoute("/contact")({
 function ContactPage() {
   const t = useTranslations();
   const { data: hero } = useSuspenseQuery(heroQO);
-  const sendFn = useServerFn(sendContact);
+  const sendFn = useServerFn(submitContactMessage);
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "", website: "" });
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);

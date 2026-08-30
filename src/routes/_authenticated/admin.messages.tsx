@@ -1,14 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Trash2, Mail, Search } from "lucide-react";
+import { Trash2, Mail, Search, Send, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useMemo, useState } from "react";
 import {
   adminListMessages,
   adminUpdateMessageStatus,
   adminDeleteMessage,
-} from "@/lib/admin.functions";
+  adminReplyToMessage,
+} from "@/lib/contact.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/messages")({
   component: AdminMessages,
@@ -32,11 +33,16 @@ function AdminMessages() {
   const listFn = useServerFn(adminListMessages);
   const updFn = useServerFn(adminUpdateMessageStatus);
   const delFn = useServerFn(adminDeleteMessage);
+  const replyFn = useServerFn(adminReplyToMessage);
   const qc = useQueryClient();
 
   const [filter, setFilter] = useState<Status>("all");
   const [q, setQ] = useState("");
   const [openId, setOpenId] = useState<string | null>(null);
+
+  // Reply state
+  const [replyText, setReplyText] = useState("");
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
 
   const { data, isLoading } = useQuery<any>({
     queryKey: ["admin-messages"],
@@ -44,7 +50,7 @@ function AdminMessages() {
   });
 
   const upd = useMutation({
-    mutationFn: (v: { id: string; status: "new" | "read" | "replied" }) =>
+    mutationFn: (v: { id: string; status?: "new" | "read" | "replied"; is_read?: boolean }) =>
       updFn({ data: v }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-messages"] }),
     onError: (e: Error) => toast.error(e.message),
@@ -54,7 +60,18 @@ function AdminMessages() {
     mutationFn: (id: string) => delFn({ data: { id } }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-messages"] });
-      toast.success("Deleted");
+      toast.success("Message deleted");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const reply = useMutation({
+    mutationFn: (v: { messageId: string; replyBody: string }) => replyFn({ data: v }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin-messages"] });
+      toast.success("Reply sent via email");
+      setReplyingTo(null);
+      setReplyText("");
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -88,9 +105,16 @@ function AdminMessages() {
     <div className="space-y-6">
       <div className="sticky top-16 z-20 flex flex-col gap-3 border-b border-border bg-background/95 backdrop-blur-md pb-4 pt-3 shadow-2xs">
         <div>
-          <h1 className="font-display text-2xl sm:text-3xl font-bold">Messages</h1>
+          <h1 className="font-display text-2xl sm:text-3xl font-bold flex items-center gap-2">
+            Messages
+            {counts.new > 0 && (
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-accent-foreground">
+                {counts.new}
+              </span>
+            )}
+          </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Contact-form submissions. Mark messages as read or replied once handled.
+            Manage contact form submissions. Reply directly to send an email to the visitor.
           </p>
         </div>
       </div>
@@ -121,18 +145,22 @@ function AdminMessages() {
       </div>
 
       <div className="mt-6 space-y-3">
-        {isLoading && <p className="text-muted-foreground">Loading…</p>}
+        {isLoading && <p className="text-muted-foreground">Loading messages…</p>}
         {!isLoading && filtered.length === 0 && (
           <p className="rounded-2xl border border-dashed border-border py-10 text-center text-sm text-muted-foreground">
-            No messages.
+            No messages found.
           </p>
         )}
         {filtered.map((m: any) => {
           const isOpen = openId === m.id;
+          const isReplying = replyingTo === m.id;
+
           return (
             <div
               key={m.id}
-              className="rounded-2xl border border-border bg-background p-4"
+              className={`rounded-2xl border transition-colors ${
+                isOpen ? "border-brand/30 bg-card shadow-sm" : "border-border bg-background hover:border-brand/20"
+              } p-4`}
             >
               <button
                 type="button"
@@ -142,11 +170,17 @@ function AdminMessages() {
                   if (!isOpen && m.status === "new") {
                     upd.mutate({ id: m.id, status: "read" });
                   }
+                  if (isOpen) {
+                    setReplyingTo(null);
+                    setReplyText("");
+                  }
                 }}
               >
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <p className="truncate text-sm font-medium">{m.name}</p>
+                    <p className={`truncate text-sm ${m.status === "new" ? "font-bold text-foreground" : "font-medium text-foreground/80"}`}>
+                      {m.name}
+                    </p>
                     <span
                       className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
                         STATUS_CLASS[m.status] ?? STATUS_CLASS.new
@@ -170,43 +204,79 @@ function AdminMessages() {
               </button>
 
               {isOpen && (
-                <div className="mt-4 space-y-3 border-t border-border pt-4">
-                  <p className="whitespace-pre-wrap text-sm">{m.message}</p>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <a
-                      href={`mailto:${m.email}?subject=${encodeURIComponent(
-                        "Re: " + (m.subject || "your message to ndsolotravel"),
-                      )}`}
-                      onClick={() =>
-                        upd.mutate({ id: m.id, status: "replied" })
-                      }
-                      className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-3 py-1.5 text-xs font-medium text-background hover:opacity-90"
-                    >
-                      <Mail className="h-3.5 w-3.5" /> Reply by email
-                    </a>
-                    <select
-                      value={m.status}
-                      onChange={(e) =>
-                        upd.mutate({
-                          id: m.id,
-                          status: e.target.value as "new" | "read" | "replied",
-                        })
-                      }
-                      className="rounded-full border border-border bg-background px-3 py-1.5 text-xs"
-                    >
-                      <option value="new">New</option>
-                      <option value="read">Read</option>
-                      <option value="replied">Replied</option>
-                    </select>
-                    <button
-                      onClick={() => {
-                        if (confirm("Delete this message?")) del.mutate(m.id);
-                      }}
-                      className="ml-auto inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs text-red-500 hover:bg-red-500/10"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" /> Delete
-                    </button>
+                <div className="mt-4 space-y-4 border-t border-border pt-4">
+                  <div className="rounded-xl bg-muted/40 p-4">
+                    <p className="whitespace-pre-wrap text-sm text-foreground/90">{m.message}</p>
                   </div>
+                  
+                  {isReplying ? (
+                    <div className="space-y-3 rounded-xl border border-border bg-background p-4 shadow-sm animate-in fade-in zoom-in-95 duration-200">
+                      <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                        Reply to {m.name} ({m.email})
+                      </label>
+                      <textarea
+                        value={replyText}
+                        onChange={(e) => setReplyText(e.target.value)}
+                        placeholder="Type your reply here. This will be sent as an email."
+                        rows={5}
+                        className="w-full resize-none rounded-lg border border-border bg-muted/20 p-3 text-sm outline-none focus:border-brand focus:ring-1 focus:ring-brand"
+                      />
+                      <div className="flex justify-end gap-2">
+                        <button
+                          onClick={() => {
+                            setReplyingTo(null);
+                            setReplyText("");
+                          }}
+                          className="rounded-full px-4 py-2 text-xs font-medium text-muted-foreground hover:bg-muted"
+                          disabled={reply.isPending}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (!replyText.trim()) return toast.error("Reply cannot be empty");
+                            reply.mutate({ messageId: m.id, replyBody: replyText.trim() });
+                          }}
+                          disabled={reply.isPending || !replyText.trim()}
+                          className="inline-flex items-center gap-1.5 rounded-full bg-brand px-4 py-2 text-xs font-semibold text-brand-foreground hover:bg-brand/90 disabled:opacity-50"
+                        >
+                          {reply.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+                          Send Reply
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button
+                        onClick={() => setReplyingTo(m.id)}
+                        className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-4 py-1.5 text-xs font-medium text-background hover:opacity-90"
+                      >
+                        <Mail className="h-3.5 w-3.5" /> Reply from CMS
+                      </button>
+                      <select
+                        value={m.status}
+                        onChange={(e) =>
+                          upd.mutate({
+                            id: m.id,
+                            status: e.target.value as "new" | "read" | "replied",
+                          })
+                        }
+                        className="rounded-full border border-border bg-background px-3 py-1.5 text-xs outline-none"
+                      >
+                        <option value="new">New</option>
+                        <option value="read">Read</option>
+                        <option value="replied">Replied</option>
+                      </select>
+                      <button
+                        onClick={() => {
+                          if (confirm("Delete this message forever?")) del.mutate(m.id);
+                        }}
+                        className="ml-auto inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs text-red-500 hover:bg-red-500/10 transition-colors"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" /> Delete
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
