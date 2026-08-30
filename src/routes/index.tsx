@@ -11,7 +11,6 @@ import {
   Globe2,
   Route as RouteIcon,
   Calendar,
-  MapPin,
   Clock,
   ArrowUpRight,
   LayoutGrid,
@@ -75,13 +74,6 @@ const galleryQO = queryOptions({
   queryKey: ["home", "gallery"],
   queryFn: () => listGallery(),
 });
-const motoQO = queryOptions({
-  queryKey: ["home", "moto"],
-  queryFn: () =>
-    listPosts({
-      data: { limit: 1, categories: ["Motorcycle Adventure Travel"] },
-    }),
-});
 const journeyStatsQO = queryOptions({
   queryKey: ["home", "journey-stats"],
   queryFn: () => getJourneyStats(),
@@ -120,7 +112,6 @@ export const Route = createFileRoute("/")({
       context.queryClient.ensureQueryData(featuredQO),
       context.queryClient.ensureQueryData(destQO),
       context.queryClient.ensureQueryData(galleryQO),
-      context.queryClient.ensureQueryData(motoQO),
       context.queryClient.ensureQueryData(journeyStatsQO),
       context.queryClient.ensureQueryData(homepageQO),
       context.queryClient.ensureQueryData(topicsQO),
@@ -156,7 +147,6 @@ function HomePage() {
   const { data: destinationsData } = useSuspenseQuery(destQO);
   const { data: activeTopicsData } = useSuspenseQuery(topicsQO);
   const { data: galleryData } = useSuspenseQuery(galleryQO);
-  const { data: motoData } = useSuspenseQuery(motoQO);
   const { data: journeyStats } = useSuspenseQuery(journeyStatsQO);
   const { data: homepageConfig } = useSuspenseQuery(homepageQO);
   const { data: breakingNews } = useSuspenseQuery(breakingNewsQO);
@@ -255,12 +245,6 @@ function HomePage() {
     );
     secondaryFeatured.push(...fillers.slice(0, 2 - secondaryFeatured.length));
   }
-
-  const motoPosts = motoData?.posts ?? [];
-  const latestMoto = motoPosts[0] ?? null;
-  const latestDest = destinations[0] ?? null;
-  const latestPhoto = gallery[0] ?? null;
-  const latestPhotoCaption = latestPhoto?.caption || "";
 
   const [destView, setDestView] = useState<"grid" | "map">("grid");
   const navigate = useNavigate();
@@ -719,136 +703,6 @@ function HomePage() {
             ))}
           </div>
 
-          {/* Compact Travel Summary Highlights */}
-          <div className="mt-6 sm:mt-8 grid gap-3.5 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 w-full min-w-0">
-            {latestMoto && (
-              <Link
-                data-reveal="info"
-                to="/blog/$slug"
-                params={{ slug: latestMoto.slug }}
-                className="jin-card group relative block overflow-hidden rounded-2xl border border-border shadow-sm transition-all duration-300 hover:border-[#FF7A00]/50 aspect-[16/10] sm:aspect-[4/3] lg:aspect-auto lg:min-h-[150px] w-full min-w-0"
-              >
-                {(() => {
-                  const img = latestMoto.cover_image
-                    ? resolveMediaUrl(latestMoto.cover_image)
-                    : "";
-                  return img ? (
-                    <img
-                      src={img}
-                      alt={latestMoto.title}
-                      loading="lazy"
-                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 h-full w-full bg-zinc-900" />
-                  );
-                })()}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20" />
-                <div className="relative flex h-full flex-col justify-between p-4 text-white min-w-0">
-                  <div className="inline-flex w-fit items-center gap-1 rounded-full bg-black/60 px-2 py-0.5 text-[10px] uppercase tracking-wider text-[#FF7A00] backdrop-blur-md border border-white/10">
-                    <Bike className="h-3 w-3" /> {t("Latest trip")}
-                  </div>
-                  <h3 className="line-clamp-2 font-display text-sm font-semibold text-white group-hover:text-[#FF7A00] transition-colors break-words">
-                    {latestMoto.title}
-                  </h3>
-                </div>
-              </Link>
-            )}
-
-            {latestDest && (
-              <Link
-                data-reveal="info"
-                to="/destinations/$slug"
-                params={{ slug: latestDest.slug }}
-                className="jin-card group relative block overflow-hidden rounded-2xl border border-border shadow-sm transition-all duration-300 hover:border-[#FF7A00]/50 aspect-[16/10] sm:aspect-[4/3] lg:aspect-auto lg:min-h-[150px] w-full min-w-0"
-              >
-                {(() => {
-                  const img = latestDest.featured_image
-                    ? resolveMediaUrl(latestDest.featured_image)
-                    : "";
-                  return img ? (
-                    <img
-                      src={img}
-                      alt={latestDest.title}
-                      loading="lazy"
-                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 h-full w-full bg-zinc-900" />
-                  );
-                })()}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20" />
-                <div className="relative flex h-full flex-col justify-between p-4 text-white min-w-0">
-                  <div className="inline-flex w-fit items-center gap-1 rounded-full bg-black/60 px-2 py-0.5 text-[10px] uppercase tracking-wider text-[#FF7A00] backdrop-blur-md border border-white/10">
-                    <MapPin className="h-3 w-3" /> {t("Recent destination")}
-                  </div>
-                  <div className="min-w-0">
-                    <h3 className="line-clamp-2 font-display text-sm font-semibold text-white group-hover:text-[#FF7A00] transition-colors break-words">
-                      {latestDest.title}
-                    </h3>
-                    <p className="mt-0.5 text-[11px] text-white/70 truncate">
-                      {latestDest.country}
-                      {latestDest.region ? ` · ${latestDest.region}` : ""}
-                    </p>
-                  </div>
-                </div>
-              </Link>
-            )}
-
-            <Link
-              data-reveal="info"
-              to="/destinations"
-              hash="interactive-map"
-              className="jin-card group relative block overflow-hidden rounded-2xl border border-border shadow-sm transition-all duration-300 hover:border-[#FF7A00]/50 aspect-[16/10] sm:aspect-[4/3] lg:aspect-auto lg:min-h-[150px] w-full min-w-0"
-            >
-              <div className="absolute inset-0 h-full w-full bg-zinc-900" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20" />
-              <div className="relative flex h-full flex-col justify-between p-4 text-white min-w-0">
-                <div className="inline-flex w-fit items-center gap-1 rounded-full bg-black/60 px-2 py-0.5 text-[10px] uppercase tracking-wider text-[#FF7A00] backdrop-blur-md border border-white/10">
-                  <RouteIcon className="h-3 w-3" /> {t("Longest journey")}
-                </div>
-                <div className="min-w-0">
-                  <h3 className="font-display text-sm font-semibold text-white group-hover:text-[#FF7A00] transition-colors truncate">
-                    Karakoram Highway
-                  </h3>
-                  <p className="mt-0.5 text-[11px] text-white/70 truncate">1,840 km · Solo Route</p>
-                </div>
-              </div>
-            </Link>
-
-            {latestPhoto && (
-              <Link
-                data-reveal="info"
-                to="/gallery"
-                className="jin-card group relative block overflow-hidden rounded-2xl border border-border shadow-sm transition-all duration-300 hover:border-[#FF7A00]/50 aspect-[16/10] sm:aspect-[4/3] lg:aspect-auto lg:min-h-[150px] w-full min-w-0"
-              >
-                {(() => {
-                  const img = latestPhoto.image_url
-                    ? resolveMediaUrl(latestPhoto.image_url)
-                    : "";
-                  return img ? (
-                    <img
-                      src={img}
-                      alt={latestPhotoCaption || "Gallery photo"}
-                      loading="lazy"
-                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 h-full w-full bg-zinc-900" />
-                  );
-                })()}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20" />
-                <div className="relative flex h-full flex-col justify-between p-4 text-white min-w-0">
-                  <div className="inline-flex w-fit items-center gap-1 rounded-full bg-black/60 px-2 py-0.5 text-[10px] uppercase tracking-wider text-[#FF7A00] backdrop-blur-md border border-white/10">
-                    <Camera className="h-3 w-3" /> {t("Latest photo")}
-                  </div>
-                  <h3 className="line-clamp-2 font-display text-sm font-semibold text-white group-hover:text-[#FF7A00] transition-colors break-words">
-                    {latestPhotoCaption || "From the gallery"}
-                  </h3>
-                </div>
-              </Link>
-            )}
-          </div>
         </div>
       </section>
 
