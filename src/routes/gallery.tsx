@@ -1,14 +1,21 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { useState, useEffect } from "react";
-import { X, ChevronLeft, ChevronRight } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { listGallery } from "@/lib/gallery.functions";
+import { MapPin, SlidersHorizontal, ImagePlus, Camera } from "lucide-react";
+import { z } from "zod";
+import { listPhotoArchive } from "@/lib/photo-archive.functions";
 import { getPageHeroConfig } from "@/lib/page-hero.functions";
 import { useTranslations } from "@/lib/translate/store";
 import { PageBreadcrumbs, BreadcrumbJsonLd } from "@/components/layout/PageBreadcrumbs";
 
-const qo = queryOptions({ queryKey: ["gallery"], queryFn: () => listGallery() });
+const searchSchema = z.object({
+  category: z.string().optional(),
+});
+
+const archiveQO = (category?: string) =>
+  queryOptions({
+    queryKey: ["photo-archive", category ?? "all"],
+    queryFn: () => listPhotoArchive({ data: { category } }),
+  });
 
 const heroQO = queryOptions({
   queryKey: ["page-hero", "gallery"],
@@ -16,14 +23,17 @@ const heroQO = queryOptions({
 });
 
 export const Route = createFileRoute("/gallery")({
+  validateSearch: searchSchema,
+  loaderDeps: ({ search }) => search,
   head: () => ({
     meta: [
-      { title: "Gallery — ndsolotravel" },
+      { title: "Photography Archive — ndsolotravel" },
       {
         name: "description",
-        content: "Travel photography from the Karakoram, Nanga Parbat, Hunza and beyond.",
+        content:
+          "A curated photography archive from the Karakoram, Nanga Parbat, Hunza and beyond — mountains, motorcycles, roads, people, villages, and trekking.",
       },
-      { property: "og:title", content: "Gallery — ndsolotravel" },
+      { property: "og:title", content: "Photography Archive — ndsolotravel" },
       { property: "og:url", content: "/gallery" },
     ],
     links: [{ rel: "canonical", href: "/gallery" }],
@@ -41,70 +51,29 @@ export const Route = createFileRoute("/gallery")({
       },
     ],
   }),
-  loader: ({ context }) =>
-    Promise.all([
-      context.queryClient.ensureQueryData(qo),
+  loader: async ({ context, deps }) => {
+    await Promise.all([
+      context.queryClient.ensureQueryData(archiveQO(deps.category)),
       context.queryClient.ensureQueryData(heroQO),
-    ]).then(() => undefined),
+    ]);
+  },
   component: GalleryPage,
 });
 
-const pageTurnVariants = {
-  enter: (direction: number) => ({
-    rotateY: direction > 0 ? 70 : -70,
-    opacity: 0,
-    scale: 0.9,
-  }),
-  center: {
-    rotateY: 0,
-    opacity: 1,
-    scale: 1,
-    transition: {
-      duration: 0.38,
-      ease: [0.16, 1, 0.3, 1] as const,
-    },
-  },
-  exit: (direction: number) => ({
-    rotateY: direction > 0 ? -70 : 70,
-    opacity: 0,
-    scale: 0.9,
-    transition: {
-      duration: 0.3,
-      ease: [0.7, 0, 0.84, 0] as const,
-    },
-  }),
-};
-
 function GalleryPage() {
   const t = useTranslations();
-  const { data: rawItems } = useSuspenseQuery(qo);
+  const search = Route.useSearch();
+  const navigate = Route.useNavigate();
+  const { data: data } = useSuspenseQuery(archiveQO(search.category));
   const { data: hero } = useSuspenseQuery(heroQO);
-  const items = rawItems;
-  const [[activeIndex, direction], setActiveState] = useState<[number | null, number]>([null, 0]);
 
+  const photos = data.photos;
+  const categories = data.categories;
+  const activeCategory = search.category;
+  const totalShown = photos.length;
 
-  const active = activeIndex !== null ? items[activeIndex] : null;
-
-  const handlePrev = () => {
-    if (activeIndex === null || items.length === 0) return;
-    setActiveState(([curr]) => (curr === null ? [null, 0] : [(curr - 1 + items.length) % items.length, -1]));
-  };
-
-  const handleNext = () => {
-    if (activeIndex === null || items.length === 0) return;
-    setActiveState(([curr]) => (curr === null ? [null, 0] : [(curr + 1) % items.length, 1]));
-  };
-
-  useEffect(() => {
-    if (activeIndex === null) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowLeft") handlePrev();
-      if (e.key === "ArrowRight") handleNext();
-      if (e.key === "Escape") setActiveState([null, 0]);
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [activeIndex, items.length]);
+  const setCategory = (category?: string) =>
+    navigate({ search: (prev) => ({ ...prev, category: category || undefined }) });
 
   return (
     <>
@@ -112,7 +81,7 @@ function GalleryPage() {
         {hero?.image ? (
           <img
             src={hero.image}
-            alt="Travel photography from the mountains."
+            alt="Photographs from the mountains."
             className="absolute inset-0 h-full w-full object-cover object-center"
           />
         ) : (
@@ -127,134 +96,114 @@ function GalleryPage() {
             </h1>
             <PageBreadcrumbs items={[{ label: "Gallery" }]} />
             <p className="mt-3 max-w-xl text-sm text-white/80">
-              {t("A thousand sunrises above 4,000 metres.")}
+              {t("A curated archive of photographs from above 4,000 metres.")}
             </p>
           </div>
         </div>
       </section>
 
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <header className="max-w-3xl sr-only">
-          <p className="text-xs uppercase tracking-[0.2em] text-accent">{t("Photography")}</p>
-          <h1 className="mt-2 font-display text-4xl font-bold leading-tight sm:text-5xl">
-            {t("The light, the cold, the patience.")}
-          </h1>
-          <p className="mt-4 text-muted-foreground">
-            {t("A thousand sunrises above 4,000 metres.")}
-          </p>
-        </header>
+        <BreadcrumbJsonLd items={[{ label: "Gallery", href: "/gallery" }]} />
 
-        {/* Gallery Grid */}
-        <div className="mt-12 columns-1 gap-4 sm:columns-2 lg:columns-3">
-          {items.map((g, idx) => (
+        {/* Category Browser */}
+        <div className="mb-10 rounded-2xl border border-border bg-card p-5 shadow-sm">
+          <div className="flex flex-wrap items-center gap-2 pb-4">
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-accent">
+              <SlidersHorizontal className="h-3.5 w-3.5" />
+              <span>{t("Browse the archive")}</span>
+            </span>
+            <span className="text-xs text-muted-foreground">
+              {totalShown.toLocaleString()} {totalShown === 1 ? t("photograph") : t("photographs")}
+            </span>
+          </div>
+
+          <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap sm:overflow-visible">
             <button
-              key={g.id}
               type="button"
-              onClick={() => setActiveState([idx, 0])}
-              className="group relative mb-4 block w-full overflow-hidden rounded-2xl bg-muted transition-transform duration-300 hover:scale-[1.02] focus:outline-hidden focus:ring-2 focus:ring-accent"
+              onClick={() => setCategory(undefined)}
+              className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 text-xs font-medium transition-colors cursor-pointer ${
+                !activeCategory
+                  ? "border-foreground bg-foreground text-background"
+                  : "border-border text-foreground hover:border-accent hover:text-accent"
+              }`}
             >
-              <img
-                src={g.image_url}
-                alt={g.caption ?? ""}
-                loading="lazy"
-                className="aspect-[16/10] sm:aspect-auto w-full object-cover object-center transition-transform duration-700 hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                {g.caption && (
-                  <span className="text-xs font-medium text-white line-clamp-1">{t(g.caption)}</span>
-                )}
-              </div>
+              {t("All")}
+              <span className={!activeCategory ? "text-background/60" : "text-muted-foreground"}>
+                {photos.length}
+              </span>
             </button>
-          ))}
+
+            {categories.map((cat) => {
+              const active = activeCategory === cat.slug;
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setCategory(active ? undefined : cat.slug)}
+                  className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 text-xs font-medium transition-colors cursor-pointer ${
+                    active
+                      ? "border-foreground bg-foreground text-background"
+                      : "border-border text-foreground hover:border-accent hover:text-accent"
+                  }`}
+                >
+                  {t(cat.name)}
+                  <span className={active ? "text-background/60" : "text-muted-foreground"}>
+                    {cat.photo_count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
-        {/* Modal Lightbox */}
-        {active && activeIndex !== null && (
-          <div
-            onClick={() => setActiveState([null, 0])}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-3 sm:p-6 backdrop-blur-md transition-all duration-300"
-          >
-            {/* Top Bar: Counter & Close */}
-            <div className="absolute left-4 top-4 sm:left-6 sm:top-6 z-[102]">
-              <span className="rounded-full bg-black/75 px-4 py-1.5 text-xs sm:text-sm font-semibold text-white border border-white/20 backdrop-blur-md shadow-lg">
-                {activeIndex + 1} / {items.length}
-              </span>
+        {/* Archive Grid */}
+        {photos.length === 0 ? (
+          <div className="rounded-3xl border border-dashed border-border bg-card p-16 text-center shadow-sm">
+            <div className="mx-auto mb-4 w-fit rounded-2xl bg-brand/10 p-3 text-brand">
+              <ImagePlus className="h-7 w-7 text-accent" />
             </div>
-
-            <button
-              type="button"
-              aria-label={t("Close")}
-              onClick={(e) => {
-                e.stopPropagation();
-                setActiveState([null, 0]);
-              }}
-              className="absolute right-4 top-4 sm:right-6 sm:top-6 z-[102] flex h-11 w-11 items-center justify-center rounded-full bg-black/75 text-white border border-white/20 backdrop-blur-md hover:bg-black/95 hover:text-white transition-all hover:scale-110 active:scale-95 cursor-pointer shadow-lg"
-            >
-              <X className="h-6 w-6" />
-            </button>
-
-            {/* Active Image Container with 3D Page Turn Animation */}
-            <div
-              className="relative flex max-h-[85vh] max-w-[95vw] sm:max-w-[90vw] items-center justify-center overflow-hidden rounded-2xl shadow-2xl bg-black/40 [perspective:1200px]"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <AnimatePresence initial={false} custom={direction} mode="wait">
-                <motion.img
-                  key={active.id || activeIndex}
-                  src={active.image_url}
-                  alt={active.caption ?? ""}
-                  custom={direction}
-                  variants={pageTurnVariants}
-                  initial="enter"
-                  animate="center"
-                  exit="exit"
-                  className="max-h-[85vh] max-w-[95vw] sm:max-w-[90vw] rounded-2xl object-contain select-none shadow-2xl"
-                  style={{ backfaceVisibility: "hidden" }}
-                />
-              </AnimatePresence>
-
-              {/* Left Arrow Button - OVER THE IMAGE */}
-              {items.length > 1 && (
-                <button
-                  type="button"
-                  aria-label={t("Previous photo")}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handlePrev();
-                  }}
-                  className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 z-50 flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full bg-black/75 hover:bg-black/95 text-white border-2 border-white/40 shadow-2xl backdrop-blur-md transition-all hover:scale-110 active:scale-95 cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-accent"
-                >
-                  <ChevronLeft className="h-7 w-7 sm:h-8 sm:w-8 text-white drop-shadow-md rtl:rotate-180" />
-                </button>
-              )}
-
-              {/* Right Arrow Button - OVER THE IMAGE */}
-              {items.length > 1 && (
-                <button
-                  type="button"
-                  aria-label={t("Next photo")}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleNext();
-                  }}
-                  className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 z-50 flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full bg-black/75 hover:bg-black/95 text-white border-2 border-white/40 shadow-2xl backdrop-blur-md transition-all hover:scale-110 active:scale-95 cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-accent"
-                >
-                  <ChevronRight className="h-7 w-7 sm:h-8 sm:w-8 text-white drop-shadow-md rtl:rotate-180" />
-                </button>
-              )}
-            </div>
-
-            {/* Bottom Caption */}
-            {active.caption && (
-              <div
-                className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-[102] max-w-lg w-[90vw] text-center pointer-events-none"
-                onClick={(e) => e.stopPropagation()}
+            <p className="font-display text-xl font-semibold text-foreground">
+              {t("No photographs in this category yet")}
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {t("Photographs from the archive will appear here once they are curated.")}
+            </p>
+          </div>
+        ) : (
+          <div className="columns-1 gap-4 sm:columns-2 lg:columns-3">
+            {photos.map((p) => (
+              <Link
+                key={p.id}
+                to="/gallery/$slug"
+                params={{ slug: p.slug }}
+                className="group relative mb-4 block w-full overflow-hidden rounded-2xl bg-muted transition-transform duration-300 hover:scale-[1.02] focus:outline-hidden focus:ring-2 focus:ring-accent"
               >
-                <p className="inline-block rounded-2xl bg-black/80 px-5 py-2.5 text-xs sm:text-sm font-medium text-white border border-white/20 backdrop-blur-md shadow-xl">
-                  {t(active.caption)}
-                </p>
-              </div>
-            )}
+                <img
+                  src={p.image_url}
+                  alt={p.alt_text || p.title}
+                  loading="lazy"
+                  className="aspect-[16/10] sm:aspect-auto w-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent transition-opacity duration-300 flex items-end p-4">
+                  <div className="w-full">
+                    {p.categories.length > 0 && (
+                      <span className="mb-1.5 inline-flex items-center gap-1 rounded-full border border-white/20 bg-black/40 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-accent backdrop-blur-sm">
+                        {t(p.categories[0].name)}
+                      </span>
+                    )}
+                    {p.title && (
+                      <p className="line-clamp-1 text-sm font-semibold text-white">{t(p.title)}</p>
+                    )}
+                    {p.location && (
+                      <p className="mt-0.5 flex items-center gap-1 text-[11px] text-white/75">
+                        <MapPin className="h-3 w-3 shrink-0" />
+                        <span className="line-clamp-1">{t(p.location)}</span>
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </Link>
+            ))}
           </div>
         )}
       </div>

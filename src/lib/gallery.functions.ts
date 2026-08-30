@@ -6,150 +6,42 @@ export type GalleryItem = {
   image_url: string;
   caption: string | null;
   category: string | null;
-  width: number | null;
-  height: number | null;
-  post_id?: string | null;
 };
 
-function extractMarkdownImages(markdown?: string | null): { url: string; alt: string }[] {
-  if (!markdown || typeof markdown !== "string") return [];
-  const results: { url: string; alt: string }[] = [];
-  const mdRegex = /!\[([^\]]*)\]\((https?:\/\/[^\s)]+|\/[^\s)]+|blog-media\/[^\s)]+)\)/g;
-  let match: RegExpExecArray | null;
-  while ((match = mdRegex.exec(markdown)) !== null) {
-    if (match[2]) {
-      results.push({ alt: match[1] || "", url: match[2] });
-    }
-  }
-  return results;
-}
-
+/**
+ * Public gallery source for hero banner pickers and the homepage preview.
+ * Reads the dedicated photography archive (photos table) so the gallery,
+ * homepage preview and hero "auto" image all agree on the same curated set.
+ */
 export const listGallery = createServerFn({ method: "GET" }).handler(async () => {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-  // 1. Fetch site settings for about page picture & author name
-  const { data: settings } = await supabaseAdmin
-    .from("site_settings")
-    .select("key, value")
-    .in("key", ["about_image_url", "blog_author_name"]);
+  const [photoResult, linkResult, categoryResult] = await Promise.all([
+    supabaseAdmin
+      .from("photos")
+      .select("id,title,slug,image_url,alt_text,sort_order")
+      .eq("published", true)
+      .order("sort_order", { ascending: true })
+      .limit(800),
+    supabaseAdmin.from("photo_category_links").select("photo_id,category_id"),
+    supabaseAdmin.from("photo_categories").select("id,name,slug"),
+  ]);
 
-  const aboutSetting = settings?.find((s) => s.key === "about_image_url");
-  const authorSetting = settings?.find((s) => s.key === "blog_author_name");
-  const authorName = authorSetting?.value?.trim() || "Hussain";
-  const rawAboutUrl = aboutSetting?.value?.trim();
-  const aboutImageUrl = rawAboutUrl ? resolveMediaUrl(rawAboutUrl, supabaseAdmin) : null;
-
-  // 2. Fetch all published posts with their cover_image and post_gallery items
-  const { data: posts, error: postsError } = await (supabaseAdmin
-    .from("posts") as any)
-    .select(
-      "id, title, slug, content, cover_image, category, created_at, published_at, post_gallery(id, image_url, alt_text, sort_order, created_at)",
-    )
-    .eq("published", true)
-    .order("published_at", { ascending: false });
-
-  if (postsError) {
-    console.warn("[listGallery] Error fetching posts gallery:", postsError);
+  const linkByPhoto = new Map<string, string[]>();
+  for (const l of linkResult.data ?? []) {
+    const arr = linkByPhoto.get(l.photo_id) ?? [];
+    arr.push(l.category_id);
+    linkByPhoto.set(l.photo_id, arr);
   }
+  const catById = new Map((categoryResult.data ?? []).map((c) => [c.id, c]));
 
-  const items: GalleryItem[] = [];
-  const seenUrls = new Set<string>();
-
-  const addItem = (item: GalleryItem, rawUrl: string) => {
-    if (!rawUrl || typeof rawUrl !== "string") return;
-    const cleanKey = rawUrl.trim().toLowerCase();
-    if (seenUrls.has(cleanKey)) return;
-    seenUrls.add(cleanKey);
-    items.push(item);
-  };
-
-  // A. Add About Page Picture ONLY if a valid custom URL / uploaded storage path exists
-  if (aboutImageUrl) {
-    addItem(
-      {
-        id: "about-portrait",
-        image_url: aboutImageUrl,
-        caption: `${authorName} — ndsolotravel`,
-        category: "About",
-        width: 1200,
-        height: 1600,
-      },
-      rawAboutUrl!,
-    );
-  }
-
-  // B. Add images from published posts (Post Gallery, Cover Photo, and Markdown images)
-  if (posts && Array.isArray(posts)) {
-    for (const post of posts) {
-      // 1. Post Gallery items (preserves custom captions & sort orders)
-      const postGalleryItems = (post as any).post_gallery;
-      if (Array.isArray(postGalleryItems)) {
-        const sorted = [...postGalleryItems].sort(
-          (a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0),
-        );
-        for (const pg of sorted) {
-          if (pg.image_url && typeof pg.image_url === "string" && pg.image_url.trim()) {
-            const resolved = resolveMediaUrl(pg.image_url, supabaseAdmin);
-            if (resolved) {
-              addItem(
-                {
-                  id: `post-gal-${pg.id}`,
-                  image_url: resolved,
-                  caption: pg.alt_text || post.title || null,
-                  category: post.category || "Mountains",
-                  width: 1600,
-                  height: 1067,
-                  post_id: post.id,
-                },
-                pg.image_url,
-              );
-            }
-          }
-        }
-      }
-
-      // 2. Cover Photo (if not already in gallery)
-      if (post.cover_image && typeof post.cover_image === "string" && post.cover_image.trim()) {
-        const resolved = resolveMediaUrl(post.cover_image, supabaseAdmin);
-        if (resolved) {
-          addItem(
-            {
-              id: `post-cover-${post.id}`,
-              image_url: resolved,
-              caption: post.title || null,
-              category: post.category || "Mountains",
-              width: 1600,
-              height: 1067,
-              post_id: post.id,
-            },
-            post.cover_image,
-          );
-        }
-      }
-
-      // 3. Markdown content images
-      const contentImages = extractMarkdownImages(post.content);
-      for (let i = 0; i < contentImages.length; i++) {
-        const ci = contentImages[i];
-        const resolved = resolveMediaUrl(ci.url, supabaseAdmin);
-        if (resolved) {
-          addItem(
-            {
-              id: `post-content-${post.id}-${i}`,
-              image_url: resolved,
-              caption: ci.alt || post.title || null,
-              category: post.category || "Mountains",
-              width: 1600,
-              height: 1067,
-              post_id: post.id,
-            },
-            ci.url,
-          );
-        }
-      }
-    }
-  }
-
-  return items;
+  return (photoResult.data ?? []).map((p) => {
+    const firstCategory = linkByPhoto.get(p.id)?.[0];
+    return {
+      id: p.id,
+      image_url: resolveMediaUrl(p.image_url, supabaseAdmin),
+      caption: p.title || p.alt_text || null,
+      category: firstCategory ? (catById.get(firstCategory)?.name ?? null) : null,
+    } satisfies GalleryItem;
+  });
 });
-

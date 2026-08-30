@@ -61,7 +61,23 @@ async function loadAutoHeroImage(page: PageId, client: AnyClient): Promise<strin
     return "";
   }
 
-  // Gallery and Contact pages reuse the site's available photos (post galleries, covers).
+  // Gallery and Contact pages reuse the site's photography archive first,
+  // then fall back to post galleries and covers for older saved content.
+  const { data: photos, error: photosError } = await client
+    .from("photos")
+    .select("id, image_url, sort_order")
+    .eq("published", true)
+    .order("sort_order", { ascending: true })
+    .limit(20);
+
+  for (const p of photos ?? []) {
+    if (typeof p.image_url === "string" && p.image_url.trim()) {
+      const resolved = resolveMediaUrl(p.image_url, client);
+      if (resolved) return resolved;
+    }
+  }
+  if (photosError) return "";
+
   const { data: posts, error: postsError } = await (client.from("posts") as any)
     .select(
       "id, title, content, cover_image, published_at, post_gallery(id, image_url, alt_text, sort_order, created_at)",

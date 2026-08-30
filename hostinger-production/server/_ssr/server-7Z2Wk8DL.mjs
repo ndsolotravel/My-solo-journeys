@@ -81,7 +81,7 @@ function getResponse() {
 }
 var HEADERS = { TSS_SHELL: "X-TSS_SHELL" };
 async function getStartManifest(matchedRoutes) {
-  const { tsrStartManifest } = await import("../_tanstack-start-manifest_v-B_M43hFP.mjs");
+  const { tsrStartManifest } = await import("../_tanstack-start-manifest_v-BqLIZ3Mo.mjs");
   const startManifest = tsrStartManifest();
   let routes = startManifest.routes;
   routes[rootRouteId];
@@ -115,19 +115,19 @@ const manifest = {
   },
   "1032c4f50ff9d1b08d12ac5e025fafed9684ba93d59634e544902732947b5f98": {
     functionName: "adminDeleteCategory_createServerFn_handler",
-    importer: () => import("./categories.functions-BRgQ2hKs.mjs")
+    importer: () => import("./categories.functions-DS0OAlPf.mjs")
   },
   "11a3e5221d8be21b9fdddebef660f538b92679319c39b4d5a1df7f1408533287": {
     functionName: "listPosts_createServerFn_handler",
-    importer: () => import("./posts.functions-DfBqf4PA.mjs")
+    importer: () => import("./posts.functions--e9lY68m.mjs")
   },
   "11f09a767096a7c8056f64f933b9d4604fa74357d694e1436af5782976dc3b74": {
     functionName: "listCategories_createServerFn_handler",
-    importer: () => import("./categories.functions-BRgQ2hKs.mjs")
+    importer: () => import("./categories.functions-DS0OAlPf.mjs")
   },
   "14a5f2da7be60dd7371c795a0d155a8d64fe7f0f70cfc6b669d6c624dd941cd1": {
     functionName: "adminGetAboutEditor_createServerFn_handler",
-    importer: () => import("./about.functions-CNlb1Vx4.mjs")
+    importer: () => import("./about.functions-Di_0l7fe.mjs")
   },
   "14ab03ae1250075d926f835d8ad6f723f4c041147b45e9f7c6606a8a82741e17": {
     functionName: "getAuthorProfile_createServerFn_handler",
@@ -135,7 +135,7 @@ const manifest = {
   },
   "1e527b6631307654bc7f81cb758bd7a871fe81f3441e69d22bb529f27b5e4965": {
     functionName: "listDestinations_createServerFn_handler",
-    importer: () => import("./destinations.functions-C4ReSl_Z.mjs")
+    importer: () => import("./destinations.functions-CrA8FHhf.mjs")
   },
   "22dbf5a0bd1aa4105a7bf3eff794bd8738e2b5fef5f61aec5d79f152ea65a351": {
     functionName: "adminDeleteDestination_createServerFn_handler",
@@ -143,15 +143,15 @@ const manifest = {
   },
   "2c4583f12bce21ae798f1680d431270090538471e946cd081e4b8d8460ec2b1a": {
     functionName: "sendContactReply_createServerFn_handler",
-    importer: () => import("./newsletter.functions-DVMUBCoz.mjs")
+    importer: () => import("./newsletter.functions-DLT0P42O.mjs")
   },
   "2c83b3f1c75595fb9433f21f8203d59a19d372de43711193f4d2661393212e46": {
     functionName: "adminGetHomepageEditor_createServerFn_handler",
-    importer: () => import("./homepage.functions-BPuv7CjO.mjs")
+    importer: () => import("./homepage.functions-BEalBWOP.mjs")
   },
   "3426d3531642293d8adc031e9829de87a494839e6704bb9bdb109c78b66e2c6e": {
     functionName: "adminGetPageHeroEditor_createServerFn_handler",
-    importer: () => import("./page-hero.functions-Cyv2hPUV.mjs")
+    importer: () => import("./page-hero.functions-fkHTKlrI.mjs")
   },
   "35a26a0d373d3402f12b62248b04295a44839f563a7aadf486bfec03bb13a626": {
     functionName: "adminDeleteGalleryImage_createServerFn_handler",
@@ -159,11 +159,11 @@ const manifest = {
   },
   "36147828ec7f00cb3fa62463e9b7c81359c52057f31406b51e60ec2e09cd0023": {
     functionName: "adminUpdateSubscriberStatus_createServerFn_handler",
-    importer: () => import("./newsletter.functions-DVMUBCoz.mjs")
+    importer: () => import("./newsletter.functions-DLT0P42O.mjs")
   },
   "36c6a4e76a76bf4a189af9bbed4e4d6439e9a4acdb9c4f52ab791b173a03cbe1": {
     functionName: "getCategoryBySlug_createServerFn_handler",
-    importer: () => import("./categories.functions-BRgQ2hKs.mjs")
+    importer: () => import("./categories.functions-DS0OAlPf.mjs")
   },
   "373fbb90a7481a50b31f610c285b9e222e7b94cde4e0f85bb3942716793b8ca6": {
     functionName: "adminUpdateMessageStatus_createServerFn_handler",
@@ -175,7 +175,7 @@ const manifest = {
   },
   "3e97ad3a62fc506fb723a5239d751961bd75cff65bde1dcc51d7ac0d10a99c0c": {
     functionName: "adminSaveHomepageSettings_createServerFn_handler",
-    importer: () => import("./homepage.functions-BPuv7CjO.mjs")
+    importer: () => import("./homepage.functions-BEalBWOP.mjs")
   },
   "4037c4fa29b33ee2d3d1feacec22fd0de3eded8bdb36fc0638b5eab1a997adbd": {
     functionName: "adminUpdateDestinationCoordinates_createServerFn_handler",
@@ -183,11 +183,11 @@ const manifest = {
   },
   "4184e107b02cc5d3386f814d73d2a7f40796b5b94d0a73f13fa8faa643f6df33": {
     functionName: "adminUpsertCategory_createServerFn_handler",
-    importer: () => import("./categories.functions-BRgQ2hKs.mjs")
+    importer: () => import("./categories.functions-DS0OAlPf.mjs")
   },
   "42d8c5a0f2ac4a51b2ee36862863046dc42ef21708bdbe47e53e1eb60378f141": {
     functionName: "getDestinationBySlug_createServerFn_handler",
-    importer: () => import("./destinations.functions-C4ReSl_Z.mjs")
+    importer: () => import("./destinations.functions-CrA8FHhf.mjs")
   },
   "453b18f745aa96dd18df7e1f0f8568922912665dd1f16e9349f48327f9a275eb": {
     functionName: "adminGetSettings_createServerFn_handler",
@@ -199,19 +199,23 @@ const manifest = {
   },
   "46e91631002081989b72bdedfecbf910ff9f8a3dd454b304205425730e6377da": {
     functionName: "adminSaveAboutSettings_createServerFn_handler",
-    importer: () => import("./about.functions-CNlb1Vx4.mjs")
+    importer: () => import("./about.functions-Di_0l7fe.mjs")
   },
   "47788b7666be982aca3ef5f15a2fcc6897f28fce0ebb29e9fb1da0ab79c42b13": {
     functionName: "subscribe_createServerFn_handler",
-    importer: () => import("./newsletter.functions-DVMUBCoz.mjs")
+    importer: () => import("./newsletter.functions-DLT0P42O.mjs")
+  },
+  "477f53872e7f74097d1fa91e6ad5d40dac65aeed83df8c36f4fd079c43c79773": {
+    functionName: "listPhotoArchive_createServerFn_handler",
+    importer: () => import("./photo-archive.functions-B5mOcsUB.mjs")
   },
   "486857c8379099907b55d46ffdf446e4a695401a89b8881496b2b96cab631c1a": {
     functionName: "listActiveBreakingNews_createServerFn_handler",
-    importer: () => import("./news.functions-DOXh23fM.mjs")
+    importer: () => import("./news.functions-CZBXTBry.mjs")
   },
   "48e2a0283115b28497c09e9e66c78ce0455d953cb099457800b4d638580447e3": {
     functionName: "adminUpsertNews_createServerFn_handler",
-    importer: () => import("./news.functions-DOXh23fM.mjs")
+    importer: () => import("./news.functions-CZBXTBry.mjs")
   },
   "4b7fc69aa39af6873d95485ed4e6c306bbd8d0d452062d731076390369fe6b59": {
     functionName: "adminListGalleries_createServerFn_handler",
@@ -227,7 +231,7 @@ const manifest = {
   },
   "584ce841751771fbef6119f99552b491ccebe94a948e7f3bed85100b354de852": {
     functionName: "adminListNews_createServerFn_handler",
-    importer: () => import("./news.functions-DOXh23fM.mjs")
+    importer: () => import("./news.functions-CZBXTBry.mjs")
   },
   "5cc46fc601fd1ff52ffd9c8ffb0c64c4007a99684a2adb8466ae7502c456b327": {
     functionName: "getPublicSiteSettings_createServerFn_handler",
@@ -235,11 +239,11 @@ const manifest = {
   },
   "61a9150fa218b72ed0c6bb9ad2f4443dcd173e369c003c759c6b9c53413600a1": {
     functionName: "getNewsBySlug_createServerFn_handler",
-    importer: () => import("./news.functions-DOXh23fM.mjs")
+    importer: () => import("./news.functions-CZBXTBry.mjs")
   },
   "6b29b55bfd05b4cb01529beef06ba2ff9b94857498899a07140b95ba7889c19f": {
     functionName: "adminToggleNewsField_createServerFn_handler",
-    importer: () => import("./news.functions-DOXh23fM.mjs")
+    importer: () => import("./news.functions-CZBXTBry.mjs")
   },
   "6db5b19256028e899bf7983d6f88dd59c4706a4416ab35c9dfd77daf135aa118": {
     functionName: "adminDeleteComment_createServerFn_handler",
@@ -255,11 +259,11 @@ const manifest = {
   },
   "71d8fdf30ae9e2f9106b2721993bf34184ed8f34872c023de76a2613f0644775": {
     functionName: "getJourneyStats_createServerFn_handler",
-    importer: () => import("./posts.functions-DfBqf4PA.mjs")
+    importer: () => import("./posts.functions--e9lY68m.mjs")
   },
   "720444115414c1dc4c9ac4ddd501401a50a0fce2886ec398bcb73b9ac5519a3f": {
     functionName: "adminListSubscribers_createServerFn_handler",
-    importer: () => import("./newsletter.functions-DVMUBCoz.mjs")
+    importer: () => import("./newsletter.functions-DLT0P42O.mjs")
   },
   "72eaf964ab7ce14d623874daf7be210de5431691ecf47076df88fef9c15ca3d3": {
     functionName: "adminUploadImage_createServerFn_handler",
@@ -267,7 +271,7 @@ const manifest = {
   },
   "75c289fbf36a05cdded0534cf68c668e0d9e882b0f80347e2e9541902a86093e": {
     functionName: "adminDeleteSubscriber_createServerFn_handler",
-    importer: () => import("./newsletter.functions-DVMUBCoz.mjs")
+    importer: () => import("./newsletter.functions-DLT0P42O.mjs")
   },
   "778ec9633cb0adcb3eb8cb30c2a7968a85e3490a27fccb0807eaacfbd6dd15b2": {
     functionName: "getLegalPageBySlug_createServerFn_handler",
@@ -279,11 +283,11 @@ const manifest = {
   },
   "85dbbed3f83f5c7974101e536e5abd4a20f4781da47096aacd133095d93fc1f1": {
     functionName: "adminListCategories_createServerFn_handler",
-    importer: () => import("./categories.functions-BRgQ2hKs.mjs")
+    importer: () => import("./categories.functions-DS0OAlPf.mjs")
   },
   "8c6e7c8fac799d8bc78df9bc76e4b36e6d4e852682711602c40868363265359f": {
     functionName: "getTopicCluster_createServerFn_handler",
-    importer: () => import("./topics.functions-DR6p1-_i.mjs")
+    importer: () => import("./topics.functions-DWoMs8Jr.mjs")
   },
   "8eec2cf3796c533b3105ae32ffff41f9d081738ea9252d35057f78d72160727a": {
     functionName: "adminDeleteMessage_createServerFn_handler",
@@ -291,7 +295,7 @@ const manifest = {
   },
   "9161b4436f201e809bf5082c23fa618ba73a6a57ac9f0eb8d0f3c04852e32d0d": {
     functionName: "listActiveTopics_createServerFn_handler",
-    importer: () => import("./topics.functions-DR6p1-_i.mjs")
+    importer: () => import("./topics.functions-DWoMs8Jr.mjs")
   },
   "937009e7484166943d38c7957e6d738ecb9686e3d926481b72569119f35d5c81": {
     functionName: "adminUpsertLegalPage_createServerFn_handler",
@@ -303,15 +307,19 @@ const manifest = {
   },
   "98f1f07821f4ca35a777ae3a9c3739bd15d263f1786ca97572dcb7a9cd5f9183": {
     functionName: "listAllPostSlugs_createServerFn_handler",
-    importer: () => import("./posts.functions-DfBqf4PA.mjs")
+    importer: () => import("./posts.functions--e9lY68m.mjs")
   },
   "9af9309080664fa919d9f0ccc1d1b1233ba78f5ec575fcd3aaab715c0a8a455b": {
     functionName: "listGallery_createServerFn_handler",
-    importer: () => import("./gallery.functions-BWCcEsUf.mjs")
+    importer: () => import("./gallery.functions-U1Pe8o7L.mjs")
   },
   "9c8084edff95c284c741e3785ab938a71693bfe26e2c07e4c0272b47d311afc2": {
     functionName: "getPostBySlug_createServerFn_handler",
-    importer: () => import("./posts.functions-DfBqf4PA.mjs")
+    importer: () => import("./posts.functions--e9lY68m.mjs")
+  },
+  "9d3815ba8d21ac288fade4d64664efa1a878b219163ce728f0835b6d4609a8ba": {
+    functionName: "adminListPhotoArchiveEditor_createServerFn_handler",
+    importer: () => import("./photo-archive.functions-B5mOcsUB.mjs")
   },
   "a6a6adde10821551428be57d40d9e74be905929206d6fd8e4e91a2b9fdcdd3c8": {
     functionName: "getPostRatingStats_createServerFn_handler",
@@ -337,17 +345,21 @@ const manifest = {
     functionName: "adminSavePostGallery_createServerFn_handler",
     importer: () => import("./admin.functions-DYlTPA6Q.mjs")
   },
+  "b367243e57a421cc6fa8fd64d1952a4bf0595671d54415b13474edecf1b12e8b": {
+    functionName: "getPhotoArchiveItem_createServerFn_handler",
+    importer: () => import("./photo-archive.functions-B5mOcsUB.mjs")
+  },
   "b49bb2994ba1b17ca6b1509bc3b6a6619c694352a9b138448a7ed385f0dbf5a8": {
     functionName: "getBlogAuthorName_createServerFn_handler",
     importer: () => import("./settings.functions-B0bUaU-q.mjs")
   },
   "b56f884a287c0306c0fb06adf8aaa620bbe1bb3b1901cc25d9178aa8d506afd7": {
     functionName: "adminGetNews_createServerFn_handler",
-    importer: () => import("./news.functions-DOXh23fM.mjs")
+    importer: () => import("./news.functions-CZBXTBry.mjs")
   },
   "b6826ab77e000899a4d100302815e39fd62a663f61924c668747fd79f74de277": {
     functionName: "adminDeleteNews_createServerFn_handler",
-    importer: () => import("./news.functions-DOXh23fM.mjs")
+    importer: () => import("./news.functions-CZBXTBry.mjs")
   },
   "b77a5bffb98582e79619ef6ddb56139906f9f742c4a164964c7ca6ce1c154ee8": {
     functionName: "translateTexts_createServerFn_handler",
@@ -360,6 +372,10 @@ const manifest = {
   "b9bc4347398f7d94f2ecaa1859fac61574c8fc3b649c4ea3041ec6b57262cf08": {
     functionName: "adminUpdatePublicMessage_createServerFn_handler",
     importer: () => import("./public-message.functions-CwbWCAaI.mjs")
+  },
+  "ba70e233a1a340449b0a9c04f41d3bfa879520d9d9f43bb40082e415c13ddc54": {
+    functionName: "listPhotoArchiveCategories_createServerFn_handler",
+    importer: () => import("./photo-archive.functions-B5mOcsUB.mjs")
   },
   "bc043367e3258bc0750efadc2962d5983ded7a90f892e25e8da034f07aee469d": {
     functionName: "getMyRoles_createServerFn_handler",
@@ -387,11 +403,11 @@ const manifest = {
   },
   "ca369ea727ea5123aa5fee3fbc329cf735853eecfa76d8574d642a4ea46deb77": {
     functionName: "sendContact_createServerFn_handler",
-    importer: () => import("./newsletter.functions-DVMUBCoz.mjs")
+    importer: () => import("./newsletter.functions-DLT0P42O.mjs")
   },
   "d326ed6af5ded4b20d49d5103a78c1fbbdc07d078e944e8a44916233aa0d8d66": {
     functionName: "getPageHeroConfig_createServerFn_handler",
-    importer: () => import("./page-hero.functions-Cyv2hPUV.mjs")
+    importer: () => import("./page-hero.functions-fkHTKlrI.mjs")
   },
   "da53071c043974edb87b45468eb1066dcad45591f0fb1880a2e95813077c29f6": {
     functionName: "geocodeFromTitle_createServerFn_handler",
@@ -407,7 +423,11 @@ const manifest = {
   },
   "ed839ac608e04e2b639d981cb6f852fa1aeb890692636d81932865c4d88aa08c": {
     functionName: "getHomepageConfig_createServerFn_handler",
-    importer: () => import("./homepage.functions-BPuv7CjO.mjs")
+    importer: () => import("./homepage.functions-BEalBWOP.mjs")
+  },
+  "f5f858d73d0f7d6f9650dfff1baaa30fd44f254b2d84009c5eeec3643eb99a0a": {
+    functionName: "adminSavePhotoArchive_createServerFn_handler",
+    importer: () => import("./photo-archive.functions-B5mOcsUB.mjs")
   },
   "ffadc0811b3c311e38a0c7f23a5dfb1b1778216f1639c80b541652ff3643bed2": {
     functionName: "adminCreateAdminUser_createServerFn_handler",
@@ -1652,7 +1672,7 @@ var getBaseManifest = getProdBaseManifest;
 var createEarlyHintsForRequest = createEarlyHintsCollector;
 async function loadEntries() {
   const [routerEntry, startEntry, pluginAdapters] = await Promise.all([
-    import("./router-oW7Y7AUy.mjs").then((n) => n.ac),
+    import("./router-DbNDlpj2.mjs").then((n) => n.ad),
     import("./start-E4neGHSV.mjs"),
     import("./empty-plugin-adapters-BFgPZ6_d.mjs")
   ]);
