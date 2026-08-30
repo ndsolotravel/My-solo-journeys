@@ -347,7 +347,7 @@ function AboutPage() {
           1. CINEMATIC HERO SECTION
          ------------------------------------------------------------- */}
       {heroEnabled && (
-        <section className="banner-hover relative min-h-[50vh] lg:min-h-[58vh] w-full flex items-end overflow-hidden bg-zinc-950">
+        <section className="banner-hover relative min-h-[26vh] lg:min-h-[30vh] w-full flex items-end overflow-hidden bg-zinc-950">
           {/* Background Image with Cinematic Overlay */}
           <div className="absolute inset-0 z-0 overflow-hidden">
             {heroImage ? (
@@ -368,14 +368,14 @@ function AboutPage() {
           </div>
 
           {/* Hero Content */}
-          <div className="relative z-10 w-full max-w-7xl mx-auto px-4 pb-12 pt-28 sm:px-6 lg:px-8">
-            <div className="max-w-3xl space-y-4">
+          <div className="relative z-10 w-full max-w-7xl mx-auto px-4 pt-16 pb-8 sm:px-6 lg:px-8 lg:pt-8 lg:pb-10">
+            <div className="max-w-3xl space-y-3">
               {/* Tag Badge */}
               <motion.div
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-semibold uppercase tracking-[0.2em] text-accent"
+                className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-semibold uppercase tracking-[0.2em] text-accent"
               >
                 <Compass className="w-3.5 h-3.5 text-accent animate-pulse" />
                 <span>{t(heroLabel)}</span>
@@ -386,7 +386,7 @@ function AboutPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1 }}
-                className="font-display text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.1]"
+                className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-[1.1]"
               >
                 {t(heroHeadline)}
               </motion.h1>
@@ -397,7 +397,7 @@ function AboutPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.2 }}
-                  className="text-lg sm:text-xl text-zinc-300 leading-relaxed max-w-2xl font-light"
+                  className="text-base sm:text-lg text-zinc-300 leading-relaxed max-w-2xl font-light"
                 >
                   {t(heroSubtitle)}
                 </motion.p>
@@ -409,7 +409,7 @@ function AboutPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.3 }}
-                  className="flex flex-wrap gap-2.5 pt-2"
+                  className="flex flex-wrap gap-2 pt-1"
                 >
                   {heroBadges.map((badge) => (
                     <span
@@ -428,7 +428,7 @@ function AboutPage() {
               )}
 
               {/* Breadcrumb Navigation */}
-              <div className="pt-2">
+              <div className="pt-1">
                 <PageBreadcrumbs items={[{ label: "About" }]} />
               </div>
             </div>
