@@ -4,10 +4,16 @@ import { useState, useEffect } from "react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { listGallery } from "@/lib/gallery.functions";
+import { getPageHeroConfig } from "@/lib/page-hero.functions";
 import { useTranslations } from "@/lib/translate/store";
 import { PageBreadcrumbs, BreadcrumbJsonLd } from "@/components/layout/PageBreadcrumbs";
 
 const qo = queryOptions({ queryKey: ["gallery"], queryFn: () => listGallery() });
+
+const heroQO = queryOptions({
+  queryKey: ["page-hero", "gallery"],
+  queryFn: () => getPageHeroConfig({ data: "gallery" }),
+});
 
 export const Route = createFileRoute("/gallery")({
   head: () => ({
@@ -35,7 +41,11 @@ export const Route = createFileRoute("/gallery")({
       },
     ],
   }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(qo),
+  loader: ({ context }) =>
+    Promise.all([
+      context.queryClient.ensureQueryData(qo),
+      context.queryClient.ensureQueryData(heroQO),
+    ]).then(() => undefined),
   component: GalleryPage,
 });
 
@@ -68,6 +78,7 @@ const pageTurnVariants = {
 function GalleryPage() {
   const t = useTranslations();
   const { data: rawItems } = useSuspenseQuery(qo);
+  const { data: hero } = useSuspenseQuery(heroQO);
   const items = rawItems;
   const [[activeIndex, direction], setActiveState] = useState<[number | null, number]>([null, 0]);
 
@@ -98,7 +109,15 @@ function GalleryPage() {
   return (
     <>
       <section className="banner-hover relative h-[45vh] min-h-[280px] w-full overflow-hidden">
-        <div className="absolute inset-0 h-full w-full bg-zinc-900" />
+        {hero?.image ? (
+          <img
+            src={hero.image}
+            alt="Travel photography from the mountains."
+            className="absolute inset-0 h-full w-full object-cover object-center"
+          />
+        ) : (
+          <div className="absolute inset-0 h-full w-full bg-zinc-900" />
+        )}
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/70" />
         <div className="absolute inset-0 flex items-end">
           <div className="mx-auto w-full max-w-7xl px-4 pb-10 sm:px-6 lg:px-8">

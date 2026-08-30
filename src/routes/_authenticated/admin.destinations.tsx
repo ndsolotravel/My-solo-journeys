@@ -28,6 +28,7 @@ import {
   adminUploadImage,
   resolveMediaUrl,
 } from "@/lib/admin.functions";
+import { HeroBannerManager } from "@/components/admin/HeroBannerManager";
 
 export const Route = createFileRoute("/_authenticated/admin/destinations")({
   component: AdminDestinations,
@@ -296,6 +297,13 @@ function AdminDestinations() {
           <Plus className="h-4 w-4" /> New Destination
         </button>
       </div>
+
+      <HeroBannerManager
+        page="destinations"
+        autoHint="Automatically uses the latest suitable destination photo."
+        manualHint="Pick a destination photo from the CMS below, upload one, or paste a URL."
+        optionsLabel="Destination Photos"
+      />
 
       {isLoading ? (
         <div className="flex h-64 items-center justify-center">

@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import {
@@ -14,6 +15,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { sendContact } from "@/lib/newsletter.functions";
+import { getPageHeroConfig } from "@/lib/page-hero.functions";
 import { toast } from "sonner";
 import { SITE } from "@/lib/site";
 import { useTranslations } from "@/lib/translate/store";
@@ -34,6 +36,11 @@ function PinterestIcon({ className }: { className?: string }) {
     </svg>
   );
 }
+
+const heroQO = queryOptions({
+  queryKey: ["page-hero", "contact"],
+  queryFn: () => getPageHeroConfig({ data: "contact" }),
+});
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -62,11 +69,13 @@ export const Route = createFileRoute("/contact")({
       },
     ],
   }),
+  loader: ({ context }) => context.queryClient.ensureQueryData(heroQO),
   component: ContactPage,
 });
 
 function ContactPage() {
   const t = useTranslations();
+  const { data: hero } = useSuspenseQuery(heroQO);
   const sendFn = useServerFn(sendContact);
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "", website: "" });
   const [loading, setLoading] = useState(false);
@@ -151,7 +160,15 @@ function ContactPage() {
     <div className="min-h-screen bg-background text-foreground w-full min-w-0 overflow-x-hidden">
       {/* 1. Hero Section with Cinematic Mountain View & Centered Title */}
       <section className="banner-hover relative h-[38vh] min-h-[260px] sm:min-h-[300px] w-full overflow-hidden flex flex-col justify-center items-center">
-        <div className="absolute inset-0 h-full w-full bg-zinc-900" />
+        {hero?.image ? (
+          <img
+            src={hero.image}
+            alt="Reach out to the ndsolotravel team."
+            className="absolute inset-0 h-full w-full object-cover object-center"
+          />
+        ) : (
+          <div className="absolute inset-0 h-full w-full bg-zinc-900" />
+        )}
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/45 to-black/80" />
         <div className="relative z-10 flex flex-col items-center justify-center text-center px-4 max-w-4xl mx-auto">
           <span className="rounded-full bg-brand px-3.5 py-1 text-xs font-bold uppercase tracking-[0.2em] text-brand-foreground shadow-sm mb-3">

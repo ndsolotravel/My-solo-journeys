@@ -39,6 +39,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { HeroBannerManager } from "@/components/admin/HeroBannerManager";
 
 export const Route = createFileRoute("/_authenticated/admin/gallery")({
   component: AdminGalleryPage,
@@ -533,6 +534,13 @@ function AdminGalleryPage() {
         accept="image/jpeg,image/png,image/webp,image/avif"
         className="hidden"
         onChange={(e) => e.target.files && handleUploadFiles(e.target.files)}
+      />
+
+      <HeroBannerManager
+        page="gallery"
+        autoHint="Automatically uses a suitable photo from the gallery content."
+        manualHint="Pick a gallery photo from the CMS below, upload one, or paste a URL."
+        optionsLabel="Gallery Photos"
       />
 
       {/* Metrics Row */}

@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { Map as MapIcon, LayoutGrid } from "lucide-react";
 import { listDestinations } from "../lib/destinations.functions";
+import { getPageHeroConfig } from "../lib/page-hero.functions";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { useTranslations } from "@/lib/translate/store";
 import { PageBreadcrumbs, BreadcrumbJsonLd } from "@/components/layout/PageBreadcrumbs";
@@ -15,6 +16,11 @@ const DestinationsMap = lazy(() =>
 const destQO = queryOptions({
   queryKey: ["destinations"],
   queryFn: () => listDestinations(),
+});
+
+const heroQO = queryOptions({
+  queryKey: ["page-hero", "destinations"],
+  queryFn: () => getPageHeroConfig({ data: "destinations" }),
 });
 
 export const Route = createFileRoute("/destinations/")({
@@ -45,13 +51,18 @@ export const Route = createFileRoute("/destinations/")({
       },
     ],
   }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(destQO),
+  loader: ({ context }) =>
+    Promise.all([
+      context.queryClient.ensureQueryData(destQO),
+      context.queryClient.ensureQueryData(heroQO),
+    ]).then(() => undefined),
   component: DestinationsPage,
 });
 
 function DestinationsPage() {
   const t = useTranslations();
   const { data: destinationsData } = useSuspenseQuery(destQO);
+  const { data: hero } = useSuspenseQuery(heroQO);
   const destinations = destinationsData;
   const [view, setView] = useState<"map" | "grid">("grid");
 
@@ -73,7 +84,15 @@ function DestinationsPage() {
   return (
     <>
       <section className="banner-hover relative h-[45vh] min-h-[280px] w-full overflow-hidden">
-        <div className="absolute inset-0 h-full w-full bg-zinc-900" />
+        {hero?.image ? (
+          <img
+            src={hero.image}
+            alt="Your destinations in one beautiful image."
+            className="absolute inset-0 h-full w-full object-cover object-center"
+          />
+        ) : (
+          <div className="absolute inset-0 h-full w-full bg-zinc-900" />
+        )}
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/70" />
         <div className="absolute inset-0 flex items-end">
           <div className="mx-auto w-full max-w-7xl px-4 pb-10 sm:px-6 lg:px-8">
