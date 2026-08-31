@@ -1,9 +1,54 @@
 import { createClient } from '@supabase/supabase-js';
 import ws from 'ws';
+import { readFileSync, existsSync } from 'node:fs';
+import { resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type { Database } from './types';
 
 const DEFAULT_SUPABASE_URL = "https://mqoybarqgzzvillignbr.supabase.co";
 const DEFAULT_SUPABASE_ANON_KEY = "sb_publishable_quAPYI3nYdGK50erwAPnfg_YJWBq2u5";
+
+/** Load .env file into process.env if SUPABASE_SERVICE_ROLE_KEY is missing. */
+function ensureServerEnvLoaded() {
+  if (typeof process === 'undefined') return;
+  if (process.env.SUPABASE_SERVICE_ROLE_KEY) return;
+
+  try {
+    const candidates: string[] = [];
+
+    // 1. Project root relative to this source file
+    try {
+      candidates.push(resolve(dirname(fileURLToPath(import.meta.url)), '../../../.env'));
+    } catch { /* import.meta.url unavailable */ }
+
+    // 2. Project root relative to cwd
+    candidates.push(resolve(process.cwd(), '.env'));
+
+    for (const envPath of candidates) {
+      if (!existsSync(envPath)) continue;
+      const content = readFileSync(envPath, 'utf8');
+      content.split('\n').forEach((line) => {
+        const match = line.match(/^([^=]+)=(.*)$/);
+        if (match) {
+          const key = match[1].trim();
+          let val = match[2].trim();
+          if (
+            (val.startsWith('"') && val.endsWith('"')) ||
+            (val.startsWith("'") && val.endsWith("'"))
+          ) {
+            val = val.slice(1, -1).trim();
+          }
+          if (!process.env[key]) process.env[key] = val;
+        }
+      });
+      if (process.env.SUPABASE_SERVICE_ROLE_KEY) break;
+    }
+  } catch {
+    // Non-blocking — fallback to existing env or defaults
+  }
+}
+
+ensureServerEnvLoaded();
 
 function createSupabaseAdminClient() {
   const SUPABASE_URL =
