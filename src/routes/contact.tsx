@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Mail,
   Instagram,
@@ -13,10 +13,14 @@ import {
   Clock,
   CheckCircle2,
   Loader2,
+  AlertCircle,
 } from "lucide-react";
-import { submitContactMessage } from "@/lib/contact.functions";
+import {
+  submitContactMessage,
+  getPublicContactSettings,
+  type ContactFormConfig,
+} from "@/lib/contact.functions";
 import { getPageHeroConfig } from "@/lib/page-hero.functions";
-import { toast } from "sonner";
 import { SITE } from "@/lib/site";
 import { useTranslations } from "@/lib/translate/store";
 import { PageBreadcrumbs } from "@/components/layout/PageBreadcrumbs";
@@ -37,9 +41,41 @@ function PinterestIcon({ className }: { className?: string }) {
   );
 }
 
+// Public Turnstile site key — safe to expose publicly (it is a public key)
+const TURNSTILE_SITE_KEY =
+  (typeof import.meta !== "undefined" && import.meta.env
+    ? import.meta.env.VITE_TURNSTILE_SITE_KEY
+    : undefined) ||
+  (typeof process !== "undefined" ? process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY : undefined) ||
+  "";
+
+declare global {
+  interface Window {
+    turnstile?: {
+      render: (
+        container: string | HTMLElement,
+        options: {
+          sitekey: string;
+          callback: (token: string) => void;
+          "expired-callback"?: () => void;
+          "error-callback"?: () => void;
+          theme?: string;
+        },
+      ) => string;
+      reset: (widgetId?: string) => void;
+      remove: (widgetId?: string) => void;
+    };
+  }
+}
+
 const heroQO = queryOptions({
   queryKey: ["page-hero", "contact"],
   queryFn: () => getPageHeroConfig({ data: "contact" }),
+});
+
+const settingsQO = queryOptions({
+  queryKey: ["public-contact-settings"],
+  queryFn: () => getPublicContactSettings(),
 });
 
 export const Route = createFileRoute("/contact")({
@@ -69,92 +105,263 @@ export const Route = createFileRoute("/contact")({
       },
     ],
   }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(heroQO),
+  loader: async ({ context }) => {
+    await Promise.all([
+      context.queryClient.ensureQueryData(heroQO),
+      context.queryClient.ensureQueryData(settingsQO),
+    ]);
+  },
   component: ContactPage,
 });
+
+// ────────────────────────────────────────────────────────────────────────────
+// Type-only use of ContactFormConfig to keep the client bundle lean
+// ────────────────────────────────────────────────────────────────────────────
+
+type FieldState = {
+  value: string;
+  error: string | null;
+};
 
 function ContactPage() {
   const t = useTranslations();
   const { data: hero } = useSuspenseQuery(heroQO);
+  const { data: cfg } = useSuspenseQuery(settingsQO);
   const sendFn = useServerFn(submitContactMessage);
-  const [form, setForm] = useState({ name: "", email: "", subject: "", message: "", website: "" });
-  const [loading, setLoading] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
 
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  const config: ContactFormConfig =
+    cfg && typeof cfg === "object" && "name_label" in cfg
+      ? (cfg as ContactFormConfig)
+      : {
+          enabled: true,
+          title: "Send a Message",
+          description:
+            "Got a destination to discover, a story to share, or an adventure in mind? The inbox is always open.",
+          name_label: "Your Name",
+          name_placeholder: "John Doe",
+          name_required: true,
+          email_label: "Email Address",
+          email_placeholder: "john@example.com",
+          email_required: true,
+          subject_label: "Subject",
+          subject_placeholder: "Collaboration, query, or trail notes...",
+          subject_required: false,
+          message_label: "Your Message",
+          message_placeholder: "Write your message here...",
+          message_required: true,
+          submit_button_text: "Send Message",
+          success_message: "Message sent successfully.",
+          error_message: "Your message could not be sent. Please try again.",
+          notification_email_enabled: true,
+          confirmation_email_enabled: false,
+          notification_email: "ndsolotravel@gmail.com",
+          max_name: 120,
+          max_email: 320,
+          max_subject: 200,
+          max_message: 5000,
+        };
 
-    const name = form.name.trim();
-    const email = form.email.trim();
-    const subject = form.subject.trim();
-    const message = form.message.trim();
-    const website = form.website.trim();
+  const [name, setName] = useState<FieldState>({ value: "", error: null });
+  const [email, setEmail] = useState<FieldState>({ value: "", error: null });
+  const [subject, setSubject] = useState<FieldState>({ value: "", error: null });
+  const [message, setMessage] = useState<FieldState>({ value: "", error: null });
+  const [website, setWebsite] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState("");
 
-    if (!name) {
-      toast.error(t("Please enter your name."));
-      return;
-    }
+  const [submitPhase, setSubmitPhase] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [emailWarning, setEmailWarning] = useState<string | null>(null);
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email || !emailRegex.test(email)) {
-      toast.error(t("Please enter a valid email address."));
-      return;
-    }
+  const formRef = useRef<HTMLFormElement>(null);
+  const turnstileRef = useRef<string | null>(null);
+  const lastErrorRef = useRef<HTMLDivElement>(null);
 
-    if (!message) {
-      toast.error(t("Please enter your message."));
-      return;
-    }
+  const canUseTurnstile = Boolean(TURNSTILE_SITE_KEY);
 
-    setLoading(true);
-    try {
-      const result = await sendFn({
-        data: {
-          name,
-          email,
-          subject,
-          message,
-          website,
-        },
+  // ── Load Turnstile script when enabled & provider is available ─────────
+  useEffect(() => {
+    if (!canUseTurnstile) return;
+    const existing = document.getElementById("turnstile-script");
+    const renderWidget = () => {
+      if (!window.turnstile || !formRef.current) return;
+      const container = document.getElementById("contact-turnstile");
+      if (!container) return;
+      if (turnstileRef.current) {
+        window.turnstile.reset(turnstileRef.current);
+        return;
+      }
+      turnstileRef.current = window.turnstile.render(container, {
+        sitekey: TURNSTILE_SITE_KEY,
+        callback: (token) => setTurnstileToken(token),
+        "expired-callback": () => setTurnstileToken(""),
+        "error-callback": () => setTurnstileToken(""),
       });
+    };
 
-      if (result && result.ok) {
-        setSubmitted(true);
-        if (result.emailDelivered === false) {
-          toast.warning(
-            t(
-              "Your message was received and saved, but the email notification could not be delivered.",
-            ),
-          );
-        } else {
-          toast.success(t("Message sent successfully. I'll reply when I'm back from the trail."));
-        }
-        setForm({ name: "", email: "", subject: "", message: "", website: "" });
-      } else {
-        toast.error(t("Could not send message. Please try again."));
-      }
-    } catch (err: unknown) {
-      let errorMsg = "Could not send message. Please try again.";
-      if (err instanceof Error && err.message) {
-        try {
-          const parsed = JSON.parse(err.message);
-          if (Array.isArray(parsed) && parsed[0]?.message) {
-            errorMsg = parsed[0].message;
-          } else {
-            errorMsg = err.message;
-          }
-        } catch {
-          errorMsg = err.message;
-        }
-      }
-      toast.error(errorMsg);
-    } finally {
-      setLoading(false);
+    if (window.turnstile) {
+      renderWidget();
+      return;
     }
+    if (existing) {
+      existing.addEventListener("load", renderWidget);
+      return;
+    }
+    const s = document.createElement("script");
+    s.id = "turnstile-script";
+    s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+    s.async = true;
+    s.defer = true;
+    s.addEventListener("load", renderWidget);
+    document.head.appendChild(s);
+    return () => {
+      s.removeEventListener("load", renderWidget);
+    };
+  }, [canUseTurnstile]);
+
+  // ── Reset wireframe & store user info for a fresh submission ───────────
+  const resetValidation = useCallback(() => {
+    setName((f) => ({ ...f, error: null }));
+    setEmail((f) => ({ ...f, error: null }));
+    setSubject((f) => ({ ...f, error: null }));
+    setMessage((f) => ({ ...f, error: null }));
+    setSubmitError(null);
+    setEmailWarning(null);
+  }, []);
+
+  function validateField(
+    label: string,
+    value: string,
+    required: boolean,
+    max: number,
+    type: "text" | "email" = "text",
+  ): string | null {
+    const trimmed = value.trim();
+    if (required && !trimmed) return `Please enter your ${label.toLowerCase()}.`;
+    if (required && trimmed && !/[\S]/.test(value))
+      return `Please enter your ${label.toLowerCase()}.`;
+    if (trimmed.length > max) return `${label} must be ${max} characters or fewer.`;
+    if (type === "email" && required && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmed)) {
+      return "Please enter a valid email address.";
+    }
+    if (
+      type === "email" &&
+      !required &&
+      trimmed &&
+      !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmed)
+    ) {
+      return "Please enter a valid email address.";
+    }
+    return null;
   }
 
-  const inputClasses =
-    "w-full rounded-xl border border-border bg-background/80 dark:bg-muted/30 px-4 py-3 text-sm sm:text-base text-foreground placeholder:text-muted-foreground/70 outline-none transition-all duration-200 hover:border-brand/40 focus:border-brand focus:ring-2 focus:ring-brand/20 focus:bg-background";
+  function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    resetValidation();
+
+    const nameError = validateField("name", name.value, config.name_required, config.max_name);
+    const emailError = validateField(
+      "email",
+      email.value,
+      config.email_required,
+      config.max_email,
+      "email",
+    );
+    const subjectError = validateField(
+      "subject",
+      subject.value,
+      config.subject_required,
+      config.max_subject,
+    );
+    const messageError = validateField(
+      "message",
+      message.value,
+      config.message_required,
+      config.max_message,
+    );
+
+    setName((f) => ({ ...f, error: nameError }));
+    setEmail((f) => ({ ...f, error: emailError }));
+    setSubject((f) => ({ ...f, error: subjectError }));
+    setMessage((f) => ({ ...f, error: messageError }));
+
+    if (nameError || emailError || subjectError || messageError) {
+      setSubmitPhase("error");
+      setSubmitError("Please correct the highlighted fields and try again.");
+      requestAnimationFrame(() =>
+        lastErrorRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }),
+      );
+      return;
+    }
+
+    if (canUseTurnstile && !turnstileToken) {
+      setSubmitPhase("error");
+      setSubmitError("Please complete the security check below.");
+      requestAnimationFrame(() =>
+        lastErrorRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }),
+      );
+      return;
+    }
+
+    setSubmitPhase("loading");
+    setSubmitError(null);
+    setEmailWarning(null);
+
+    sendFn({
+      data: {
+        name: name.value.trim(),
+        email: email.value.trim(),
+        subject: subject.value.trim(),
+        message: message.value.trim(),
+        website: website.trim(),
+        turnstileToken,
+      },
+    })
+      .then((result) => {
+        if (result && result.ok) {
+          setSubmitPhase("success");
+          // Clear the form
+          setName({ value: "", error: null });
+          setEmail({ value: "", error: null });
+          setSubject({ value: "", error: null });
+          setMessage({ value: "", error: null });
+          setWebsite("");
+          setTurnstileToken("");
+          setEmailWarning(null);
+          if (result.emailDelivered === false) {
+            setEmailWarning(
+              "Your message was received and saved, but the email notification could not be delivered.",
+            );
+          }
+        } else {
+          setSubmitPhase("error");
+          setSubmitError(result && result.message ? result.message : config.error_message);
+        }
+      })
+      .catch((err: unknown) => {
+        setSubmitPhase("error");
+        let msg = config.error_message;
+        if (err instanceof Error && err.message) {
+          try {
+            const parsed = JSON.parse(err.message);
+            if (Array.isArray(parsed) && parsed[0]?.message) msg = parsed[0].message;
+            else msg = err.message;
+          } catch {
+            msg = err.message;
+          }
+        }
+        setSubmitError(msg);
+      });
+  }
+
+  const isSubmitting = submitPhase === "loading";
+  const didSucceed = submitPhase === "success";
+
+  const inputClasses = (hasError: boolean) =>
+    `w-full rounded-xl border px-4 py-3 text-sm sm:text-base text-foreground placeholder:text-muted-foreground/70 outline-none transition-all duration-200 focus:ring-2 bg-background/80 dark:bg-muted/30 ${
+      hasError
+        ? "border-red-400 focus:border-red-500 focus:ring-red-500/20"
+        : "border-border hover:border-brand/40 focus:border-brand focus:ring-brand/20 focus:bg-background"
+    }`;
 
   return (
     <div className="min-h-screen bg-background text-foreground w-full min-w-0 overflow-x-hidden">
@@ -183,7 +390,7 @@ function ContactPage() {
         </div>
       </section>
 
-      {/* 2. Main Content Section Matching Homepage Aesthetic */}
+      {/* 2. Main Content Section */}
       <section className="px-4 py-14 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
         <div className="mx-auto max-w-6xl w-full min-w-0">
           {/* Section Header */}
@@ -192,16 +399,17 @@ function ContactPage() {
               {t("Get In Touch")}
             </span>
             <h2 className="mt-3 font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-foreground">
-              {t("Send a Message")}
+              {config.title || t("Send a Message")}
             </h2>
             <p className="mt-3 max-w-2xl text-sm sm:text-base leading-relaxed text-muted-foreground">
-              {t(
-                "Got a destination to discover, a story to share, or an adventure in mind? Whether it’s a collaboration, a travel tip, or simply a great story from the road, the inbox is always open.",
-              )}
+              {config.description ||
+                t(
+                  "Got a destination to discover, a story to share, or an adventure in mind? The inbox is always open.",
+                )}
             </p>
           </div>
 
-          {/* Floating Split Card Matching Homepage Design System */}
+          {/* Floating Split Card */}
           <div className="overflow-hidden rounded-2xl sm:rounded-3xl border border-border bg-card shadow-xl shadow-black/5 dark:shadow-black/30 grid grid-cols-1 lg:grid-cols-12 w-full min-w-0">
             {/* Left Column: Form Container */}
             <div className="lg:col-span-7 bg-card p-6 sm:p-10 lg:p-12 flex flex-col justify-between w-full min-w-0">
@@ -209,7 +417,7 @@ function ContactPage() {
                 <div className="flex items-center justify-between border-b border-border pb-5 mb-8">
                   <div>
                     <h3 className="font-display text-xl sm:text-2xl font-bold text-foreground">
-                      {t("Send Us A Message")}
+                      {config.title || t("Send Us A Message")}
                     </h3>
                     <p className="text-xs sm:text-sm text-muted-foreground mt-1">
                       {t("Fill in the form below and I'll respond as soon as possible.")}
@@ -220,8 +428,12 @@ function ContactPage() {
                   </div>
                 </div>
 
-                {submitted ? (
-                  <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 dark:bg-emerald-950/20 p-6 sm:p-8 text-center space-y-4 my-6 animate-in fade-in duration-300">
+                {didSucceed ? (
+                  <div
+                    role="status"
+                    aria-live="polite"
+                    className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 dark:bg-emerald-950/20 p-6 sm:p-8 text-center space-y-4 my-6 animate-in fade-in duration-300"
+                  >
                     <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400">
                       <CheckCircle2 className="h-8 w-8" />
                     </div>
@@ -229,100 +441,190 @@ function ContactPage() {
                       {t("Message Sent Successfully!")}
                     </h4>
                     <p className="text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
-                      {t(
-                        "Thank you for reaching out. Your message has been received, and I'll get back to you as soon as I'm back from the trail.",
-                      )}
+                      {config.success_message ||
+                        t(
+                          "Thank you for reaching out. Your message has been received, and I'll get back to you as soon as I'm back from the trail.",
+                        )}
                     </p>
+                    {emailWarning && (
+                      <p className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-2 text-xs text-amber-600 dark:text-amber-400">
+                        {emailWarning}
+                      </p>
+                    )}
                     <button
                       type="button"
-                      onClick={() => setSubmitted(false)}
+                      onClick={() => {
+                        setSubmitPhase("idle");
+                        if (canUseTurnstile) setTurnstileToken("");
+                      }}
                       className="cursor-pointer inline-flex items-center justify-center rounded-full bg-brand hover:bg-brand/90 px-6 py-2.5 text-xs font-semibold text-brand-foreground shadow-md shadow-brand/25 transition-all hover:scale-[1.02] active:scale-[0.98]"
                     >
                       {t("Send another message")}
                     </button>
                   </div>
                 ) : (
-                  <form onSubmit={onSubmit} className="space-y-5">
+                  <form ref={formRef} onSubmit={onSubmit} noValidate className="space-y-5">
                     <div className="grid gap-5 sm:grid-cols-2">
+                      {/* Name */}
                       <div>
                         <label
                           htmlFor="contact-name"
                           className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2"
                         >
-                          {t("Your Name")} <span className="text-brand">*</span>
+                          {config.name_label || t("Your Name")}{" "}
+                          {config.name_required && <span className="text-brand">*</span>}
                         </label>
                         <input
                           id="contact-name"
                           name="name"
-                          required
-                          maxLength={120}
-                          placeholder={t("John Doe")}
-                          value={form.name}
-                          onChange={(e) => setForm({ ...form, name: e.target.value })}
-                          className={inputClasses}
+                          type="text"
+                          autoComplete="name"
+                          maxLength={config.max_name}
+                          placeholder={config.name_placeholder || t("John Doe")}
+                          value={name.value}
+                          onChange={(e) => setName({ value: e.target.value, error: null })}
+                          aria-invalid={Boolean(name.error)}
+                          aria-describedby={name.error ? "contact-name-error" : undefined}
+                          className={inputClasses(Boolean(name.error))}
                         />
+                        {name.error && (
+                          <p
+                            id="contact-name-error"
+                            role="alert"
+                            className="mt-1.5 flex items-center gap-1 text-xs text-red-500"
+                          >
+                            <AlertCircle className="h-3.5 w-3.5 shrink-0" /> {name.error}
+                          </p>
+                        )}
                       </div>
+
+                      {/* Email */}
                       <div>
                         <label
                           htmlFor="contact-email"
                           className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2"
                         >
-                          {t("Email Address")} <span className="text-brand">*</span>
+                          {config.email_label || t("Email Address")}{" "}
+                          {config.email_required && <span className="text-brand">*</span>}
                         </label>
                         <input
                           id="contact-email"
                           name="email"
-                          required
                           type="email"
-                          maxLength={320}
-                          placeholder={t("john@example.com")}
-                          value={form.email}
-                          onChange={(e) => setForm({ ...form, email: e.target.value })}
-                          className={inputClasses}
+                          autoComplete="email"
+                          maxLength={config.max_email}
+                          placeholder={config.email_placeholder || t("john@example.com")}
+                          value={email.value}
+                          onChange={(e) => setEmail({ value: e.target.value, error: null })}
+                          aria-invalid={Boolean(email.error)}
+                          aria-describedby={email.error ? "contact-email-error" : undefined}
+                          className={inputClasses(Boolean(email.error))}
                         />
+                        {email.error && (
+                          <p
+                            id="contact-email-error"
+                            role="alert"
+                            className="mt-1.5 flex items-center gap-1 text-xs text-red-500"
+                          >
+                            <AlertCircle className="h-3.5 w-3.5 shrink-0" /> {email.error}
+                          </p>
+                        )}
                       </div>
                     </div>
 
+                    {/* Subject */}
                     <div>
                       <label
                         htmlFor="contact-subject"
                         className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2"
                       >
-                        {t("Subject")}{" "}
-                        <span className="text-muted-foreground/60 text-[10px]">
-                          ({t("Optional")})
-                        </span>
+                        {config.subject_label || t("Subject")}{" "}
+                        {config.subject_required ? (
+                          <span className="text-brand">*</span>
+                        ) : (
+                          <span className="text-muted-foreground/60 text-[10px]">
+                            ({t("Optional")})
+                          </span>
+                        )}
                       </label>
                       <input
                         id="contact-subject"
                         name="subject"
-                        maxLength={200}
-                        placeholder={t("Collaboration, query, or trail notes...")}
-                        value={form.subject}
-                        onChange={(e) => setForm({ ...form, subject: e.target.value })}
-                        className={inputClasses}
+                        type="text"
+                        maxLength={config.max_subject}
+                        placeholder={
+                          config.subject_placeholder || t("Collaboration, query, or trail notes...")
+                        }
+                        value={subject.value}
+                        onChange={(e) => setSubject({ value: e.target.value, error: null })}
+                        aria-invalid={Boolean(subject.error)}
+                        aria-describedby={subject.error ? "contact-subject-error" : undefined}
+                        className={inputClasses(Boolean(subject.error))}
                       />
+                      {subject.error && (
+                        <p
+                          id="contact-subject-error"
+                          role="alert"
+                          className="mt-1.5 flex items-center gap-1 text-xs text-red-500"
+                        >
+                          <AlertCircle className="h-3.5 w-3.5 shrink-0" /> {subject.error}
+                        </p>
+                      )}
                     </div>
 
+                    {/* Message */}
                     <div>
-                      <label
-                        htmlFor="contact-message"
-                        className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2"
-                      >
-                        {t("Your Message")} <span className="text-brand">*</span>
-                      </label>
+                      <div className="flex items-center justify-between">
+                        <label
+                          htmlFor="contact-message"
+                          className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2"
+                        >
+                          {config.message_label || t("Your Message")}{" "}
+                          {config.message_required && <span className="text-brand">*</span>}
+                        </label>
+                        <span className="text-[10px] text-muted-foreground/70">
+                          {message.value.length}/{config.max_message}
+                        </span>
+                      </div>
                       <textarea
                         id="contact-message"
                         name="message"
-                        required
+                        required={config.message_required}
                         rows={5}
-                        maxLength={5000}
-                        placeholder={t("Write your message here...")}
-                        value={form.message}
-                        onChange={(e) => setForm({ ...form, message: e.target.value })}
-                        className={`${inputClasses} resize-none`}
+                        maxLength={config.max_message}
+                        placeholder={config.message_placeholder || t("Write your message here...")}
+                        value={message.value}
+                        onChange={(e) => setMessage({ value: e.target.value, error: null })}
+                        aria-invalid={Boolean(message.error)}
+                        aria-describedby={message.error ? "contact-message-error" : undefined}
+                        className={`${inputClasses(Boolean(message.error))} resize-none`}
                       />
+                      {message.error && (
+                        <p
+                          id="contact-message-error"
+                          role="alert"
+                          className="mt-1.5 flex items-center gap-1 text-xs text-red-500"
+                        >
+                          <AlertCircle className="h-3.5 w-3.5 shrink-0" /> {message.error}
+                        </p>
+                      )}
                     </div>
+
+                    {/* Turnstile widget */}
+                    {canUseTurnstile && (
+                      <div>
+                        <div id="contact-turnstile" className="min-h-[65px]" />
+                        {turnstileToken === "" && submitPhase === "error" && (
+                          <p
+                            className="mt-1.5 flex items-center gap-1 text-xs text-red-500"
+                            role="alert"
+                          >
+                            <AlertCircle className="h-3.5 w-3.5 shrink-0" /> Please complete the
+                            security check.
+                          </p>
+                        )}
+                      </div>
+                    )}
 
                     {/* Honeypot — hidden from humans, bots fill it */}
                     <div
@@ -336,24 +638,36 @@ function ContactPage() {
                         type="text"
                         tabIndex={-1}
                         autoComplete="off"
-                        value={form.website}
-                        onChange={(e) => setForm({ ...form, website: e.target.value })}
+                        value={website}
+                        onChange={(e) => setWebsite(e.target.value)}
                       />
                     </div>
+
+                    {/* Global error message */}
+                    {submitPhase === "error" && submitError && (
+                      <div
+                        ref={lastErrorRef}
+                        role="alert"
+                        className="flex items-start gap-2 rounded-xl border border-red-400/40 bg-red-500/5 px-4 py-3 text-sm text-red-600 dark:text-red-400"
+                      >
+                        <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+                        <span>{submitError}</span>
+                      </div>
+                    )}
 
                     <div className="pt-2">
                       <button
                         type="submit"
-                        disabled={loading}
+                        disabled={isSubmitting}
                         className="cursor-pointer inline-flex items-center justify-center gap-2 rounded-full bg-brand hover:bg-brand/90 active:scale-[0.98] px-9 py-3.5 text-sm font-semibold text-brand-foreground shadow-md shadow-brand/25 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
                       >
-                        {loading ? (
+                        {isSubmitting ? (
                           <>
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                            <span>{t("Sending…")}</span>
+                            <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                            <span aria-live="polite">{t("Sending…")}</span>
                           </>
                         ) : (
-                          <span>{t("Send Message")}</span>
+                          <span>{config.submit_button_text || t("Send Message")}</span>
                         )}
                       </button>
                     </div>
@@ -362,7 +676,7 @@ function ContactPage() {
               </div>
             </div>
 
-            {/* Right Column: Contact Info & Expedition Dispatches Panel */}
+            {/* Right Column: Contact Info & Social Panel (unchanged) */}
             <div className="lg:col-span-5 bg-secondary text-secondary-foreground p-6 sm:p-10 lg:p-12 flex flex-col justify-between border-t lg:border-t-0 lg:border-l border-border w-full min-w-0">
               <div>
                 <span className="inline-flex items-center rounded-full bg-brand/15 px-3 py-0.5 text-[11px] font-bold uppercase tracking-wider text-brand">
@@ -426,7 +740,7 @@ function ContactPage() {
                 </div>
               </div>
 
-              {/* Social Channels Section */}
+              {/* Social Channels */}
               <div className="pt-8 border-t border-secondary-foreground/15 mt-10">
                 <p className="text-xs font-bold uppercase tracking-wider text-secondary-foreground/80 mb-3.5">
                   {t("Connect With Us")}

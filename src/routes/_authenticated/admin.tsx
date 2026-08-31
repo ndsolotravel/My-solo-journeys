@@ -1,4 +1,6 @@
 import { createFileRoute, Link, Outlet, redirect, useRouterState } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import {
   LayoutDashboard,
   FileText,
@@ -19,6 +21,7 @@ import {
   Contact,
 } from "lucide-react";
 import { getMyRoles } from "@/lib/admin.functions";
+import { adminGetUnreadCount } from "@/lib/contact.functions";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -73,6 +76,13 @@ function AdminLayout() {
   const isActive = (to: string, exact?: boolean) =>
     exact ? pathname === to : pathname === to || pathname.startsWith(to + "/");
 
+  const unreadFn = useServerFn(adminGetUnreadCount);
+  const { data: unreadCount = 0 } = useQuery({
+    queryKey: ["admin-messages-unread"],
+    queryFn: async () => await unreadFn(),
+    refetchInterval: 60_000,
+  });
+
   return (
     <div className="mx-auto grid min-h-[80vh] max-w-7xl gap-8 px-4 py-10 sm:px-6 md:grid-cols-[220px_1fr] lg:px-8">
       <aside className="md:sticky md:top-24 md:self-start md:max-h-[calc(100dvh-8rem)] md:overflow-y-auto md:overscroll-contain">
@@ -84,6 +94,7 @@ function AdminLayout() {
             {NAV.map((n) => {
               const Icon = n.icon;
               const active = isActive(n.to, n.exact);
+              const showCount = n.to === "/admin/messages" && unreadCount > 0;
               return (
                 <Link
                   key={n.to}
@@ -93,7 +104,18 @@ function AdminLayout() {
                   }`}
                 >
                   <Icon className="h-4 w-4" />
-                  {n.label}
+                  <span className="flex-1">{n.label}</span>
+                  {showCount && (
+                    <span
+                      className={`flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] font-bold ${
+                        active
+                          ? "bg-brand text-brand-foreground"
+                          : "bg-accent text-accent-foreground"
+                      }`}
+                    >
+                      {unreadCount > 99 ? "99+" : unreadCount}
+                    </span>
+                  )}
                 </Link>
               );
             })}
