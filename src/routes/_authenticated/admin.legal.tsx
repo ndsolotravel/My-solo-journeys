@@ -22,6 +22,7 @@ import {
   Image as ImageIcon,
   Clock,
   Sparkles,
+  RotateCcw,
 } from "lucide-react";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
@@ -36,10 +37,7 @@ import {
 export const Route = createFileRoute("/_authenticated/admin/legal")({
   ssr: false,
   head: () => ({
-    meta: [
-      { title: "Legal Pages — Admin CMS" },
-      { name: "robots", content: "noindex,nofollow" },
-    ],
+    meta: [{ title: "Legal Pages — Admin CMS" }, { name: "robots", content: "noindex,nofollow" }],
   }),
   component: AdminLegalPage,
 });
@@ -133,8 +131,7 @@ function AdminLegalPage() {
     const selection = el.value.substring(start, end);
     const replacement = prefix + (selection || "text") + suffix;
 
-    const newContent =
-      el.value.substring(0, start) + replacement + el.value.substring(end);
+    const newContent = el.value.substring(0, start) + replacement + el.value.substring(end);
     setContent(newContent);
     setIsDirty(true);
 
@@ -144,84 +141,49 @@ function AdminLegalPage() {
     }, 10);
   };
 
+  const handleReset = () => {
+    const existing = legalPages?.find((p) => p.slug === activeSlug);
+    const defaultData = DEFAULT_LEGAL_PAGES[activeSlug];
+    const current = existing || defaultData;
+    if (current) {
+      setTitle(current.title || "");
+      setContent(current.content || "");
+      setSeoTitle(current.seo_title || "");
+      setSeoDescription(current.seo_description || "");
+      setHeroImage(current.hero_image || "");
+      setPublished(current.published ?? true);
+      setUpdatedAt(existing?.updated_at || null);
+    }
+    setIsDirty(false);
+    toast.info("Changes reset to last saved state");
+  };
+
   const activeTabMeta = LEGAL_TABS.find((t) => t.slug === activeSlug);
 
   return (
-    <div className="space-y-8 pb-16">
-      {/* Top Header */}
+    <div className="space-y-6 max-w-7xl mx-auto pb-16">
+      {/* Header Bar — sticky action bar */}
       <div className="sticky top-16 z-20 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border bg-background/95 backdrop-blur-md pb-4 pt-3 shadow-2xs">
-        <div>
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-accent">
-            <Scale className="h-4 w-4" /> Legal & Governance
-          </div>
-          <h1 className="mt-1 font-display text-3xl font-bold tracking-tight">Legal Pages CMS</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Manage, edit, and publish your Privacy Policy and Disclaimer pages with instant public updates.
-          </p>
-        </div>
-
         <div className="flex items-center gap-3">
-          {activeTabMeta && (
-            <a
-              href={activeTabMeta.path}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-4 py-2 text-xs font-semibold text-foreground hover:bg-muted transition cursor-pointer shadow-2xs"
-            >
-              <ExternalLink className="h-3.5 w-3.5" /> View Public Page
-            </a>
-          )}
-
-          <button
-            type="button"
-            disabled={saveMutation.isPending || isLoading}
-            onClick={() => saveMutation.mutate()}
-            className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2 text-xs font-semibold text-background hover:opacity-90 transition disabled:opacity-50 cursor-pointer shadow-xs"
-          >
-            {saveMutation.isPending ? (
-              <>
-                <Loader2 className="h-3.5 w-3.5 animate-spin" /> Saving…
-              </>
-            ) : (
-              <>
-                <Save className="h-3.5 w-3.5" /> Save Changes
-              </>
-            )}
-          </button>
+          <div className="p-2.5 rounded-2xl bg-brand/10 text-brand">
+            <Scale className="h-6 w-6 text-accent" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-accent">
+              Legal & Governance
+            </div>
+            <h1 className="font-display text-2xl font-bold text-foreground">Legal Pages CMS</h1>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Manage, edit, and publish your Privacy Policy and Disclaimer pages with instant public
+              updates.
+            </p>
+          </div>
         </div>
-      </div>
 
-      {/* Tabs Row */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-border/80 pb-3">
-        {LEGAL_TABS.map((tab) => {
-          const isActive = activeSlug === tab.slug;
-          return (
-            <button
-              key={tab.slug}
-              type="button"
-              onClick={() => setActiveSlug(tab.slug)}
-              className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-semibold transition cursor-pointer ${
-                isActive
-                  ? "bg-foreground text-background shadow-xs"
-                  : "bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground"
-              }`}
-            >
-              <Shield className="h-3.5 w-3.5" />
-              <span>{tab.title}</span>
-              <span
-                className={`rounded-full px-2 py-0.5 text-[10px] font-mono ${
-                  isActive ? "bg-background/20 text-background" : "bg-border/60 text-muted-foreground"
-                }`}
-              >
-                {tab.path}
-              </span>
-            </button>
-          );
-        })}
-
-        <div className="ml-auto flex items-center gap-2 text-xs text-muted-foreground">
+        {/* Global Actions */}
+        <div className="flex flex-wrap items-center gap-2.5">
           {updatedAt ? (
-            <span className="flex items-center gap-1">
+            <span className="hidden sm:inline-flex items-center gap-1 text-xs text-muted-foreground">
               <Clock className="h-3 w-3" /> Last saved:{" "}
               {new Date(updatedAt).toLocaleDateString("en-US", {
                 month: "short",
@@ -232,14 +194,106 @@ function AdminLegalPage() {
               })}
             </span>
           ) : (
-            <span>Seeded from default</span>
+            <span className="hidden sm:inline-flex items-center gap-1 text-xs text-muted-foreground">
+              <Clock className="h-3 w-3" /> Seeded from default
+            </span>
           )}
+
           {isDirty && (
             <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] font-semibold text-amber-600 dark:text-amber-400">
               Unsaved edits
             </span>
           )}
+
+          {activeTabMeta && (
+            <Link
+              to={activeTabMeta.path as "/privacy-policy"}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3.5 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors shadow-2xs"
+            >
+              <Eye className="h-3.5 w-3.5 text-accent" />
+              <span>View Public Page</span>
+              <ExternalLink className="h-3 w-3 text-muted-foreground ml-0.5" />
+            </Link>
+          )}
+
+          {isDirty && (
+            <button
+              type="button"
+              onClick={handleReset}
+              disabled={saveMutation.isPending}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3.5 py-2 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+            >
+              <RotateCcw className="h-3.5 w-3.5" />
+              <span>Reset</span>
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={() => saveMutation.mutate()}
+            disabled={!isDirty || saveMutation.isPending || isLoading}
+            className="inline-flex items-center gap-2 rounded-xl bg-brand px-5 py-2 text-xs font-semibold text-white shadow-md shadow-brand/20 hover:bg-brand/90 disabled:opacity-50 transition-all cursor-pointer"
+          >
+            {saveMutation.isPending ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Save className="h-3.5 w-3.5" />
+            )}
+            <span>{saveMutation.isPending ? "Saving..." : "Save Changes"}</span>
+          </button>
         </div>
+      </div>
+
+      {/* Unsaved Changes Alert Banner */}
+      {isDirty && (
+        <div className="flex items-center justify-between rounded-xl bg-brand/10 border border-brand/20 px-4 py-2.5 text-xs text-brand animate-fade-in">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4 shrink-0 text-accent" />
+            <span className="font-medium">
+              You have unsaved changes. Click &quot;Save Changes&quot; to apply them to the live{" "}
+              {title || "page"}.
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => saveMutation.mutate()}
+            disabled={saveMutation.isPending}
+            className="font-bold underline hover:opacity-80 cursor-pointer"
+          >
+            Save now
+          </button>
+        </div>
+      )}
+
+      {/* Tabs Row */}
+      <div className="inline-flex flex-wrap items-center gap-1 rounded-xl border border-border bg-background p-1 text-xs font-medium">
+        {LEGAL_TABS.map((tab) => {
+          const isActive = activeSlug === tab.slug;
+          return (
+            <button
+              key={tab.slug}
+              type="button"
+              onClick={() => setActiveSlug(tab.slug)}
+              className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all cursor-pointer ${
+                isActive
+                  ? "bg-brand text-white font-semibold shadow-2xs"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+              }`}
+            >
+              <Shield className="h-3.5 w-3.5" />
+              <span>{tab.title}</span>
+              <span
+                className={`rounded-full px-2 py-0.5 text-[10px] font-mono ${
+                  isActive ? "bg-white/20 text-white" : "bg-border/60 text-muted-foreground"
+                }`}
+              >
+                {tab.path}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Editor Grid */}
@@ -247,10 +301,22 @@ function AdminLegalPage() {
         {/* Main Content Form */}
         <div className="space-y-6">
           {/* Card: Page Title & URL */}
-          <div className="rounded-2xl border border-border bg-card p-6 shadow-xs space-y-4">
+          <div className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-4">
+            <div className="flex items-start justify-between gap-4 border-b border-border/60 pb-4">
+              <div>
+                <h2 className="font-display text-lg font-semibold flex items-center gap-2 text-foreground">
+                  <Edit3 className="h-5 w-5 text-accent" />
+                  <span>Page Title & URL</span>
+                </h2>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  Set the display title and public URL slug for this legal page.
+                </p>
+              </div>
+            </div>
+
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
-                <label htmlFor="legalTitle" className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <label htmlFor="legalTitle" className="block text-xs font-medium text-foreground">
                   Page Title
                 </label>
                 <input
@@ -262,15 +328,13 @@ function AdminLegalPage() {
                     setIsDirty(true);
                   }}
                   placeholder="e.g. Privacy Policy"
-                  className="w-full rounded-xl border border-border bg-background py-2 px-3 text-sm font-medium outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                  className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm font-medium outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Public URL Slug
-                </label>
-                <div className="flex items-center rounded-xl border border-border bg-muted/30 px-3 py-2 text-sm text-muted-foreground font-mono">
+                <label className="block text-xs font-medium text-foreground">Public URL Slug</label>
+                <div className="flex items-center rounded-xl border border-border bg-muted/30 px-3.5 py-2.5 text-sm text-muted-foreground font-mono">
                   <span>ndsolotravel.com/{activeSlug}</span>
                 </div>
               </div>
@@ -278,11 +342,12 @@ function AdminLegalPage() {
           </div>
 
           {/* Card: Content Editor */}
-          <div className="rounded-2xl border border-border bg-card p-6 shadow-xs space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/60 pb-3">
+          <div className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/60 pb-4">
               <div>
-                <h2 className="font-display text-base font-semibold flex items-center gap-2">
-                  <Edit3 className="h-4 w-4 text-accent" /> Document Body (Markdown & HTML)
+                <h2 className="font-display text-lg font-semibold flex items-center gap-2 text-foreground">
+                  <ImageIcon className="h-5 w-5 text-accent" />
+                  Document Body (Markdown & HTML)
                 </h2>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   Format headings with ##, lists with - or 1., and bold text with **bold**.
@@ -290,14 +355,14 @@ function AdminLegalPage() {
               </div>
 
               {/* Write vs Preview Tabs */}
-              <div className="flex items-center rounded-xl border border-border bg-muted/40 p-1 self-start sm:self-auto">
+              <div className="inline-flex items-center rounded-xl border border-border bg-background p-1 text-xs font-medium self-start sm:self-auto">
                 <button
                   type="button"
                   onClick={() => setEditorMode("write")}
-                  className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1 text-xs font-semibold transition cursor-pointer ${
+                  className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all cursor-pointer ${
                     editorMode === "write"
-                      ? "bg-background text-foreground shadow-2xs"
-                      : "text-muted-foreground hover:text-foreground"
+                      ? "bg-brand text-white font-semibold shadow-2xs"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
                   }`}
                 >
                   <Edit3 className="h-3 w-3" /> Write
@@ -305,10 +370,10 @@ function AdminLegalPage() {
                 <button
                   type="button"
                   onClick={() => setEditorMode("preview")}
-                  className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1 text-xs font-semibold transition cursor-pointer ${
+                  className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all cursor-pointer ${
                     editorMode === "preview"
-                      ? "bg-background text-foreground shadow-2xs"
-                      : "text-muted-foreground hover:text-foreground"
+                      ? "bg-brand text-white font-semibold shadow-2xs"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
                   }`}
                 >
                   <Eye className="h-3 w-3" /> Live Preview
@@ -405,13 +470,18 @@ function AdminLegalPage() {
                 />
                 <div className="mt-1 flex items-center justify-between text-[11px] text-muted-foreground">
                   <span>Markdown formatting supported</span>
-                  <span>{content.length} characters · {content.split(/\s+/).filter(Boolean).length} words</span>
+                  <span>
+                    {content.length} characters · {content.split(/\s+/).filter(Boolean).length}{" "}
+                    words
+                  </span>
                 </div>
               </div>
             ) : (
               <div className="min-h-[460px] rounded-xl border border-border/80 bg-background/50 p-6">
                 <div className="prose prose-gray dark:prose-invert max-w-none space-y-4 text-sm leading-relaxed">
-                  <ReactMarkdown rehypePlugins={[rehypeRaw]}>{content || "*No content provided yet.*"}</ReactMarkdown>
+                  <ReactMarkdown rehypePlugins={[rehypeRaw]}>
+                    {content || "*No content provided yet.*"}
+                  </ReactMarkdown>
                 </div>
               </div>
             )}
@@ -421,16 +491,14 @@ function AdminLegalPage() {
         {/* Sidebar Settings */}
         <div className="space-y-6">
           {/* Publishing Card */}
-          <div className="rounded-2xl border border-border bg-card p-5 shadow-xs space-y-4">
-            <h3 className="font-display text-sm font-semibold flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-accent" /> Publishing Status
+          <div className="rounded-2xl border border-border bg-card p-5 shadow-sm space-y-4">
+            <h3 className="font-display text-sm font-semibold text-foreground">
+              <Sparkles className="h-4 w-4 text-accent -mt-0.5" /> Publishing Status
             </h3>
 
             <label className="flex items-center justify-between gap-3 p-3 rounded-xl border border-border/80 bg-muted/20 cursor-pointer hover:bg-muted/40 transition">
               <div>
-                <span className="text-xs font-semibold text-foreground block">
-                  Publicly Active
-                </span>
+                <span className="text-xs font-semibold text-foreground block">Publicly Active</span>
                 <span className="text-[11px] text-muted-foreground block">
                   Accessible to visitors at {activeTabMeta?.path}
                 </span>
@@ -448,36 +516,29 @@ function AdminLegalPage() {
 
             <button
               type="button"
-              disabled={saveMutation.isPending || isLoading}
+              disabled={!isDirty || saveMutation.isPending || isLoading}
               onClick={() => saveMutation.mutate()}
-              className="w-full flex items-center justify-center gap-2 rounded-xl bg-foreground py-2.5 text-xs font-semibold text-background hover:opacity-90 transition disabled:opacity-50 cursor-pointer shadow-xs"
+              className="w-full flex items-center justify-center gap-2 rounded-xl bg-brand py-2.5 text-xs font-semibold text-white shadow-md shadow-brand/20 hover:bg-brand/90 disabled:opacity-50 transition-all cursor-pointer"
             >
               {saveMutation.isPending ? (
-                <>
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" /> Saving…
-                </>
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
               ) : (
-                <>
-                  <Save className="h-3.5 w-3.5" /> Save {title || "Page"}
-                </>
+                <Save className="h-3.5 w-3.5" />
               )}
+              <span>{saveMutation.isPending ? "Saving..." : `Save ${title || "Page"}`}</span>
             </button>
           </div>
 
           {/* Hero Banner Card */}
-          <div className="rounded-2xl border border-border bg-card p-5 shadow-xs space-y-4">
-            <h3 className="font-display text-sm font-semibold flex items-center gap-2">
-              <ImageIcon className="h-4 w-4 text-accent" /> Hero Header Image
+          <div className="rounded-2xl border border-border bg-card p-5 shadow-sm space-y-4">
+            <h3 className="font-display text-sm font-semibold text-foreground">
+              <ImageIcon className="h-4 w-4 text-accent -mt-0.5" /> Hero Header Image
             </h3>
 
             <div className="space-y-2">
               {heroImage && (
                 <div className="relative h-28 w-full overflow-hidden rounded-xl border border-border bg-muted">
-                  <img
-                    src={heroImage}
-                    alt="Hero Preview"
-                    className="h-full w-full object-cover"
-                  />
+                  <img src={heroImage} alt="Hero Preview" className="h-full w-full object-cover" />
                 </div>
               )}
 
@@ -489,7 +550,7 @@ function AdminLegalPage() {
                   setIsDirty(true);
                 }}
                 placeholder="Image URL (e.g. https://...)"
-                className="w-full rounded-xl border border-border bg-background py-2 px-3 text-xs outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
               />
               <p className="text-[11px] text-muted-foreground">
                 High-resolution landscape photo for the top hero banner background.
@@ -498,20 +559,22 @@ function AdminLegalPage() {
           </div>
 
           {/* SEO Metadata Card */}
-          <div className="rounded-2xl border border-border bg-card p-5 shadow-xs space-y-4">
-            <h3 className="font-display text-sm font-semibold flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-accent" /> Search Engine Optimization
+          <div className="rounded-2xl border border-border bg-card p-5 shadow-sm space-y-4">
+            <h3 className="font-display text-sm font-semibold text-foreground">
+              <CheckCircle2 className="h-4 w-4 text-accent -mt-0.5" /> Search Engine Optimization
             </h3>
 
             <div className="space-y-3">
               <div className="space-y-1">
                 <div className="flex items-center justify-between text-xs">
-                  <label htmlFor="seoTitle" className="font-semibold text-foreground">
+                  <label htmlFor="seoTitle" className="font-medium text-foreground">
                     SEO Meta Title
                   </label>
                   <span
                     className={`text-[10px] ${
-                      seoTitle.length > 60 ? "text-amber-500 font-semibold" : "text-muted-foreground"
+                      seoTitle.length > 60
+                        ? "text-amber-500 font-semibold"
+                        : "text-muted-foreground"
                     }`}
                   >
                     {seoTitle.length}/60
@@ -526,18 +589,20 @@ function AdminLegalPage() {
                     setIsDirty(true);
                   }}
                   placeholder="e.g. Privacy Policy — ndsolotravel"
-                  className="w-full rounded-xl border border-border bg-background py-2 px-3 text-xs outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                  className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
                 />
               </div>
 
               <div className="space-y-1">
                 <div className="flex items-center justify-between text-xs">
-                  <label htmlFor="seoDesc" className="font-semibold text-foreground">
+                  <label htmlFor="seoDesc" className="font-medium text-foreground">
                     SEO Meta Description
                   </label>
                   <span
                     className={`text-[10px] ${
-                      seoDescription.length > 160 ? "text-amber-500 font-semibold" : "text-muted-foreground"
+                      seoDescription.length > 160
+                        ? "text-amber-500 font-semibold"
+                        : "text-muted-foreground"
                     }`}
                   >
                     {seoDescription.length}/160
@@ -552,7 +617,7 @@ function AdminLegalPage() {
                     setIsDirty(true);
                   }}
                   placeholder="Concise summary for search engine results..."
-                  className="w-full rounded-xl border border-border bg-background py-2 px-3 text-xs outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors resize-none"
+                  className="w-full rounded-xl border border-border bg-background py-2 px-3.5 text-sm outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors resize-none"
                 />
               </div>
             </div>
