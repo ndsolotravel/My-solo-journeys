@@ -1,11 +1,13 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { MapPin, SlidersHorizontal, ImagePlus, Camera } from "lucide-react";
 import { z } from "zod";
+import { useState } from "react";
 import { listPhotoArchive } from "@/lib/photo-archive.functions";
 import { getPageHeroConfig } from "@/lib/page-hero.functions";
 import { useTranslations } from "@/lib/translate/store";
 import { PageBreadcrumbs, BreadcrumbJsonLd } from "@/components/layout/PageBreadcrumbs";
+import { GalleryLightbox } from "@/components/gallery/GalleryLightbox";
 
 const searchSchema = z.object({
   category: z.string().optional(),
@@ -72,8 +74,24 @@ function GalleryPage() {
   const activeCategory = search.category;
   const totalShown = photos.length;
 
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+
   const setCategory = (category?: string) =>
     navigate({ search: (prev) => ({ ...prev, category: category || undefined }) });
+
+  const openLightbox = (index: number) => {
+    setLightboxIndex(index);
+    setLightboxOpen(true);
+  };
+
+  const closeLightbox = () => {
+    setLightboxOpen(false);
+  };
+
+  const navigateLightbox = (index: number) => {
+    setLightboxIndex(index);
+  };
 
   return (
     <>
@@ -171,12 +189,12 @@ function GalleryPage() {
           </div>
         ) : (
           <div className="columns-1 gap-4 sm:columns-2 lg:columns-3">
-            {photos.map((p) => (
-              <Link
+            {photos.map((p, index) => (
+              <button
                 key={p.id}
-                to="/gallery/$slug"
-                params={{ slug: p.slug }}
-                className="group relative mb-4 block w-full overflow-hidden rounded-2xl bg-muted transition-transform duration-300 hover:scale-[1.02] focus:outline-hidden focus:ring-2 focus:ring-accent"
+                type="button"
+                onClick={() => openLightbox(index)}
+                className="group relative mb-4 block w-full overflow-hidden rounded-2xl bg-muted transition-transform duration-300 hover:scale-[1.02] focus:outline-hidden focus:ring-2 focus:ring-accent cursor-pointer"
               >
                 <img
                   src={p.image_url}
@@ -202,10 +220,25 @@ function GalleryPage() {
                     )}
                   </div>
                 </div>
-              </Link>
+                <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-black/75 px-2.5 py-1 text-[10px] font-medium text-white backdrop-blur-xs">
+                    <span className="w-3 h-3" />
+                    {t("View full")}
+                  </span>
+                </div>
+              </button>
             ))}
           </div>
         )}
+
+        {/* Lightbox Modal */}
+        <GalleryLightbox
+          isOpen={lightboxOpen}
+          onClose={closeLightbox}
+          photos={photos}
+          currentIndex={lightboxIndex}
+          onNavigate={navigateLightbox}
+        />
       </div>
     </>
   );
