@@ -11,7 +11,10 @@ export const Route = createFileRoute("/_authenticated/admin/posts/$id")({
 function EditPostPage() {
   const { id } = Route.useParams();
   const fn = useServerFn(adminGetPost);
-  const { data, isLoading } = useQuery({ queryKey: ["admin-post", id], queryFn: () => fn({ data: { id } }) });
+  const { data, isLoading } = useQuery({
+    queryKey: ["admin-post", id],
+    queryFn: () => fn({ data: { id } }),
+  });
   if (isLoading) return <p className="text-muted-foreground">Loading…</p>;
   if (!data) return <p className="text-muted-foreground">Post not found.</p>;
   return <PostEditor initial={data} />;

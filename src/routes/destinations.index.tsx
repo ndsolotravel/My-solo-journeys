@@ -66,7 +66,6 @@ function DestinationsPage() {
   const destinations = destinationsData;
   const [view, setView] = useState<"map" | "grid">("grid");
 
-
   // Smooth-scroll to the interactive map anchor when arriving with that hash.
   useEffect(() => {
     if (typeof window === "undefined") return;

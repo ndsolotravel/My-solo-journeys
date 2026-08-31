@@ -122,20 +122,14 @@ function AboutPage() {
   // SECTION 1: HERO
   // -------------------------------------------------------------------------
   const heroEnabled = settings?.about_hero_enabled !== "false";
-  const heroImage = settings?.about_hero_image
-    ? resolveMediaUrl(settings.about_hero_image)
-    : "";
-  const heroImageAlt =
-    settings?.about_hero_image_alt || "Karakoram mountain pass and solo road";
-  const heroLabel =
-    settings?.about_hero_label || ABOUT_DEFAULTS.about_hero_label;
-  const heroHeadline =
-    settings?.about_hero_headline || ABOUT_DEFAULTS.about_hero_headline;
-  const heroSubtitle =
-    settings?.about_hero_subtitle || ABOUT_DEFAULTS.about_hero_subtitle;
+  const heroImage = settings?.about_hero_image ? resolveMediaUrl(settings.about_hero_image) : "";
+  const heroImageAlt = settings?.about_hero_image_alt || "Karakoram mountain pass and solo road";
+  const heroLabel = settings?.about_hero_label || ABOUT_DEFAULTS.about_hero_label;
+  const heroHeadline = settings?.about_hero_headline || ABOUT_DEFAULTS.about_hero_headline;
+  const heroSubtitle = settings?.about_hero_subtitle || ABOUT_DEFAULTS.about_hero_subtitle;
   const heroBadges = parseJson<AboutHeroBadge[]>(
     settings?.about_hero_badges,
-    DEFAULT_HERO_BADGES
+    DEFAULT_HERO_BADGES,
   ).filter((b) => b.enabled);
 
   // -------------------------------------------------------------------------
@@ -149,21 +143,17 @@ function AboutPage() {
       : aboutPortrait;
   const profileImageAlt =
     settings?.about_profile_image_alt || "Hussain — Solo explorer behind NDSOLOTRAVEL";
-  const profileName =
-    settings?.about_profile_name || ABOUT_DEFAULTS.about_profile_name;
-  const profileRole =
-    settings?.about_profile_role || ABOUT_DEFAULTS.about_profile_role;
-  const profileTagline =
-    settings?.about_profile_tagline || ABOUT_DEFAULTS.about_profile_tagline;
-  const profileEyebrow =
-    settings?.about_profile_eyebrow || ABOUT_DEFAULTS.about_profile_eyebrow;
-  const biographyTitle =
-    settings?.about_biography_title || ABOUT_DEFAULTS.about_biography_title;
-  const biographyIntro =
-    settings?.about_biography_intro || ABOUT_DEFAULTS.about_biography_intro;
+  const profileName = settings?.about_profile_name || ABOUT_DEFAULTS.about_profile_name;
+  const profileRole = settings?.about_profile_role || ABOUT_DEFAULTS.about_profile_role;
+  const profileTagline = settings?.about_profile_tagline || ABOUT_DEFAULTS.about_profile_tagline;
+  const profileEyebrow = settings?.about_profile_eyebrow || ABOUT_DEFAULTS.about_profile_eyebrow;
+  const biographyTitle = settings?.about_biography_title || ABOUT_DEFAULTS.about_biography_title;
+  const biographyIntro = settings?.about_biography_intro || ABOUT_DEFAULTS.about_biography_intro;
   const biographyParagraphs = (
     settings?.about_biography_paragraphs || ABOUT_DEFAULTS.about_biography_paragraphs
-  ).split("\n\n").filter(Boolean);
+  )
+    .split("\n\n")
+    .filter(Boolean);
 
   const profileHighlightTitle =
     settings?.about_profile_highlight_title || ABOUT_DEFAULTS.about_profile_highlight_title;
@@ -171,7 +161,7 @@ function AboutPage() {
     settings?.about_profile_highlight_text || ABOUT_DEFAULTS.about_profile_highlight_text;
   const dossierItems = parseJson<AboutDossierItem[]>(
     settings?.about_profile_dossier,
-    DEFAULT_DOSSIER_ITEMS
+    DEFAULT_DOSSIER_ITEMS,
   ).filter((d) => d.enabled);
 
   const profileCtaPrimaryText =
@@ -189,13 +179,12 @@ function AboutPage() {
   const whyTravelEnabled = settings?.about_why_travel_enabled !== "false";
   const whyTravelEyebrow =
     settings?.about_why_travel_eyebrow || ABOUT_DEFAULTS.about_why_travel_eyebrow;
-  const whyTravelTitle =
-    settings?.about_why_travel_title || ABOUT_DEFAULTS.about_why_travel_title;
+  const whyTravelTitle = settings?.about_why_travel_title || ABOUT_DEFAULTS.about_why_travel_title;
   const whyTravelDescription =
     settings?.about_why_travel_description || ABOUT_DEFAULTS.about_why_travel_description;
   const whyTravelCards = parseJson<AboutWhyTravelCard[]>(
     settings?.about_why_travel_cards,
-    DEFAULT_WHY_TRAVEL_CARDS
+    DEFAULT_WHY_TRAVEL_CARDS,
   )
     .filter((c) => c.enabled)
     .sort((a, b) => a.order - b.order);
@@ -206,10 +195,8 @@ function AboutPage() {
   const motorcycleEnabled = settings?.about_motorcycle_enabled !== "false";
   const motorcycleEyebrow =
     settings?.about_motorcycle_eyebrow || ABOUT_DEFAULTS.about_motorcycle_eyebrow;
-  const motorcycleBadge =
-    settings?.about_motorcycle_badge || ABOUT_DEFAULTS.about_motorcycle_badge;
-  const motorcycleTitle =
-    settings?.about_motorcycle_title || ABOUT_DEFAULTS.about_motorcycle_title;
+  const motorcycleBadge = settings?.about_motorcycle_badge || ABOUT_DEFAULTS.about_motorcycle_badge;
+  const motorcycleTitle = settings?.about_motorcycle_title || ABOUT_DEFAULTS.about_motorcycle_title;
   const motorcycleDescription =
     settings?.about_motorcycle_description || ABOUT_DEFAULTS.about_motorcycle_description;
   const motorcycleImage = settings?.about_motorcycle_image
@@ -219,7 +206,7 @@ function AboutPage() {
     settings?.about_motorcycle_image_alt || ABOUT_DEFAULTS.about_motorcycle_image_alt;
   const motorcycleFeatures = parseJson<AboutMotorcycleFeature[]>(
     settings?.about_motorcycle_features,
-    DEFAULT_MOTORCYCLE_FEATURES
+    DEFAULT_MOTORCYCLE_FEATURES,
   )
     .filter((f) => f.enabled)
     .sort((a, b) => a.order - b.order);
@@ -232,10 +219,8 @@ function AboutPage() {
   // SECTION 5: TREKKING & HIGH ALTITUDE
   // -------------------------------------------------------------------------
   const trekkingEnabled = settings?.about_trekking_enabled !== "false";
-  const trekkingEyebrow =
-    settings?.about_trekking_eyebrow || ABOUT_DEFAULTS.about_trekking_eyebrow;
-  const trekkingTitle =
-    settings?.about_trekking_title || ABOUT_DEFAULTS.about_trekking_title;
+  const trekkingEyebrow = settings?.about_trekking_eyebrow || ABOUT_DEFAULTS.about_trekking_eyebrow;
+  const trekkingTitle = settings?.about_trekking_title || ABOUT_DEFAULTS.about_trekking_title;
   const trekkingDescription =
     settings?.about_trekking_description || ABOUT_DEFAULTS.about_trekking_description;
   const trekkingImage = settings?.about_trekking_image
@@ -249,7 +234,7 @@ function AboutPage() {
     settings?.about_trekking_location_quote || ABOUT_DEFAULTS.about_trekking_location_quote;
   const trekkingCards = parseJson<AboutTrekkingCard[]>(
     settings?.about_trekking_cards,
-    DEFAULT_TREKKING_CARDS
+    DEFAULT_TREKKING_CARDS,
   )
     .filter((c) => c.enabled)
     .sort((a, b) => a.order - b.order);
@@ -260,8 +245,7 @@ function AboutPage() {
   const philosophyEnabled = settings?.about_philosophy_enabled !== "false";
   const philosophyEyebrow =
     settings?.about_philosophy_eyebrow || ABOUT_DEFAULTS.about_philosophy_eyebrow;
-  const philosophyQuote =
-    settings?.about_philosophy_quote || ABOUT_DEFAULTS.about_philosophy_quote;
+  const philosophyQuote = settings?.about_philosophy_quote || ABOUT_DEFAULTS.about_philosophy_quote;
   const philosophyDescription =
     settings?.about_philosophy_description || ABOUT_DEFAULTS.about_philosophy_description;
 
@@ -271,7 +255,7 @@ function AboutPage() {
   const philosophyCardsEnabled = settings?.about_philosophy_cards_enabled !== "false";
   const philosophyCards = parseJson<AboutPhilosophyCard[]>(
     settings?.about_philosophy_cards,
-    DEFAULT_PHILOSOPHY_CARDS
+    DEFAULT_PHILOSOPHY_CARDS,
   )
     .filter((c) => c.enabled)
     .sort((a, b) => a.order - b.order);
@@ -280,15 +264,13 @@ function AboutPage() {
   // SECTION 8: JOURNEY IN NUMBERS
   // -------------------------------------------------------------------------
   const numbersEnabled = settings?.about_numbers_enabled !== "false";
-  const numbersEyebrow =
-    settings?.about_numbers_eyebrow || ABOUT_DEFAULTS.about_numbers_eyebrow;
-  const numbersTitle =
-    settings?.about_numbers_title || ABOUT_DEFAULTS.about_numbers_title;
+  const numbersEyebrow = settings?.about_numbers_eyebrow || ABOUT_DEFAULTS.about_numbers_eyebrow;
+  const numbersTitle = settings?.about_numbers_title || ABOUT_DEFAULTS.about_numbers_title;
   const numbersDescription =
     settings?.about_numbers_description || ABOUT_DEFAULTS.about_numbers_description;
   const numbersStats = parseJson<AboutNumberStat[]>(
     settings?.about_numbers_stats,
-    DEFAULT_NUMBER_STATS
+    DEFAULT_NUMBER_STATS,
   )
     .filter((s) => s.enabled)
     .sort((a, b) => a.order - b.order);
@@ -296,7 +278,7 @@ function AboutPage() {
     settings?.about_numbers_tags_label || ABOUT_DEFAULTS.about_numbers_tags_label;
   const numbersTags = parseJson<AboutTerrainTag[]>(
     settings?.about_numbers_tags,
-    DEFAULT_TERRAIN_TAGS
+    DEFAULT_TERRAIN_TAGS,
   )
     .filter((tItem) => tItem.enabled)
     .sort((a, b) => a.order - b.order);
@@ -305,15 +287,13 @@ function AboutPage() {
   // SECTION 9: WHAT YOU WILL FIND ON NDSOLOTRAVEL
   // -------------------------------------------------------------------------
   const contentEnabled = settings?.about_content_enabled !== "false";
-  const contentEyebrow =
-    settings?.about_content_eyebrow || ABOUT_DEFAULTS.about_content_eyebrow;
-  const contentTitle =
-    settings?.about_content_title || ABOUT_DEFAULTS.about_content_title;
+  const contentEyebrow = settings?.about_content_eyebrow || ABOUT_DEFAULTS.about_content_eyebrow;
+  const contentTitle = settings?.about_content_title || ABOUT_DEFAULTS.about_content_title;
   const contentDescription =
     settings?.about_content_description || ABOUT_DEFAULTS.about_content_description;
   const contentCards = parseJson<AboutContentCard[]>(
     settings?.about_content_cards,
-    DEFAULT_CONTENT_CARDS
+    DEFAULT_CONTENT_CARDS,
   )
     .filter((c) => c.enabled)
     .sort((a, b) => a.order - b.order);
@@ -324,20 +304,16 @@ function AboutPage() {
   const ctaEnabled = settings?.about_cta_enabled !== "false";
   const ctaEyebrow = settings?.about_cta_eyebrow || ABOUT_DEFAULTS.about_cta_eyebrow;
   const ctaTitle = settings?.about_cta_title || ABOUT_DEFAULTS.about_cta_title;
-  const ctaDescription =
-    settings?.about_cta_description || ABOUT_DEFAULTS.about_cta_description;
-  const ctaPrimaryText =
-    settings?.about_cta_primary_text || ABOUT_DEFAULTS.about_cta_primary_text;
-  const ctaPrimaryUrl =
-    settings?.about_cta_primary_url || ABOUT_DEFAULTS.about_cta_primary_url;
+  const ctaDescription = settings?.about_cta_description || ABOUT_DEFAULTS.about_cta_description;
+  const ctaPrimaryText = settings?.about_cta_primary_text || ABOUT_DEFAULTS.about_cta_primary_text;
+  const ctaPrimaryUrl = settings?.about_cta_primary_url || ABOUT_DEFAULTS.about_cta_primary_url;
   const ctaSecondaryText =
     settings?.about_cta_secondary_text || ABOUT_DEFAULTS.about_cta_secondary_text;
   const ctaSecondaryUrl =
     settings?.about_cta_secondary_url || ABOUT_DEFAULTS.about_cta_secondary_url;
   const ctaTertiaryText =
     settings?.about_cta_tertiary_text || ABOUT_DEFAULTS.about_cta_tertiary_text;
-  const ctaTertiaryUrl =
-    settings?.about_cta_tertiary_url || ABOUT_DEFAULTS.about_cta_tertiary_url;
+  const ctaTertiaryUrl = settings?.about_cta_tertiary_url || ABOUT_DEFAULTS.about_cta_tertiary_url;
 
   return (
     <div className="min-h-screen w-full overflow-x-clip bg-background text-foreground selection:bg-brand/20 selection:text-brand">
@@ -481,9 +457,7 @@ function AboutPage() {
                       </p>
                       <h3 className="font-display text-2xl font-bold">{t(profileName)}</h3>
                       {profileTagline && (
-                        <p className="text-sm text-zinc-300 font-light">
-                          {t(profileTagline)}
-                        </p>
+                        <p className="text-sm text-zinc-300 font-light">{t(profileTagline)}</p>
                       )}
                     </div>
                   </div>
@@ -688,16 +662,10 @@ function AboutPage() {
                     {motorcycleFeatures.map((feat) => (
                       <div key={feat.id} className="flex items-start gap-3.5">
                         <div className="p-2 rounded-xl bg-white/10 text-accent shrink-0 mt-0.5">
-                          <DynamicIcon
-                            name={feat.icon}
-                            className="w-4 h-4"
-                            fallback={RouteIcon}
-                          />
+                          <DynamicIcon name={feat.icon} className="w-4 h-4" fallback={RouteIcon} />
                         </div>
                         <div>
-                          <h4 className="text-sm font-semibold text-white">
-                            {t(feat.title)}
-                          </h4>
+                          <h4 className="text-sm font-semibold text-white">{t(feat.title)}</h4>
                           <p className="text-xs sm:text-sm text-zinc-400 mt-0.5 leading-relaxed">
                             {t(feat.description)}
                           </p>
@@ -865,9 +833,7 @@ function AboutPage() {
                 </h2>
               </div>
               {numbersDescription && (
-                <p className="text-muted-foreground text-sm max-w-md">
-                  {t(numbersDescription)}
-                </p>
+                <p className="text-muted-foreground text-sm max-w-md">{t(numbersDescription)}</p>
               )}
             </div>
 

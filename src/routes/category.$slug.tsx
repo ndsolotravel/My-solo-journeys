@@ -26,10 +26,7 @@ export const Route = createFileRoute("/category/$slug")({
       cat.description ||
       `Explore solo travel journeys, mountain stories, and guides under ${cat.name}.`;
     const canonicalUrl = `https://ndsolotravel.com/category/${cat.slug}`;
-    const rawHeroImg =
-      cat.image_url ||
-      data.posts[0]?.cover_image ||
-      "";
+    const rawHeroImg = cat.image_url || data.posts[0]?.cover_image || "";
     const heroImg = resolveMediaUrl(rawHeroImg);
 
     return {
@@ -58,7 +55,12 @@ export const Route = createFileRoute("/category/$slug")({
             "@type": "BreadcrumbList",
             itemListElement: [
               { "@type": "ListItem", position: 1, name: "Home", item: "https://ndsolotravel.com" },
-              { "@type": "ListItem", position: 2, name: "Stories", item: "https://ndsolotravel.com/blog" },
+              {
+                "@type": "ListItem",
+                position: 2,
+                name: "Stories",
+                item: "https://ndsolotravel.com/blog",
+              },
               { "@type": "ListItem", position: 3, name: cat.name, item: canonicalUrl },
             ],
           }),
@@ -100,10 +102,7 @@ function CategoryPage() {
   const t = useTranslations();
   const { category, posts } = Route.useLoaderData();
 
-  const rawHeroImage =
-    category.image_url ||
-    posts[0]?.cover_image ||
-    "";
+  const rawHeroImage = category.image_url || posts[0]?.cover_image || "";
   const heroImage = resolveMediaUrl(rawHeroImage);
 
   return (
@@ -122,10 +121,7 @@ function CategoryPage() {
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 mx-auto max-w-5xl px-4 pb-10 sm:px-6">
           <PageBreadcrumbs
-            items={[
-              { label: t("Stories"), href: "/blog" },
-              { label: t(category.name) },
-            ]}
+            items={[{ label: t("Stories"), href: "/blog" }, { label: t(category.name) }]}
           />
 
           <div className="mt-4 flex flex-wrap items-center gap-2.5">
@@ -175,7 +171,9 @@ function CategoryPage() {
         ) : (
           <div className="rounded-3xl border border-dashed border-border py-20 text-center bg-card/40">
             <Layers className="mx-auto h-12 w-12 text-muted-foreground/40 mb-3" />
-            <h2 className="font-display text-xl font-bold">{t("No stories in this category yet")}</h2>
+            <h2 className="font-display text-xl font-bold">
+              {t("No stories in this category yet")}
+            </h2>
             <p className="mt-2 text-sm text-muted-foreground max-w-md mx-auto">
               {t(
                 "We haven't published stories in this category yet. Check back soon or explore other topics from the journey.",

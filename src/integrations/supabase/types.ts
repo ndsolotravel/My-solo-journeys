@@ -522,6 +522,179 @@ export type Database = {
         };
         Relationships: [];
       };
+      destination_translations: {
+        Row: {
+          id: string;
+          destination_id: string;
+          language_code: string;
+          title: string;
+          description: string | null;
+          country: string;
+          region: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          destination_id: string;
+          language_code: string;
+          title: string;
+          description?: string | null;
+          country: string;
+          region?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          destination_id?: string;
+          language_code?: string;
+          title?: string;
+          description?: string | null;
+          country?: string;
+          region?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "destination_translations_destination_id_fkey";
+            columns: ["destination_id"];
+            isOneToOne: false;
+            referencedRelation: "destinations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      gallery_translations: {
+        Row: {
+          id: string;
+          gallery_id: string;
+          language_code: string;
+          title: string | null;
+          story: string | null;
+          caption: string | null;
+          category: string | null;
+          location: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          gallery_id: string;
+          language_code: string;
+          title?: string | null;
+          story?: string | null;
+          caption?: string | null;
+          category?: string | null;
+          location?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          gallery_id?: string;
+          language_code?: string;
+          title?: string | null;
+          story?: string | null;
+          caption?: string | null;
+          category?: string | null;
+          location?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "gallery_translations_gallery_id_fkey";
+            columns: ["gallery_id"];
+            isOneToOne: false;
+            referencedRelation: "gallery";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      legal_translations: {
+        Row: {
+          id: string;
+          legal_page_id: string;
+          language_code: string;
+          title: string;
+          content: string;
+          seo_title: string | null;
+          seo_description: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          legal_page_id: string;
+          language_code: string;
+          title: string;
+          content?: string;
+          seo_title?: string | null;
+          seo_description?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          legal_page_id?: string;
+          language_code?: string;
+          title?: string;
+          content?: string;
+          seo_title?: string | null;
+          seo_description?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "legal_translations_legal_page_id_fkey";
+            columns: ["legal_page_id"];
+            isOneToOne: false;
+            referencedRelation: "legal_pages";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      category_translations: {
+        Row: {
+          id: string;
+          category_id: string;
+          language_code: string;
+          name: string;
+          description: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          category_id: string;
+          language_code: string;
+          name: string;
+          description?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          category_id?: string;
+          language_code?: string;
+          name?: string;
+          description?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "category_translations_category_id_fkey";
+            columns: ["category_id"];
+            isOneToOne: false;
+            referencedRelation: "categories";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       page_views: {
         Row: {
           created_at: string;

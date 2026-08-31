@@ -22,8 +22,9 @@ import {
 } from "@/lib/contact.functions";
 import { getPageHeroConfig } from "@/lib/page-hero.functions";
 import { SITE } from "@/lib/site";
-import { useTranslations } from "@/lib/translate/store";
+import { useTranslations, useLanguage } from "@/lib/translate/store";
 import { PageBreadcrumbs } from "@/components/layout/PageBreadcrumbs";
+import { useContentTranslation } from "@/lib/translate/contentTranslation";
 
 function TikTokIcon({ className }: { className?: string }) {
   return (
@@ -125,6 +126,7 @@ type FieldState = {
 
 function ContactPage() {
   const t = useTranslations();
+  const { lang } = useLanguage();
   const { data: hero } = useSuspenseQuery(heroQO);
   const { data: cfg } = useSuspenseQuery(settingsQO);
   const sendFn = useServerFn(submitContactMessage);
@@ -160,6 +162,29 @@ function ContactPage() {
           max_subject: 200,
           max_message: 5000,
         };
+
+  const localizedConfig = useContentTranslation({
+    contentType: "category",
+    contentId: "contact-form",
+    englishFields: {
+      title: config.title,
+      description: config.description,
+      name_label: config.name_label,
+      name_placeholder: config.name_placeholder,
+      email_label: config.email_label,
+      email_placeholder: config.email_placeholder,
+      subject_label: config.subject_label,
+      subject_placeholder: config.subject_placeholder,
+      message_label: config.message_label,
+      message_placeholder: config.message_placeholder,
+      submit_button_text: config.submit_button_text,
+      success_message: config.success_message,
+      error_message: config.error_message,
+    },
+    targetLang: lang,
+  });
+
+  const mergedConfig = { ...config, ...localizedConfig };
 
   const [name, setName] = useState<FieldState>({ value: "", error: null });
   const [email, setEmail] = useState<FieldState>({ value: "", error: null });
@@ -339,7 +364,7 @@ function ContactPage() {
       })
       .catch((err: unknown) => {
         setSubmitPhase("error");
-        let msg = config.error_message;
+        let msg = mergedConfig.error_message;
         if (err instanceof Error && err.message) {
           try {
             const parsed = JSON.parse(err.message);
@@ -399,10 +424,10 @@ function ContactPage() {
               {t("Get In Touch")}
             </span>
             <h2 className="mt-3 font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-foreground">
-              {config.title || t("Send a Message")}
+              {mergedConfig.title || t("Send a Message")}
             </h2>
             <p className="mt-3 max-w-2xl text-sm sm:text-base leading-relaxed text-muted-foreground">
-              {config.description ||
+              {mergedConfig.description ||
                 t(
                   "Got a destination to discover, a story to share, or an adventure in mind? The inbox is always open.",
                 )}
@@ -417,7 +442,7 @@ function ContactPage() {
                 <div className="flex items-center justify-between border-b border-border pb-5 mb-8">
                   <div>
                     <h3 className="font-display text-xl sm:text-2xl font-bold text-foreground">
-                      {config.title || t("Send Us A Message")}
+                      {mergedConfig.title || t("Send Us A Message")}
                     </h3>
                     <p className="text-xs sm:text-sm text-muted-foreground mt-1">
                       {t("Fill in the form below and I'll respond as soon as possible.")}
@@ -441,7 +466,7 @@ function ContactPage() {
                       {t("Message Sent Successfully!")}
                     </h4>
                     <p className="text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
-                      {config.success_message ||
+                      {mergedConfig.success_message ||
                         t(
                           "Thank you for reaching out. Your message has been received, and I'll get back to you as soon as I'm back from the trail.",
                         )}
@@ -471,7 +496,7 @@ function ContactPage() {
                           htmlFor="contact-name"
                           className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2"
                         >
-                          {config.name_label || t("Your Name")}{" "}
+                          {mergedConfig.name_label || t("Your Name")}{" "}
                           {config.name_required && <span className="text-brand">*</span>}
                         </label>
                         <input
@@ -480,7 +505,7 @@ function ContactPage() {
                           type="text"
                           autoComplete="name"
                           maxLength={config.max_name}
-                          placeholder={config.name_placeholder || t("John Doe")}
+                          placeholder={mergedConfig.name_placeholder || t("John Doe")}
                           value={name.value}
                           onChange={(e) => setName({ value: e.target.value, error: null })}
                           aria-invalid={Boolean(name.error)}
@@ -504,7 +529,7 @@ function ContactPage() {
                           htmlFor="contact-email"
                           className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2"
                         >
-                          {config.email_label || t("Email Address")}{" "}
+                          {mergedConfig.email_label || t("Email Address")}{" "}
                           {config.email_required && <span className="text-brand">*</span>}
                         </label>
                         <input
@@ -513,7 +538,7 @@ function ContactPage() {
                           type="email"
                           autoComplete="email"
                           maxLength={config.max_email}
-                          placeholder={config.email_placeholder || t("john@example.com")}
+                          placeholder={mergedConfig.email_placeholder || t("john@example.com")}
                           value={email.value}
                           onChange={(e) => setEmail({ value: e.target.value, error: null })}
                           aria-invalid={Boolean(email.error)}
@@ -538,7 +563,7 @@ function ContactPage() {
                         htmlFor="contact-subject"
                         className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2"
                       >
-                        {config.subject_label || t("Subject")}{" "}
+                        {mergedConfig.subject_label || t("Subject")}{" "}
                         {config.subject_required ? (
                           <span className="text-brand">*</span>
                         ) : (
@@ -553,7 +578,8 @@ function ContactPage() {
                         type="text"
                         maxLength={config.max_subject}
                         placeholder={
-                          config.subject_placeholder || t("Collaboration, query, or trail notes...")
+                          mergedConfig.subject_placeholder ||
+                          t("Collaboration, query, or trail notes...")
                         }
                         value={subject.value}
                         onChange={(e) => setSubject({ value: e.target.value, error: null })}
@@ -579,7 +605,7 @@ function ContactPage() {
                           htmlFor="contact-message"
                           className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2"
                         >
-                          {config.message_label || t("Your Message")}{" "}
+                          {mergedConfig.message_label || t("Your Message")}{" "}
                           {config.message_required && <span className="text-brand">*</span>}
                         </label>
                         <span className="text-[10px] text-muted-foreground/70">
@@ -592,7 +618,9 @@ function ContactPage() {
                         required={config.message_required}
                         rows={5}
                         maxLength={config.max_message}
-                        placeholder={config.message_placeholder || t("Write your message here...")}
+                        placeholder={
+                          mergedConfig.message_placeholder || t("Write your message here...")
+                        }
                         value={message.value}
                         onChange={(e) => setMessage({ value: e.target.value, error: null })}
                         aria-invalid={Boolean(message.error)}
@@ -667,7 +695,7 @@ function ContactPage() {
                             <span aria-live="polite">{t("Sending…")}</span>
                           </>
                         ) : (
-                          <span>{config.submit_button_text || t("Send Message")}</span>
+                          <span>{mergedConfig.submit_button_text || t("Send Message")}</span>
                         )}
                       </button>
                     </div>

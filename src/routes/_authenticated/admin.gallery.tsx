@@ -123,7 +123,9 @@ function AdminGalleryPage() {
   const [validationErrorIds, setValidationErrorIds] = useState<Set<string>>(new Set());
 
   const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState<{ current: number; total: number } | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<{ current: number; total: number } | null>(
+    null,
+  );
   const [isDropzoneActive, setIsDropzoneActive] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const newIdRef = useRef(0);
@@ -332,7 +334,9 @@ function AdminGalleryPage() {
     }
     setValidationErrorIds(errors);
     if (errors.size > 0) {
-      toast.error(`${errors.size} photograph${errors.size > 1 ? "s" : ""} still need a title & alt text.`);
+      toast.error(
+        `${errors.size} photograph${errors.size > 1 ? "s" : ""} still need a title & alt text.`,
+      );
       return false;
     }
     return true;
@@ -390,7 +394,9 @@ function AdminGalleryPage() {
     if (lightboxIndex === null) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowLeft" && displayed.length > 1) {
-        setLightboxIndex((curr) => (curr !== null ? (curr - 1 + displayed.length) % displayed.length : null));
+        setLightboxIndex((curr) =>
+          curr !== null ? (curr - 1 + displayed.length) % displayed.length : null,
+        );
       } else if (e.key === "ArrowRight" && displayed.length > 1) {
         setLightboxIndex((curr) => (curr !== null ? (curr + 1) % displayed.length : null));
       } else if (e.key === "Escape") {
@@ -412,11 +418,10 @@ function AdminGalleryPage() {
             <ImageIcon className="h-6 w-6 text-accent" />
           </div>
           <div>
-            <h1 className="font-display text-2xl font-bold text-foreground">
-              Photography Archive
-            </h1>
+            <h1 className="font-display text-2xl font-bold text-foreground">Photography Archive</h1>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Curate the public gallery — titles, locations, camera details, stories, and categories.
+              Curate the public gallery — titles, locations, camera details, stories, and
+              categories.
             </p>
           </div>
         </div>
@@ -500,7 +505,9 @@ function AdminGalleryPage() {
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="rounded-2xl border border-border bg-card p-5 shadow-xs">
           <div className="flex items-center justify-between">
-            <p className="text-xs uppercase tracking-wider text-muted-foreground">Total Photographs</p>
+            <p className="text-xs uppercase tracking-wider text-muted-foreground">
+              Total Photographs
+            </p>
             <ImageIcon className="h-4 w-4 text-accent" />
           </div>
           <p className="mt-2 font-display text-3xl font-bold">
@@ -540,8 +547,11 @@ function AdminGalleryPage() {
             <p className="text-xs font-medium">
               {pendingNewCount > 0 && `${pendingNewCount} new · `}
               {draftCount > 0 && `${draftCount} hidden · `}
-              {deletedIds.length > 0 && `${deletedIds.length} staged deletion${deletedIds.length > 1 ? "s" : ""}`
-                .replace(/^· $/, "")}{" "}
+              {deletedIds.length > 0 &&
+                `${deletedIds.length} staged deletion${deletedIds.length > 1 ? "s" : ""}`.replace(
+                  /^· $/,
+                  "",
+                )}{" "}
               — not yet on the public site.
             </p>
           </div>
@@ -587,7 +597,9 @@ function AdminGalleryPage() {
                 }`}
               >
                 {cat.name}
-                <span className={active ? "text-background/60" : "text-muted-foreground"}>{count}</span>
+                <span className={active ? "text-background/60" : "text-muted-foreground"}>
+                  {count}
+                </span>
               </button>
             );
           })}
@@ -631,7 +643,8 @@ function AdminGalleryPage() {
               <span>Add photographs to the archive</span>
             </h3>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Uploads are staged as drafts — every photograph needs a title and alt text before it can be published.
+              Uploads are staged as drafts — every photograph needs a title and alt text before it
+              can be published.
             </p>
           </div>
           {isDirty && pendingNewCount > 0 && (
@@ -676,7 +689,8 @@ function AdminGalleryPage() {
               </div>
               <div className="space-y-0.5">
                 <p className="text-sm font-medium">
-                  Drag & drop photographs here, or <span className="text-accent underline underline-offset-2">browse computer</span>
+                  Drag & drop photographs here, or{" "}
+                  <span className="text-accent underline underline-offset-2">browse computer</span>
                 </p>
                 <p className="text-xs text-muted-foreground">
                   Supports JPG, PNG, WebP, AVIF up to 8 MB each · Select multiple files at once
@@ -827,7 +841,10 @@ function AdminGalleryPage() {
                         )}
                       </div>
                     )}
-                    <p className="text-[11px] font-semibold text-foreground truncate" title={item.title}>
+                    <p
+                      className="text-[11px] font-semibold text-foreground truncate"
+                      title={item.title}
+                    >
                       {item.title || <span className="italic text-muted-foreground">Untitled</span>}
                     </p>
                     {(item.location || item.captured_at || item.camera) && (
@@ -857,7 +874,9 @@ function AdminGalleryPage() {
               <ImageIcon className="h-6 w-6 text-accent" />
             </div>
             <p className="font-medium text-foreground text-sm">No photographs found.</p>
-            <p className="mt-1">Try a different filter or upload photographs using the area above.</p>
+            <p className="mt-1">
+              Try a different filter or upload photographs using the area above.
+            </p>
           </div>
         )}
       </div>
@@ -921,15 +940,18 @@ function AdminGalleryPage() {
       </div>
 
       {/* Delete confirmation */}
-      <AlertDialog open={!!deleteTargetId} onOpenChange={(open) => !open && setDeleteTargetId(null)}>
+      <AlertDialog
+        open={!!deleteTargetId}
+        onOpenChange={(open) => !open && setDeleteTargetId(null)}
+      >
         <AlertDialogContent className="rounded-3xl border border-border bg-card shadow-2xl p-6">
           <AlertDialogHeader>
             <AlertDialogTitle className="font-display text-lg font-bold text-foreground">
               Remove photograph from the archive?
             </AlertDialogTitle>
             <AlertDialogDescription className="text-xs text-muted-foreground mt-1">
-              The photograph will be removed from the public gallery and its image file cleaned up from
-              Supabase Storage. Deletions are staged until you press{" "}
+              The photograph will be removed from the public gallery and its image file cleaned up
+              from Supabase Storage. Deletions are staged until you press{" "}
               <span className="font-semibold text-foreground">Save Changes</span>.
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -994,7 +1016,8 @@ function AdminGalleryPage() {
                 {/* Categories */}
                 <div className="mt-4">
                   <label className="mb-2 flex items-center gap-1.5 text-xs font-medium text-foreground">
-                    <Layers className="h-3.5 w-3.5 text-accent" /> Categories (select all that apply)
+                    <Layers className="h-3.5 w-3.5 text-accent" /> Categories (select all that
+                    apply)
                   </label>
                   <div className="flex flex-wrap gap-2">
                     {categories.map((cat) => {
@@ -1147,7 +1170,8 @@ function AdminGalleryPage() {
               <div className="mx-6 mb-4 flex items-center gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-2.5">
                 <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600" />
                 <p className="text-xs font-medium text-amber-700">
-                  This photograph is incomplete — save will be blocked until title and alt text are filled in.
+                  This photograph is incomplete — save will be blocked until title and alt text are
+                  filled in.
                 </p>
               </div>
             )}
@@ -1158,7 +1182,8 @@ function AdminGalleryPage() {
                 onClick={() => setDeleteTargetId(editing.id)}
                 className="inline-flex items-center gap-1.5 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2 text-xs font-medium text-red-600 hover:bg-red-500/20 transition-colors cursor-pointer"
               >
-                <Trash2 className="h-3.5 w-3.5" /> {editing.id.startsWith("new-") ? "Discard" : "Delete"}
+                <Trash2 className="h-3.5 w-3.5" />{" "}
+                {editing.id.startsWith("new-") ? "Discard" : "Delete"}
               </button>
               <div className="flex items-center gap-2.5 ml-auto">
                 <button
@@ -1241,7 +1266,9 @@ function AdminGalleryPage() {
                   aria-label="Previous photograph"
                   onClick={(e) => {
                     e.stopPropagation();
-                    setLightboxIndex((curr) => (curr !== null ? (curr - 1 + displayed.length) % displayed.length : null));
+                    setLightboxIndex((curr) =>
+                      curr !== null ? (curr - 1 + displayed.length) % displayed.length : null,
+                    );
                   }}
                   className="absolute left-2 sm:-left-14 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full bg-black/75 hover:bg-black text-white border border-white/30 shadow-xl transition-transform hover:scale-110 cursor-pointer"
                 >
@@ -1252,7 +1279,9 @@ function AdminGalleryPage() {
                   aria-label="Next photograph"
                   onClick={(e) => {
                     e.stopPropagation();
-                    setLightboxIndex((curr) => (curr !== null ? (curr + 1) % displayed.length : null));
+                    setLightboxIndex((curr) =>
+                      curr !== null ? (curr + 1) % displayed.length : null,
+                    );
                   }}
                   className="absolute right-2 sm:-right-14 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full bg-black/75 hover:bg-black text-white border border-white/30 shadow-xl transition-transform hover:scale-110 cursor-pointer"
                 >
@@ -1270,7 +1299,9 @@ function AdminGalleryPage() {
               <p className="text-sm font-semibold text-white">
                 {activeLightboxItem.title || "Untitled"}
               </p>
-              {(activeLightboxItem.location || activeLightboxItem.captured_at || activeLightboxItem.camera) && (
+              {(activeLightboxItem.location ||
+                activeLightboxItem.captured_at ||
+                activeLightboxItem.camera) && (
                 <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-white/70">
                   {activeLightboxItem.location && (
                     <span className="inline-flex items-center gap-1">

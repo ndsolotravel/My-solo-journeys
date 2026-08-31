@@ -173,10 +173,7 @@ function AdminAboutPage() {
   };
 
   // Image upload handler
-  const handleFileUpload = async (
-    e: React.ChangeEvent<HTMLInputElement>,
-    fieldKey: string
-  ) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, fieldKey: string) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -258,41 +255,32 @@ function AdminAboutPage() {
   // -------------------------------------------------------------------------
   // Repeatable JSON collections state helpers
   // -------------------------------------------------------------------------
-  const heroBadges = parseJson<AboutHeroBadge[]>(
-    draft.about_hero_badges,
-    DEFAULT_HERO_BADGES
-  );
+  const heroBadges = parseJson<AboutHeroBadge[]>(draft.about_hero_badges, DEFAULT_HERO_BADGES);
   const dossierItems = parseJson<AboutDossierItem[]>(
     draft.about_profile_dossier,
-    DEFAULT_DOSSIER_ITEMS
+    DEFAULT_DOSSIER_ITEMS,
   );
   const whyTravelCards = parseJson<AboutWhyTravelCard[]>(
     draft.about_why_travel_cards,
-    DEFAULT_WHY_TRAVEL_CARDS
+    DEFAULT_WHY_TRAVEL_CARDS,
   );
   const motorcycleFeatures = parseJson<AboutMotorcycleFeature[]>(
     draft.about_motorcycle_features,
-    DEFAULT_MOTORCYCLE_FEATURES
+    DEFAULT_MOTORCYCLE_FEATURES,
   );
   const trekkingCards = parseJson<AboutTrekkingCard[]>(
     draft.about_trekking_cards,
-    DEFAULT_TREKKING_CARDS
+    DEFAULT_TREKKING_CARDS,
   );
   const philosophyCards = parseJson<AboutPhilosophyCard[]>(
     draft.about_philosophy_cards,
-    DEFAULT_PHILOSOPHY_CARDS
+    DEFAULT_PHILOSOPHY_CARDS,
   );
-  const numberStats = parseJson<AboutNumberStat[]>(
-    draft.about_numbers_stats,
-    DEFAULT_NUMBER_STATS
-  );
-  const terrainTags = parseJson<AboutTerrainTag[]>(
-    draft.about_numbers_tags,
-    DEFAULT_TERRAIN_TAGS
-  );
+  const numberStats = parseJson<AboutNumberStat[]>(draft.about_numbers_stats, DEFAULT_NUMBER_STATS);
+  const terrainTags = parseJson<AboutTerrainTag[]>(draft.about_numbers_tags, DEFAULT_TERRAIN_TAGS);
   const contentCards = parseJson<AboutContentCard[]>(
     draft.about_content_cards,
-    DEFAULT_CONTENT_CARDS
+    DEFAULT_CONTENT_CARDS,
   );
 
   return (
@@ -360,7 +348,8 @@ function AdminAboutPage() {
           <div className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 shrink-0 text-accent" />
             <span className="font-medium">
-              You have unsaved changes. Click &quot;Save Changes&quot; to apply them to the live About page.
+              You have unsaved changes. Click &quot;Save Changes&quot; to apply them to the live
+              About page.
             </span>
           </div>
           <button
@@ -778,7 +767,10 @@ function AdminAboutPage() {
                       icon: "MapPin",
                       enabled: true,
                     };
-                    updateField("about_profile_dossier", JSON.stringify([...dossierItems, newItem]));
+                    updateField(
+                      "about_profile_dossier",
+                      JSON.stringify([...dossierItems, newItem]),
+                    );
                   }}
                   className="inline-flex items-center gap-1 text-xs text-accent hover:underline font-semibold cursor-pointer"
                 >
@@ -950,7 +942,9 @@ function AdminAboutPage() {
                       type="text"
                       placeholder="Button Text"
                       value={draft.about_profile_cta_primary_text ?? ""}
-                      onChange={(e) => updateField("about_profile_cta_primary_text", e.target.value)}
+                      onChange={(e) =>
+                        updateField("about_profile_cta_primary_text", e.target.value)
+                      }
                       className="w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs text-foreground"
                     />
                     <input
@@ -968,14 +962,18 @@ function AdminAboutPage() {
                       type="text"
                       placeholder="Button Text"
                       value={draft.about_profile_cta_secondary_text ?? ""}
-                      onChange={(e) => updateField("about_profile_cta_secondary_text", e.target.value)}
+                      onChange={(e) =>
+                        updateField("about_profile_cta_secondary_text", e.target.value)
+                      }
                       className="w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs text-foreground"
                     />
                     <input
                       type="text"
                       placeholder="URL"
                       value={draft.about_profile_cta_secondary_url ?? ""}
-                      onChange={(e) => updateField("about_profile_cta_secondary_url", e.target.value)}
+                      onChange={(e) =>
+                        updateField("about_profile_cta_secondary_url", e.target.value)
+                      }
                       className="w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs text-foreground"
                     />
                   </div>
@@ -1059,7 +1057,10 @@ function AdminAboutPage() {
                     order: whyTravelCards.length + 1,
                     enabled: true,
                   };
-                  updateField("about_why_travel_cards", JSON.stringify([...whyTravelCards, newCard]));
+                  updateField(
+                    "about_why_travel_cards",
+                    JSON.stringify([...whyTravelCards, newCard]),
+                  );
                 }}
                 className="inline-flex items-center gap-1 text-xs text-accent hover:underline font-semibold cursor-pointer"
               >
@@ -1160,7 +1161,9 @@ function AdminAboutPage() {
                 </h2>
                 <ToggleSwitch
                   checked={draft.about_motorcycle_enabled !== "false"}
-                  onChange={(val) => updateField("about_motorcycle_enabled", val ? "true" : "false")}
+                  onChange={(val) =>
+                    updateField("about_motorcycle_enabled", val ? "true" : "false")
+                  }
                   label={draft.about_motorcycle_enabled !== "false" ? "Enabled" : "Disabled"}
                 />
               </div>
@@ -1198,7 +1201,9 @@ function AdminAboutPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-foreground mb-1">Description</label>
+                <label className="block text-xs font-medium text-foreground mb-1">
+                  Description
+                </label>
                 <textarea
                   rows={3}
                   value={draft.about_motorcycle_description ?? ""}
@@ -1283,7 +1288,10 @@ function AdminAboutPage() {
                       order: motorcycleFeatures.length + 1,
                       enabled: true,
                     };
-                    updateField("about_motorcycle_features", JSON.stringify([...motorcycleFeatures, newItem]));
+                    updateField(
+                      "about_motorcycle_features",
+                      JSON.stringify([...motorcycleFeatures, newItem]),
+                    );
                   }}
                   className="inline-flex items-center gap-1 text-xs text-accent hover:underline font-semibold cursor-pointer"
                 >
@@ -1366,7 +1374,9 @@ function AdminAboutPage() {
               </h3>
               <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl border border-border bg-zinc-950">
                 <img
-                  src={resolveMediaUrl(draft.about_motorcycle_image || ABOUT_DEFAULTS.about_motorcycle_image)}
+                  src={resolveMediaUrl(
+                    draft.about_motorcycle_image || ABOUT_DEFAULTS.about_motorcycle_image,
+                  )}
                   alt="Preview"
                   className="h-full w-full object-cover object-[25%_center]"
                 />
@@ -1425,7 +1435,9 @@ function AdminAboutPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-foreground mb-1">Description</label>
+                <label className="block text-xs font-medium text-foreground mb-1">
+                  Description
+                </label>
                 <textarea
                   rows={3}
                   value={draft.about_trekking_description ?? ""}
@@ -1507,7 +1519,10 @@ function AdminAboutPage() {
                       order: trekkingCards.length + 1,
                       enabled: true,
                     };
-                    updateField("about_trekking_cards", JSON.stringify([...trekkingCards, newItem]));
+                    updateField(
+                      "about_trekking_cards",
+                      JSON.stringify([...trekkingCards, newItem]),
+                    );
                   }}
                   className="inline-flex items-center gap-1 text-xs text-accent hover:underline font-semibold cursor-pointer"
                 >
@@ -1579,16 +1594,20 @@ function AdminAboutPage() {
               </h3>
               <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl border border-border bg-zinc-950">
                 <img
-                  src={resolveMediaUrl(draft.about_trekking_image || ABOUT_DEFAULTS.about_trekking_image)}
+                  src={resolveMediaUrl(
+                    draft.about_trekking_image || ABOUT_DEFAULTS.about_trekking_image,
+                  )}
                   alt="Preview"
                   className="h-full w-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent p-4 flex flex-col justify-end text-white">
                   <span className="text-[10px] font-bold uppercase tracking-widest text-accent">
-                    {draft.about_trekking_location_label || ABOUT_DEFAULTS.about_trekking_location_label}
+                    {draft.about_trekking_location_label ||
+                      ABOUT_DEFAULTS.about_trekking_location_label}
                   </span>
                   <p className="text-xs text-zinc-200 mt-1 line-clamp-2">
-                    {draft.about_trekking_location_quote || ABOUT_DEFAULTS.about_trekking_location_quote}
+                    {draft.about_trekking_location_quote ||
+                      ABOUT_DEFAULTS.about_trekking_location_quote}
                   </p>
                 </div>
               </div>
@@ -1611,7 +1630,9 @@ function AdminAboutPage() {
                 </h2>
                 <ToggleSwitch
                   checked={draft.about_philosophy_enabled !== "false"}
-                  onChange={(val) => updateField("about_philosophy_enabled", val ? "true" : "false")}
+                  onChange={(val) =>
+                    updateField("about_philosophy_enabled", val ? "true" : "false")
+                  }
                   label={draft.about_philosophy_enabled !== "false" ? "Enabled" : "Disabled"}
                 />
               </div>
@@ -1653,10 +1674,12 @@ function AdminAboutPage() {
               </h3>
               <div className="rounded-2xl bg-muted/40 p-6 border border-border/50 shadow-sm space-y-3">
                 <blockquote className="text-base italic leading-relaxed text-foreground font-serif">
-                  &ldquo;{draft.about_philosophy_quote || ABOUT_DEFAULTS.about_philosophy_quote}&rdquo;
+                  &ldquo;{draft.about_philosophy_quote || ABOUT_DEFAULTS.about_philosophy_quote}
+                  &rdquo;
                 </blockquote>
                 <p className="text-xs text-muted-foreground leading-relaxed pt-1">
-                  {draft.about_philosophy_description || ABOUT_DEFAULTS.about_philosophy_description}
+                  {draft.about_philosophy_description ||
+                    ABOUT_DEFAULTS.about_philosophy_description}
                 </p>
               </div>
             </div>
@@ -1688,7 +1711,10 @@ function AdminAboutPage() {
                       order: philosophyCards.length + 1,
                       enabled: true,
                     };
-                    updateField("about_philosophy_cards", JSON.stringify([...philosophyCards, newCard]));
+                    updateField(
+                      "about_philosophy_cards",
+                      JSON.stringify([...philosophyCards, newCard]),
+                    );
                   }}
                   className="inline-flex items-center gap-1 text-xs text-accent hover:underline font-semibold cursor-pointer"
                 >
@@ -1697,7 +1723,9 @@ function AdminAboutPage() {
                 </button>
                 <ToggleSwitch
                   checked={draft.about_philosophy_cards_enabled !== "false"}
-                  onChange={(val) => updateField("about_philosophy_cards_enabled", val ? "true" : "false")}
+                  onChange={(val) =>
+                    updateField("about_philosophy_cards_enabled", val ? "true" : "false")
+                  }
                   label={draft.about_philosophy_cards_enabled !== "false" ? "Enabled" : "Disabled"}
                 />
               </div>
@@ -2245,7 +2273,9 @@ function AdminAboutPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-foreground mb-1">Description</label>
+                <label className="block text-xs font-medium text-foreground mb-1">
+                  Description
+                </label>
                 <textarea
                   rows={3}
                   value={draft.about_cta_description ?? ""}

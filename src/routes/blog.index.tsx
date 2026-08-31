@@ -1,7 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery, useQuery } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
-import { Search, Filter, ArrowRight, Clock, MapPin, Sparkles, SlidersHorizontal } from "lucide-react";
+import {
+  Search,
+  Filter,
+  ArrowRight,
+  Clock,
+  MapPin,
+  Sparkles,
+  SlidersHorizontal,
+} from "lucide-react";
 import { z } from "zod";
 import { listPosts } from "@/lib/posts.functions";
 import { listDestinations } from "@/lib/destinations.functions";
@@ -22,10 +30,26 @@ const searchSchema = z.object({
   destination: z.string().optional(),
 });
 
-const blogQO = (params: { category?: string; tag?: string; search?: string; sort?: "latest" | "popular"; destination?: string }) =>
+const blogQO = (params: {
+  category?: string;
+  tag?: string;
+  search?: string;
+  sort?: "latest" | "popular";
+  destination?: string;
+}) =>
   queryOptions({
     queryKey: ["blog", params],
-    queryFn: () => listPosts({ data: { limit: 50, sort: params.sort ?? "latest", category: params.category, tag: params.tag, search: params.search, destination: params.destination } }),
+    queryFn: () =>
+      listPosts({
+        data: {
+          limit: 50,
+          sort: params.sort ?? "latest",
+          category: params.category,
+          tag: params.tag,
+          search: params.search,
+          destination: params.destination,
+        },
+      }),
   });
 
 const destQO = queryOptions({
@@ -60,7 +84,10 @@ export const Route = createFileRoute("/blog/")({
           "Solo travel stories, trekking journals, motorcycle adventures and travel guides from Pakistan and high-altitude remote borders.",
       },
       { property: "og:title", content: "Expedition Stories — ndsolotravel" },
-      { property: "og:description", content: "Solo travel, motorcycle journeys, and alpine trekking journals." },
+      {
+        property: "og:description",
+        content: "Solo travel, motorcycle journeys, and alpine trekking journals.",
+      },
       { property: "og:url", content: "/blog" },
     ],
     links: [{ rel: "canonical", href: "/blog" }],
@@ -81,7 +108,13 @@ export const Route = createFileRoute("/blog/")({
   loader: async ({ context, deps }) => {
     await Promise.all([
       context.queryClient.ensureQueryData(
-        blogQO({ category: deps.category, tag: deps.tag, search: deps.q, sort: deps.sort, destination: deps.destination }),
+        blogQO({
+          category: deps.category,
+          tag: deps.tag,
+          search: deps.q,
+          sort: deps.sort,
+          destination: deps.destination,
+        }),
       ),
       context.queryClient.ensureQueryData(destQO),
       context.queryClient.ensureQueryData(authorNameQO),
@@ -100,7 +133,13 @@ function BlogIndex() {
   const navigate = Route.useNavigate();
 
   const { data } = useSuspenseQuery(
-    blogQO({ category: search.category, tag: search.tag, search: search.q, sort: search.sort, destination: search.destination }),
+    blogQO({
+      category: search.category,
+      tag: search.tag,
+      search: search.q,
+      sort: search.sort,
+      destination: search.destination,
+    }),
   );
   const { data: destinations } = useSuspenseQuery(destQO);
   const { data: activeTopics } = useSuspenseQuery(activeTopicsQO);
@@ -118,7 +157,9 @@ function BlogIndex() {
 
   let posts = data.posts;
   if (search.destination) {
-    posts = posts.filter((p) => p.destinations?.slug === search.destination || p.destination_id === search.destination);
+    posts = posts.filter(
+      (p) => p.destinations?.slug === search.destination || p.destination_id === search.destination,
+    );
   }
 
   const [q, setQ] = useState(search.q ?? "");
@@ -132,7 +173,9 @@ function BlogIndex() {
     return posts.filter((p) => p.id !== featuredPost.id);
   }, [posts, featuredPost]);
 
-  const hasActiveFilters = Boolean(search.category || search.tag || search.q || search.destination || search.sort);
+  const hasActiveFilters = Boolean(
+    search.category || search.tag || search.q || search.destination || search.sort,
+  );
 
   return (
     <>
@@ -158,7 +201,8 @@ function BlogIndex() {
             </h1>
             <PageBreadcrumbs items={[{ label: "Stories" }]} />
             <p className="mt-3 max-w-xl text-sm text-white/80">
-              {data.total} {data.total === 1 ? t("story") : t("stories")} {t("published from remote borders and high mountain passes.")}
+              {data.total} {data.total === 1 ? t("story") : t("stories")}{" "}
+              {t("published from remote borders and high mountain passes.")}
             </p>
           </div>
         </div>
@@ -202,7 +246,8 @@ function BlogIndex() {
                     </span>
                     {(featuredPost.location_name || (featuredPost.destinations as any)?.title) && (
                       <span className="inline-flex items-center gap-1">
-                        <MapPin className="h-3 w-3" /> {featuredPost.location_name || (featuredPost.destinations as any)?.title}
+                        <MapPin className="h-3 w-3" />{" "}
+                        {featuredPost.location_name || (featuredPost.destinations as any)?.title}
                       </span>
                     )}
                   </div>
@@ -216,7 +261,14 @@ function BlogIndex() {
                   )}
                   <div className="mt-6 flex items-center justify-between border-t border-border/60 pt-4">
                     <span className="text-xs text-muted-foreground">
-                      By {featuredPost.author_name || authorName || "Hussain"} · {new Date(featuredPost.published_at ?? featuredPost.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                      By {featuredPost.author_name || authorName || "Hussain"} ·{" "}
+                      {new Date(
+                        featuredPost.published_at ?? featuredPost.created_at,
+                      ).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
                     </span>
                     <span className="inline-flex items-center gap-1 text-xs font-semibold text-accent group-hover:translate-x-1 transition-transform">
                       {t("Read story")} <ArrowRight className="h-3.5 w-3.5 rtl:rotate-180" />
@@ -330,10 +382,11 @@ function BlogIndex() {
                       search: (prev: Record<string, unknown>) => ({ ...prev, sort: undefined }),
                     })
                   }
-                  className={`rounded-full px-3 py-1 transition-colors ${!search.sort || search.sort === "latest"
-                    ? "bg-foreground text-background font-medium"
-                    : "text-muted-foreground hover:text-foreground"
-                    }`}
+                  className={`rounded-full px-3 py-1 transition-colors ${
+                    !search.sort || search.sort === "latest"
+                      ? "bg-foreground text-background font-medium"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
                 >
                   {t("Newest")}
                 </button>
@@ -344,10 +397,11 @@ function BlogIndex() {
                       search: (prev: Record<string, unknown>) => ({ ...prev, sort: "popular" }),
                     })
                   }
-                  className={`rounded-full px-3 py-1 transition-colors ${search.sort === "popular"
-                    ? "bg-foreground text-background font-medium"
-                    : "text-muted-foreground hover:text-foreground"
-                    }`}
+                  className={`rounded-full px-3 py-1 transition-colors ${
+                    search.sort === "popular"
+                      ? "bg-foreground text-background font-medium"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
                 >
                   {t("Most Popular")}
                 </button>
@@ -363,8 +417,11 @@ function BlogIndex() {
             <Link
               to="/blog"
               search={(prev: any) => ({ ...prev, category: undefined })}
-              className={`rounded-full border px-3.5 py-1 text-xs transition-colors ${!search.category ? "border-foreground bg-foreground text-background font-medium" : "border-border hover:border-accent"
-                }`}
+              className={`rounded-full border px-3.5 py-1 text-xs transition-colors ${
+                !search.category
+                  ? "border-foreground bg-foreground text-background font-medium"
+                  : "border-border hover:border-accent"
+              }`}
             >
               {t("All")}
             </Link>
@@ -373,8 +430,11 @@ function BlogIndex() {
                 key={c}
                 to="/blog"
                 search={(prev: any) => ({ ...prev, category: c })}
-                className={`rounded-full border px-3.5 py-1 text-xs transition-colors ${search.category === c ? "border-foreground bg-foreground text-background font-medium" : "border-border hover:border-accent"
-                  }`}
+                className={`rounded-full border px-3.5 py-1 text-xs transition-colors ${
+                  search.category === c
+                    ? "border-foreground bg-foreground text-background font-medium"
+                    : "border-border hover:border-accent"
+                }`}
               >
                 {t(c)}
               </Link>
@@ -383,14 +443,19 @@ function BlogIndex() {
 
           {/* Popular Tag Filters */}
           <div className="flex flex-wrap items-center gap-2 pt-1">
-            <span className="mr-2 text-[11px] text-muted-foreground uppercase tracking-wider">{t("Topics")}:</span>
+            <span className="mr-2 text-[11px] text-muted-foreground uppercase tracking-wider">
+              {t("Topics")}:
+            </span>
             {POPULAR_TAGS.map((tag) => (
               <Link
                 key={tag}
                 to="/blog"
                 search={(prev: any) => ({ ...prev, tag: search.tag === tag ? undefined : tag })}
-                className={`rounded-md border px-2.5 py-0.5 text-[11px] transition-colors ${search.tag === tag ? "border-accent bg-accent/10 text-accent font-medium" : "border-border/60 text-muted-foreground hover:border-accent"
-                  }`}
+                className={`rounded-md border px-2.5 py-0.5 text-[11px] transition-colors ${
+                  search.tag === tag
+                    ? "border-accent bg-accent/10 text-accent font-medium"
+                    : "border-border/60 text-muted-foreground hover:border-accent"
+                }`}
               >
                 #{tag}
               </Link>
@@ -410,8 +475,12 @@ function BlogIndex() {
         {/* Stories Grid */}
         {gridPosts.length === 0 ? (
           <div className="rounded-3xl border border-border bg-card p-16 text-center shadow-sm">
-            <p className="font-display text-xl font-semibold text-foreground">{t("No expedition stories found")}</p>
-            <p className="mt-2 text-sm text-muted-foreground">{t("Try adjusting your search criteria or clearing filters.")}</p>
+            <p className="font-display text-xl font-semibold text-foreground">
+              {t("No expedition stories found")}
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {t("Try adjusting your search criteria or clearing filters.")}
+            </p>
             <Link
               to="/blog"
               search={{}}
@@ -431,4 +500,3 @@ function BlogIndex() {
     </>
   );
 }
-

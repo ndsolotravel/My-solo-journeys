@@ -260,9 +260,7 @@ function AdminPublicMessagePage() {
           </div>
           <div>
             <div className="flex items-center gap-2.5">
-              <h1 className="font-display text-2xl font-bold text-foreground">
-                Public Message
-              </h1>
+              <h1 className="font-display text-2xl font-bold text-foreground">Public Message</h1>
               <span
                 className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider ${status.badgeClass}`}
               >

@@ -1,9 +1,20 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery, useQuery } from "@tanstack/react-query";
-import { ArrowLeft, MapPin, Calendar, Camera, ChevronLeft, ChevronRight, Tag, Sparkles } from "lucide-react";
+import {
+  ArrowLeft,
+  MapPin,
+  Calendar,
+  Camera,
+  ChevronLeft,
+  ChevronRight,
+  Tag,
+  Sparkles,
+} from "lucide-react";
 import { getPhotoArchiveItem, listPhotoArchive } from "@/lib/photo-archive.functions";
 import { useTranslations } from "@/lib/translate/store";
 import { PageBreadcrumbs, BreadcrumbJsonLd } from "@/components/layout/PageBreadcrumbs";
+import { useContentTranslation } from "@/lib/translate/contentTranslation";
+import { useLanguage } from "@/lib/translate/store";
 
 const photoQO = (slug: string) =>
   queryOptions({
@@ -25,7 +36,10 @@ export const Route = createFileRoute("/gallery/$slug")({
       };
     }
     const title = `${photo.title || "Untitled photograph"} — ndsolotravel`;
-    const description = photo.story || photo.alt_text || `A photograph${photo.location ? ` from ${photo.location}` : ""}.`;
+    const description =
+      photo.story ||
+      photo.alt_text ||
+      `A photograph${photo.location ? ` from ${photo.location}` : ""}.`;
     const image = photo.image_url;
     return {
       meta: [
@@ -39,7 +53,19 @@ export const Route = createFileRoute("/gallery/$slug")({
         ...(image ? [{ name: "twitter:image", content: image }] : []),
         { name: "twitter:card", content: "summary_large_image" },
       ],
-      links: [{ rel: "canonical", href: `/gallery/${params.slug}` }],
+      links: [
+        { rel: "canonical", href: `/gallery/${params.slug}` },
+        ...["id", "ms"].map((l) => ({
+          rel: "alternate",
+          hrefLang: l,
+          href: `https://ndsolotravel.com/${l}/gallery/${params.slug}`,
+        })),
+        {
+          rel: "alternate",
+          hrefLang: "x-default",
+          href: `https://ndsolotravel.com/gallery/${params.slug}`,
+        },
+      ],
       scripts: [
         {
           type: "application/ld+json",
@@ -48,7 +74,12 @@ export const Route = createFileRoute("/gallery/$slug")({
             "@type": "BreadcrumbList",
             itemListElement: [
               { "@type": "ListItem", position: 1, name: "Home", item: "https://ndsolotravel.com" },
-              { "@type": "ListItem", position: 2, name: "Gallery", item: "https://ndsolotravel.com/gallery" },
+              {
+                "@type": "ListItem",
+                position: 2,
+                name: "Gallery",
+                item: "https://ndsolotravel.com/gallery",
+              },
               { "@type": "ListItem", position: 3, name: photo.title || "Photograph" },
             ],
           }),
@@ -77,8 +108,13 @@ function PhotoNotFound() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-24 text-center">
       <h1 className="font-display text-3xl font-bold text-foreground">Photograph not found</h1>
-      <p className="mt-2 text-muted-foreground">This photograph may have been removed from the archive.</p>
-      <Link to="/gallery" className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-accent">
+      <p className="mt-2 text-muted-foreground">
+        This photograph may have been removed from the archive.
+      </p>
+      <Link
+        to="/gallery"
+        className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-accent"
+      >
         <ArrowLeft className="h-4 w-4" /> Back to the archive
       </Link>
     </div>
@@ -94,7 +130,21 @@ function formatDate(value: string | null): string | null {
 
 function PhotoDetailPage() {
   const t = useTranslations();
+  const { lang } = useLanguage();
   const { photo, prev, next } = Route.useLoaderData();
+
+  const localizedPhoto = useContentTranslation({
+    contentType: "gallery",
+    contentId: photo?.id ?? "",
+    englishFields: {
+      title: photo?.title ?? "",
+      story: photo?.story ?? "",
+      alt_text: photo?.alt_text ?? "",
+      location: photo?.location ?? "",
+      camera: photo?.camera ?? "",
+    },
+    targetLang: lang,
+  });
 
   const primaryCategory = photo.categories[0] ?? null;
   const { data: relatedData } = useQuery({
@@ -105,9 +155,7 @@ function PhotoDetailPage() {
         : { photos: [], categories: [] },
     enabled: Boolean(primaryCategory),
   });
-  const related = (relatedData?.photos ?? [])
-    .filter((p) => p.id !== photo.id)
-    .slice(0, 3);
+  const related = (relatedData?.photos ?? []).filter((p) => p.id !== photo.id).slice(0, 3);
 
   return (
     <>
@@ -115,7 +163,7 @@ function PhotoDetailPage() {
         <BreadcrumbJsonLd
           items={[
             { label: "Gallery", href: "/gallery" },
-            { label: photo.title || "Photograph" },
+            { label: localizedPhoto.title || "Photograph" },
           ]}
         />
 
@@ -132,14 +180,14 @@ function PhotoDetailPage() {
             <div className="group relative overflow-hidden rounded-3xl border border-border bg-zinc-950 shadow-lg">
               <img
                 src={photo.image_url}
-                alt={photo.alt_text || photo.title}
+                alt={localizedPhoto.alt_text || localizedPhoto.title}
                 className="h-auto max-h-[82vh] w-full object-contain"
               />
             </div>
             <PageBreadcrumbs
               items={[
                 { label: "Gallery", href: "/gallery" },
-                { label: photo.title || "Photograph" },
+                { label: localizedPhoto.title || "Photograph" },
               ]}
             />
           </div>
@@ -166,16 +214,16 @@ function PhotoDetailPage() {
               )}
 
               <h1 className="font-display text-2xl font-bold leading-tight text-foreground sm:text-3xl">
-                {t(photo.title)}
+                {localizedPhoto.title}
               </h1>
 
               {(photo.location || photo.captured_at || photo.camera) && (
                 <dl className="mt-5 space-y-2.5 border-t border-border/60 pt-5 text-sm">
-                  {photo.location && (
+                  {localizedPhoto.location && (
                     <div className="flex items-start gap-2.5">
                       <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
                       <dt className="sr-only">{t("Location")}</dt>
-                      <dd className="text-foreground">{t(photo.location)}</dd>
+                      <dd className="text-foreground">{localizedPhoto.location}</dd>
                     </div>
                   )}
                   {formatDate(photo.captured_at) && (
@@ -189,19 +237,19 @@ function PhotoDetailPage() {
                     <div className="flex items-start gap-2.5">
                       <Camera className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
                       <dt className="sr-only">{t("Camera")}</dt>
-                      <dd className="text-muted-foreground">{t(photo.camera)}</dd>
+                      <dd className="text-muted-foreground">{localizedPhoto.camera}</dd>
                     </div>
                   )}
                 </dl>
               )}
 
-              {photo.story && (
+              {localizedPhoto.story && (
                 <div className="mt-5 border-t border-border/60 pt-5">
                   <h2 className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-accent">
                     <Sparkles className="h-3 w-3" /> {t("The story behind this frame")}
                   </h2>
                   <p className="whitespace-pre-line text-sm leading-relaxed text-foreground/85">
-                    {t(photo.story)}
+                    {localizedPhoto.story}
                   </p>
                 </div>
               )}

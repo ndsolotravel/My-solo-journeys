@@ -192,7 +192,9 @@ function HeroImageTile({
               {status === "loading" && (
                 <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-muted/80 backdrop-blur-xs">
                   <Loader2 className="h-5 w-5 animate-spin text-accent" />
-                  <span className="text-[11px] font-medium text-muted-foreground">Loading preview…</span>
+                  <span className="text-[11px] font-medium text-muted-foreground">
+                    Loading preview…
+                  </span>
                 </div>
               )}
 
@@ -247,7 +249,8 @@ function HeroImageTile({
                 {source === "auto-post" ? "Post has no cover image" : "No custom image specified"}
               </p>
               <p className="text-[11px] text-muted-foreground max-w-xs">
-                The live Homepage will proceed with a dark hero background when no image is set for position {slot}.
+                The live Homepage will proceed with a dark hero background when no image is set for
+                position {slot}.
               </p>
             </div>
 
@@ -570,7 +573,11 @@ function HeroLightbox({
               className="inline-flex items-center gap-1 rounded-lg bg-white/10 px-3 py-1.5 text-xs font-medium text-white/80 hover:bg-white/20 hover:text-white transition-colors cursor-pointer"
               title="Copy image URL"
             >
-              {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
+              {copied ? (
+                <Check className="h-3.5 w-3.5 text-emerald-400" />
+              ) : (
+                <Copy className="h-3.5 w-3.5" />
+              )}
               <span className="hidden sm:inline">{copied ? "Copied" : "Copy URL"}</span>
             </button>
 
@@ -875,11 +882,10 @@ function AdminHomepagePage() {
             <Compass className="h-6 w-6 text-accent" />
           </div>
           <div>
-            <h1 className="font-display text-2xl font-bold text-foreground">
-              Homepage Management
-            </h1>
+            <h1 className="font-display text-2xl font-bold text-foreground">Homepage Management</h1>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Structured control over the Hero Banner slideshow, Journey in Numbers stats, and Featured Stories.
+              Structured control over the Hero Banner slideshow, Journey in Numbers stats, and
+              Featured Stories.
             </p>
           </div>
         </div>
@@ -931,7 +937,8 @@ function AdminHomepagePage() {
           <div className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 shrink-0 text-accent" />
             <span className="font-medium">
-              You have unsaved changes. Click &quot;Save Changes&quot; to apply them to the live homepage.
+              You have unsaved changes. Click &quot;Save Changes&quot; to apply them to the live
+              homepage.
             </span>
           </div>
           <button
@@ -972,7 +979,11 @@ function AdminHomepagePage() {
               }`}
             >
               <Sparkles className="h-3 w-3" />
-              <span>{heroImagesMode === "auto" ? "Auto Mode (3 Latest Posts)" : "Manual Mode (Custom URLs)"}</span>
+              <span>
+                {heroImagesMode === "auto"
+                  ? "Auto Mode (3 Latest Posts)"
+                  : "Manual Mode (Custom URLs)"}
+              </span>
             </span>
 
             {/* Switch between 3-Image Grid and Live Simulator */}
@@ -1048,7 +1059,8 @@ function AdminHomepagePage() {
             </span>
             <span className="hidden h-3 w-px bg-border sm:inline-block" />
             <span>
-              All previews use <strong>16:9 cinematic widescreen aspect ratio</strong> with <strong>object-fit: cover</strong> and <strong>object-position: center</strong>.
+              All previews use <strong>16:9 cinematic widescreen aspect ratio</strong> with{" "}
+              <strong>object-fit: cover</strong> and <strong>object-position: center</strong>.
             </span>
           </div>
 
@@ -1072,7 +1084,8 @@ function AdminHomepagePage() {
                   <span>Hero Banner Settings</span>
                 </h2>
                 <p className="mt-0.5 text-xs text-muted-foreground">
-                  Configure the full-screen intro at the top of the homepage — background mode, titles, and buttons.
+                  Configure the full-screen intro at the top of the homepage — background mode,
+                  titles, and buttons.
                 </p>
               </div>
               <span className="inline-flex items-center gap-1 rounded-full bg-accent/10 px-2.5 py-0.5 text-xs font-medium text-accent">
@@ -1082,9 +1095,7 @@ function AdminHomepagePage() {
 
             {/* Hero source mode */}
             <div className="space-y-2">
-              <label className="block text-xs font-medium text-foreground">
-                Hero Source Post
-              </label>
+              <label className="block text-xs font-medium text-foreground">Hero Source Post</label>
               <div className="grid gap-2 sm:grid-cols-2">
                 <button
                   type="button"
@@ -1172,7 +1183,8 @@ function AdminHomepagePage() {
                     }`}
                   />
                   <span>
-                    Mode: {heroImagesMode === "auto" ? "Auto (3 Latest Posts)" : "Manual (Custom URLs)"}
+                    Mode:{" "}
+                    {heroImagesMode === "auto" ? "Auto (3 Latest Posts)" : "Manual (Custom URLs)"}
                   </span>
                 </span>
               </div>
@@ -1250,7 +1262,9 @@ function AdminHomepagePage() {
                         className="rounded-lg border border-border/80 bg-card p-2.5 space-y-1 shadow-2xs"
                       >
                         <div className="flex items-center justify-between text-[11px]">
-                          <span className="font-semibold text-foreground">Hero Image {idx + 1}</span>
+                          <span className="font-semibold text-foreground">
+                            Hero Image {idx + 1}
+                          </span>
                           {p.cover_image ? (
                             <span className="text-emerald-600 dark:text-emerald-400 font-semibold text-[10px]">
                               Has cover
@@ -1271,7 +1285,8 @@ function AdminHomepagePage() {
                     ))}
                   </div>
                   <p className="text-[11px] text-muted-foreground">
-                    Note: Your manually entered image URLs are safely preserved in the background and will be restored if you switch back to Manual mode.
+                    Note: Your manually entered image URLs are safely preserved in the background
+                    and will be restored if you switch back to Manual mode.
                   </p>
                 </div>
               )}
@@ -1385,7 +1400,8 @@ function AdminHomepagePage() {
                     );
                   })}
                   <p className="text-xs text-muted-foreground">
-                    Tip: Any empty slot shows a dark hero background on the live site. Add a cover image or URL to show a photo.
+                    Tip: Any empty slot shows a dark hero background on the live site. Add a cover
+                    image or URL to show a photo.
                   </p>
                 </div>
               )}
@@ -1554,9 +1570,7 @@ function AdminHomepagePage() {
             </div>
 
             <div className="space-y-2">
-              <label className="block text-xs font-medium text-foreground">
-                Countries Visited
-              </label>
+              <label className="block text-xs font-medium text-foreground">Countries Visited</label>
               <div className="grid gap-2 sm:grid-cols-2">
                 <button
                   type="button"
@@ -1845,8 +1859,8 @@ function AdminHomepagePage() {
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
                 <span>
-                  <strong className="text-foreground">Instant Live:</strong> Reuses the existing site
-                  settings table — changes appear on the homepage immediately after saving.
+                  <strong className="text-foreground">Instant Live:</strong> Reuses the existing
+                  site settings table — changes appear on the homepage immediately after saving.
                 </span>
               </li>
               <li className="flex items-start gap-2">
@@ -1863,10 +1877,22 @@ function AdminHomepagePage() {
           <div className="rounded-2xl border border-border bg-card p-5 shadow-sm space-y-3">
             <h3 className="font-display text-sm font-semibold text-foreground">CMS Tips</h3>
             <ul className="space-y-2 text-xs text-muted-foreground list-disc pl-4">
-              <li>Use <strong>Auto mode</strong> for slideshow images to keep the homepage freshly updated as you publish.</li>
-              <li>In <strong>Manual mode</strong>, images preview immediately when you paste a valid image URL.</li>
-              <li>Click any preview image or thumbnail to inspect full high-resolution details in the lightbox.</li>
-              <li>Click <strong>Reset</strong> to discard unsaved edits and restore the last saved state.</li>
+              <li>
+                Use <strong>Auto mode</strong> for slideshow images to keep the homepage freshly
+                updated as you publish.
+              </li>
+              <li>
+                In <strong>Manual mode</strong>, images preview immediately when you paste a valid
+                image URL.
+              </li>
+              <li>
+                Click any preview image or thumbnail to inspect full high-resolution details in the
+                lightbox.
+              </li>
+              <li>
+                Click <strong>Reset</strong> to discard unsaved edits and restore the last saved
+                state.
+              </li>
             </ul>
           </div>
         </aside>

@@ -1,10 +1,30 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { queryOptions, useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useMemo, useState, Fragment, isValidElement, cloneElement, type ReactNode } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+  Fragment,
+  isValidElement,
+  cloneElement,
+  type ReactNode,
+} from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
-import { Clock, ArrowLeft, Star, Calendar, Image as ImageIcon, X, ChevronLeft, ChevronRight, User, List, ArrowRight as ArrowRightIcon } from "lucide-react";
+import {
+  Clock,
+  ArrowLeft,
+  Star,
+  Calendar,
+  Image as ImageIcon,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  User,
+  List,
+  ArrowRight as ArrowRightIcon,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getPostBySlug, type Post } from "@/lib/posts.functions";
 import { getBlogAuthorName } from "@/lib/settings.functions";
@@ -17,6 +37,7 @@ import { AuthorProfile } from "@/components/blog/AuthorProfile";
 import { PageBreadcrumbs, BreadcrumbJsonLd } from "@/components/layout/PageBreadcrumbs";
 import { toast } from "sonner";
 import { useTranslations, useLanguage } from "@/lib/translate/store";
+import { useContentTranslation } from "@/lib/translate/contentTranslation";
 
 const postQO = (slug: string) =>
   queryOptions({
@@ -56,36 +77,58 @@ export const Route = createFileRoute("/blog/$slug")({
         ...(image ? [{ name: "twitter:image", content: image }] : []),
         { name: "twitter:card", content: "summary_large_image" },
       ],
-      links: [{ rel: "canonical", href: `/blog/${params.slug}` }],
+      links: [
+        { rel: "canonical", href: `/blog/${params.slug}` },
+        ...["id", "ms"].map((l) => ({
+          rel: "alternate",
+          hrefLang: l,
+          href: `https://ndsolotravel.com/${l}/blog/${params.slug}`,
+        })),
+        {
+          rel: "alternate",
+          hrefLang: "x-default",
+          href: `https://ndsolotravel.com/blog/${params.slug}`,
+        },
+      ],
       scripts: p
         ? [
-          {
-            type: "application/ld+json",
-            children: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "BreadcrumbList",
-              itemListElement: [
-                { "@type": "ListItem", position: 1, name: "Home", item: "https://ndsolotravel.com" },
-                { "@type": "ListItem", position: 2, name: "Stories", item: "https://ndsolotravel.com/blog" },
-                { "@type": "ListItem", position: 3, name: p.title },
-              ],
-            }),
-          },
-          {
-            type: "application/ld+json",
-            children: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Article",
-              headline: p.title,
-              description: desc,
-              image: image ?? undefined,
-              datePublished: p.published_at ?? p.created_at,
-              articleSection: p.category,
-              keywords: p.tags?.join(", "),
-              author: { "@type": "Person", name: authorName },
-            }),
-          },
-        ]
+            {
+              type: "application/ld+json",
+              children: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "BreadcrumbList",
+                itemListElement: [
+                  {
+                    "@type": "ListItem",
+                    position: 1,
+                    name: "Home",
+                    item: "https://ndsolotravel.com",
+                  },
+                  {
+                    "@type": "ListItem",
+                    position: 2,
+                    name: "Stories",
+                    item: "https://ndsolotravel.com/blog",
+                  },
+                  { "@type": "ListItem", position: 3, name: p.title },
+                ],
+              }),
+            },
+            {
+              type: "application/ld+json",
+              children: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "Article",
+                headline: p.title,
+                description: desc,
+                image: image ?? undefined,
+                datePublished: p.published_at ?? p.created_at,
+                articleSection: p.category,
+                keywords: p.tags?.join(", "),
+                author: { "@type": "Person", name: authorName },
+              }),
+            },
+          ]
         : [],
     };
   },
@@ -97,9 +140,7 @@ function PostNotFound() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-24 text-center">
       <h1 className="font-display text-3xl font-bold">Story not found</h1>
-      <p className="mt-2 text-muted-foreground">
-        This trail has been moved or doesn't exist.
-      </p>
+      <p className="mt-2 text-muted-foreground">This trail has been moved or doesn't exist.</p>
       <Link to="/blog" className="mt-6 inline-flex items-center gap-2 text-sm text-accent">
         <ArrowLeft className="h-4 w-4" /> Back to all stories
       </Link>
@@ -163,9 +204,7 @@ function translateMarkdownChildren(
   if (typeof node === "number") return node;
   if (Array.isArray(node)) {
     return node.map((child, i) => (
-      <Fragment key={i}>
-        {translateMarkdownChildren(child, t, isDbTranslated)}
-      </Fragment>
+      <Fragment key={i}>{translateMarkdownChildren(child, t, isDbTranslated)}</Fragment>
     ));
   }
   if (typeof node === "object" && isValidElement(node)) {
@@ -193,37 +232,24 @@ function PostPage() {
   const { lang } = useLanguage();
   const t = useTranslations();
 
-  const dbTrans = useMemo(() => {
-    if (!post || lang === "en") return null;
-    return post.post_translations?.find((x: any) => x.language_code === lang) ?? null;
+  const localizedPost = useContentTranslation({
+    contentType: "post",
+    contentId: post?.id ?? "",
+    englishFields: {
+      title: post?.title ?? "",
+      excerpt: post?.excerpt ?? "",
+      content: post?.content ?? "",
+      category: post?.category ?? "",
+      seo_title: post?.seo_title ?? "",
+      seo_description: post?.seo_description ?? "",
+    },
+    targetLang: lang,
+  });
+
+  const isDbTranslated = useMemo(() => {
+    if (!post || lang === "en") return false;
+    return !!post.post_translations?.find((x: any) => x.language_code === lang);
   }, [post, lang]);
-
-  const isDbTranslated = !!dbTrans;
-
-  const localizedPost = useMemo(() => {
-    if (!post) return null;
-    if (lang === "en") return post;
-    if (dbTrans) {
-      return {
-        ...post,
-        title: dbTrans.title || post.title,
-        excerpt: dbTrans.excerpt || post.excerpt,
-        content: dbTrans.content || post.content,
-        category: dbTrans.category || post.category,
-        seo_title: dbTrans.seo_title || post.seo_title,
-        seo_description: dbTrans.seo_description || post.seo_description,
-      };
-    }
-    return {
-      ...post,
-      title: t(post.title),
-      excerpt: post.excerpt ? t(post.excerpt) : post.excerpt,
-      content: post.content,
-      category: t(post.category),
-      seo_title: post.seo_title ? t(post.seo_title) : post.seo_title,
-      seo_description: post.seo_description ? t(post.seo_description) : post.seo_description,
-    };
-  }, [post, lang, dbTrans, t]);
 
   const localizedRelated = related;
 
@@ -237,7 +263,10 @@ function PostPage() {
       if (match) {
         const level = match[1].length;
         const rawText = match[2].trim().replace(/[*_~`]/g, "");
-        const id = rawText.toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-");
+        const id = rawText
+          .toLowerCase()
+          .replace(/[^\w\s-]/g, "")
+          .replace(/\s+/g, "-");
         const text = isDbTranslated ? rawText : t(rawText);
         items.push({ id, text, level });
       }
@@ -245,14 +274,19 @@ function PostPage() {
     return items;
   }, [localizedPost, isDbTranslated, t]);
 
-  const [[activeImageIndex, direction], setActiveImageState] = useState<[number | null, number]>([null, 0]);
+  const [[activeImageIndex, direction], setActiveImageState] = useState<[number | null, number]>([
+    null,
+    0,
+  ]);
 
   const gallery = post?.gallery ?? [];
   const activeItem = activeImageIndex !== null ? gallery[activeImageIndex] : null;
 
   const handlePrevImage = () => {
     if (activeImageIndex === null || gallery.length === 0) return;
-    setActiveImageState(([curr]) => (curr === null ? [null, 0] : [(curr - 1 + gallery.length) % gallery.length, -1]));
+    setActiveImageState(([curr]) =>
+      curr === null ? [null, 0] : [(curr - 1 + gallery.length) % gallery.length, -1],
+    );
   };
 
   const handleNextImage = () => {
@@ -281,10 +315,10 @@ function PostPage() {
 
   const formattedTravelDate = post.travel_date
     ? new Date(post.travel_date).toLocaleDateString("en-US", {
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-    })
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      })
     : null;
 
   const prevStory = localizedRelated[0] ?? null;
@@ -308,10 +342,7 @@ function PostPage() {
         <div className="absolute inset-x-0 bottom-0 mx-auto max-w-3xl px-4 pb-12 text-white sm:px-6">
           <div className="flex flex-wrap items-center gap-3">
             <PageBreadcrumbs
-              items={[
-                { label: "Stories", href: "/blog" },
-                { label: localizedPost.title },
-              ]}
+              items={[{ label: "Stories", href: "/blog" }, { label: localizedPost.title }]}
             />
           </div>
 
@@ -362,7 +393,10 @@ function PostPage() {
 
         {/* Table of Contents sidebar/box for long articles */}
         {toc.length > 2 && (
-          <nav aria-label={t("Table of Contents")} className="my-8 rounded-2xl border border-border bg-card p-5 shadow-sm">
+          <nav
+            aria-label={t("Table of Contents")}
+            className="my-8 rounded-2xl border border-border bg-card p-5 shadow-sm"
+          >
             <div className="flex items-center gap-2 font-display text-sm font-semibold text-foreground mb-3">
               <List className="h-4 w-4 text-accent" />
               <span>{t("Expedition Contents")}</span>
@@ -389,36 +423,60 @@ function PostPage() {
             components={{
               h1: ({ children }) => {
                 const raw = extractText(children);
-                const id = raw.toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-");
+                const id = raw
+                  .toLowerCase()
+                  .replace(/[^\w\s-]/g, "")
+                  .replace(/\s+/g, "-");
                 return (
-                  <h1 id={id} className="scroll-mt-24 font-display text-3xl font-bold mt-10 mb-4 text-foreground">
+                  <h1
+                    id={id}
+                    className="scroll-mt-24 font-display text-3xl font-bold mt-10 mb-4 text-foreground"
+                  >
                     {translateMarkdownChildren(children, t, isDbTranslated)}
                   </h1>
                 );
               },
               h2: ({ children }) => {
                 const raw = extractText(children);
-                const id = raw.toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-");
+                const id = raw
+                  .toLowerCase()
+                  .replace(/[^\w\s-]/g, "")
+                  .replace(/\s+/g, "-");
                 return (
-                  <h2 id={id} className="scroll-mt-24 font-display text-2xl font-bold mt-10 mb-4 text-foreground">
+                  <h2
+                    id={id}
+                    className="scroll-mt-24 font-display text-2xl font-bold mt-10 mb-4 text-foreground"
+                  >
                     {translateMarkdownChildren(children, t, isDbTranslated)}
                   </h2>
                 );
               },
               h3: ({ children }) => {
                 const raw = extractText(children);
-                const id = raw.toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-");
+                const id = raw
+                  .toLowerCase()
+                  .replace(/[^\w\s-]/g, "")
+                  .replace(/\s+/g, "-");
                 return (
-                  <h3 id={id} className="scroll-mt-24 font-display text-xl font-semibold mt-8 mb-3 text-foreground">
+                  <h3
+                    id={id}
+                    className="scroll-mt-24 font-display text-xl font-semibold mt-8 mb-3 text-foreground"
+                  >
                     {translateMarkdownChildren(children, t, isDbTranslated)}
                   </h3>
                 );
               },
               h4: ({ children }) => {
                 const raw = extractText(children);
-                const id = raw.toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-");
+                const id = raw
+                  .toLowerCase()
+                  .replace(/[^\w\s-]/g, "")
+                  .replace(/\s+/g, "-");
                 return (
-                  <h4 id={id} className="scroll-mt-24 font-display text-lg font-semibold mt-6 mb-2 text-foreground">
+                  <h4
+                    id={id}
+                    className="scroll-mt-24 font-display text-lg font-semibold mt-6 mb-2 text-foreground"
+                  >
                     {translateMarkdownChildren(children, t, isDbTranslated)}
                   </h4>
                 );
@@ -625,7 +683,9 @@ function PostPage() {
                   {t(prevStory.title)}
                 </span>
               </Link>
-            ) : <div />}
+            ) : (
+              <div />
+            )}
             {nextStory ? (
               <Link
                 to="/blog/$slug"
@@ -639,7 +699,9 @@ function PostPage() {
                   {t(nextStory.title)}
                 </span>
               </Link>
-            ) : <div />}
+            ) : (
+              <div />
+            )}
           </div>
         )}
 
@@ -708,8 +770,9 @@ function StarPicker({ value, onChange }: { value: number; onChange: (n: number) 
           className="rounded p-1 outline-none focus-visible:ring-2 focus-visible:ring-accent"
         >
           <Star
-            className={`h-7 w-7 transition-colors ${i <= active ? "fill-amber-400 text-amber-400" : "text-muted-foreground/40"
-              }`}
+            className={`h-7 w-7 transition-colors ${
+              i <= active ? "fill-amber-400 text-amber-400" : "text-muted-foreground/40"
+            }`}
           />
         </motion.button>
       ))}

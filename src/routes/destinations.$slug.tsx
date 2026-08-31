@@ -2,12 +2,18 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
 import { ArrowLeft, MapPin, Compass, BookOpen, Camera, Globe, ArrowRight } from "lucide-react";
-import { getDestinationBySlug, listDestinations, type Destination } from "@/lib/destinations.functions";
+import {
+  getDestinationBySlug,
+  listDestinations,
+  type Destination,
+} from "@/lib/destinations.functions";
 import type { Post } from "@/lib/posts.functions";
 import { PostCard } from "@/components/blog/PostCard";
 import { useTranslations } from "@/lib/translate/store";
 import { resolveMediaUrl } from "@/lib/media";
 import { PageBreadcrumbs, BreadcrumbJsonLd } from "@/components/layout/PageBreadcrumbs";
+import { useContentTranslation } from "@/lib/translate/contentTranslation";
+import { useLanguage } from "@/lib/translate/store";
 
 const qo = (slug: string) =>
   queryOptions({
@@ -31,31 +37,58 @@ export const Route = createFileRoute("/destinations/$slug")({
   },
   head: ({ loaderData, params }) => {
     const d = loaderData?.destination;
+    const title = d
+      ? `${d.title} Travel Guide & Stories — ndsolotravel`
+      : "Destination — ndsolotravel";
+    const description = d?.description ?? "Country and region travel guide.";
+    const ogTitle = d?.title ?? "Destination";
     return {
       meta: [
-        { title: d ? `${d.title} Travel Guide & Stories — ndsolotravel` : "Destination — ndsolotravel" },
-        { name: "description", content: d?.description ?? "Country and region travel guide." },
-        { property: "og:title", content: d?.title ?? "Destination" },
-        { property: "og:description", content: d?.description ?? "" },
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: ogTitle },
+        { property: "og:description", content: description },
         { property: "og:url", content: `/destinations/${params.slug}` },
         ...(d?.featured_image ? [{ property: "og:image", content: d.featured_image }] : []),
       ],
-      links: [{ rel: "canonical", href: `/destinations/${params.slug}` }],
+      links: [
+        { rel: "canonical", href: `/destinations/${params.slug}` },
+        ...["id", "ms"].map((l) => ({
+          rel: "alternate",
+          hrefLang: l,
+          href: `https://ndsolotravel.com/${l}/destinations/${params.slug}`,
+        })),
+        {
+          rel: "alternate",
+          hrefLang: "x-default",
+          href: `https://ndsolotravel.com/destinations/${params.slug}`,
+        },
+      ],
       scripts: d
         ? [
-          {
-            type: "application/ld+json",
-            children: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "BreadcrumbList",
-              itemListElement: [
-                { "@type": "ListItem", position: 1, name: "Home", item: "https://ndsolotravel.com" },
-                { "@type": "ListItem", position: 2, name: "Destinations", item: "https://ndsolotravel.com/destinations" },
-                { "@type": "ListItem", position: 3, name: d.title },
-              ],
-            }),
-          },
-        ]
+            {
+              type: "application/ld+json",
+              children: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "BreadcrumbList",
+                itemListElement: [
+                  {
+                    "@type": "ListItem",
+                    position: 1,
+                    name: "Home",
+                    item: "https://ndsolotravel.com",
+                  },
+                  {
+                    "@type": "ListItem",
+                    position: 2,
+                    name: "Destinations",
+                    item: "https://ndsolotravel.com/destinations",
+                  },
+                  { "@type": "ListItem", position: 3, name: d.title },
+                ],
+              }),
+            },
+          ]
         : [],
     };
   },
@@ -79,15 +112,35 @@ function DestinationNotFound() {
 function DestinationPage() {
   const { destination: d, allDestinations } = Route.useLoaderData();
   const t = useTranslations();
+  const { lang } = useLanguage();
   const [activeTab, setActiveTab] = useState<"all" | "expeditions" | "guides">("all");
+
+  const localizedDest = useContentTranslation({
+    contentType: "destination",
+    contentId: d?.id ?? "",
+    englishFields: {
+      title: d?.title ?? "",
+      description: d?.description ?? "",
+      country: d?.country ?? "",
+      region: d?.region ?? "",
+    },
+    targetLang: lang,
+  });
 
   const posts = d.posts ?? [];
   const guidePosts = useMemo(
-    () => posts.filter((p: Post) => ["Travel Tips", "Travel Gear", "Budget Travel", "Pakistan Tourism"].includes(p.category)),
+    () =>
+      posts.filter((p: Post) =>
+        ["Travel Tips", "Travel Gear", "Budget Travel", "Pakistan Tourism"].includes(p.category),
+      ),
     [posts],
   );
   const expeditionPosts = useMemo(
-    () => posts.filter((p: Post) => !["Travel Tips", "Travel Gear", "Budget Travel", "Pakistan Tourism"].includes(p.category)),
+    () =>
+      posts.filter(
+        (p: Post) =>
+          !["Travel Tips", "Travel Gear", "Budget Travel", "Pakistan Tourism"].includes(p.category),
+      ),
     [posts],
   );
 
@@ -109,7 +162,7 @@ function DestinationPage() {
         {d.featured_image ? (
           <img
             src={resolveMediaUrl(d.featured_image)}
-            alt={d.title}
+            alt={localizedDest.title}
             className="h-full w-full object-cover object-center"
           />
         ) : (
@@ -120,21 +173,21 @@ function DestinationPage() {
           <PageBreadcrumbs
             items={[
               { label: "Destinations", href: "/destinations" },
-              { label: d.title },
+              { label: localizedDest.title },
             ]}
           />
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center gap-1 rounded-full bg-accent/20 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-amber-300 backdrop-blur-md">
-              <Globe className="h-3 w-3" /> {t(d.country)}
+              <Globe className="h-3 w-3" /> {localizedDest.country}
             </span>
-            {d.region && (
+            {localizedDest.region && (
               <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white/90 backdrop-blur-md">
-                <MapPin className="h-3 w-3" /> {t(d.region)}
+                <MapPin className="h-3 w-3" /> {localizedDest.region}
               </span>
             )}
           </div>
           <h1 className="mt-3 font-display text-4xl font-bold leading-tight sm:text-6xl lg:text-7xl">
-            {t(d.title)}
+            {localizedDest.title}
           </h1>
         </div>
       </div>
@@ -143,19 +196,31 @@ function DestinationPage() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 -mt-8 relative z-10">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 rounded-2xl border border-border bg-card p-4 sm:p-6 shadow-lg">
           <div className="p-2">
-            <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{t("Country")}</p>
-            <p className="mt-1 font-display text-lg font-bold text-foreground">{t(d.country)}</p>
+            <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+              {t("Country")}
+            </p>
+            <p className="mt-1 font-display text-lg font-bold text-foreground">
+              {localizedDest.country}
+            </p>
           </div>
           <div className="p-2">
-            <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{t("Region")}</p>
-            <p className="mt-1 font-display text-lg font-bold text-foreground">{d.region ? t(d.region) : "—"}</p>
+            <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+              {t("Region")}
+            </p>
+            <p className="mt-1 font-display text-lg font-bold text-foreground">
+              {localizedDest.region ? localizedDest.region : "—"}
+            </p>
           </div>
           <div className="p-2">
-            <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{t("Stories & Guides")}</p>
+            <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+              {t("Stories & Guides")}
+            </p>
             <p className="mt-1 font-display text-lg font-bold text-foreground">{posts.length}</p>
           </div>
           <div className="p-2">
-            <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{t("Expedition Style")}</p>
+            <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+              {t("Expedition Style")}
+            </p>
             <p className="mt-1 font-display text-lg font-bold text-accent">{t("Solo · Slow")}</p>
           </div>
         </div>
@@ -163,9 +228,9 @@ function DestinationPage() {
 
       {/* Description */}
       <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
-        {d.description && (
+        {localizedDest.description && (
           <p className="text-xl leading-relaxed text-muted-foreground font-display">
-            {t(d.description)}
+            {localizedDest.description}
           </p>
         )}
       </div>
@@ -189,7 +254,9 @@ function DestinationPage() {
                 type="button"
                 onClick={() => setActiveTab("all")}
                 className={`rounded-full px-4 py-1.5 font-medium transition-colors ${
-                  activeTab === "all" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"
+                  activeTab === "all"
+                    ? "bg-foreground text-background"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 {t("All")} ({posts.length})
@@ -198,7 +265,9 @@ function DestinationPage() {
                 type="button"
                 onClick={() => setActiveTab("expeditions")}
                 className={`rounded-full px-4 py-1.5 font-medium transition-colors ${
-                  activeTab === "expeditions" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"
+                  activeTab === "expeditions"
+                    ? "bg-foreground text-background"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 {t("Expeditions")} ({expeditionPosts.length})
@@ -207,7 +276,9 @@ function DestinationPage() {
                 type="button"
                 onClick={() => setActiveTab("guides")}
                 className={`rounded-full px-4 py-1.5 font-medium transition-colors ${
-                  activeTab === "guides" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"
+                  activeTab === "guides"
+                    ? "bg-foreground text-background"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 {t("Travel Guides")} ({guidePosts.length})
@@ -223,7 +294,9 @@ function DestinationPage() {
             </div>
           ) : (
             <div className="mt-8 rounded-3xl border border-border bg-card p-12 text-center text-muted-foreground">
-              <p className="font-display text-lg font-semibold">{t("No stories under this category yet.")}</p>
+              <p className="font-display text-lg font-semibold">
+                {t("No stories under this category yet.")}
+              </p>
               <button
                 type="button"
                 onClick={() => setActiveTab("all")}
@@ -241,12 +314,17 @@ function DestinationPage() {
         <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
           <div className="mb-10 flex items-end justify-between">
             <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-accent">{t("Continue exploring")}</p>
+              <p className="text-xs uppercase tracking-[0.2em] text-accent">
+                {t("Continue exploring")}
+              </p>
               <h2 className="mt-1 font-display text-3xl font-bold sm:text-4xl">
                 {t("Other destinations in the atlas")}
               </h2>
             </div>
-            <Link to="/destinations" className="text-sm text-muted-foreground hover:text-foreground">
+            <Link
+              to="/destinations"
+              className="text-sm text-muted-foreground hover:text-foreground"
+            >
               {t("All destinations")} →
             </Link>
           </div>
@@ -258,24 +336,29 @@ function DestinationPage() {
                 params={{ slug: item.slug }}
                 className="group relative block aspect-[4/3] overflow-hidden rounded-2xl border border-border"
               >
-                {item.featured_image ? (() => {
-                  const img = resolveMediaUrl(item.featured_image);
-                  return img ? (
-                    <img
-                      src={img}
-                      alt={item.title}
-                      loading="lazy"
-                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 h-full w-full bg-zinc-900" />
-                  );
-                })() : null}
+                {item.featured_image
+                  ? (() => {
+                      const img = resolveMediaUrl(item.featured_image);
+                      return img ? (
+                        <img
+                          src={img}
+                          alt={item.title}
+                          loading="lazy"
+                          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 h-full w-full bg-zinc-900" />
+                      );
+                    })()
+                  : null}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 p-5 text-white">
-                  <p className="text-xs uppercase tracking-wider text-white/70">{t(item.country)}</p>
+                  <p className="text-xs uppercase tracking-wider text-white/70">
+                    {t(item.country)}
+                  </p>
                   <h3 className="mt-1 font-display text-xl font-semibold group-hover:text-amber-300 transition-colors flex items-center justify-between">
-                    {t(item.title)} <ArrowRight className="h-4 w-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all rtl:rotate-180" />
+                    {t(item.title)}{" "}
+                    <ArrowRight className="h-4 w-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all rtl:rotate-180" />
                   </h3>
                 </div>
               </Link>
@@ -286,4 +369,3 @@ function DestinationPage() {
     </article>
   );
 }
-

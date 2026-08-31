@@ -192,9 +192,7 @@ function AdminSettingsPage() {
             <Settings className="h-6 w-6 text-accent" />
           </div>
           <div>
-            <h1 className="font-display text-2xl font-bold text-foreground">
-              CMS Settings
-            </h1>
+            <h1 className="font-display text-2xl font-bold text-foreground">CMS Settings</h1>
             <p className="text-xs text-muted-foreground mt-0.5">
               Global website configuration, author metadata, portrait sync, and admin accounts.
             </p>

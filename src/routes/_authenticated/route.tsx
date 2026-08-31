@@ -15,23 +15,23 @@
 // `src/start.ts` (auto-wired by the integration).
 //
 // Edit freely. This file is only re-injected when deleted entirely.
-import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
-import { supabase } from '@/integrations/supabase/client'
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { supabase } from "@/integrations/supabase/client";
 
 // Sign-in route for unauthenticated users redirect.
-const SIGN_IN_ROUTE = '/auth'
+const SIGN_IN_ROUTE = "/auth";
 
-export const Route = createFileRoute('/_authenticated')({
+export const Route = createFileRoute("/_authenticated")({
   ssr: false,
   beforeLoad: async ({ location }) => {
-    const { data, error } = await supabase.auth.getUser()
+    const { data, error } = await supabase.auth.getUser();
     if (error || !data.user) {
       throw redirect({
         to: SIGN_IN_ROUTE,
         search: { redirect: location.pathname },
-      })
+      });
     }
-    return { user: data.user }
+    return { user: data.user };
   },
   component: () => <Outlet />,
-})
+});

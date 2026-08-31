@@ -122,11 +122,13 @@ export const Route = createFileRoute("/")({
 });
 
 function getTopicIcon(topic: ActiveTopic) {
-  const text = `${topic.slug} ${topic.title} ${topic.categories.join(" ")} ${topic.tags.join(" ")}`.toLowerCase();
+  const text =
+    `${topic.slug} ${topic.title} ${topic.categories.join(" ")} ${topic.tags.join(" ")}`.toLowerCase();
   if (text.includes("motorcycle") || text.includes("bike") || text.includes("ride")) return Bike;
   if (text.includes("trek") || text.includes("hike") || text.includes("mountain")) return Mountain;
   if (text.includes("photo") || text.includes("camera")) return Camera;
-  if (text.includes("guide") || text.includes("tourism") || text.includes("pakistan")) return Globe2;
+  if (text.includes("guide") || text.includes("tourism") || text.includes("pakistan"))
+    return Globe2;
   return Compass;
 }
 
@@ -162,7 +164,7 @@ function HomePage() {
   const heroSource = homepageConfig?.heroPost ?? null;
 
   // Primary Hero story
-  const heroPost = heroMode === "manual" && heroSource ? heroSource : allPosts[0] ?? null;
+  const heroPost = heroMode === "manual" && heroSource ? heroSource : (allPosts[0] ?? null);
 
   // Floating preview cards in hero (2nd and 3rd latest stories)
   const heroFloatingPosts = allPosts.slice(1, 3);
@@ -318,10 +320,13 @@ function HomePage() {
 
   const isExternal = (link?: string) => {
     const target = (link || "").trim().toLowerCase();
-    return target.startsWith("http://") || target.startsWith("https://") || target.startsWith("mailto:");
+    return (
+      target.startsWith("http://") || target.startsWith("https://") || target.startsWith("mailto:")
+    );
   };
   const heroPrimaryTo = heroSettings.homepage_hero_button_link?.trim() || "/blog";
-  const heroSecondaryTo = heroSettings.homepage_hero_secondary_button_link?.trim() || "/destinations";
+  const heroSecondaryTo =
+    heroSettings.homepage_hero_secondary_button_link?.trim() || "/destinations";
 
   const getPostTitle = (p: Post | { title: string; post_translations?: any[] }) => {
     if (lang !== "en" && "post_translations" in p && p.post_translations) {
@@ -469,11 +474,7 @@ function HomePage() {
       {/* AD SPACE 1: Directly below Hero Banner (728x90 desktop / 320x100 mobile)  */}
       {/* ========================================================================= */}
       <div className="mx-auto max-w-7xl px-4 pt-4 sm:px-6 sm:pt-8 lg:px-8 w-full min-w-0">
-        <AdSlot
-          slotId="homepage-hero-bottom"
-          format="horizontal"
-          label={t("Advertisement")}
-        />
+        <AdSlot slotId="homepage-hero-bottom" format="horizontal" label={t("Advertisement")} />
       </div>
 
       {/* Main Content Container */}
@@ -625,8 +626,7 @@ function HomePage() {
                         <div className="inline-flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#FF7A00] backdrop-blur-md border border-white/10 mb-2">
                           <Icon className="h-3 w-3" />
                           <span>
-                            {topic.postCount}{" "}
-                            {topic.postCount === 1 ? t("story") : t("stories")}
+                            {topic.postCount} {topic.postCount === 1 ? t("story") : t("stories")}
                           </span>
                         </div>
                         <h3 className="font-display text-base sm:text-lg font-bold leading-tight text-white transition-colors group-hover:text-[#FF7A00] line-clamp-2 break-words [overflow-wrap:anywhere]">
@@ -648,11 +648,7 @@ function HomePage() {
         {/* AD SPACE 2: Mid-page Between Major Sections (Explore Topics & Numbers)    */}
         {/* ========================================================================= */}
         <div className="pt-2 w-full min-w-0">
-          <AdSlot
-            slotId="homepage-mid-content"
-            format="horizontal"
-            label={t("Advertisement")}
-          />
+          <AdSlot slotId="homepage-mid-content" format="horizontal" label={t("Advertisement")} />
         </div>
       </div>
 
@@ -667,7 +663,10 @@ function HomePage() {
         <div ref={journeyRef} className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full min-w-0">
           <div className="mb-6 sm:mb-8 flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p data-reveal="heading" className="text-xs font-semibold uppercase tracking-[0.2em] text-[#FF7A00]">
+              <p
+                data-reveal="heading"
+                className="text-xs font-semibold uppercase tracking-[0.2em] text-[#FF7A00]"
+              >
                 {t("By the numbers")}
               </p>
               <h2
@@ -679,7 +678,9 @@ function HomePage() {
               </h2>
             </div>
             <p data-reveal="heading" className="max-w-md text-xs text-muted-foreground sm:text-sm">
-              {t("A quiet tally of countries crossed, trips ridden and photographs made along the way.")}
+              {t(
+                "A quiet tally of countries crossed, trips ridden and photographs made along the way.",
+              )}
             </p>
           </div>
 
@@ -698,11 +699,12 @@ function HomePage() {
                 <div className="mt-2.5 sm:mt-3 font-display text-xl sm:text-2xl lg:text-3xl font-bold text-foreground truncate">
                   <CountUp end={s.value} suffix={s.suffix} />
                 </div>
-                <div className="mt-0.5 sm:mt-1 text-[11px] sm:text-xs text-muted-foreground leading-snug min-w-0">{s.label}</div>
+                <div className="mt-0.5 sm:mt-1 text-[11px] sm:text-xs text-muted-foreground leading-snug min-w-0">
+                  {s.label}
+                </div>
               </div>
             ))}
           </div>
-
         </div>
       </section>
 
@@ -711,7 +713,11 @@ function HomePage() {
         {/* ========================================================================= */}
         {/* 6. FEATURED DESTINATIONS (4-Column Editorial Grid)                        */}
         {/* ========================================================================= */}
-        <section id="interactive-map" aria-labelledby="featured-destinations-heading" className="scroll-mt-24 w-full min-w-0">
+        <section
+          id="interactive-map"
+          aria-labelledby="featured-destinations-heading"
+          className="scroll-mt-24 w-full min-w-0"
+        >
           <SectionHeading
             title="Featured Destinations"
             badge="Where to Go"
@@ -775,7 +781,11 @@ function HomePage() {
                       transition={{ duration: 0.4, delay: i * 0.05 }}
                       className="group relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:border-[#FF7A00]/40 hover:shadow-md w-full min-w-0"
                     >
-                      <Link to="/destinations/$slug" params={{ slug: d.slug }} className="block w-full min-w-0">
+                      <Link
+                        to="/destinations/$slug"
+                        params={{ slug: d.slug }}
+                        className="block w-full min-w-0"
+                      >
                         <div className="relative aspect-[4/3] overflow-hidden bg-muted">
                           {d.featured_image ? (
                             <img
@@ -924,9 +934,7 @@ function HomePage() {
                 {t("Get the next dispatch")}
               </h2>
               <p className="mt-2.5 sm:mt-3 text-xs sm:text-sm text-muted-foreground sm:text-base leading-relaxed">
-                {t(
-                  "One email when a new expedition story drops. No spam, no algorithm noise.",
-                )}
+                {t("One email when a new expedition story drops. No spam, no algorithm noise.")}
               </p>
               <div className="mx-auto mt-5 sm:mt-6 max-w-md w-full min-w-0">
                 <NewsletterForm />

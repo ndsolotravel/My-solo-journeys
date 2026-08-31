@@ -244,10 +244,7 @@ function AdminPostsList() {
                   !isNaN(p.longitude);
 
                 return (
-                  <tr
-                    key={p.id}
-                    className="hover:bg-muted/30 transition-colors"
-                  >
+                  <tr key={p.id} className="hover:bg-muted/30 transition-colors">
                     <td className="px-4 py-3">
                       <PostThumb cover={p.cover_image} />
                     </td>
@@ -324,7 +321,11 @@ function AdminPostsList() {
                           onClick={() => toggle.mutate({ id: p.id, published: !p.published })}
                           className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-[#FF7A00] transition-colors cursor-pointer"
                         >
-                          {p.published ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          {p.published ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
                         </button>
                         <button
                           type="button"
@@ -365,8 +366,10 @@ function AdminPostsList() {
             </AlertDialogTitle>
             <AlertDialogDescription className="text-xs sm:text-sm text-muted-foreground">
               Are you sure you want to permanently delete{" "}
-              <span className="font-semibold text-foreground">&quot;{deleteTarget?.title}&quot;</span>?
-              This action cannot be undone.
+              <span className="font-semibold text-foreground">
+                &quot;{deleteTarget?.title}&quot;
+              </span>
+              ? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="gap-2">

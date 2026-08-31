@@ -92,7 +92,13 @@ function AdminAnalyticsPage() {
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                {p === "7d" ? "7 Days" : p === "30d" ? "30 Days" : p === "90d" ? "90 Days" : "All Time"}
+                {p === "7d"
+                  ? "7 Days"
+                  : p === "30d"
+                    ? "30 Days"
+                    : p === "90d"
+                      ? "90 Days"
+                      : "All Time"}
               </button>
             ))}
           </div>
@@ -213,7 +219,10 @@ function AdminAnalyticsPage() {
             </div>
           ) : (
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={data?.trafficOverTime} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <AreaChart
+                data={data?.trafficOverTime}
+                margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+              >
                 <defs>
                   <linearGradient id="visitorsGrad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#FF7A00" stopOpacity={0.4} />
@@ -226,7 +235,12 @@ function AdminAnalyticsPage() {
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" opacity={0.15} vertical={false} />
                 <XAxis dataKey="date" tickLine={false} axisLine={false} tick={{ fontSize: 11 }} />
-                <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 11 }} allowDecimals={false} />
+                <YAxis
+                  tickLine={false}
+                  axisLine={false}
+                  tick={{ fontSize: 11 }}
+                  allowDecimals={false}
+                />
                 <Tooltip content={<CustomTooltip />} />
                 <Area
                   type="monotone"
@@ -266,9 +280,13 @@ function AdminAnalyticsPage() {
 
           <div className="mt-4 divide-y divide-border">
             {isLoading ? (
-              <p className="py-8 text-center text-xs text-muted-foreground">Loading popular pages...</p>
+              <p className="py-8 text-center text-xs text-muted-foreground">
+                Loading popular pages...
+              </p>
             ) : (data?.popularPages ?? []).length === 0 ? (
-              <p className="py-8 text-center text-xs text-muted-foreground">No page views recorded yet.</p>
+              <p className="py-8 text-center text-xs text-muted-foreground">
+                No page views recorded yet.
+              </p>
             ) : (
               data?.popularPages.map((page: any) => (
                 <div key={page.path} className="py-3 space-y-1.5">
@@ -299,16 +317,23 @@ function AdminAnalyticsPage() {
               <FileText className="h-5 w-5 text-accent" />
               Top Blog Posts
             </h2>
-            <Link to="/admin/posts" className="text-xs text-accent hover:underline flex items-center gap-1">
+            <Link
+              to="/admin/posts"
+              className="text-xs text-accent hover:underline flex items-center gap-1"
+            >
               Manage Posts <ArrowUpRight className="h-3 w-3" />
             </Link>
           </div>
 
           <div className="mt-4 divide-y divide-border">
             {isLoading ? (
-              <p className="py-8 text-center text-xs text-muted-foreground">Loading top blog posts...</p>
+              <p className="py-8 text-center text-xs text-muted-foreground">
+                Loading top blog posts...
+              </p>
             ) : (data?.topPosts ?? []).length === 0 ? (
-              <p className="py-8 text-center text-xs text-muted-foreground">No blog posts available.</p>
+              <p className="py-8 text-center text-xs text-muted-foreground">
+                No blog posts available.
+              </p>
             ) : (
               data?.topPosts.map((post: any) => (
                 <div key={post.id} className="py-3 flex items-center justify-between gap-3">
@@ -398,13 +423,16 @@ function AdminAnalyticsPage() {
             </div>
             <div className="flex items-center justify-between text-xs text-muted-foreground">
               <span className="flex items-center gap-1">
-                <span className="h-2 w-2 rounded-full bg-accent"></span> Desktop ({data?.deviceStats.desktop}%)
+                <span className="h-2 w-2 rounded-full bg-accent"></span> Desktop (
+                {data?.deviceStats.desktop}%)
               </span>
               <span className="flex items-center gap-1">
-                <span className="h-2 w-2 rounded-full bg-indigo-500"></span> Mobile ({data?.deviceStats.mobile}%)
+                <span className="h-2 w-2 rounded-full bg-indigo-500"></span> Mobile (
+                {data?.deviceStats.mobile}%)
               </span>
               <span className="flex items-center gap-1">
-                <span className="h-2 w-2 rounded-full bg-emerald-500"></span> Tablet ({data?.deviceStats.tablet}%)
+                <span className="h-2 w-2 rounded-full bg-emerald-500"></span> Tablet (
+                {data?.deviceStats.tablet}%)
               </span>
             </div>
           </div>
@@ -419,7 +447,9 @@ function AdminAnalyticsPage() {
 
           <div className="mt-4 space-y-4">
             {isLoading ? (
-              <p className="py-8 text-center text-xs text-muted-foreground">Loading traffic sources...</p>
+              <p className="py-8 text-center text-xs text-muted-foreground">
+                Loading traffic sources...
+              </p>
             ) : (
               (data?.trafficSources ?? []).map((src: any) => (
                 <div key={src.name} className="space-y-1.5">
@@ -451,7 +481,8 @@ function AdminAnalyticsPage() {
               Recent Visitors Log
             </h2>
             <p className="text-xs text-muted-foreground">
-              Anonymous active visitor sessions with country geolocation and newsletter subscription status.
+              Anonymous active visitor sessions with country geolocation and newsletter subscription
+              status.
             </p>
           </div>
         </div>
@@ -506,7 +537,8 @@ function AdminAnalyticsPage() {
                       )}
                     </td>
                     <td className="py-3 text-muted-foreground">
-                      <span className="capitalize font-medium text-foreground">{v.deviceType}</span> · {v.browser} on {v.os}
+                      <span className="capitalize font-medium text-foreground">{v.deviceType}</span>{" "}
+                      · {v.browser} on {v.os}
                     </td>
                     <td className="py-3 font-mono text-muted-foreground">{v.entryPage}</td>
                     <td className="py-3 text-right text-muted-foreground flex items-center justify-end gap-1">
@@ -540,7 +572,9 @@ function StatCard({
   return (
     <div className="rounded-2xl border border-border bg-background p-5">
       <div className="flex items-center justify-between">
-        <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</p>
+        <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+          {label}
+        </p>
         <Icon className="h-4 w-4 text-muted-foreground" />
       </div>
       <p className="mt-3 font-display text-3xl font-bold">

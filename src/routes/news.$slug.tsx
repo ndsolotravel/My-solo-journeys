@@ -37,7 +37,9 @@ export const Route = createFileRoute("/news/$slug")({
         { property: "og:title", content: item.title },
         { property: "og:description", content: item.summary || item.title },
         { property: "og:type", content: "article" },
-        ...(item.image_url ? [{ property: "og:image", content: resolveMediaUrl(item.image_url) }] : []),
+        ...(item.image_url
+          ? [{ property: "og:image", content: resolveMediaUrl(item.image_url) }]
+          : []),
       ],
       links: [{ rel: "canonical", href: `/news/${item.slug}` }],
     };
@@ -72,11 +74,13 @@ function NewsDetailPage() {
     if (typeof window === "undefined") return;
     const url = window.location.href;
     if (navigator.share) {
-      navigator.share({
-        title: newsItem.title,
-        text: newsItem.summary || newsItem.title,
-        url,
-      }).catch(() => {});
+      navigator
+        .share({
+          title: newsItem.title,
+          text: newsItem.summary || newsItem.title,
+          url,
+        })
+        .catch(() => {});
     } else {
       navigator.clipboard.writeText(url).then(() => {
         setCopied(true);
@@ -190,8 +194,12 @@ function NewsDetailPage() {
             <Globe2 className="h-5 w-5 text-[#FF7A00]" />
           </div>
           <div>
-            <p className="text-xs font-semibold text-foreground uppercase tracking-wider">NDSOLOTRAVEL Dispatches</p>
-            <p className="text-xs text-muted-foreground">Real-time alerts, routes, and mountain updates</p>
+            <p className="text-xs font-semibold text-foreground uppercase tracking-wider">
+              NDSOLOTRAVEL Dispatches
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Real-time alerts, routes, and mountain updates
+            </p>
           </div>
         </div>
 

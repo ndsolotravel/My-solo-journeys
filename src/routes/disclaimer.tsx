@@ -4,6 +4,8 @@ import { PageBreadcrumbs } from "@/components/layout/PageBreadcrumbs";
 import { TranslatedMarkdown } from "@/components/common/TranslatedMarkdown";
 import { getLegalPageBySlug } from "@/lib/legal.functions";
 import { resolveMediaUrl } from "@/lib/media";
+import { useContentTranslation } from "@/lib/translate/contentTranslation";
+import { useLanguage } from "@/lib/translate/store";
 
 export const Route = createFileRoute("/disclaimer")({
   loader: async () => {
@@ -11,7 +13,9 @@ export const Route = createFileRoute("/disclaimer")({
   },
   head: ({ loaderData }) => {
     const page = loaderData?.legalPage;
-    const title = page?.seo_title || (page?.title ? `${page.title} — ndsolotravel` : "Disclaimer — ndsolotravel");
+    const title =
+      page?.seo_title ||
+      (page?.title ? `${page.title} — ndsolotravel` : "Disclaimer — ndsolotravel");
     const description =
       page?.seo_description ||
       "Disclaimer for ndsolotravel. Read about the terms and conditions for using our travel content and resources.";
@@ -23,7 +27,15 @@ export const Route = createFileRoute("/disclaimer")({
         { property: "og:description", content: description },
         { property: "og:url", content: "/disclaimer" },
       ],
-      links: [{ rel: "canonical", href: "/disclaimer" }],
+      links: [
+        { rel: "canonical", href: "/disclaimer" },
+        ...["id", "ms"].map((l) => ({
+          rel: "alternate",
+          hrefLang: l,
+          href: `https://ndsolotravel.com/${l}/disclaimer`,
+        })),
+        { rel: "alternate", hrefLang: "x-default", href: "https://ndsolotravel.com/disclaimer" },
+      ],
       scripts: [
         {
           type: "application/ld+json",
@@ -44,11 +56,22 @@ export const Route = createFileRoute("/disclaimer")({
 
 function DisclaimerPage() {
   const t = useTranslations();
+  const { lang } = useLanguage();
   const { legalPage } = Route.useLoaderData();
 
-  const title = legalPage?.title || "Disclaimer";
+  const localizedPage = useContentTranslation({
+    contentType: "legal",
+    contentId: legalPage?.id ?? "disclaimer",
+    englishFields: {
+      title: legalPage?.title ?? "Disclaimer",
+      content: legalPage?.content ?? "",
+      seo_title: legalPage?.seo_title ?? "",
+      seo_description: legalPage?.seo_description ?? "",
+    },
+    targetLang: lang,
+  });
+
   const heroImage = legalPage?.hero_image ? resolveMediaUrl(legalPage.hero_image) : "";
-  const content = legalPage?.content || "";
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -57,7 +80,7 @@ function DisclaimerPage() {
         {heroImage ? (
           <img
             src={heroImage}
-            alt={title}
+            alt={localizedPage.title}
             className="absolute inset-0 h-full w-full object-cover"
           />
         ) : (
@@ -69,10 +92,10 @@ function DisclaimerPage() {
             {t("Legal")}
           </span>
           <h1 className="font-display text-3xl sm:text-5xl font-extrabold text-white tracking-tight drop-shadow-md">
-            {t(title)}
+            {localizedPage.title}
           </h1>
           <div className="mt-3">
-            <PageBreadcrumbs items={[{ label: title }]} />
+            <PageBreadcrumbs items={[{ label: localizedPage.title }]} />
           </div>
         </div>
       </section>
@@ -80,7 +103,7 @@ function DisclaimerPage() {
       {/* Main Body */}
       <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
         <article className="prose prose-gray dark:prose-invert max-w-none text-base leading-relaxed text-muted-foreground prose-headings:font-display prose-headings:font-bold prose-headings:text-foreground prose-a:text-brand hover:prose-a:underline prose-strong:text-foreground prose-ul:list-disc prose-ol:list-decimal space-y-6">
-          <TranslatedMarkdown content={content} />
+          <TranslatedMarkdown content={localizedPage.content} />
         </article>
       </div>
     </div>

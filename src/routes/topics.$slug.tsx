@@ -40,7 +40,12 @@ export const Route = createFileRoute("/topics/$slug")({
             "@type": "BreadcrumbList",
             itemListElement: [
               { "@type": "ListItem", position: 1, name: "Home", item: "https://ndsolotravel.com" },
-              { "@type": "ListItem", position: 2, name: "Topics", item: "https://ndsolotravel.com/blog" },
+              {
+                "@type": "ListItem",
+                position: 2,
+                name: "Topics",
+                item: "https://ndsolotravel.com/blog",
+              },
               { "@type": "ListItem", position: 3, name: t.title },
             ],
           }),
@@ -55,12 +60,14 @@ export const Route = createFileRoute("/topics/$slug")({
             url: `https://ndsolotravel.com/topics/${t.slug}`,
             mainEntity: {
               "@type": "ItemList",
-              itemListElement: t.posts.slice(0, 10).map((p: { slug: string; title: string }, i: number) => ({
-                "@type": "ListItem",
-                position: i + 1,
-                url: `https://ndsolotravel.com/blog/${p.slug}`,
-                name: p.title,
-              })),
+              itemListElement: t.posts
+                .slice(0, 10)
+                .map((p: { slug: string; title: string }, i: number) => ({
+                  "@type": "ListItem",
+                  position: i + 1,
+                  url: `https://ndsolotravel.com/blog/${p.slug}`,
+                  name: p.title,
+                })),
             },
           }),
         },
@@ -86,32 +93,19 @@ function TopicPage() {
         {(() => {
           const img = topic.posts[0]?.cover_image || topic.heroImage || "";
           return img ? (
-            <img
-              src={img}
-              alt={topic.title}
-              className="h-full w-full object-cover"
-            />
+            <img src={img} alt={topic.title} className="h-full w-full object-cover" />
           ) : (
             <div className="absolute inset-0 h-full w-full bg-zinc-900" />
           );
         })()}
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/80" />
         <div className="absolute inset-x-0 bottom-0 mx-auto max-w-4xl px-4 pb-12 text-white sm:px-6">
-          <PageBreadcrumbs
-            items={[
-              { label: "Stories", href: "/blog" },
-              { label: topic.title },
-            ]}
-          />
-          <p className="mt-3 text-xs uppercase tracking-[0.2em] text-accent">
-            {t("Topic Guide")}
-          </p>
+          <PageBreadcrumbs items={[{ label: "Stories", href: "/blog" }, { label: topic.title }]} />
+          <p className="mt-3 text-xs uppercase tracking-[0.2em] text-accent">{t("Topic Guide")}</p>
           <h1 className="mt-3 font-display text-3xl font-bold leading-tight sm:text-5xl">
             {t(topic.title)}
           </h1>
-          <p className="mt-3 max-w-xl text-sm text-white/80">
-            {t(topic.description)}
-          </p>
+          <p className="mt-3 max-w-xl text-sm text-white/80">{t(topic.description)}</p>
         </div>
       </div>
 

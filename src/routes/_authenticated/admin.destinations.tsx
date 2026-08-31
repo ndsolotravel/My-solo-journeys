@@ -113,11 +113,11 @@ function AdminDestinations() {
     if (!editingOriginal.id) {
       return Boolean(
         editingForm.title.trim() ||
-          editingForm.country.trim() ||
-          editingForm.latitude != null ||
-          editingForm.longitude != null ||
-          editingForm.description?.trim() ||
-          editingForm.featured_image?.trim(),
+        editingForm.country.trim() ||
+        editingForm.latitude != null ||
+        editingForm.longitude != null ||
+        editingForm.description?.trim() ||
+        editingForm.featured_image?.trim(),
       );
     }
     return (
@@ -136,11 +136,15 @@ function AdminDestinations() {
   const save = useMutation({
     mutationFn: async (payload: Dest) => {
       const cleanLat =
-        payload.latitude !== undefined && payload.latitude !== null && !isNaN(Number(payload.latitude))
+        payload.latitude !== undefined &&
+        payload.latitude !== null &&
+        !isNaN(Number(payload.latitude))
           ? Number(payload.latitude)
           : null;
       const cleanLng =
-        payload.longitude !== undefined && payload.longitude !== null && !isNaN(Number(payload.longitude))
+        payload.longitude !== undefined &&
+        payload.longitude !== null &&
+        !isNaN(Number(payload.longitude))
           ? Number(payload.longitude)
           : null;
 
@@ -184,7 +188,15 @@ function AdminDestinations() {
   });
 
   const updateCoordsMutation = useMutation({
-    mutationFn: async ({ id, latitude, longitude }: { id: string; latitude: number; longitude: number }) => {
+    mutationFn: async ({
+      id,
+      latitude,
+      longitude,
+    }: {
+      id: string;
+      latitude: number;
+      longitude: number;
+    }) => {
       return await updateCoordsFn({ data: { id, latitude, longitude } });
     },
     onSuccess: (res: any) => {
@@ -225,16 +237,30 @@ function AdminDestinations() {
   function handleUpdateCoordinates() {
     if (!editingForm) return;
     if (!editingForm.id) {
-      toast.info("Please save the destination first to create the record before updating coordinates.");
+      toast.info(
+        "Please save the destination first to create the record before updating coordinates.",
+      );
       return;
     }
     const lat = editingForm.latitude;
     const lng = editingForm.longitude;
-    if (lat === null || lat === undefined || isNaN(Number(lat)) || Number(lat) < -90 || Number(lat) > 90) {
+    if (
+      lat === null ||
+      lat === undefined ||
+      isNaN(Number(lat)) ||
+      Number(lat) < -90 ||
+      Number(lat) > 90
+    ) {
       toast.error("Please enter a valid Latitude between -90 and 90");
       return;
     }
-    if (lng === null || lng === undefined || isNaN(Number(lng)) || Number(lng) < -180 || Number(lng) > 180) {
+    if (
+      lng === null ||
+      lng === undefined ||
+      isNaN(Number(lng)) ||
+      Number(lng) < -180 ||
+      Number(lng) > 180
+    ) {
       toast.error("Please enter a valid Longitude between -180 and 180");
       return;
     }
@@ -456,7 +482,8 @@ function AdminDestinations() {
                 <div className="flex items-center gap-2">
                   <Sparkles className="h-3.5 w-3.5 text-accent" />
                   <span className="font-medium">
-                    You have unsaved changes. Click &quot;Save Changes&quot; below to update the database.
+                    You have unsaved changes. Click &quot;Save Changes&quot; below to update the
+                    database.
                   </span>
                 </div>
               </div>
@@ -525,7 +552,8 @@ function AdminDestinations() {
                       Map Coordinates (Manual Latitude & Longitude)
                     </h4>
                     <p className="text-[11px] text-muted-foreground">
-                      Exact geographic coordinates stored directly in the database. For &quot;K2 Base Camp, Concordia&quot;, these represent the Concordia campsite.
+                      Exact geographic coordinates stored directly in the database. For &quot;K2
+                      Base Camp, Concordia&quot;, these represent the Concordia campsite.
                     </p>
                   </div>
                 </div>
@@ -574,7 +602,11 @@ function AdminDestinations() {
                   <div className="flex flex-wrap items-center gap-3 pt-2">
                     <button
                       type="button"
-                      disabled={updateCoordsMutation.isPending || editingForm.latitude == null || editingForm.longitude == null}
+                      disabled={
+                        updateCoordsMutation.isPending ||
+                        editingForm.latitude == null ||
+                        editingForm.longitude == null
+                      }
                       onClick={handleUpdateCoordinates}
                       className="inline-flex items-center gap-2 rounded-xl bg-brand px-4 py-2 text-xs sm:text-sm font-semibold text-white shadow-md shadow-brand/20 hover:bg-brand/90 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                     >

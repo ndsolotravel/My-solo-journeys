@@ -13,10 +13,16 @@ function AdminComments() {
   const listFn = useServerFn(adminListComments);
   const delFn = useServerFn(adminDeleteComment);
   const qc = useQueryClient();
-  const { data, isLoading } = useQuery<any>({ queryKey: ["admin-comments"], queryFn: async () => await listFn() });
+  const { data, isLoading } = useQuery<any>({
+    queryKey: ["admin-comments"],
+    queryFn: async () => await listFn(),
+  });
   const del = useMutation({
     mutationFn: (id: string) => delFn({ data: { id } }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin-comments"] }); toast.success("Deleted"); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin-comments"] });
+      toast.success("Deleted");
+    },
     onError: (e: Error) => toast.error(e.message),
   });
 
@@ -24,7 +30,9 @@ function AdminComments() {
     <div className="space-y-6">
       <div className="sticky top-16 z-20 flex flex-col gap-1 border-b border-border bg-background/95 backdrop-blur-md pb-4 pt-3 shadow-2xs">
         <h1 className="font-display text-2xl sm:text-3xl font-bold">Comments & Reviews</h1>
-        <p className="text-sm text-muted-foreground">Moderate visitor reviews. Delete inappropriate or spam comments.</p>
+        <p className="text-sm text-muted-foreground">
+          Moderate visitor reviews. Delete inappropriate or spam comments.
+        </p>
       </div>
 
       <div className="space-y-3">
@@ -37,26 +45,49 @@ function AdminComments() {
                 <div className="min-w-0">
                   <p className="text-sm font-medium">{c.guest_name || "Anonymous"}</p>
                   <p className="text-xs text-muted-foreground">
-                    on <a href={`/blog/${post?.slug}`} target="_blank" rel="noreferrer" className="hover:text-accent">{post?.title ?? "Post"}</a> · {new Date(c.created_at).toLocaleString()}
+                    on{" "}
+                    <a
+                      href={`/blog/${post?.slug}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="hover:text-accent"
+                    >
+                      {post?.title ?? "Post"}
+                    </a>{" "}
+                    · {new Date(c.created_at).toLocaleString()}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
                   {c.rating && (
                     <div className="inline-flex items-center gap-0.5">
-                      {[1,2,3,4,5].map((i) => <Star key={i} className={`h-3.5 w-3.5 ${i <= (c.rating ?? 0) ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}`} />)}
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <Star
+                          key={i}
+                          className={`h-3.5 w-3.5 ${i <= (c.rating ?? 0) ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}`}
+                        />
+                      ))}
                     </div>
                   )}
-                  <button onClick={() => { if (confirm("Delete this comment?")) del.mutate(c.id); }} className="text-red-500 hover:bg-muted rounded p-1.5">
+                  <button
+                    onClick={() => {
+                      if (confirm("Delete this comment?")) del.mutate(c.id);
+                    }}
+                    className="text-red-500 hover:bg-muted rounded p-1.5"
+                  >
                     <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
               </div>
               <p className="mt-3 text-sm whitespace-pre-wrap">{c.comment}</p>
-              {c.guest_email && <p className="mt-2 text-xs text-muted-foreground">{c.guest_email}</p>}
+              {c.guest_email && (
+                <p className="mt-2 text-xs text-muted-foreground">{c.guest_email}</p>
+              )}
             </div>
           );
         })}
-        {data?.length === 0 && <p className="text-muted-foreground py-8 text-center">No comments yet.</p>}
+        {data?.length === 0 && (
+          <p className="text-muted-foreground py-8 text-center">No comments yet.</p>
+        )}
       </div>
     </div>
   );

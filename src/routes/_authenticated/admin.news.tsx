@@ -124,13 +124,7 @@ const getInitialFormState = (item?: NewsItem | null): NewsFormState => {
   };
 };
 
-function NewsImagePreviewBox({
-  imageUrl,
-  onRemove,
-}: {
-  imageUrl: string;
-  onRemove: () => void;
-}) {
+function NewsImagePreviewBox({ imageUrl, onRemove }: { imageUrl: string; onRemove: () => void }) {
   const [loadError, setLoadError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -273,7 +267,9 @@ function AdminNewsPage() {
     onSuccess: (result) => {
       qc.invalidateQueries({ queryKey: ["admin-news"] });
       qc.invalidateQueries({ queryKey: ["breaking-news"] });
-      toast.success(editingItem ? "News item updated successfully" : "News item created successfully");
+      toast.success(
+        editingItem ? "News item updated successfully" : "News item created successfully",
+      );
       setIsFormOpen(false);
       setEditingItem(null);
     },
@@ -426,9 +422,7 @@ function AdminNewsPage() {
 
   const getExpiryBadge = (item: NewsItem) => {
     if (!item.expires_at) {
-      return (
-        <span className="text-[11px] text-muted-foreground">Never expires</span>
-      );
+      return <span className="text-[11px] text-muted-foreground">Never expires</span>;
     }
     const expTime = new Date(item.expires_at).getTime();
     const now = Date.now();
@@ -508,8 +502,12 @@ function AdminNewsPage() {
             <span className="text-xs font-semibold uppercase tracking-wider">Published</span>
             <CheckCircle2 className="h-4 w-4 text-emerald-500" />
           </div>
-          <p className="font-display text-2xl font-bold text-emerald-600 dark:text-emerald-400">{metrics.published}</p>
-          <p className="text-[11px] text-emerald-600/80 dark:text-emerald-400/80">Published status</p>
+          <p className="font-display text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+            {metrics.published}
+          </p>
+          <p className="text-[11px] text-emerald-600/80 dark:text-emerald-400/80">
+            Published status
+          </p>
         </div>
 
         <div className="rounded-2xl border border-border bg-card p-5 shadow-xs space-y-2">
@@ -548,7 +546,11 @@ function AdminNewsPage() {
                     : "text-muted-foreground hover:text-foreground hover:bg-muted"
                 }`}
               >
-                {Icon && <Icon className={`h-3 w-3 ${isActive ? "text-white fill-white/20" : "text-accent"}`} />}
+                {Icon && (
+                  <Icon
+                    className={`h-3 w-3 ${isActive ? "text-white fill-white/20" : "text-accent"}`}
+                  />
+                )}
                 <span>{tab.label}</span>
               </button>
             );
@@ -601,10 +603,7 @@ function AdminNewsPage() {
                   (!item.expires_at || new Date(item.expires_at).getTime() >= Date.now());
 
                 return (
-                  <tr
-                    key={item.id}
-                    className="hover:bg-muted/30 transition-colors group"
-                  >
+                  <tr key={item.id} className="hover:bg-muted/30 transition-colors group">
                     {/* Headline & Summary */}
                     <td className="px-4 py-3.5 min-w-[240px] max-w-md">
                       <div className="flex items-start gap-3">
@@ -625,7 +624,10 @@ function AdminNewsPage() {
                               {item.title}
                             </h3>
                             {isLive && (
-                              <span className="flex h-2 w-2 relative shrink-0" title="Currently Live on Homepage Ticker">
+                              <span
+                                className="flex h-2 w-2 relative shrink-0"
+                                title="Currently Live on Homepage Ticker"
+                              >
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                                 <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
                               </span>
@@ -680,14 +682,20 @@ function AdminNewsPage() {
                             value: !item.is_breaking,
                           })
                         }
-                        title={item.is_breaking ? "Breaking News Enabled (Click to disable)" : "Standard News (Click to enable Breaking)"}
+                        title={
+                          item.is_breaking
+                            ? "Breaking News Enabled (Click to disable)"
+                            : "Standard News (Click to enable Breaking)"
+                        }
                         className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold transition-all hover:scale-105 cursor-pointer ${
                           item.is_breaking
                             ? "bg-accent/15 text-accent border border-accent/30 shadow-xs"
                             : "bg-muted text-muted-foreground border border-border/60"
                         }`}
                       >
-                        <Flame className={`h-3.5 w-3.5 ${item.is_breaking ? "text-accent fill-accent/40 animate-pulse" : ""}`} />
+                        <Flame
+                          className={`h-3.5 w-3.5 ${item.is_breaking ? "text-accent fill-accent/40 animate-pulse" : ""}`}
+                        />
                         {item.is_breaking ? "Breaking" : "Standard"}
                       </button>
                     </td>
@@ -703,7 +711,11 @@ function AdminNewsPage() {
                             value: !item.is_active,
                           })
                         }
-                        title={item.is_active ? "Active (Click to deactivate)" : "Inactive (Click to activate)"}
+                        title={
+                          item.is_active
+                            ? "Active (Click to deactivate)"
+                            : "Inactive (Click to activate)"
+                        }
                         className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium transition-all hover:scale-105 cursor-pointer ${
                           item.is_active
                             ? "bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20"
@@ -720,7 +732,10 @@ function AdminNewsPage() {
                         <Calendar className="h-3 w-3 text-muted-foreground" />
                         <span>{new Date(item.published_at).toLocaleDateString()}</span>
                         <span className="text-[10px] text-muted-foreground">
-                          {new Date(item.published_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                          {new Date(item.published_at).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
                         </span>
                       </div>
                       <div>{getExpiryBadge(item)}</div>
@@ -768,7 +783,7 @@ function AdminNewsPage() {
                 <tr>
                   <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
                     {newsItems?.length === 0
-                      ? "No news items yet. Click \"New News Item\" above to create your first dispatch."
+                      ? 'No news items yet. Click "New News Item" above to create your first dispatch.'
                       : "No news items match your current search and filter criteria."}
                   </td>
                 </tr>
@@ -961,7 +976,12 @@ function AdminNewsPage() {
                   </label>
                   <select
                     value={formData.status}
-                    onChange={(e) => setFormData((p) => ({ ...p, status: e.target.value as "draft" | "published" }))}
+                    onChange={(e) =>
+                      setFormData((p) => ({
+                        ...p,
+                        status: e.target.value as "draft" | "published",
+                      }))
+                    }
                     className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm font-medium outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
                   >
                     <option value="draft">Draft</option>
@@ -984,10 +1004,14 @@ function AdminNewsPage() {
                     }`}
                   >
                     <span className="flex items-center gap-1.5">
-                      <Flame className={`h-4 w-4 ${formData.is_breaking ? "text-accent fill-accent/40" : ""}`} />
+                      <Flame
+                        className={`h-4 w-4 ${formData.is_breaking ? "text-accent fill-accent/40" : ""}`}
+                      />
                       <span>{formData.is_breaking ? "Yes (Breaking)" : "No"}</span>
                     </span>
-                    <span className={`h-2 w-2 rounded-full ${formData.is_breaking ? "bg-accent" : "bg-muted-foreground"}`} />
+                    <span
+                      className={`h-2 w-2 rounded-full ${formData.is_breaking ? "bg-accent" : "bg-muted-foreground"}`}
+                    />
                   </button>
                 </div>
 
@@ -1006,7 +1030,9 @@ function AdminNewsPage() {
                     }`}
                   >
                     <span>{formData.is_active ? "Yes (Active)" : "No (Inactive)"}</span>
-                    <span className={`h-2 w-2 rounded-full ${formData.is_active ? "bg-blue-500" : "bg-muted-foreground"}`} />
+                    <span
+                      className={`h-2 w-2 rounded-full ${formData.is_active ? "bg-blue-500" : "bg-muted-foreground"}`}
+                    />
                   </button>
                 </div>
 
@@ -1018,7 +1044,9 @@ function AdminNewsPage() {
                   <input
                     type="number"
                     value={formData.display_order}
-                    onChange={(e) => setFormData((p) => ({ ...p, display_order: Number(e.target.value) || 0 }))}
+                    onChange={(e) =>
+                      setFormData((p) => ({ ...p, display_order: Number(e.target.value) || 0 }))
+                    }
                     className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm font-mono outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
                   />
                 </div>
@@ -1132,7 +1160,10 @@ function AdminNewsPage() {
                           <span className="inline-flex items-center gap-1 text-[11px] font-sans text-neutral-400 ml-2">
                             <Clock className="h-3 w-3 text-neutral-500" />
                             {formData.published_at
-                              ? new Date(formData.published_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+                              ? new Date(formData.published_at).toLocaleTimeString([], {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })
                               : "Just now"}
                           </span>
                           <span className="mx-5 inline-flex items-center gap-1 text-red-500/80 font-bold select-none opacity-80">
@@ -1153,7 +1184,11 @@ function AdminNewsPage() {
                     <Flame className="h-3 w-3" /> OFFICIAL DISPATCH
                   </span>
                   <span>·</span>
-                  <span>{formData.published_at ? new Date(formData.published_at).toLocaleDateString() : "Today"}</span>
+                  <span>
+                    {formData.published_at
+                      ? new Date(formData.published_at).toLocaleDateString()
+                      : "Today"}
+                  </span>
                 </div>
 
                 <h2 className="font-display text-2xl font-bold leading-tight">
@@ -1210,7 +1245,12 @@ function AdminNewsPage() {
                 </span>
                 <span>·</span>
                 <span>{new Date(previewTarget.published_at).toLocaleDateString()}</span>
-                <span>{new Date(previewTarget.published_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+                <span>
+                  {new Date(previewTarget.published_at).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </span>
               </div>
 
               <h2 className="font-display text-2xl font-bold leading-tight text-foreground">
@@ -1241,8 +1281,15 @@ function AdminNewsPage() {
 
               <div className="flex items-center justify-between pt-6 border-t border-border text-xs text-muted-foreground">
                 <div className="space-y-0.5">
-                  <p>Status: <span className="font-semibold text-foreground uppercase">{previewTarget.status}</span></p>
-                  <p>URL: <span className="font-mono">/news/{previewTarget.slug}</span></p>
+                  <p>
+                    Status:{" "}
+                    <span className="font-semibold text-foreground uppercase">
+                      {previewTarget.status}
+                    </span>
+                  </p>
+                  <p>
+                    URL: <span className="font-mono">/news/{previewTarget.slug}</span>
+                  </p>
                 </div>
                 <div className="flex gap-2">
                   <Link
@@ -1285,8 +1332,8 @@ function AdminNewsPage() {
             </AlertDialogTitle>
             <AlertDialogDescription className="text-xs text-muted-foreground mt-1">
               Are you sure you want to permanently delete{" "}
-              <span className="font-semibold text-foreground">"{deleteTarget?.title}"</span>?
-              This action cannot be undone.
+              <span className="font-semibold text-foreground">"{deleteTarget?.title}"</span>? This
+              action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-4 flex items-center justify-end gap-2.5">

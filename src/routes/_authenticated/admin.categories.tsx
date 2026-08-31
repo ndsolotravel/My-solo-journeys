@@ -96,7 +96,8 @@ function CategoryImagePreviewBox({
         <ImageIcon className="h-8 w-8 text-muted-foreground/40 mb-2" />
         <p className="text-xs font-medium text-muted-foreground">No image URL entered</p>
         <p className="text-[11px] text-muted-foreground/70 mt-0.5 max-w-xs">
-          Enter an image URL above or upload a picture (JPG, JPEG, PNG, WEBP, GIF) to see live preview.
+          Enter an image URL above or upload a picture (JPG, JPEG, PNG, WEBP, GIF) to see live
+          preview.
         </p>
       </div>
     );
@@ -110,7 +111,8 @@ function CategoryImagePreviewBox({
           Unable to load image. Please check the image URL.
         </p>
         <p className="text-[11px] text-muted-foreground mt-0.5 max-w-sm">
-          Make sure the link is publicly accessible and points to a valid image format (JPG, PNG, WEBP, GIF).
+          Make sure the link is publicly accessible and points to a valid image format (JPG, PNG,
+          WEBP, GIF).
         </p>
       </div>
     );
@@ -230,8 +232,7 @@ function AdminCategoriesPage() {
         c.slug.toLowerCase().includes(search.toLowerCase()) ||
         (c.description || "").toLowerCase().includes(search.toLowerCase());
 
-      const matchStatus =
-        statusFilter === "all" || c.status === statusFilter;
+      const matchStatus = statusFilter === "all" || c.status === statusFilter;
 
       return matchSearch && matchStatus;
     });
@@ -286,9 +287,7 @@ function AdminCategoriesPage() {
             <FolderTree className="h-6 w-6 text-accent" />
           </div>
           <div>
-            <h1 className="font-display text-2xl font-bold text-foreground">
-              Category Management
-            </h1>
+            <h1 className="font-display text-2xl font-bold text-foreground">Category Management</h1>
             <p className="text-xs text-muted-foreground mt-0.5">
               Create, organize, and manage blog categories with auto-slugs and post associations.
             </p>
@@ -376,7 +375,9 @@ function AdminCategoriesPage() {
           <div className="p-3 rounded-2xl bg-brand/10 text-brand mx-auto mb-3 w-fit">
             <FolderTree className="h-6 w-6 text-accent" />
           </div>
-          <h3 className="font-display text-base font-semibold text-foreground">No categories found</h3>
+          <h3 className="font-display text-base font-semibold text-foreground">
+            No categories found
+          </h3>
           <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
             {search
               ? "No categories match your search terms."
@@ -411,10 +412,7 @@ function AdminCategoriesPage() {
                 {filteredCategories.map((c) => {
                   const postCount = c.post_count ?? 0;
                   return (
-                    <tr
-                      key={c.id}
-                      className="group hover:bg-muted/30 transition-colors"
-                    >
+                    <tr key={c.id} className="group hover:bg-muted/30 transition-colors">
                       {/* Order */}
                       <td className="px-4 py-3.5 text-center font-mono text-xs text-muted-foreground">
                         {c.display_order}
@@ -619,9 +617,7 @@ function AdminCategoriesPage() {
                       type="button"
                       onClick={() => {
                         setIsAutoSlug(true);
-                        setEditing((prev) =>
-                          prev ? { ...prev, slug: slugify(prev.name) } : prev,
-                        );
+                        setEditing((prev) => (prev ? { ...prev, slug: slugify(prev.name) } : prev));
                       }}
                       className="text-[11px] text-accent hover:underline flex items-center gap-1 cursor-pointer font-medium"
                     >
@@ -635,13 +631,18 @@ function AdminCategoriesPage() {
                     value={editing.slug}
                     onChange={(e) => {
                       setIsAutoSlug(false);
-                      setEditing((prev) => (prev ? { ...prev, slug: slugify(e.target.value) } : prev));
+                      setEditing((prev) =>
+                        prev ? { ...prev, slug: slugify(e.target.value) } : prev,
+                      );
                     }}
                     placeholder="e.g. motorcycle-journeys"
                     className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm font-mono outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
                   />
                   <p className="text-[11px] text-muted-foreground mt-1">
-                    Public URL: <span className="font-mono text-foreground">/category/{editing.slug || "slug"}</span>
+                    Public URL:{" "}
+                    <span className="font-mono text-foreground">
+                      /category/{editing.slug || "slug"}
+                    </span>
                   </p>
                 </div>
               </div>
@@ -673,9 +674,7 @@ function AdminCategoriesPage() {
                     value={editing.status}
                     onChange={(e) =>
                       setEditing((prev) =>
-                        prev
-                           ? { ...prev, status: e.target.value as "active" | "inactive" }
-                          : prev,
+                        prev ? { ...prev, status: e.target.value as "active" | "inactive" } : prev,
                       )
                     }
                     className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm font-medium outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
@@ -716,7 +715,9 @@ function AdminCategoriesPage() {
                   {editing.image_url && (
                     <button
                       type="button"
-                      onClick={() => setEditing((prev) => (prev ? { ...prev, image_url: "" } : prev))}
+                      onClick={() =>
+                        setEditing((prev) => (prev ? { ...prev, image_url: "" } : prev))
+                      }
                       className="text-[11px] text-muted-foreground hover:text-red-500 transition-colors flex items-center gap-1 cursor-pointer"
                     >
                       <X className="h-3 w-3" /> Clear URL
@@ -837,10 +838,7 @@ function AdminCategoriesPage() {
       )}
 
       {/* ================= DELETE CATEGORY SAFETY CONFIRMATION DIALOG ================= */}
-      <AlertDialog
-        open={!!deleteTarget}
-        onOpenChange={(open) => !open && setDeleteTarget(null)}
-      >
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
         <AlertDialogContent className="rounded-3xl border border-border bg-card shadow-2xl p-6">
           <AlertDialogHeader>
             <div className="flex items-center gap-2 text-amber-500">
@@ -855,8 +853,7 @@ function AdminCategoriesPage() {
               {deleteTarget && (deleteTarget.post_count ?? 0) > 0 ? (
                 <>
                   <p>
-                    Category{" "}
-                    <strong className="text-foreground">"{deleteTarget.name}"</strong> is
+                    Category <strong className="text-foreground">"{deleteTarget.name}"</strong> is
                     currently assigned to{" "}
                     <span className="font-semibold text-amber-500">
                       {deleteTarget.post_count} blog{" "}
@@ -872,8 +869,8 @@ function AdminCategoriesPage() {
               ) : (
                 <p>
                   Are you sure you want to delete category{" "}
-                  <strong className="text-foreground">"{deleteTarget?.name}"</strong>?
-                  This action cannot be undone.
+                  <strong className="text-foreground">"{deleteTarget?.name}"</strong>? This action
+                  cannot be undone.
                 </p>
               )}
             </AlertDialogDescription>
