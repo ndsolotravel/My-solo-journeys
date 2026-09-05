@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -20,12 +20,9 @@ import {
   CheckCircle2,
   Pencil,
   MapPin,
-  Calendar,
-  Camera,
   RotateCcw,
   AlertTriangle,
   EyeOff,
-  ExternalLink,
 } from "lucide-react";
 import { toast } from "sonner";
 import { adminUploadImage } from "@/lib/admin.functions";
@@ -627,7 +624,7 @@ function AdminGalleryPage() {
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search titles, locations, stories…"
+              placeholder="Search captions, locations…"
               className="w-full rounded-xl border border-border bg-background pl-9 pr-4 py-2 text-xs outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
             />
           </div>
@@ -643,7 +640,7 @@ function AdminGalleryPage() {
               <span>Add photographs to the archive</span>
             </h3>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Uploads are staged as drafts — every photograph needs a title and alt text before it
+              Uploads are staged as drafts — every photograph needs a caption and alt text before it
               can be published.
             </p>
           </div>
@@ -768,7 +765,7 @@ function AdminGalleryPage() {
 
                     {incomplete && (
                       <div className="absolute bottom-2 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-md bg-amber-500/95 px-2 py-0.5 text-[10px] font-bold text-white shadow-xs backdrop-blur-xs">
-                        Needs title & alt text
+                        Needs caption & alt text
                       </div>
                     )}
 
@@ -845,22 +842,12 @@ function AdminGalleryPage() {
                       className="text-[11px] font-semibold text-foreground truncate"
                       title={item.title}
                     >
-                      {item.title || <span className="italic text-muted-foreground">Untitled</span>}
+                      {item.title || <span className="italic text-muted-foreground">Untitled caption</span>}
                     </p>
-                    {(item.location || item.captured_at || item.camera) && (
+                    {item.location && (
                       <p className="flex items-center gap-1 text-[10px] text-muted-foreground truncate">
-                        {item.location && (
-                          <>
-                            <MapPin className="h-2.5 w-2.5 shrink-0 text-accent" />
-                            <span className="truncate">{item.location}</span>
-                          </>
-                        )}
-                        {item.captured_at && (
-                          <>
-                            <span className="opacity-50">·</span>
-                            <span>{item.captured_at.slice(0, 4)}</span>
-                          </>
-                        )}
+                        <MapPin className="h-2.5 w-2.5 shrink-0 text-accent" />
+                        <span className="truncate">{item.location}</span>
                       </p>
                     )}
                   </div>
@@ -985,7 +972,7 @@ function AdminGalleryPage() {
                   {editing.id.startsWith("new-") ? "New Photograph" : "Photograph Details"}
                 </h2>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Title and alt text are required before this can be published.
+                  Update photo, caption, location, category, alt text, and display settings.
                 </p>
               </div>
               <button
@@ -999,7 +986,7 @@ function AdminGalleryPage() {
             </div>
 
             <div className="grid gap-6 p-6 sm:grid-cols-2">
-              <div>
+              <div className="space-y-4">
                 <div className="relative aspect-4/3 w-full overflow-hidden rounded-2xl border border-border bg-muted">
                   <img
                     src={editing.image_url}
@@ -1013,11 +1000,56 @@ function AdminGalleryPage() {
                   )}
                 </div>
 
+                {/* Image upload / replace */}
+                <div>
+                  <label className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-foreground">
+                    <Upload className="h-3.5 w-3.5 text-accent" /> Photograph Image
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="url"
+                      value={editing.image_url}
+                      onChange={(e) => updateEdit({ image_url: e.target.value })}
+                      placeholder="Image URL (https://...)"
+                      className="flex-1 rounded-xl border border-border bg-background px-3 py-2 text-xs outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                    />
+                    <label className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors cursor-pointer shrink-0">
+                      <Upload className="h-3.5 w-3.5 text-accent" />
+                      <span>Upload</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          try {
+                            const buf = await file.arrayBuffer();
+                            const base64 = btoa(String.fromCharCode(...new Uint8Array(buf)));
+                            const res = await uploadFn({
+                              data: {
+                                filename: file.name,
+                                contentType: file.type,
+                                base64,
+                              },
+                            });
+                            if (res.url) {
+                              updateEdit({ image_url: res.url });
+                              toast.success("Photograph uploaded successfully");
+                            }
+                          } catch (err: any) {
+                            toast.error(err.message || "Failed to upload image");
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
+                </div>
+
                 {/* Categories */}
-                <div className="mt-4">
+                <div>
                   <label className="mb-2 flex items-center gap-1.5 text-xs font-medium text-foreground">
-                    <Layers className="h-3.5 w-3.5 text-accent" /> Categories (select all that
-                    apply)
+                    <Layers className="h-3.5 w-3.5 text-accent" /> Category
                   </label>
                   <div className="flex flex-wrap gap-2">
                     {categories.map((cat) => {
@@ -1047,49 +1079,66 @@ function AdminGalleryPage() {
                   </div>
                 </div>
 
-                {/* Published toggle */}
-                <label className="mt-4 inline-flex items-center gap-2.5 cursor-pointer text-sm font-medium text-foreground">
-                  <input
-                    type="checkbox"
-                    checked={editing.published}
-                    onChange={(e) => updateEdit({ published: e.target.checked })}
-                    className="h-4 w-4 rounded border-border text-accent focus:ring-accent"
-                  />
-                  <span>Published on the public gallery</span>
-                </label>
+                {/* Display order & Published status */}
+                <div className="grid grid-cols-2 gap-4 pt-2 border-t border-border">
+                  <div>
+                    <label className="mb-1.5 block text-xs font-medium text-foreground">
+                      Display order
+                    </label>
+                    <input
+                      type="number"
+                      min={0}
+                      value={editing.sort_order}
+                      onChange={(e) => updateEdit({ sort_order: parseInt(e.target.value, 10) || 0 })}
+                      className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-sm outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                    />
+                  </div>
+                  <div className="flex flex-col justify-end">
+                    <label className="inline-flex items-center gap-2.5 cursor-pointer text-sm font-medium text-foreground py-2">
+                      <input
+                        type="checkbox"
+                        checked={editing.published}
+                        onChange={(e) => updateEdit({ published: e.target.checked })}
+                        className="h-4 w-4 rounded border-border text-accent focus:ring-accent"
+                      />
+                      <span>Published / Active</span>
+                    </label>
+                  </div>
+                </div>
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <label className="mb-1.5 flex items-center justify-between text-xs font-medium text-foreground">
-                    <span className="inline-flex items-center gap-1">
-                      Title <span className="text-red-500">*</span>
-                    </span>
-                    {editing.title && (
-                      <Link
-                        to="/gallery/$slug"
-                        params={{ slug: editing.slug ?? "" }}
-                        target="_blank"
-                        className="inline-flex items-center gap-1 text-[11px] text-accent hover:underline"
-                      >
-                        <ExternalLink className="h-3 w-3" /> View live
-                      </Link>
-                    )}
+                  <label className="mb-1.5 block text-xs font-medium text-foreground">
+                    Description / caption <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    type="text"
+                  <textarea
+                    rows={4}
                     value={editing.title}
                     onChange={(e) => updateEdit({ title: e.target.value })}
-                    placeholder="e.g. Morning light on Nanga Parbat"
-                    className={`w-full rounded-xl border bg-background px-3.5 py-2.5 text-sm outline-none transition-colors ${
+                    placeholder="e.g. Solo journey across the high-altitude Karakoram Highway"
+                    className={`w-full rounded-xl border bg-background p-3 text-sm outline-none transition-colors resize-y leading-relaxed ${
                       !editing.title.trim()
                         ? "border-amber-400 focus:border-amber-400 focus:ring-1 focus:ring-amber-400"
                         : "border-border focus:border-accent focus:ring-1 focus:ring-accent"
                     }`}
                   />
                   {!editing.title.trim() && (
-                    <p className="mt-1 text-[11px] text-amber-600">A title is required.</p>
+                    <p className="mt-1 text-[11px] text-amber-600">Description / caption is required.</p>
                   )}
+                </div>
+
+                <div>
+                  <label className="mb-1.5 flex items-center gap-1 text-xs font-medium text-foreground">
+                    <MapPin className="h-3 w-3 text-accent" /> Location
+                  </label>
+                  <input
+                    type="text"
+                    value={editing.location}
+                    onChange={(e) => updateEdit({ location: e.target.value })}
+                    placeholder="e.g. Karakoram Highway, Gilgit-Baltistan"
+                    className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                  />
                 </div>
 
                 <div>
@@ -1100,7 +1149,7 @@ function AdminGalleryPage() {
                     type="text"
                     value={editing.alt_text}
                     onChange={(e) => updateEdit({ alt_text: e.target.value })}
-                    placeholder="Describe the photograph for screen readers and search engines"
+                    placeholder="Describe the photograph for screen readers and SEO"
                     className={`w-full rounded-xl border bg-background px-3.5 py-2.5 text-sm outline-none transition-colors ${
                       !editing.alt_text.trim()
                         ? "border-amber-400 focus:border-amber-400 focus:ring-1 focus:ring-amber-400"
@@ -1111,58 +1160,6 @@ function AdminGalleryPage() {
                     <p className="mt-1 text-[11px] text-amber-600">Alt text is required.</p>
                   )}
                 </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="mb-1.5 flex items-center gap-1 text-xs font-medium text-foreground">
-                      <MapPin className="h-3 w-3 text-accent" /> Location
-                    </label>
-                    <input
-                      type="text"
-                      value={editing.location}
-                      onChange={(e) => updateEdit({ location: e.target.value })}
-                      placeholder="e.g. Rakaposhi viewpoint, Karakoram"
-                      className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-1.5 flex items-center gap-1 text-xs font-medium text-foreground">
-                      <Calendar className="h-3 w-3 text-accent" /> Date taken
-                    </label>
-                    <input
-                      type="date"
-                      value={editing.captured_at ?? ""}
-                      onChange={(e) => updateEdit({ captured_at: e.target.value || null })}
-                      className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="mb-1.5 flex items-center gap-1 text-xs font-medium text-foreground">
-                    <Camera className="h-3 w-3 text-accent" /> Camera & settings
-                  </label>
-                  <input
-                    type="text"
-                    value={editing.camera}
-                    onChange={(e) => updateEdit({ camera: e.target.value })}
-                    placeholder="e.g. Sony A7III · 70-200mm f/4 · 1/500s"
-                    className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-1.5 block text-xs font-medium text-foreground">
-                    The story behind this frame
-                  </label>
-                  <textarea
-                    rows={5}
-                    value={editing.story}
-                    onChange={(e) => updateEdit({ story: e.target.value })}
-                    placeholder="The cold at sunrise, the long approach, why this frame matters…"
-                    className="w-full rounded-xl border border-border bg-background p-3 text-sm outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors leading-relaxed resize-y"
-                  />
-                </div>
               </div>
             </div>
 
@@ -1170,7 +1167,7 @@ function AdminGalleryPage() {
               <div className="mx-6 mb-4 flex items-center gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-2.5">
                 <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600" />
                 <p className="text-xs font-medium text-amber-700">
-                  This photograph is incomplete — save will be blocked until title and alt text are
+                  This photograph is incomplete — save will be blocked until caption and alt text are
                   filled in.
                 </p>
               </div>

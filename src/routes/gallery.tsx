@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { MapPin, SlidersHorizontal, ImagePlus, Camera } from "lucide-react";
+import { MapPin, SlidersHorizontal, ImagePlus } from "lucide-react";
 import { z } from "zod";
 import { useState } from "react";
 import { listPhotoArchive } from "@/lib/photo-archive.functions";
@@ -188,45 +188,38 @@ function GalleryPage() {
             </p>
           </div>
         ) : (
-          <div className="columns-1 gap-4 sm:columns-2 lg:columns-3">
+          <div className="columns-1 gap-6 sm:columns-2 lg:columns-3">
             {photos.map((p, index) => (
-              <button
+              <div
                 key={p.id}
-                type="button"
-                onClick={() => openLightbox(index)}
-                className="group relative mb-4 block w-full overflow-hidden rounded-2xl bg-muted transition-transform duration-300 hover:scale-[1.02] focus:outline-hidden focus:ring-2 focus:ring-accent cursor-pointer"
+                className="group mb-8 break-inside-avoid flex flex-col"
               >
-                <img
-                  src={p.image_url}
-                  alt={p.alt_text || p.title}
-                  loading="lazy"
-                  className="aspect-[16/10] sm:aspect-auto w-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent transition-opacity duration-300 flex items-end p-4">
-                  <div className="w-full">
-                    {p.categories.length > 0 && (
-                      <span className="mb-1.5 inline-flex items-center gap-1 rounded-full border border-white/20 bg-black/40 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-accent backdrop-blur-sm">
-                        {t(p.categories[0].name)}
-                      </span>
-                    )}
-                    {p.title && (
-                      <p className="line-clamp-1 text-sm font-semibold text-white">{t(p.title)}</p>
-                    )}
-                    {p.location && (
-                      <p className="mt-0.5 flex items-center gap-1 text-[11px] text-white/75">
-                        <MapPin className="h-3 w-3 shrink-0" />
-                        <span className="line-clamp-1">{t(p.location)}</span>
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <span className="inline-flex items-center gap-1 rounded-full bg-black/75 px-2.5 py-1 text-[10px] font-medium text-white backdrop-blur-xs">
-                    <span className="w-3 h-3" />
-                    {t("View full")}
-                  </span>
-                </div>
-              </button>
+                <button
+                  type="button"
+                  onClick={() => openLightbox(index)}
+                  className="relative block w-full overflow-hidden rounded-2xl bg-muted transition-all duration-300 focus:outline-hidden focus:ring-2 focus:ring-accent cursor-pointer shadow-xs hover:shadow-md"
+                >
+                  <img
+                    src={p.image_url}
+                    alt={p.alt_text || p.title}
+                    loading="lazy"
+                    className="w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                  />
+                </button>
+                {/* Photo description directly below the picture */}
+                {p.title && (
+                  <p className="mt-3 text-sm font-medium text-foreground leading-snug">
+                    {t(p.title)}
+                  </p>
+                )}
+                {/* Location directly below the description */}
+                {p.location && (
+                  <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <MapPin className="h-3.5 w-3.5 shrink-0 text-accent" />
+                    <span>{t(p.location)}</span>
+                  </p>
+                )}
+              </div>
             ))}
           </div>
         )}
