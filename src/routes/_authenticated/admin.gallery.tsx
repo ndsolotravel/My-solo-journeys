@@ -23,6 +23,8 @@ import {
   RotateCcw,
   AlertTriangle,
   EyeOff,
+  Calendar,
+  Camera,
 } from "lucide-react";
 import { toast } from "sonner";
 import { adminUploadImage } from "@/lib/admin.functions";

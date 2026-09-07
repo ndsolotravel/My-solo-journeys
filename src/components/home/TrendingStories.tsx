@@ -50,11 +50,11 @@ export function TrendingStories({
       {/* 1. Left Column: Primary Story (Current Post Card) - Span 5 */}
       {primaryPost ? (
         <motion.article
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, y: 24, scale: 0.985 }}
+          whileInView={{ opacity: 1, y: 0, scale: 1 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:border-[#FF7A00]/40 hover:shadow-md lg:col-span-5 w-full min-w-0"
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border bg-card shadow-sm cinematic-card hover:border-[#FF7A00]/40 lg:col-span-5 w-full min-w-0"
         >
           <Link to="/blog/$slug" params={{ slug: primaryPost.slug }} className="flex h-full flex-col w-full min-w-0">
             <div className="relative aspect-[16/10] w-full overflow-hidden bg-muted">
@@ -63,15 +63,15 @@ export function TrendingStories({
                   src={resolveMediaUrl(primaryPost.cover_image)}
                   alt={getPostTitle(primaryPost)}
                   loading="lazy"
-                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  className="h-full w-full object-cover cinematic-img-zoom"
                 />
               ) : (
                 <div className="flex h-full w-full items-center justify-center bg-muted">
                   <span className="text-xs text-muted-foreground">No image</span>
                 </div>
               )}
-              <div className="absolute left-3 top-3 rtl:left-auto rtl:right-3">
-                <span className="rounded-full bg-[#FF7A00] px-2.5 py-1 text-[11px] sm:px-3 sm:py-1 sm:text-xs font-semibold uppercase tracking-wider text-white shadow-sm">
+              <div className="absolute left-3 top-3 rtl:left-auto rtl:right-3 z-10">
+                <span className="rounded-full bg-[#FF7A00] px-2.5 py-1 text-[11px] sm:px-3 sm:py-1 sm:text-xs font-semibold uppercase tracking-wider text-white shadow-sm transition-transform duration-300 group-hover:scale-105">
                   {t(primaryPost.category || "Story")}
                 </span>
               </div>
@@ -108,7 +108,7 @@ export function TrendingStories({
                   ) : null}
                 </div>
 
-                <h3 className="mt-2.5 sm:mt-3 font-display text-xl sm:text-2xl lg:text-3xl font-bold leading-snug text-foreground transition-colors group-hover:text-[#FF7A00] break-words [overflow-wrap:anywhere]">
+                <h3 className="mt-2.5 sm:mt-3 font-display text-xl sm:text-2xl lg:text-3xl font-bold leading-snug text-foreground transition-colors duration-300 group-hover:text-[#FF7A00] break-words [overflow-wrap:anywhere]">
                   {getPostTitle(primaryPost)}
                 </h3>
 
@@ -122,7 +122,7 @@ export function TrendingStories({
               <div className="mt-4 sm:mt-5 pt-3.5 sm:pt-4 border-t border-border/60">
                 <span className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#FF7A00]">
                   {t("Read full story")}
-                  <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 transition-transform duration-300 group-hover:translate-x-1 rtl:rotate-180" />
+                  <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 transition-transform duration-300 group-hover:translate-x-1.5 rtl:rotate-180" />
                 </span>
               </div>
             </div>
@@ -139,11 +139,11 @@ export function TrendingStories({
         {secondaryPosts.map((post, idx) => (
           <motion.article
             key={post.id}
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 18, scale: 0.985 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.4, delay: idx * 0.08 }}
-            className="group flex flex-1 flex-col justify-center rounded-2xl border border-border bg-card p-3 sm:p-4 shadow-sm transition-all duration-300 hover:border-[#FF7A00]/40 hover:shadow-md w-full min-w-0"
+            transition={{ duration: 0.5, delay: idx * 0.08, ease: [0.16, 1, 0.3, 1] }}
+            className="group flex flex-1 flex-col justify-center rounded-2xl border border-border bg-card p-3 sm:p-4 shadow-sm cinematic-card hover:border-[#FF7A00]/40 w-full min-w-0"
           >
             <Link to="/blog/$slug" params={{ slug: post.slug }} className="flex items-center gap-3 sm:gap-4 w-full min-w-0">
               <div className="relative h-20 w-22 sm:h-28 sm:w-32 shrink-0 overflow-hidden rounded-xl bg-muted">
@@ -152,7 +152,7 @@ export function TrendingStories({
                     src={resolveMediaUrl(post.cover_image)}
                     alt={getPostTitle(post)}
                     loading="lazy"
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="h-full w-full object-cover cinematic-img-zoom"
                   />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center bg-muted">
@@ -171,14 +171,14 @@ export function TrendingStories({
                     <span className="truncate">{formatDate(post.published_at || post.created_at)}</span>
                   </div>
 
-                  <h4 className="mt-1 font-display text-sm sm:text-base font-bold leading-snug text-foreground transition-colors group-hover:text-[#FF7A00] line-clamp-2 break-words [overflow-wrap:anywhere]">
+                  <h4 className="mt-1 font-display text-sm sm:text-base font-bold leading-snug text-foreground transition-colors duration-300 group-hover:text-[#FF7A00] line-clamp-2 break-words [overflow-wrap:anywhere]">
                     {getPostTitle(post)}
                   </h4>
                 </div>
 
-                <div className="mt-1.5 sm:mt-2 flex items-center gap-1 text-[11px] sm:text-xs font-medium text-muted-foreground group-hover:text-foreground">
+                <div className="mt-1.5 sm:mt-2 flex items-center gap-1 text-[11px] sm:text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">
                   <span>{t("Read story")}</span>
-                  <ArrowUpRight className="h-3 w-3 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 rtl:scale-x-[-1]" />
+                  <ArrowUpRight className="h-3 w-3 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 rtl:scale-x-[-1]" />
                 </div>
               </div>
             </Link>
@@ -187,48 +187,62 @@ export function TrendingStories({
       </div>
 
       {/* 3. Right Column: Categories Sidebar List - Span 3 */}
-      <div className="flex flex-col rounded-2xl border border-border bg-card p-3.5 sm:p-4 shadow-sm lg:col-span-3 w-full min-w-0">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+        className="flex flex-col rounded-2xl border border-border bg-card p-3.5 sm:p-4 shadow-sm cinematic-card lg:col-span-3 w-full min-w-0"
+      >
         <div className="mb-3 flex items-center justify-between border-b border-border pb-3">
           <h3 className="font-display text-base sm:text-lg font-bold tracking-tight text-foreground">
             {t("Categories")}
           </h3>
           <Link
             to="/blog"
-            className="text-xs font-medium text-muted-foreground hover:text-[#FF7A00] transition-colors"
+            className="text-xs font-medium text-muted-foreground hover:text-[#FF7A00] transition-colors group flex items-center gap-1"
           >
-            {t("View all")} →
+            <span>{t("View all")}</span>
+            <span className="transition-transform duration-300 group-hover:translate-x-0.5 rtl:rotate-180">→</span>
           </Link>
         </div>
 
         <div className="flex flex-col gap-2 sm:gap-2.5">
-          {categories.map((cat) => (
-            <Link
+          {categories.map((cat, idx) => (
+            <motion.div
               key={cat.name}
-              to={cat.linkTo as any}
-              className="group relative flex items-center justify-between overflow-hidden rounded-xl border border-border/60 bg-muted/30 p-2.5 transition-all duration-200 hover:border-[#FF7A00]/40 hover:bg-muted min-w-0"
+              initial={{ opacity: 0, x: 10 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.35, delay: idx * 0.04 }}
             >
-              {cat.image && (() => {
-                const catImg = resolveMediaUrl(cat.image);
-                return catImg ? (
-                  <img
-                    src={catImg}
-                    alt={cat.name}
-                    className="absolute inset-0 h-full w-full object-cover opacity-20 transition-opacity duration-300 group-hover:opacity-30"
-                  />
-                ) : null;
-              })()}
-              <div className="relative z-10 flex items-center gap-2.5 min-w-0">
-                <span className="font-display text-xs sm:text-sm font-semibold text-foreground group-hover:text-[#FF7A00] transition-colors truncate">
-                  {t(cat.name)}
+              <Link
+                to={cat.linkTo as any}
+                className="group relative flex items-center justify-between overflow-hidden rounded-xl border border-border/60 bg-muted/30 p-2.5 transition-all duration-300 hover:border-[#FF7A00]/40 hover:bg-muted min-w-0"
+              >
+                {cat.image && (() => {
+                  const catImg = resolveMediaUrl(cat.image);
+                  return catImg ? (
+                    <img
+                      src={catImg}
+                      alt={cat.name}
+                      className="absolute inset-0 h-full w-full object-cover opacity-20 transition-all duration-500 group-hover:opacity-35 group-hover:scale-105"
+                    />
+                  ) : null;
+                })()}
+                <div className="relative z-10 flex items-center gap-2.5 min-w-0">
+                  <span className="font-display text-xs sm:text-sm font-semibold text-foreground group-hover:text-[#FF7A00] transition-colors truncate">
+                    {t(cat.name)}
+                  </span>
+                </div>
+                <span className="relative z-10 inline-flex h-5 min-w-[20px] shrink-0 items-center justify-center rounded-full bg-background/80 px-1.5 text-[10px] font-bold text-muted-foreground shadow-xs group-hover:bg-[#FF7A00] group-hover:text-white transition-colors">
+                  {cat.count}
                 </span>
-              </div>
-              <span className="relative z-10 inline-flex h-5 min-w-[20px] shrink-0 items-center justify-center rounded-full bg-background/80 px-1.5 text-[10px] font-bold text-muted-foreground shadow-xs group-hover:bg-[#FF7A00] group-hover:text-white transition-colors">
-                {cat.count}
-              </span>
-            </Link>
+              </Link>
+            </motion.div>
           ))}
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

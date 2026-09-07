@@ -316,7 +316,10 @@ function HomePage() {
       featured: false,
     },
   ];
-  const journeyRef = useGsapReveal<HTMLDivElement>();
+  const journeyRef = useGsapReveal<HTMLDivElement>({
+    stagger: 0.1,
+    duration: 0.85,
+  });
 
   const isExternal = (link?: string) => {
     const target = (link || "").trim().toLowerCase();
@@ -540,16 +543,16 @@ function HomePage() {
               {/* Feature Topic (Topic 0) - Large / Tall Card */}
               {activeTopics[0] && (
                 <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
+                  initial={{ opacity: 0, y: 24, scale: 0.985 }}
+                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.5 }}
+                  transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
                   className="md:col-span-2 lg:col-span-1 lg:row-span-2 w-full min-w-0"
                 >
                   <Link
                     to="/topics/$slug"
                     params={{ slug: activeTopics[0].slug }}
-                    className="group relative flex h-full min-h-[320px] sm:min-h-[380px] lg:min-h-[460px] flex-col justify-end overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:border-[#FF7A00]/40 hover:shadow-lg w-full min-w-0"
+                    className="group relative flex h-full min-h-[320px] sm:min-h-[380px] lg:min-h-[460px] flex-col justify-end overflow-hidden rounded-2xl border border-border bg-card shadow-sm cinematic-card hover:border-[#FF7A00]/40 w-full min-w-0"
                   >
                     {(() => {
                       const img = activeTopics[0].previewImage || activeTopics[0].heroImage;
@@ -558,7 +561,7 @@ function HomePage() {
                           src={img}
                           alt={activeTopics[0].title}
                           loading="lazy"
-                          className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                          className="absolute inset-0 h-full w-full object-cover cinematic-img-zoom"
                         />
                       ) : (
                         <div className="absolute inset-0 h-full w-full bg-zinc-900" />
@@ -576,15 +579,15 @@ function HomePage() {
                           {activeTopics[0].postCount === 1 ? t("story") : t("stories")}
                         </span>
                       </div>
-                      <h3 className="font-display text-xl sm:text-2xl lg:text-3xl font-bold leading-tight text-white transition-colors group-hover:text-[#FF7A00] break-words [overflow-wrap:anywhere]">
+                      <h3 className="font-display text-xl sm:text-2xl lg:text-3xl font-bold leading-tight text-white transition-colors duration-300 group-hover:text-[#FF7A00] break-words [overflow-wrap:anywhere]">
                         {t(activeTopics[0].title)}
                       </h3>
-                      <p className="mt-2 text-xs sm:text-sm text-white/80 line-clamp-3">
+                      <p className="mt-2 text-xs sm:text-sm text-white/80 line-clamp-3 leading-relaxed">
                         {t(activeTopics[0].subtitle || activeTopics[0].description)}
                       </p>
                       <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#FF7A00]">
                         {t("Explore Topic")}
-                        <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1 rtl:rotate-180" />
+                        <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1.5 rtl:rotate-180" />
                       </span>
                     </div>
                   </Link>
@@ -597,16 +600,16 @@ function HomePage() {
                 return (
                   <motion.div
                     key={topic.slug}
-                    initial={{ opacity: 0, y: 15 }}
-                    whileInView={{ opacity: 1, y: 0 }}
+                    initial={{ opacity: 0, y: 18, scale: 0.985 }}
+                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
                     viewport={{ once: true }}
-                    transition={{ duration: 0.4, delay: idx * 0.08 }}
+                    transition={{ duration: 0.5, delay: idx * 0.08, ease: [0.16, 1, 0.3, 1] }}
                     className="w-full min-w-0"
                   >
                     <Link
                       to="/topics/$slug"
                       params={{ slug: topic.slug }}
-                      className="group relative flex h-full min-h-[190px] sm:min-h-[210px] flex-col justify-end overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:border-[#FF7A00]/40 hover:shadow-md w-full min-w-0"
+                      className="group relative flex h-full min-h-[190px] sm:min-h-[210px] flex-col justify-end overflow-hidden rounded-2xl border border-border bg-card shadow-sm cinematic-card hover:border-[#FF7A00]/40 w-full min-w-0"
                     >
                       {(() => {
                         const img = topic.previewImage || topic.heroImage;
@@ -615,7 +618,7 @@ function HomePage() {
                             src={img}
                             alt={topic.title}
                             loading="lazy"
-                            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                            className="absolute inset-0 h-full w-full object-cover cinematic-img-zoom"
                           />
                         ) : (
                           <div className="absolute inset-0 h-full w-full bg-zinc-900" />
@@ -629,10 +632,10 @@ function HomePage() {
                             {topic.postCount} {topic.postCount === 1 ? t("story") : t("stories")}
                           </span>
                         </div>
-                        <h3 className="font-display text-base sm:text-lg font-bold leading-tight text-white transition-colors group-hover:text-[#FF7A00] line-clamp-2 break-words [overflow-wrap:anywhere]">
+                        <h3 className="font-display text-base sm:text-lg font-bold leading-tight text-white transition-colors duration-300 group-hover:text-[#FF7A00] line-clamp-2 break-words [overflow-wrap:anywhere]">
                           {t(topic.title)}
                         </h3>
-                        <p className="mt-1 text-xs text-white/75 line-clamp-1">
+                        <p className="mt-1 text-xs text-white/75 line-clamp-1 leading-relaxed">
                           {t(topic.subtitle || topic.description)}
                         </p>
                       </div>
@@ -775,11 +778,11 @@ function HomePage() {
                 : destinations.slice(0, 8).map((d, i) => (
                     <motion.article
                       key={d.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
+                      initial={{ opacity: 0, y: 20, scale: 0.985 }}
+                      whileInView={{ opacity: 1, y: 0, scale: 1 }}
                       viewport={{ once: true }}
-                      transition={{ duration: 0.4, delay: i * 0.05 }}
-                      className="group relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:border-[#FF7A00]/40 hover:shadow-md w-full min-w-0"
+                      transition={{ duration: 0.5, delay: i * 0.05, ease: [0.16, 1, 0.3, 1] }}
+                      className="group relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm cinematic-card hover:border-[#FF7A00]/40 w-full min-w-0"
                     >
                       <Link
                         to="/destinations/$slug"
@@ -792,7 +795,7 @@ function HomePage() {
                               src={d.featured_image}
                               alt={d.title}
                               loading="lazy"
-                              className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                              className="h-full w-full object-cover cinematic-img-zoom"
                             />
                           ) : (
                             <div className="flex h-full w-full items-center justify-center bg-muted">
@@ -805,14 +808,14 @@ function HomePage() {
                               {t(d.country)}
                               {d.region ? ` · ${t(d.region)}` : ""}
                             </p>
-                            <h3 className="mt-0.5 font-display text-base sm:text-lg font-bold leading-tight group-hover:text-[#FF7A00] transition-colors break-words">
+                            <h3 className="mt-0.5 font-display text-base sm:text-lg font-bold leading-tight group-hover:text-[#FF7A00] transition-colors duration-300 break-words">
                               {t(d.title)}
                             </h3>
                           </div>
                         </div>
                         {d.description && (
                           <div className="p-3.5 min-w-0">
-                            <p className="line-clamp-2 text-xs text-muted-foreground break-words">
+                            <p className="line-clamp-2 text-xs text-muted-foreground break-words leading-relaxed">
                               {t(d.description)}
                             </p>
                           </div>
@@ -841,25 +844,25 @@ function HomePage() {
               {/* Spotlight image (first item - large span 2) */}
               {gallery[0] && (
                 <motion.div
-                  initial={{ opacity: 0, y: 15 }}
-                  whileInView={{ opacity: 1, y: 0 }}
+                  initial={{ opacity: 0, y: 24, scale: 0.985 }}
+                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.5 }}
+                  transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
                   className="sm:col-span-2 lg:col-span-2 lg:row-span-2 w-full min-w-0"
                 >
                   <Link
                     to="/gallery"
-                    className="group relative block aspect-[16/10] sm:aspect-auto sm:h-full min-h-[240px] sm:min-h-[260px] lg:min-h-[360px] overflow-hidden rounded-2xl border border-border bg-muted shadow-sm w-full min-w-0"
+                    className="group relative block aspect-[16/10] sm:aspect-auto sm:h-full min-h-[240px] sm:min-h-[260px] lg:min-h-[360px] overflow-hidden rounded-2xl border border-border bg-muted shadow-sm cinematic-card hover:border-[#FF7A00]/40 w-full min-w-0"
                   >
                     <img
                       src={gallery[0].image_url}
                       alt={gallery[0].caption || "Expedition photograph"}
                       loading="lazy"
-                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      className="h-full w-full object-cover cinematic-img-zoom"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent flex items-end p-4 sm:p-5">
                       <div className="min-w-0">
-                        <span className="rounded-full bg-[#FF7A00] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
+                        <span className="rounded-full bg-[#FF7A00] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow-xs">
                           {t("Spotlight")}
                         </span>
                         {gallery[0].caption && (
@@ -877,21 +880,21 @@ function HomePage() {
               {gallery.slice(1, 5).map((item, idx) => (
                 <motion.div
                   key={item.id || idx}
-                  initial={{ opacity: 0, y: 15 }}
-                  whileInView={{ opacity: 1, y: 0 }}
+                  initial={{ opacity: 0, y: 18, scale: 0.985 }}
+                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: idx * 0.05 }}
+                  transition={{ duration: 0.45, delay: idx * 0.06, ease: [0.16, 1, 0.3, 1] }}
                   className="w-full min-w-0"
                 >
                   <Link
                     to="/gallery"
-                    className="group relative block aspect-[4/3] overflow-hidden rounded-2xl border border-border bg-muted shadow-sm w-full min-w-0"
+                    className="group relative block aspect-[4/3] overflow-hidden rounded-2xl border border-border bg-muted shadow-sm cinematic-card hover:border-[#FF7A00]/40 w-full min-w-0"
                   >
                     <img
                       src={item.image_url}
                       alt={item.caption || "Expedition photograph"}
                       loading="lazy"
-                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      className="h-full w-full object-cover cinematic-img-zoom"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 flex items-end p-3.5">
                       {item.caption && (
@@ -922,7 +925,13 @@ function HomePage() {
         {/* 8. NEWSLETTER DISPATCH SIGNUP                                             */}
         {/* ========================================================================= */}
         <section aria-labelledby="newsletter-heading" className="pb-6 sm:pb-8 w-full min-w-0">
-          <div className="rounded-2xl sm:rounded-3xl border border-border bg-gradient-to-br from-card to-muted/50 p-6 sm:p-12 text-center shadow-sm w-full min-w-0">
+          <motion.div
+            initial={{ opacity: 0, y: 24, scale: 0.99 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="rounded-2xl sm:rounded-3xl border border-border bg-gradient-to-br from-card to-muted/50 p-6 sm:p-12 text-center shadow-sm cinematic-card hover:border-[#FF7A00]/30 w-full min-w-0"
+          >
             <div className="mx-auto max-w-2xl min-w-0">
               <span className="rounded-full bg-[#FF7A00]/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-[#FF7A00]">
                 {t("Join the Journey")}
@@ -940,7 +949,7 @@ function HomePage() {
                 <NewsletterForm />
               </div>
             </div>
-          </div>
+          </motion.div>
         </section>
       </div>
     </div>
