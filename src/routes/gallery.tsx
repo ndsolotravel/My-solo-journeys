@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { Camera, ImagePlus, RotateCcw } from "lucide-react";
+import { ImagePlus, RotateCcw } from "lucide-react";
 import { z } from "zod";
 import { useState, useEffect } from "react";
 import { listPhotoArchive } from "@/lib/photo-archive.functions";
@@ -30,13 +30,13 @@ export const Route = createFileRoute("/gallery")({
   loaderDeps: ({ search }) => search,
   head: () => ({
     meta: [
-      { title: "Photography Archive — ndsolotravel" },
+      { title: "Gallery — My Visual Diary | ndsolotravel" },
       {
         name: "description",
         content:
-          "A curated photography archive from the Karakoram, Nanga Parbat, Hunza and beyond — mountains, motorcycles, roads, people, villages, and trekking.",
+          "See the world through my lens: adventures and solo journeys in photographs across the Karakoram, high passes, and remote frontiers.",
       },
-      { property: "og:title", content: "Photography Archive — ndsolotravel" },
+      { property: "og:title", content: "Gallery — My Visual Diary | ndsolotravel" },
       { property: "og:url", content: "/gallery" },
     ],
     links: [{ rel: "canonical", href: "/gallery" }],
@@ -112,55 +112,49 @@ function GalleryPage() {
     <div className="min-h-screen bg-background text-foreground pb-20 sm:pb-28">
       <BreadcrumbJsonLd items={[{ label: "Gallery", href: "/gallery" }]} />
 
-      {/* Top Breadcrumb Navigation */}
+      {/* Top Breadcrumbs */}
       <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
         <PageBreadcrumbs items={[{ label: "Gallery" }]} />
       </div>
 
-      {/* 1. Centered Gallery Heading */}
-      <header className="mx-auto max-w-4xl px-4 pt-8 pb-4 sm:pt-12 sm:pb-6 text-center">
+      {/* 1. Centered Gallery Heading matching design reference */}
+      <header className="mx-auto max-w-3xl px-4 pt-6 pb-2 sm:pt-10 sm:pb-4 text-center">
         {/* Small "GALLERY" label */}
-        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-brand/10 border border-brand/25 text-brand text-xs font-bold tracking-[0.25em] uppercase mb-4 shadow-xs select-none">
-          <Camera className="h-3.5 w-3.5" />
-          <span>{t("GALLERY")}</span>
-        </div>
+        <p className="text-[11px] sm:text-xs font-semibold tracking-[0.25em] text-muted-foreground uppercase mb-2 select-none">
+          {t("GALLERY")}
+        </p>
 
-        {/* Strong main title */}
-        <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground leading-[1.12]">
-          {t("The light, the cold, the patience.")}
+        {/* Strong Main Title */}
+        <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-foreground leading-tight">
+          {t("My Visual Diary")}
         </h1>
 
-        {/* Short subtitle */}
-        <p className="mt-4 text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed font-normal">
-          {t("A curated visual journey through the Karakoram, the silence of Nanga Parbat, and high-altitude frontier routes.")}
+        {/* Short Subtitle */}
+        <p className="mt-3 text-sm sm:text-base text-muted-foreground leading-relaxed max-w-lg mx-auto">
+          {t("See the world through my lens:")}
+          <br />
+          <span className="text-foreground/80">
+            {t("adventures in photographs and high-altitude journeys")}
+          </span>
         </p>
 
         {/* 2. Horizontal row of rounded destination or country filter buttons */}
-        <div className="mt-8 sm:mt-10 flex items-center justify-center">
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-2 px-2 max-w-full sm:flex-wrap sm:justify-center">
+        <div className="mt-7 sm:mt-9 flex items-center justify-center">
+          <div className="flex items-center gap-2 sm:gap-2.5 overflow-x-auto no-scrollbar py-2 px-2 max-w-full sm:flex-wrap sm:justify-center">
             {/* "All" Filter Button */}
             <button
               type="button"
               onClick={() => setCategory(undefined)}
-              className={`inline-flex shrink-0 items-center gap-2 rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
+              className={`inline-flex shrink-0 items-center justify-center rounded-full px-5 py-2 text-xs sm:text-sm font-medium transition-all duration-200 cursor-pointer ${
                 !activeCategory
-                  ? "bg-primary text-primary-foreground shadow-md ring-1 ring-primary/20 scale-[1.02]"
-                  : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground border border-border/70 hover:border-border"
+                  ? "bg-primary text-primary-foreground shadow-sm ring-1 ring-primary/20 scale-[1.02]"
+                  : "bg-card text-foreground/80 hover:bg-muted/50 hover:text-foreground border border-border/80"
               }`}
             >
-              <span>{t("All")}</span>
-              <span
-                className={`text-[11px] rounded-full px-1.5 py-0.5 font-mono ${
-                  !activeCategory
-                    ? "bg-primary-foreground/20 text-primary-foreground"
-                    : "bg-muted text-muted-foreground"
-                }`}
-              >
-                {photos.length}
-              </span>
+              {t("All")}
             </button>
 
-            {/* Dynamic CMS Categories */}
+            {/* Dynamic CMS Destination/Country Filters */}
             {categories.map((cat) => {
               const active = activeCategory === cat.slug;
               return (
@@ -168,24 +162,13 @@ function GalleryPage() {
                   key={cat.id}
                   type="button"
                   onClick={() => setCategory(active ? undefined : cat.slug)}
-                  className={`inline-flex shrink-0 items-center gap-2 rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
+                  className={`inline-flex shrink-0 items-center justify-center rounded-full px-5 py-2 text-xs sm:text-sm font-medium transition-all duration-200 cursor-pointer ${
                     active
-                      ? "bg-primary text-primary-foreground shadow-md ring-1 ring-primary/20 scale-[1.02]"
-                      : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground border border-border/70 hover:border-border"
+                      ? "bg-primary text-primary-foreground shadow-sm ring-1 ring-primary/20 scale-[1.02]"
+                      : "bg-card text-foreground/80 hover:bg-muted/50 hover:text-foreground border border-border/80"
                   }`}
                 >
-                  <span>{t(cat.name)}</span>
-                  {cat.photo_count !== undefined && (
-                    <span
-                      className={`text-[11px] rounded-full px-1.5 py-0.5 font-mono ${
-                        active
-                          ? "bg-primary-foreground/20 text-primary-foreground"
-                          : "bg-muted text-muted-foreground"
-                      }`}
-                    >
-                      {cat.photo_count}
-                    </span>
-                  )}
+                  {t(cat.name)}
                 </button>
               );
             })}
@@ -194,7 +177,7 @@ function GalleryPage() {
       </header>
 
       {/* 3. Large Cinematic Horizontal Image Carousel */}
-      <main className="mt-4 sm:mt-6">
+      <main className="mt-2 sm:mt-4">
         {photos.length === 0 ? (
           <div className="mx-auto max-w-xl px-4 py-16 text-center">
             <div className="rounded-3xl border border-dashed border-border bg-card p-12 sm:p-16 shadow-xs">
@@ -227,7 +210,7 @@ function GalleryPage() {
         )}
       </main>
 
-      {/* Lightbox Modal (Retained for high-resolution fullscreen inspection) */}
+      {/* Lightbox Modal (for high-resolution inspection) */}
       <GalleryLightbox
         isOpen={lightboxOpen}
         onClose={closeLightbox}
