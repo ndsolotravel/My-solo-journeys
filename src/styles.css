@@ -226,7 +226,7 @@ html[dir="rtl"] .flex-row { flex-direction: row-reverse; }
 }
 @media (hover: hover) and (pointer: fine) {
   .banner-hover:hover img {
-    filter: brightness(1.3) saturate(1.1);
+    filter: brightness(1.21) saturate(1.1);
   }
 }
 
