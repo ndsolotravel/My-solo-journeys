@@ -1,3 +1,11 @@
 {
-  "css.lint.unknownAtRules": "ignore"
+  "css.lint.unknownAtRules": "ignore",
+  "files.associations": {
+    "**/supabase/migrations/*.sql": "postgres",
+    "**/supabase/**/*.sql": "postgres"
+  },
+  "mssql.intelliSense.enableErrorChecking": false,
+  "sql.intelliSense.enableErrorChecking": false,
+  "postgrestools.enabled": true,
+  "postgres-language-server.enabled": true
 }

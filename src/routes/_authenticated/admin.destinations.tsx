@@ -42,6 +42,8 @@ type Dest = {
   region?: string | null;
   description?: string | null;
   featured_image?: string | null;
+  category?: string | null;
+  featured?: boolean;
   published?: boolean;
   latitude?: number | null;
   longitude?: number | null;
@@ -78,6 +80,8 @@ function AdminDestinations() {
       region: d.region ?? "",
       description: d.description ?? "",
       featured_image: d.featured_image ?? "",
+      category: d.category ?? "",
+      featured: d.featured ?? false,
       published: d.published !== false,
       latitude: d.latitude != null ? Number(d.latitude) : null,
       longitude: d.longitude != null ? Number(d.longitude) : null,
@@ -117,7 +121,9 @@ function AdminDestinations() {
         editingForm.latitude != null ||
         editingForm.longitude != null ||
         editingForm.description?.trim() ||
-        editingForm.featured_image?.trim(),
+        editingForm.featured_image?.trim() ||
+        editingForm.category?.trim() ||
+        editingForm.featured !== undefined,
       );
     }
     return (
@@ -127,9 +133,11 @@ function AdminDestinations() {
       (editingForm.region || "") !== (editingOriginal.region || "") ||
       (editingForm.description || "") !== (editingOriginal.description || "") ||
       (editingForm.featured_image || "") !== (editingOriginal.featured_image || "") ||
+      (editingForm.category || "") !== (editingOriginal.category || "") ||
       editingForm.published !== editingOriginal.published ||
       editingForm.latitude !== editingOriginal.latitude ||
-      editingForm.longitude !== editingOriginal.longitude
+      editingForm.longitude !== editingOriginal.longitude ||
+      editingForm.featured !== editingOriginal.featured
     );
   }, [editingForm, editingOriginal]);
 
@@ -169,6 +177,8 @@ function AdminDestinations() {
         region: savedRow.region ?? null,
         description: savedRow.description ?? null,
         featured_image: savedRow.featured_image ?? null,
+        category: savedRow.category ?? null,
+        featured: savedRow.featured ?? false,
         published: savedRow.published !== false,
         latitude: savedRow.latitude != null ? Number(savedRow.latitude) : null,
         longitude: savedRow.longitude != null ? Number(savedRow.longitude) : null,
@@ -664,6 +674,49 @@ function AdminDestinations() {
                   placeholder="Brief overview, terrain notes, and highlights of this destination..."
                   className="w-full rounded-xl border border-border bg-background p-3 text-sm text-foreground focus:border-accent focus:outline-none leading-relaxed resize-y transition-colors"
                 />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-foreground mb-1.5">
+                    Category
+                  </label>
+                  <select
+                    value={editingForm.category ?? ""}
+                    onChange={(e) => updateField("category", e.target.value)}
+                    className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-foreground focus:border-accent focus:outline-none transition-colors"
+                  >
+                    <option value="">Select category</option>
+                    <option value="Mountains">Mountains</option>
+                    <option value="Motorcycle Journeys">Motorcycle Journeys</option>
+                    <option value="Trekking">Trekking</option>
+                    <option value="Adventure">Adventure</option>
+                    <option value="Cultural Experiences">Cultural Experiences</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-foreground mb-1.5">
+                    Featured
+                  </label>
+                  <div className="flex items-center gap-3 rounded-xl border border-border bg-background px-3.5 py-2.5">
+                    <button
+                      type="button"
+                      onClick={() => updateField("featured", !editingForm.featured)}
+                      className={`relative h-6 w-11 rounded-full transition-colors ${
+                        editingForm.featured ? "bg-accent" : "bg-muted"
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 rounded-full bg-white shadow transition-transform ${
+                          editingForm.featured ? "translate-x-6" : "translate-x-1"
+                        }`}
+                      />
+                    </button>
+                    <span className="text-xs text-muted-foreground">
+                      {editingForm.featured ? "Yes" : "No"}
+                    </span>
+                  </div>
+                </div>
               </div>
 
               <div>

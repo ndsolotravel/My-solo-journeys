@@ -1,0 +1,4 @@
+{
+  "recommendations": ["Supabase.postgrestools"],
+  "unwantedRecommendations": ["ms-mssql.mssql"]
+}

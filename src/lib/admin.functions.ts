@@ -671,6 +671,8 @@ const destInputSchema = z.object({
   region: z.string().max(120).optional().nullable(),
   description: z.string().max(4000).optional().nullable(),
   featured_image: z.string().url().optional().nullable().or(z.literal("")),
+  category: z.string().optional().nullable(),
+  featured: z.boolean().default(false),
   published: z.boolean().default(true),
   latitude: z.number().min(-90).max(90).nullable().optional(),
   longitude: z.number().min(-180).max(180).nullable().optional(),
@@ -708,9 +710,10 @@ export const adminUpsertDestination = createServerFn({ method: "POST" })
       region: data.region || null,
       description: data.description || null,
       featured_image: data.featured_image || null,
+      category: data.category ?? null,
+      featured: !!data.featured,
       published: data.published,
-      latitude:
-        typeof data.latitude === "number" && !isNaN(data.latitude) ? data.latitude : null,
+      latitude: typeof data.latitude === "number" && !isNaN(data.latitude) ? data.latitude : null,
       longitude:
         typeof data.longitude === "number" && !isNaN(data.longitude) ? data.longitude : null,
     };

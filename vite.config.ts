@@ -15,6 +15,9 @@ export default defineConfig(({ mode }) => {
       port,
       strictPort: true,
       host: true,
+      watch: {
+        ignored: ["**/.output/**", "**/.nitro/**"],
+      },
     },
     preview: {
       port,
