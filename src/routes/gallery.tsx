@@ -1,13 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { MapPin, SlidersHorizontal, ImagePlus } from "lucide-react";
+import { Camera, ImagePlus, RotateCcw } from "lucide-react";
 import { z } from "zod";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { listPhotoArchive } from "@/lib/photo-archive.functions";
 import { getPageHeroConfig } from "@/lib/page-hero.functions";
 import { useTranslations } from "@/lib/translate/store";
 import { PageBreadcrumbs, BreadcrumbJsonLd } from "@/components/layout/PageBreadcrumbs";
 import { GalleryLightbox } from "@/components/gallery/GalleryLightbox";
+import { CinematicGalleryCarousel } from "@/components/gallery/CinematicGalleryCarousel";
 
 const searchSchema = z.object({
   category: z.string().optional(),
@@ -66,16 +67,30 @@ function GalleryPage() {
   const t = useTranslations();
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
-  const { data: data } = useSuspenseQuery(archiveQO(search.category));
-  const { data: hero } = useSuspenseQuery(heroQO);
+  const { data } = useSuspenseQuery(archiveQO(search.category));
 
   const photos = data.photos;
   const categories = data.categories;
   const activeCategory = search.category;
-  const totalShown = photos.length;
 
+  // Carousel active index state
+  const [carouselIndex, setCarouselIndex] = useState(0);
+
+  // Lightbox modal state
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+
+  // Reset carousel index whenever category filter changes
+  useEffect(() => {
+    setCarouselIndex(0);
+  }, [activeCategory]);
+
+  // Keep index within bounds if photo count changes
+  useEffect(() => {
+    if (photos.length > 0 && carouselIndex >= photos.length) {
+      setCarouselIndex(0);
+    }
+  }, [photos.length, carouselIndex]);
 
   const setCategory = (category?: string) =>
     navigate({ search: (prev) => ({ ...prev, category: category || undefined }) });
@@ -94,63 +109,58 @@ function GalleryPage() {
   };
 
   return (
-    <>
-      <section className="banner-hover relative h-[45vh] min-h-[280px] w-full overflow-hidden">
-        {hero?.image ? (
-          <img
-            src={hero.image}
-            alt="Photographs from the mountains."
-            className="absolute inset-0 h-full w-full object-cover object-center"
-          />
-        ) : (
-          <div className="absolute inset-0 h-full w-full bg-zinc-900" />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/70" />
-        <div className="absolute inset-0 flex items-end">
-          <div className="mx-auto w-full max-w-7xl px-4 pb-10 sm:px-6 lg:px-8">
-            <p className="text-xs uppercase tracking-[0.2em] text-accent">{t("Photography")}</p>
-            <h1 className="mt-2 font-display text-4xl font-bold leading-tight text-white sm:text-5xl">
-              {t("The light, the cold, the patience.")}
-            </h1>
-            <PageBreadcrumbs items={[{ label: "Gallery" }]} />
-            <p className="mt-3 max-w-xl text-sm text-white/80">
-              {t("A curated archive of photographs from above 4,000 metres.")}
-            </p>
-          </div>
+    <div className="min-h-screen bg-background text-foreground pb-20 sm:pb-28">
+      <BreadcrumbJsonLd items={[{ label: "Gallery", href: "/gallery" }]} />
+
+      {/* Top Breadcrumb Navigation */}
+      <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
+        <PageBreadcrumbs items={[{ label: "Gallery" }]} />
+      </div>
+
+      {/* 1. Centered Gallery Heading */}
+      <header className="mx-auto max-w-4xl px-4 pt-8 pb-4 sm:pt-12 sm:pb-6 text-center">
+        {/* Small "GALLERY" label */}
+        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-brand/10 border border-brand/25 text-brand text-xs font-bold tracking-[0.25em] uppercase mb-4 shadow-xs select-none">
+          <Camera className="h-3.5 w-3.5" />
+          <span>{t("GALLERY")}</span>
         </div>
-      </section>
 
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <BreadcrumbJsonLd items={[{ label: "Gallery", href: "/gallery" }]} />
+        {/* Strong main title */}
+        <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground leading-[1.12]">
+          {t("The light, the cold, the patience.")}
+        </h1>
 
-        {/* Category Browser */}
-        <div className="mb-10 rounded-2xl border border-border bg-card p-5 shadow-sm">
-          <div className="flex flex-wrap items-center gap-2 pb-4">
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-accent">
-              <SlidersHorizontal className="h-3.5 w-3.5" />
-              <span>{t("Browse the archive")}</span>
-            </span>
-            <span className="text-xs text-muted-foreground">
-              {totalShown.toLocaleString()} {totalShown === 1 ? t("photograph") : t("photographs")}
-            </span>
-          </div>
+        {/* Short subtitle */}
+        <p className="mt-4 text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed font-normal">
+          {t("A curated visual journey through the Karakoram, the silence of Nanga Parbat, and high-altitude frontier routes.")}
+        </p>
 
-          <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap sm:overflow-visible">
+        {/* 2. Horizontal row of rounded destination or country filter buttons */}
+        <div className="mt-8 sm:mt-10 flex items-center justify-center">
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-2 px-2 max-w-full sm:flex-wrap sm:justify-center">
+            {/* "All" Filter Button */}
             <button
               type="button"
               onClick={() => setCategory(undefined)}
-              className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 text-xs font-medium transition-colors cursor-pointer ${
+              className={`inline-flex shrink-0 items-center gap-2 rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
                 !activeCategory
-                  ? "border-foreground bg-foreground text-background"
-                  : "border-border text-foreground hover:border-accent hover:text-accent"
+                  ? "bg-primary text-primary-foreground shadow-md ring-1 ring-primary/20 scale-[1.02]"
+                  : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground border border-border/70 hover:border-border"
               }`}
             >
-              {t("All")}
-              <span className={!activeCategory ? "text-background/60" : "text-muted-foreground"}>
+              <span>{t("All")}</span>
+              <span
+                className={`text-[11px] rounded-full px-1.5 py-0.5 font-mono ${
+                  !activeCategory
+                    ? "bg-primary-foreground/20 text-primary-foreground"
+                    : "bg-muted text-muted-foreground"
+                }`}
+              >
                 {photos.length}
               </span>
             </button>
 
+            {/* Dynamic CMS Categories */}
             {categories.map((cat) => {
               const active = activeCategory === cat.slug;
               return (
@@ -158,81 +168,73 @@ function GalleryPage() {
                   key={cat.id}
                   type="button"
                   onClick={() => setCategory(active ? undefined : cat.slug)}
-                  className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 text-xs font-medium transition-colors cursor-pointer ${
+                  className={`inline-flex shrink-0 items-center gap-2 rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
                     active
-                      ? "border-foreground bg-foreground text-background"
-                      : "border-border text-foreground hover:border-accent hover:text-accent"
+                      ? "bg-primary text-primary-foreground shadow-md ring-1 ring-primary/20 scale-[1.02]"
+                      : "bg-card text-muted-foreground hover:bg-muted hover:text-foreground border border-border/70 hover:border-border"
                   }`}
                 >
-                  {t(cat.name)}
-                  <span className={active ? "text-background/60" : "text-muted-foreground"}>
-                    {cat.photo_count}
-                  </span>
+                  <span>{t(cat.name)}</span>
+                  {cat.photo_count !== undefined && (
+                    <span
+                      className={`text-[11px] rounded-full px-1.5 py-0.5 font-mono ${
+                        active
+                          ? "bg-primary-foreground/20 text-primary-foreground"
+                          : "bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      {cat.photo_count}
+                    </span>
+                  )}
                 </button>
               );
             })}
           </div>
         </div>
+      </header>
 
-        {/* Archive Grid */}
+      {/* 3. Large Cinematic Horizontal Image Carousel */}
+      <main className="mt-4 sm:mt-6">
         {photos.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-border bg-card p-16 text-center shadow-sm">
-            <div className="mx-auto mb-4 w-fit rounded-2xl bg-brand/10 p-3 text-brand">
-              <ImagePlus className="h-7 w-7 text-accent" />
+          <div className="mx-auto max-w-xl px-4 py-16 text-center">
+            <div className="rounded-3xl border border-dashed border-border bg-card p-12 sm:p-16 shadow-xs">
+              <div className="mx-auto mb-4 w-fit rounded-2xl bg-brand/10 p-3.5 text-brand">
+                <ImagePlus className="h-8 w-8 text-accent" />
+              </div>
+              <h3 className="font-display text-xl font-bold text-foreground">
+                {t("No photographs in this category yet")}
+              </h3>
+              <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+                {t("Photographs from this collection will appear once curated from the field.")}
+              </p>
+              <button
+                type="button"
+                onClick={() => setCategory(undefined)}
+                className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground shadow-sm hover:opacity-90 transition-opacity cursor-pointer"
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+                <span>{t("View all photographs")}</span>
+              </button>
             </div>
-            <p className="font-display text-xl font-semibold text-foreground">
-              {t("No photographs in this category yet")}
-            </p>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {t("Photographs from the archive will appear here once they are curated.")}
-            </p>
           </div>
         ) : (
-          <div className="columns-1 gap-6 sm:columns-2 lg:columns-3">
-            {photos.map((p, index) => (
-              <div
-                key={p.id}
-                className="group mb-8 break-inside-avoid flex flex-col"
-              >
-                <button
-                  type="button"
-                  onClick={() => openLightbox(index)}
-                  className="relative block w-full overflow-hidden rounded-2xl bg-muted transition-all duration-300 focus:outline-hidden focus:ring-2 focus:ring-accent cursor-pointer shadow-xs hover:shadow-md"
-                >
-                  <img
-                    src={p.image_url}
-                    alt={p.alt_text || p.title}
-                    loading="lazy"
-                    className="w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
-                  />
-                </button>
-                {/* Photo description directly below the picture */}
-                {p.title && (
-                  <p className="mt-3 text-sm font-medium text-foreground leading-snug">
-                    {t(p.title)}
-                  </p>
-                )}
-                {/* Location directly below the description */}
-                {p.location && (
-                  <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <MapPin className="h-3.5 w-3.5 shrink-0 text-accent" />
-                    <span>{t(p.location)}</span>
-                  </p>
-                )}
-              </div>
-            ))}
-          </div>
+          <CinematicGalleryCarousel
+            photos={photos}
+            currentIndex={carouselIndex}
+            onChangeIndex={setCarouselIndex}
+            onOpenLightbox={openLightbox}
+          />
         )}
+      </main>
 
-        {/* Lightbox Modal */}
-        <GalleryLightbox
-          isOpen={lightboxOpen}
-          onClose={closeLightbox}
-          photos={photos}
-          currentIndex={lightboxIndex}
-          onNavigate={navigateLightbox}
-        />
-      </div>
-    </>
+      {/* Lightbox Modal (Retained for high-resolution fullscreen inspection) */}
+      <GalleryLightbox
+        isOpen={lightboxOpen}
+        onClose={closeLightbox}
+        photos={photos}
+        currentIndex={lightboxIndex}
+        onNavigate={navigateLightbox}
+      />
+    </div>
   );
 }
