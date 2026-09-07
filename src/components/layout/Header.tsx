@@ -108,16 +108,14 @@ export function Header() {
   return (
     <>
       <header
-        className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${headerClass} ${
-          overHero ? "py-4" : "py-3 shadow-xs"
-        }`}
+        className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${headerClass}`}
       >
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link to="/" className="flex items-center gap-2 shrink-0 transition-transform duration-300 hover:scale-[1.02]">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+          <Link to="/" className="flex items-center gap-2 shrink-0">
             <img
               src={logoPath}
               alt="ndsolotravel"
-              className={`h-8 w-auto transition-all duration-500 ${overHero ? "brightness-0 invert" : ""}`}
+              className={`h-8 w-auto ${overHero ? "brightness-0 invert" : ""}`}
             />
           </Link>
           <nav className="hidden md:flex items-center gap-7 text-sm">
@@ -133,20 +131,22 @@ export function Header() {
                   key={`${l.to}-${l.label}`}
                   to={l.to}
                   hash={isHashLink ? (l as { hash: string }).hash : undefined}
-                  className={`group relative py-1 text-sm font-medium transition-colors duration-300 ${
+                  activeOptions={{ exact: l.to === "/" }}
+                  className={`relative transition-colors duration-200 ease-in-out ${
                     overHero
                       ? active
-                        ? "text-white font-semibold"
-                        : "text-white/80 hover:text-white"
+                        ? "text-white font-medium"
+                        : "text-white/75 hover:text-[#FF7A00]"
                       : active
-                        ? "text-accent font-semibold"
-                        : "text-foreground/80 hover:text-[#FF7A00]"
+                        ? "text-accent font-medium"
+                        : "text-muted-foreground hover:text-[#FF7A00]"
                   }`}
                 >
-                  <span className="relative z-10">{t(l.label)}</span>
+                  {t(l.label)}
                   {active && (
                     <span
-                      className={`absolute inset-x-0 -bottom-1 h-0.5 rounded-full transition-all duration-300 ${
+                      aria-hidden
+                      className={`absolute left-0 right-0 -bottom-1 mx-auto h-px w-6 ${
                         overHero ? "bg-white" : "bg-accent"
                       }`}
                     />
@@ -160,10 +160,10 @@ export function Header() {
             <button
               onClick={() => setSearchOpen(true)}
               aria-label={t("Search")}
-              className={`inline-flex h-9 w-9 items-center justify-center rounded-full border transition-all duration-300 ${
+              className={`inline-flex h-9 w-9 items-center justify-center rounded-full border transition-colors ${
                 overHero
-                  ? "border-white/30 text-white hover:bg-white/10 hover:scale-105"
-                  : "border-border/60 text-foreground hover:bg-muted/60 hover:scale-105"
+                  ? "border-white/30 text-white hover:bg-white/10"
+                  : "border-border/60 text-foreground hover:bg-muted/60"
               }`}
             >
               <Search className="h-4 w-4" />
@@ -174,10 +174,10 @@ export function Header() {
             {isStaff && (
               <Link
                 to="/admin"
-                className={`hidden sm:inline-flex items-center rounded-full border px-3 py-2 text-xs font-medium transition-all duration-300 ${
+                className={`hidden sm:inline-flex items-center rounded-full border px-3 py-2 text-xs font-medium transition-colors ${
                   overHero
-                    ? "border-white/30 text-white hover:bg-white/10 hover:scale-105"
-                    : "border-border hover:border-accent hover:scale-105"
+                    ? "border-white/30 text-white hover:bg-white/10"
+                    : "border-border hover:border-accent"
                 }`}
               >
                 {t("Admin")}
@@ -186,10 +186,10 @@ export function Header() {
             <Link
               to={signedIn ? "/account" : "/auth"}
               aria-label={signedIn ? t("Account") : t("Sign in")}
-              className={`hidden sm:inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-medium transition-all duration-300 ${
+              className={`hidden sm:inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-medium transition ${
                 overHero
-                  ? "bg-white text-foreground hover:bg-white/90 hover:scale-105"
-                  : "bg-foreground text-background hover:opacity-90 hover:scale-105"
+                  ? "bg-white text-foreground hover:bg-white/90"
+                  : "bg-foreground text-background hover:opacity-90"
               }`}
             >
               {signedIn ? <User className="h-3.5 w-3.5" /> : null}
@@ -201,10 +201,10 @@ export function Header() {
                 onClick={handleSignOut}
                 aria-label={t("Sign out")}
                 title={t("Sign out")}
-                className={`hidden sm:inline-flex h-9 w-9 items-center justify-center rounded-full border transition-all duration-300 ${
+                className={`hidden sm:inline-flex h-9 w-9 items-center justify-center rounded-full border transition-colors ${
                   overHero
-                    ? "border-white/30 text-white hover:bg-white/10 hover:scale-105"
-                    : "border-border/60 text-foreground hover:bg-muted/60 hover:scale-105"
+                    ? "border-white/30 text-white hover:bg-white/10"
+                    : "border-border/60 text-foreground hover:bg-muted/60"
                 }`}
               >
                 <LogOut className="h-4 w-4" />
@@ -214,7 +214,7 @@ export function Header() {
               onClick={() => setOpen((v) => !v)}
               aria-label={t("Menu")}
               aria-expanded={open}
-              className={`md:hidden inline-flex h-9 w-9 items-center justify-center rounded-full border transition-all duration-300 ${
+              className={`md:hidden inline-flex h-9 w-9 items-center justify-center rounded-full border ${
                 overHero ? "border-white/30 text-white" : "border-border"
               }`}
             >
@@ -227,13 +227,13 @@ export function Header() {
       {/* Mobile slide-out */}
       {open && (
         <div
-          className="md:hidden fixed inset-0 z-[60] bg-black/60 backdrop-blur-xs transition-opacity duration-300"
+          className="md:hidden fixed inset-0 z-[60] bg-black/50"
           onClick={() => setOpen(false)}
           aria-hidden
         />
       )}
       <aside
-        className={`md:hidden fixed top-0 right-0 z-[70] h-dvh w-[82%] max-w-sm bg-background border-l border-border shadow-2xl transition-transform duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] rtl:right-auto rtl:left-0 rtl:border-l-0 rtl:border-r ${
+        className={`md:hidden fixed top-0 right-0 z-[70] h-dvh w-[82%] max-w-sm bg-background border-l border-border shadow-2xl transition-transform duration-300 rtl:right-auto rtl:left-0 rtl:border-l-0 rtl:border-r ${
           open
             ? "translate-x-0"
             : "translate-x-full rtl:-translate-x-full"
@@ -247,13 +247,13 @@ export function Header() {
           <button
             onClick={() => setOpen(false)}
             aria-label={t("Close menu")}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border transition-colors hover:bg-muted"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
         <nav className="flex flex-col px-3 py-3">
-          {LINKS.map((l, idx) => {
+          {LINKS.map((l) => {
             const isHashLink = "hash" in l && !!l.hash;
             const active =
               !isHashLink &&
@@ -266,12 +266,7 @@ export function Header() {
                 to={l.to}
                 hash={isHashLink ? (l as { hash: string }).hash : undefined}
                 onClick={() => setOpen(false)}
-                style={{
-                  transitionDelay: open ? `${idx * 40}ms` : "0ms",
-                  transform: open ? "translateX(0)" : "translateX(16px)",
-                  opacity: open ? 1 : 0,
-                }}
-                className={`rounded-lg px-4 py-3 text-sm transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                className={`rounded-lg px-4 py-3 text-sm transition-colors duration-200 ease-in-out ${
                   active
                     ? "bg-muted text-accent font-medium"
                     : "text-foreground hover:bg-muted hover:text-[#FF7A00]"
