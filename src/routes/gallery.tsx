@@ -9,6 +9,7 @@ import { useTranslations } from "@/lib/translate/store";
 import { PageBreadcrumbs, BreadcrumbJsonLd } from "@/components/layout/PageBreadcrumbs";
 import { GalleryLightbox } from "@/components/gallery/GalleryLightbox";
 import { CinematicGalleryCarousel } from "@/components/gallery/CinematicGalleryCarousel";
+import { GalleryHero } from "@/components/gallery/GalleryHero";
 
 const searchSchema = z.object({
   category: z.string().optional(),
@@ -68,6 +69,7 @@ function GalleryPage() {
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
   const { data } = useSuspenseQuery(archiveQO(search.category));
+  const { data: heroConfig } = useSuspenseQuery(heroQO);
 
   const photos = data.photos;
   const categories = data.categories;
@@ -112,8 +114,11 @@ function GalleryPage() {
     <div className="min-h-screen bg-background text-foreground pb-20 sm:pb-28">
       <BreadcrumbJsonLd items={[{ label: "Gallery", href: "/gallery" }]} />
 
-      {/* Top Breadcrumbs */}
-      <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
+      {/* Hero Image Section (Visual style, spacing, typography & animations matching Homepage Hero) */}
+      <GalleryHero config={heroConfig} photoCount={photos.length} />
+
+      {/* Top Breadcrumbs & Gallery Content Anchor */}
+      <div id="gallery-content" className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8">
         <PageBreadcrumbs items={[{ label: "Gallery" }]} />
       </div>
 

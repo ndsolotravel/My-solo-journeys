@@ -15,6 +15,22 @@ export type PageHeroConfig = {
   mode: "auto" | "manual";
   image: string;
   autoImage: string;
+  badge?: string;
+  title?: string;
+  titleHighlight?: string;
+  description?: string;
+  overlay?: string;
+  buttonText?: string;
+};
+
+export const GALLERY_HERO_DEFAULTS = {
+  badge: "Visual Archive · High Frontiers",
+  title: "Moments Frozen in the Wild",
+  titleHighlight: "High passes, silent valleys, raw frontiers.",
+  description:
+    "An intimate visual log of solo expeditions across Pakistan, the Karakoram, and high-altitude Himalayan trails.",
+  overlay: "cinematic",
+  buttonText: "Explore Photographs",
 };
 
 const PAGE_ID_SCHEMA = z.enum(["destinations", "gallery", "contact"]);
@@ -108,18 +124,56 @@ async function loadAutoHeroImage(page: PageId, client: AnyClient): Promise<strin
 
 async function readHeroEditorValues(page: PageId, client: AnyClient) {
   const keys = PAGE_HERO_KEYS[page];
+  const settingKeys = [
+    keys.mode,
+    keys.image,
+    `${page}_hero_badge`,
+    `${page}_hero_title`,
+    `${page}_hero_title_highlight`,
+    `${page}_hero_description`,
+    `${page}_hero_overlay`,
+    `${page}_hero_button_text`,
+  ];
   const { data, error } = await client
     .from("site_settings")
     .select("key, value")
-    .in("key", [keys.mode, keys.image]);
+    .in("key", settingKeys);
 
-  if (error) return { mode: "auto" as const, image: "" };
+  const defaults = page === "gallery" ? GALLERY_HERO_DEFAULTS : ({} as Record<string, string>);
 
-  const modeRaw = data?.find((r: any) => r.key === keys.mode)?.value?.trim();
-  const savedImage = data?.find((r: any) => r.key === keys.image)?.value?.trim() || "";
+  if (error) {
+    return {
+      mode: "auto" as const,
+      image: "",
+      badge: defaults.badge || "",
+      title: defaults.title || "",
+      titleHighlight: defaults.titleHighlight || "",
+      description: defaults.description || "",
+      overlay: defaults.overlay || "cinematic",
+      buttonText: defaults.buttonText || "",
+    };
+  }
+
+  const findVal = (k: string) => data?.find((r: any) => r.key === k)?.value?.trim();
+
+  const modeRaw = findVal(keys.mode);
+  const savedImage = findVal(keys.image) || "";
+  const badge = findVal(`${page}_hero_badge`) ?? defaults.badge ?? "";
+  const title = findVal(`${page}_hero_title`) ?? defaults.title ?? "";
+  const titleHighlight = findVal(`${page}_hero_title_highlight`) ?? defaults.titleHighlight ?? "";
+  const description = findVal(`${page}_hero_description`) ?? defaults.description ?? "";
+  const overlay = findVal(`${page}_hero_overlay`) ?? defaults.overlay ?? "cinematic";
+  const buttonText = findVal(`${page}_hero_button_text`) ?? defaults.buttonText ?? "";
+
   return {
     mode: modeRaw === "manual" ? ("manual" as const) : ("auto" as const),
     image: savedImage,
+    badge,
+    title,
+    titleHighlight,
+    description,
+    overlay,
+    buttonText,
   };
 }
 
@@ -140,7 +194,17 @@ export const getPageHeroConfig = createServerFn({ method: "GET" })
 
     const autoImage = saved.mode === "auto" ? image : await loadAutoHeroImage(page, supabaseAdmin);
 
-    return { mode: saved.mode, image, autoImage } satisfies PageHeroConfig;
+    return {
+      mode: saved.mode,
+      image,
+      autoImage,
+      badge: saved.badge,
+      title: saved.title,
+      titleHighlight: saved.titleHighlight,
+      description: saved.description,
+      overlay: saved.overlay,
+      buttonText: saved.buttonText,
+    } satisfies PageHeroConfig;
   });
 
 // ---------------- Admin ----------------
@@ -160,5 +224,11 @@ export const adminGetPageHeroEditor = createServerFn({ method: "GET" })
       mode: saved.mode,
       image: saved.image,
       autoImage,
+      badge: saved.badge,
+      title: saved.title,
+      titleHighlight: saved.titleHighlight,
+      description: saved.description,
+      overlay: saved.overlay,
+      buttonText: saved.buttonText,
     } satisfies PageHeroConfig;
   });

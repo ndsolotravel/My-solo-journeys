@@ -11,11 +11,18 @@ import {
   XCircle,
   RotateCcw,
   ImageOff,
+  Sliders,
+  ArrowDown,
 } from "lucide-react";
 import { toast } from "sonner";
 import { adminUploadImage, resolveMediaUrl } from "@/lib/admin.functions";
 import { adminUpdateSetting } from "@/lib/settings.functions";
-import { adminGetPageHeroEditor, PAGE_HERO_KEYS, type PageId } from "@/lib/page-hero.functions";
+import {
+  adminGetPageHeroEditor,
+  PAGE_HERO_KEYS,
+  type PageId,
+  type PageHeroConfig,
+} from "@/lib/page-hero.functions";
 import { listDestinations } from "@/lib/destinations.functions";
 import { listGallery } from "@/lib/gallery.functions";
 
@@ -58,7 +65,7 @@ export function HeroBannerManager({
   const destinationsFn = useServerFn(listDestinations);
   const galleryFn = useServerFn(listGallery);
 
-  const { data: saved } = useQuery<{ mode: "auto" | "manual"; image: string; autoImage: string }>({
+  const { data: saved } = useQuery<PageHeroConfig>({
     queryKey: ["page-hero-editor", page],
     queryFn: async () => await getEditorFn({ data: page }),
   });
@@ -89,6 +96,12 @@ export function HeroBannerManager({
 
   const [draftMode, setDraftMode] = useState<"auto" | "manual">("auto");
   const [draftImage, setDraftImage] = useState("");
+  const [draftBadge, setDraftBadge] = useState("");
+  const [draftTitle, setDraftTitle] = useState("");
+  const [draftTitleHighlight, setDraftTitleHighlight] = useState("");
+  const [draftDescription, setDraftDescription] = useState("");
+  const [draftOverlay, setDraftOverlay] = useState("cinematic");
+  const [draftButtonText, setDraftButtonText] = useState("");
   const [isLoaded, setIsLoaded] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [txtValue, setTxtValue] = useState("");
@@ -99,14 +112,41 @@ export function HeroBannerManager({
       setDraftMode(saved.mode);
       setDraftImage(saved.image);
       setTxtValue(resolveMediaUrl(saved.image));
+      setDraftBadge(saved.badge ?? "");
+      setDraftTitle(saved.title ?? "");
+      setDraftTitleHighlight(saved.titleHighlight ?? "");
+      setDraftDescription(saved.description ?? "");
+      setDraftOverlay(saved.overlay ?? "cinematic");
+      setDraftButtonText(saved.buttonText ?? "");
       setIsLoaded(true);
     }
   }, [saved, isLoaded]);
 
   const isDirty = useMemo(
     () =>
-      isLoaded && (draftMode !== (saved?.mode ?? "auto") || draftImage !== (saved?.image ?? "")),
-    [isLoaded, draftMode, draftImage, saved],
+      isLoaded &&
+      (draftMode !== (saved?.mode ?? "auto") ||
+        draftImage !== (saved?.image ?? "") ||
+        (page === "gallery" &&
+          (draftBadge !== (saved?.badge ?? "") ||
+            draftTitle !== (saved?.title ?? "") ||
+            draftTitleHighlight !== (saved?.titleHighlight ?? "") ||
+            draftDescription !== (saved?.description ?? "") ||
+            draftOverlay !== (saved?.overlay ?? "cinematic") ||
+            draftButtonText !== (saved?.buttonText ?? "")))),
+    [
+      isLoaded,
+      draftMode,
+      draftImage,
+      draftBadge,
+      draftTitle,
+      draftTitleHighlight,
+      draftDescription,
+      draftOverlay,
+      draftButtonText,
+      saved,
+      page,
+    ],
   );
 
   const autoSource = useMemo(() => {
@@ -140,6 +180,50 @@ export function HeroBannerManager({
           description: `Manual hero banner image for the ${page} page`,
         },
       });
+      if (page === "gallery") {
+        await updateSettingFn({
+          data: {
+            key: "gallery_hero_badge",
+            value: draftBadge,
+            description: "Badge text for the gallery hero banner",
+          },
+        });
+        await updateSettingFn({
+          data: {
+            key: "gallery_hero_title",
+            value: draftTitle,
+            description: "Main title for the gallery hero banner",
+          },
+        });
+        await updateSettingFn({
+          data: {
+            key: "gallery_hero_title_highlight",
+            value: draftTitleHighlight,
+            description: "Highlighted title text (accent orange) for the gallery hero banner",
+          },
+        });
+        await updateSettingFn({
+          data: {
+            key: "gallery_hero_description",
+            value: draftDescription,
+            description: "Description paragraph for the gallery hero banner",
+          },
+        });
+        await updateSettingFn({
+          data: {
+            key: "gallery_hero_overlay",
+            value: draftOverlay,
+            description: "Overlay darkness style for the gallery hero banner (cinematic|dark|medium|subtle)",
+          },
+        });
+        await updateSettingFn({
+          data: {
+            key: "gallery_hero_button_text",
+            value: draftButtonText,
+            description: "CTA button label for the gallery hero banner",
+          },
+        });
+      }
     },
     onSuccess: async () => {
       await qc.invalidateQueries({ queryKey: ["page-hero-editor", page] });
@@ -155,6 +239,12 @@ export function HeroBannerManager({
     setDraftMode(saved?.mode ?? "auto");
     setDraftImage(saved?.image ?? "");
     setTxtValue(resolveMediaUrl(saved?.image ?? ""));
+    setDraftBadge(saved?.badge ?? "");
+    setDraftTitle(saved?.title ?? "");
+    setDraftTitleHighlight(saved?.titleHighlight ?? "");
+    setDraftDescription(saved?.description ?? "");
+    setDraftOverlay(saved?.overlay ?? "cinematic");
+    setDraftButtonText(saved?.buttonText ?? "");
   }
 
   async function upload(file: File) {
@@ -241,13 +331,20 @@ export function HeroBannerManager({
 
           {/* Live preview */}
           <div className="space-y-2">
-            <label className="block text-xs font-medium text-foreground">Live Preview (16:9)</label>
-            <div className="relative aspect-[16/9] w-full overflow-hidden rounded-xl border border-border bg-zinc-950">
+            <div className="flex items-center justify-between">
+              <label className="block text-xs font-medium text-foreground">
+                Live Preview (Interactive Simulator)
+              </label>
+              <span className="text-[11px] text-muted-foreground">
+                {page === "gallery" ? "Simulating Gallery Hero" : "16:9 Banner preview"}
+              </span>
+            </div>
+            <div className="relative aspect-[16/9] w-full overflow-hidden rounded-xl border border-border bg-zinc-950 flex flex-col justify-end p-4 sm:p-6 select-none">
               {effectiveImage ? (
                 <img
                   src={effectiveImage}
                   alt="Current hero banner preview"
-                  className="h-full w-full object-cover object-center"
+                  className="absolute inset-0 h-full w-full object-cover object-center"
                 />
               ) : (
                 <DefaultBannerPreview
@@ -257,6 +354,59 @@ export function HeroBannerManager({
                       : "No suitable image found yet — the default banner will be shown."
                   }
                 />
+              )}
+
+              {effectiveImage && page === "gallery" && (
+                <>
+                  {/* Overlay simulator */}
+                  {draftOverlay === "dark" && (
+                    <>
+                      <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/95" />
+                      <div className="absolute inset-0 bg-black/40" />
+                    </>
+                  )}
+                  {draftOverlay === "medium" && (
+                    <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/25 to-black/75" />
+                  )}
+                  {draftOverlay === "subtle" && (
+                    <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-black/15 to-black/50" />
+                  )}
+                  {draftOverlay === "cinematic" && (
+                    <>
+                      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/35 to-black/90" />
+                      <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/20 to-transparent" />
+                    </>
+                  )}
+
+                  {/* Text preview simulation */}
+                  <div className="relative z-10 max-w-lg">
+                    {draftBadge && (
+                      <span className="inline-flex items-center gap-1 rounded-full border border-white/30 bg-white/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white backdrop-blur-md mb-2">
+                        <Sparkles className="h-2.5 w-2.5 text-[#FF7A00]" />
+                        {draftBadge}
+                      </span>
+                    )}
+                    <h3 className="font-display text-base sm:text-xl md:text-2xl font-bold leading-tight text-white tracking-tight">
+                      <span>{draftTitle || "Moments Frozen in the Wild"}</span>{" "}
+                      {draftTitleHighlight && (
+                        <span className="text-[#FF7A00]">{draftTitleHighlight}</span>
+                      )}
+                    </h3>
+                    {draftDescription && (
+                      <p className="mt-1 text-[11px] sm:text-xs text-white/85 line-clamp-2 max-w-md leading-relaxed">
+                        {draftDescription}
+                      </p>
+                    )}
+                    {draftButtonText && (
+                      <div className="mt-2.5">
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FF7A00] px-3 py-1 text-[11px] font-semibold text-white shadow-sm">
+                          {draftButtonText}
+                          <ArrowDown className="h-3 w-3" />
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </>
               )}
             </div>
           </div>
@@ -372,6 +522,109 @@ export function HeroBannerManager({
                       Clear to Default
                     </button>
                   )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Gallery Hero Content Fields (CMS Manageable) */}
+          {page === "gallery" && (
+            <div className="rounded-xl border border-border bg-card/60 p-4 sm:p-5 space-y-4">
+              <div className="flex items-center gap-2 border-b border-border/60 pb-3">
+                <Sliders className="h-4 w-4 text-accent" />
+                <h3 className="text-sm font-semibold text-foreground">
+                  Hero Content & Overlay Settings (CMS)
+                </h3>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-medium text-foreground">
+                    Hero Title
+                  </label>
+                  <input
+                    value={draftTitle}
+                    onChange={(e) => setDraftTitle(e.target.value)}
+                    placeholder="e.g. Moments Frozen in the Wild"
+                    className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-sm text-foreground focus:border-accent focus:outline-none transition-colors"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-medium text-foreground">
+                    Title Highlight (Orange Accent)
+                  </label>
+                  <input
+                    value={draftTitleHighlight}
+                    onChange={(e) => setDraftTitleHighlight(e.target.value)}
+                    placeholder="e.g. High passes, silent valleys, raw frontiers."
+                    className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-sm text-foreground focus:border-accent focus:outline-none transition-colors"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-medium text-foreground">
+                    Hero Badge Text
+                  </label>
+                  <input
+                    value={draftBadge}
+                    onChange={(e) => setDraftBadge(e.target.value)}
+                    placeholder="e.g. Visual Archive · High Frontiers"
+                    className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-sm text-foreground focus:border-accent focus:outline-none transition-colors"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-medium text-foreground">
+                    CTA Button Label
+                  </label>
+                  <input
+                    value={draftButtonText}
+                    onChange={(e) => setDraftButtonText(e.target.value)}
+                    placeholder="e.g. Browse Photographs"
+                    className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-sm text-foreground focus:border-accent focus:outline-none transition-colors"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-xs font-medium text-foreground">
+                  Hero Description
+                </label>
+                <textarea
+                  rows={2}
+                  value={draftDescription}
+                  onChange={(e) => setDraftDescription(e.target.value)}
+                  placeholder="e.g. An intimate visual log of solo expeditions across Pakistan, the Karakoram, and high-altitude Himalayan trails."
+                  className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-sm text-foreground focus:border-accent focus:outline-none transition-colors resize-y"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-xs font-medium text-foreground">
+                  Overlay Style & Darkness
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {[
+                    { id: "cinematic", label: "Cinematic", desc: "Gradient & Vignette (Default)" },
+                    { id: "dark", label: "Deep Dark", desc: "85% darkness overlay" },
+                    { id: "medium", label: "Medium", desc: "60% darkness overlay" },
+                    { id: "subtle", label: "Subtle", desc: "35% soft tint" },
+                  ].map((ov) => (
+                    <button
+                      key={ov.id}
+                      type="button"
+                      onClick={() => setDraftOverlay(ov.id)}
+                      className={`flex flex-col items-start p-3 rounded-xl border text-left transition cursor-pointer ${
+                        draftOverlay === ov.id
+                          ? "border-accent bg-accent/10 ring-1 ring-accent text-foreground font-medium"
+                          : "border-border bg-background hover:bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      <span className="text-xs font-semibold">{ov.label}</span>
+                      <span className="text-[10px] text-muted-foreground">{ov.desc}</span>
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
