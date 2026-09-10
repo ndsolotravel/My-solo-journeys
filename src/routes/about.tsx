@@ -821,14 +821,14 @@ function AboutPage() {
             7. 27 COUNTRIES & 3 CONTINENTS (EXPEDITION MILESTONES)
            ------------------------------------------------------------- */}
         {numbersEnabled && (
-          <section className="rounded-3xl border border-border/80 bg-muted/30 p-8 sm:p-12 space-y-10">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-border/60">
+          <section className="rounded-2xl sm:rounded-3xl border border-border/80 bg-muted/30 p-3.5 min-[360px]:p-4 sm:p-12 space-y-6 sm:space-y-10">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6 pb-5 sm:pb-6 border-b border-border/60">
               <div className="space-y-2">
                 <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-accent">
                   <Globe className="w-3.5 h-3.5 text-accent" />
                   <span>{t(numbersEyebrow)}</span>
                 </div>
-                <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">
+                <h2 className="font-display text-2xl sm:text-4xl font-extrabold text-foreground tracking-tight">
                   {t(numbersTitle)}
                 </h2>
               </div>
@@ -839,18 +839,22 @@ function AboutPage() {
 
             {/* Stats Grid */}
             {numbersStats.length > 0 && (
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 min-[380px]:gap-3 sm:gap-6">
                 {numbersStats.map((stat) => (
                   <div
                     key={stat.id}
-                    className="p-6 rounded-2xl bg-card border border-border/80 space-y-1"
+                    className="p-3 min-[380px]:p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-card border border-border/80 flex flex-col justify-start space-y-1 sm:space-y-1.5 min-w-0"
                   >
-                    <p className="font-display text-4xl sm:text-5xl font-black text-brand tracking-tight">
+                    <p className="font-display text-[1.35rem] min-[360px]:text-[1.65rem] min-[400px]:text-3xl sm:text-5xl font-black text-brand tracking-tight whitespace-nowrap leading-none">
                       {stat.value}
                     </p>
-                    <h4 className="text-sm font-bold text-foreground">{t(stat.label)}</h4>
+                    <h4 className="text-xs sm:text-sm font-bold text-foreground leading-snug break-words">
+                      {t(stat.label)}
+                    </h4>
                     {stat.description && (
-                      <p className="text-xs text-muted-foreground">{t(stat.description)}</p>
+                      <p className="text-[11px] sm:text-xs text-muted-foreground leading-relaxed break-words">
+                        {t(stat.description)}
+                      </p>
                     )}
                   </div>
                 ))}
@@ -867,7 +871,7 @@ function AboutPage() {
                   {numbersTags.map((tag) => (
                     <span
                       key={tag.id}
-                      className="px-3 py-1.5 rounded-lg bg-card border border-border/80 text-xs font-medium text-foreground/90 shadow-2xs hover:border-accent/40 transition-colors"
+                      className="px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg bg-card border border-border/80 text-[11px] sm:text-xs font-medium text-foreground/90 shadow-2xs hover:border-accent/40 transition-colors"
                     >
                       {t(tag.name)}
                     </span>
