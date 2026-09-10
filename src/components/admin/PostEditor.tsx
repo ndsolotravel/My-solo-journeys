@@ -28,6 +28,13 @@ import {
   XCircle,
   Sparkles,
   BookOpen,
+  Search,
+  KeyRound,
+  Tag,
+  AlertCircle,
+  AlertTriangle,
+  Monitor,
+  Smartphone,
 } from "lucide-react";
 import { toast } from "sonner";
 import { MarkdownEditor } from "./MarkdownEditor";
@@ -108,8 +115,76 @@ type Post = {
   seo_title?: string | null;
   seo_description?: string | null;
   og_image_url?: string | null;
+  primary_keyword?: string | null;
+  secondary_keywords?: string | null;
   gallery?: GalleryItemState[] | null;
 };
+
+type SeoHealth = {
+  status: "Good" | "Needs Improvement" | "Too Long";
+  message: string;
+  color: "emerald" | "amber" | "rose";
+};
+
+function getMetaTitleSeo(text: string): SeoHealth {
+  const len = text.trim().length;
+  if (len === 0) {
+    return {
+      status: "Needs Improvement",
+      message: "Missing (will fall back to post title)",
+      color: "amber",
+    };
+  }
+  if (len < 30) {
+    return {
+      status: "Needs Improvement",
+      message: "Too Short (< 30 chars - aim for 50–60)",
+      color: "amber",
+    };
+  }
+  if (len <= 60) {
+    return {
+      status: "Good",
+      message: "Optimal length for Google search results",
+      color: "emerald",
+    };
+  }
+  return {
+    status: "Too Long",
+    message: "Too Long (> 60 chars - may be truncated in Google search)",
+    color: "rose",
+  };
+}
+
+function getMetaDescriptionSeo(text: string): SeoHealth {
+  const len = text.trim().length;
+  if (len === 0) {
+    return {
+      status: "Needs Improvement",
+      message: "Missing (will fall back to story excerpt)",
+      color: "amber",
+    };
+  }
+  if (len < 70) {
+    return {
+      status: "Needs Improvement",
+      message: "Too Short (< 70 chars - aim for 120–160)",
+      color: "amber",
+    };
+  }
+  if (len <= 160) {
+    return {
+      status: "Good",
+      message: "Optimal length for Google search results",
+      color: "emerald",
+    };
+  }
+  return {
+    status: "Too Long",
+    message: "Too Long (> 160 chars - may be truncated by search engines)",
+    color: "rose",
+  };
+}
 
 type PostSnapshot = {
   title: string;
@@ -132,6 +207,8 @@ type PostSnapshot = {
   seoTitle: string;
   seoDescription: string;
   ogImageUrl: string;
+  primaryKeyword: string;
+  secondaryKeywords: string;
   galleryLength: number;
   galleryOrder: string;
 };
@@ -157,6 +234,8 @@ function makeSnapshot(data: {
   seoTitle: string;
   seoDescription: string;
   ogImageUrl: string;
+  primaryKeyword: string;
+  secondaryKeywords: string;
   gallery: GalleryItemState[];
 }): PostSnapshot {
   return {
@@ -180,6 +259,8 @@ function makeSnapshot(data: {
     seoTitle: (data.seoTitle || "").trim(),
     seoDescription: (data.seoDescription || "").trim(),
     ogImageUrl: (data.ogImageUrl || "").trim(),
+    primaryKeyword: (data.primaryKeyword || "").trim(),
+    secondaryKeywords: (data.secondaryKeywords || "").trim(),
     galleryLength: data.gallery?.length || 0,
     galleryOrder: (data.gallery || [])
       .map((g) => `${g.id || ""}:${g.image_url}:${g.alt_text}:${g.sort_order}`)
@@ -248,6 +329,9 @@ export function PostEditor({
   const [seoTitle, setSeoTitle] = useState(initial?.seo_title ?? "");
   const [seoDescription, setSeoDescription] = useState(initial?.seo_description ?? "");
   const [ogImageUrl, setOgImageUrl] = useState(initial?.og_image_url ? resolveImageUrl(initial.og_image_url) : "");
+  const [primaryKeyword, setPrimaryKeyword] = useState(initial?.primary_keyword ?? "");
+  const [secondaryKeywords, setSecondaryKeywords] = useState(initial?.secondary_keywords ?? "");
+  const [previewDevice, setPreviewDevice] = useState<"desktop" | "mobile">("desktop");
 
   const initialGal = (initial?.gallery ?? (initial as any)?.post_gallery ?? []) as GalleryItemState[];
   const [gallery, setGallery] = useState<GalleryItemState[]>(
@@ -285,6 +369,8 @@ export function PostEditor({
     const effSeoTitle = initial.seo_title ?? "";
     const effSeoDesc = initial.seo_description ?? "";
     const effOgImg = initial.og_image_url ? resolveImageUrl(initial.og_image_url) : "";
+    const effPrimaryKeyword = initial.primary_keyword ?? "";
+    const effSecondaryKeywords = initial.secondary_keywords ?? "";
 
     setTitle(effTitle);
     setSlug(effSlug);
@@ -306,6 +392,8 @@ export function PostEditor({
     setSeoTitle(effSeoTitle);
     setSeoDescription(effSeoDesc);
     setOgImageUrl(effOgImg);
+    setPrimaryKeyword(effPrimaryKeyword);
+    setSecondaryKeywords(effSecondaryKeywords);
 
     const effectiveGallery = (initial.gallery ?? (initial as any).post_gallery) as GalleryItemState[] | undefined;
     const galList = (effectiveGallery && Array.isArray(effectiveGallery) ? effectiveGallery : []).map((g, idx) => ({
@@ -338,6 +426,8 @@ export function PostEditor({
         seoTitle: effSeoTitle,
         seoDescription: effSeoDesc,
         ogImageUrl: effOgImg,
+        primaryKeyword: effPrimaryKeyword,
+        secondaryKeywords: effSecondaryKeywords,
         gallery: galList,
       }),
     );
@@ -394,6 +484,8 @@ export function PostEditor({
         seoTitle: "",
         seoDescription: "",
         ogImageUrl: "",
+        primaryKeyword: "",
+        secondaryKeywords: "",
         gallery: [],
       });
     }
@@ -438,6 +530,8 @@ export function PostEditor({
       seoTitle,
       seoDescription,
       ogImageUrl,
+      primaryKeyword,
+      secondaryKeywords,
       gallery,
     });
     return (
@@ -461,6 +555,8 @@ export function PostEditor({
       current.seoTitle !== savedSnapshot.seoTitle ||
       current.seoDescription !== savedSnapshot.seoDescription ||
       current.ogImageUrl !== savedSnapshot.ogImageUrl ||
+      current.primaryKeyword !== savedSnapshot.primaryKeyword ||
+      current.secondaryKeywords !== savedSnapshot.secondaryKeywords ||
       current.galleryLength !== savedSnapshot.galleryLength ||
       current.galleryOrder !== savedSnapshot.galleryOrder
     );
@@ -487,6 +583,8 @@ export function PostEditor({
     seoTitle,
     seoDescription,
     ogImageUrl,
+    primaryKeyword,
+    secondaryKeywords,
     gallery,
   ]);
 
@@ -567,6 +665,8 @@ export function PostEditor({
           seoTitle,
           seoDescription,
           ogImageUrl,
+          primaryKeyword,
+          secondaryKeywords,
           gallery,
         }),
       );
@@ -975,9 +1075,11 @@ export function PostEditor({
       scheduled_at: scheduledAt ? new Date(scheduledAt).toISOString() : null,
       destination_id: destinationId || null,
       travel_date: travelDate || null,
-      seo_title: seoTitle || null,
-      seo_description: seoDescription || null,
-      og_image_url: ogImageUrl || null,
+      seo_title: seoTitle.trim() || null,
+      seo_description: seoDescription.trim() || null,
+      og_image_url: ogImageUrl.trim() || null,
+      primary_keyword: primaryKeyword.trim() || null,
+      secondary_keywords: secondaryKeywords.trim() || null,
       gallery,
     });
   }
@@ -1374,47 +1476,344 @@ export function PostEditor({
           </div>
         )}
 
-        {/* SEO Metadata Section */}
-        <div className="rounded-2xl border border-border bg-card p-5 space-y-4 shadow-sm">
-          <div>
-            <h3 className="font-display text-base font-semibold flex items-center gap-2">
-              <Globe className="h-4 w-4 text-accent" /> SEO & Social Metadata
-            </h3>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Customize how this post appears in search engines and social shares.
-            </p>
-          </div>
+        {/* SEO & Search Engine Optimization Section */}
+        {(() => {
+          const titleHealth = getMetaTitleSeo(seoTitle);
+          const descHealth = getMetaDescriptionSeo(seoDescription);
+          const overallSeoStatus =
+            titleHealth.status === "Good" && descHealth.status === "Good"
+              ? { label: "Good", badge: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30" }
+              : titleHealth.status === "Too Long" || descHealth.status === "Too Long"
+                ? { label: "Too Long", badge: "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30" }
+                : { label: "Needs Improvement", badge: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30" };
 
-          <Field label="SEO Meta Title" hint="Defaults to post title if empty">
-            <input
-              value={seoTitle}
-              onChange={(e) => setSeoTitle(e.target.value)}
-              maxLength={200}
-              placeholder={title || "SEO Page Title"}
-              className={input}
-            />
-          </Field>
+          const effectivePreviewTitle =
+            seoTitle.trim() ||
+            (title.trim() ? `${title.trim()} — ndsolotravel` : "Your Story Title — ndsolotravel");
+          const effectivePreviewSlug = slug.trim() || (title.trim() ? title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") : "story-slug");
+          const effectivePreviewDesc =
+            seoDescription.trim() ||
+            excerpt.trim() ||
+            "Add a compelling meta description to increase click-through rates from search engine results.";
 
-          <Field label="SEO Meta Description" hint="Defaults to excerpt if empty">
-            <textarea
-              value={seoDescription}
-              onChange={(e) => setSeoDescription(e.target.value)}
-              rows={2}
-              maxLength={500}
-              placeholder={excerpt || "Search engine description snippet…"}
-              className={input + " resize-y"}
-            />
-          </Field>
+          const normPrimaryKw = primaryKeyword.trim().toLowerCase();
+          const kwInTitle = normPrimaryKw ? effectivePreviewTitle.toLowerCase().includes(normPrimaryKw) : false;
+          const kwInSlug = normPrimaryKw ? effectivePreviewSlug.toLowerCase().includes(normPrimaryKw.replace(/\s+/g, "-")) : false;
+          const kwInDesc = normPrimaryKw ? effectivePreviewDesc.toLowerCase().includes(normPrimaryKw) : false;
 
-          <Field label="Open Graph (Social) Image URL" hint="Defaults to cover image if empty">
-            <input
-              value={ogImageUrl}
-              onChange={(e) => setOgImageUrl(e.target.value)}
-              placeholder={cover || "https://example.com/og-image.jpg"}
-              className={input}
-            />
-          </Field>
-        </div>
+          return (
+            <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 space-y-6 shadow-sm">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/70 pb-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-display text-base sm:text-lg font-semibold flex items-center gap-2 text-foreground">
+                      <Globe className="h-5 w-5 text-accent" /> SEO & Search Engine Optimization
+                    </h3>
+                    <span className="rounded-full bg-accent/10 px-2.5 py-0.5 text-xs font-semibold text-accent border border-accent/20">
+                      Google SERP
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Manage search engine indexing, snippet appearance, and keyword relevance for this individual story.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium border bg-muted/30">
+                    <span className="text-muted-foreground text-[11px]">Overall SEO:</span>
+                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border ${overallSeoStatus.badge}`}>
+                      {overallSeoStatus.label === "Good" && <CheckCircle2 className="h-3 w-3" />}
+                      {overallSeoStatus.label === "Needs Improvement" && <AlertCircle className="h-3 w-3" />}
+                      {overallSeoStatus.label === "Too Long" && <AlertTriangle className="h-3 w-3" />}
+                      {overallSeoStatus.label}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Meta Title Field */}
+              <div className="space-y-1.5">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-foreground flex items-center gap-1.5">
+                    <span>Meta Title</span>
+                    <span className="text-[11px] font-normal text-muted-foreground lowercase">
+                      (Google page title)
+                    </span>
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`text-xs font-mono font-medium ${
+                        seoTitle.length > 60
+                          ? "text-rose-500 font-semibold"
+                          : seoTitle.length >= 30
+                            ? "text-emerald-500 font-semibold"
+                            : "text-amber-500"
+                      }`}
+                    >
+                      {seoTitle.length} / 60 characters
+                    </span>
+                    {titleHealth.status === "Good" && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                        <CheckCircle2 className="h-3 w-3" />
+                        Good
+                      </span>
+                    )}
+                    {titleHealth.status === "Needs Improvement" && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 border border-amber-500/30 px-2.5 py-0.5 text-[11px] font-semibold text-amber-600 dark:text-amber-400">
+                        <AlertCircle className="h-3 w-3" />
+                        Needs Improvement
+                      </span>
+                    )}
+                    {titleHealth.status === "Too Long" && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-rose-500/10 border border-rose-500/30 px-2.5 py-0.5 text-[11px] font-semibold text-rose-600 dark:text-rose-400">
+                        <AlertTriangle className="h-3 w-3" />
+                        Too Long
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <input
+                  value={seoTitle}
+                  onChange={(e) => setSeoTitle(e.target.value)}
+                  maxLength={120}
+                  placeholder={title ? `${title} — ndsolotravel` : "e.g. Trekking K2 Base Camp: The Concordia Diaries"}
+                  className={input}
+                />
+                <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                  <span>{titleHealth.message}</span>
+                  <span className="text-muted-foreground/80">Optimal: 30–60 characters</span>
+                </div>
+              </div>
+
+              {/* Meta Description Field */}
+              <div className="space-y-1.5">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-foreground flex items-center gap-1.5">
+                    <span>Meta Description</span>
+                    <span className="text-[11px] font-normal text-muted-foreground lowercase">
+                      (search result snippet)
+                    </span>
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`text-xs font-mono font-medium ${
+                        seoDescription.length > 160
+                          ? "text-rose-500 font-semibold"
+                          : seoDescription.length >= 70
+                            ? "text-emerald-500 font-semibold"
+                            : "text-amber-500"
+                      }`}
+                    >
+                      {seoDescription.length} / 160 characters
+                    </span>
+                    {descHealth.status === "Good" && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                        <CheckCircle2 className="h-3 w-3" />
+                        Good
+                      </span>
+                    )}
+                    {descHealth.status === "Needs Improvement" && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 border border-amber-500/30 px-2.5 py-0.5 text-[11px] font-semibold text-amber-600 dark:text-amber-400">
+                        <AlertCircle className="h-3 w-3" />
+                        Needs Improvement
+                      </span>
+                    )}
+                    {descHealth.status === "Too Long" && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-rose-500/10 border border-rose-500/30 px-2.5 py-0.5 text-[11px] font-semibold text-rose-600 dark:text-rose-400">
+                        <AlertTriangle className="h-3 w-3" />
+                        Too Long
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <textarea
+                  value={seoDescription}
+                  onChange={(e) => setSeoDescription(e.target.value)}
+                  rows={3}
+                  maxLength={300}
+                  placeholder={excerpt || "e.g. Twelve days, four 7,000m peaks visible from a single campsite. A complete guide to Concordia and K2..."}
+                  className={input + " resize-y"}
+                />
+                <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                  <span>{descHealth.message}</span>
+                  <span className="text-muted-foreground/80">Optimal: 70–160 characters</span>
+                </div>
+              </div>
+
+              {/* Keywords Row */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Field
+                  label="Primary Keyword"
+                  hint="Main focus query (e.g. 'k2 base camp trek')"
+                >
+                  <div className="relative">
+                    <input
+                      value={primaryKeyword}
+                      onChange={(e) => setPrimaryKeyword(e.target.value)}
+                      maxLength={100}
+                      placeholder="e.g. k2 base camp trek"
+                      className={input}
+                    />
+                  </div>
+                </Field>
+
+                <Field
+                  label="Secondary Keywords"
+                  hint="Comma-separated supporting keywords"
+                >
+                  <div className="relative">
+                    <input
+                      value={secondaryKeywords}
+                      onChange={(e) => setSecondaryKeywords(e.target.value)}
+                      maxLength={300}
+                      placeholder="e.g. concordia trek, karakoram highway, baltoro glacier"
+                      className={input}
+                    />
+                  </div>
+                </Field>
+              </div>
+
+              {/* Social / Open Graph Image */}
+              <Field label="Open Graph (Social) Image URL" hint="Defaults to cover image if empty">
+                <input
+                  value={ogImageUrl}
+                  onChange={(e) => setOgImageUrl(e.target.value)}
+                  placeholder={cover || "https://example.com/og-image.jpg"}
+                  className={input}
+                />
+              </Field>
+
+              {/* ================= SEO PREVIEW: GOOGLE SEARCH RESULT PREVIEW ================= */}
+              <div className="rounded-xl border border-border/80 bg-muted/20 p-4 sm:p-5 space-y-3.5">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-3">
+                  <div className="flex items-center gap-2">
+                    <Search className="h-4 w-4 text-[#4285F4]" />
+                    <span className="text-xs font-semibold uppercase tracking-wider text-foreground">
+                      SEO Preview (Google Search Result)
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5 bg-background border border-border rounded-lg p-0.5 text-xs">
+                    <button
+                      type="button"
+                      onClick={() => setPreviewDevice("desktop")}
+                      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
+                        previewDevice === "desktop"
+                          ? "bg-muted text-foreground font-semibold shadow-xs"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <Monitor className="h-3.5 w-3.5" />
+                      <span>Desktop</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewDevice("mobile")}
+                      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md transition-colors cursor-pointer ${
+                        previewDevice === "mobile"
+                          ? "bg-muted text-foreground font-semibold shadow-xs"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <Smartphone className="h-3.5 w-3.5" />
+                      <span>Mobile</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Google Search Result Card */}
+                <div
+                  className={`rounded-xl border border-border/60 bg-white dark:bg-[#202124] p-4 transition-all shadow-xs ${
+                    previewDevice === "mobile" ? "max-w-md mx-auto" : "w-full"
+                  }`}
+                >
+                  {/* Google site info line */}
+                  <div className="flex items-center gap-2.5 mb-1.5">
+                    <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-100 dark:bg-[#303134] border border-border/50 text-[10px] font-bold text-[#FF7A00]">
+                      ND
+                    </div>
+                    <div className="min-w-0 flex-1 leading-tight">
+                      <div className="text-[13px] font-medium text-[#202124] dark:text-[#dadce0] truncate">
+                        ndsolotravel.com
+                      </div>
+                      <div className="text-[11px] text-[#4d5156] dark:text-[#bdc1c6] truncate">
+                        https://ndsolotravel.com › blog › {effectivePreviewSlug}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Page Title (Blue SERP link) */}
+                  <div className="mt-1">
+                    <h4
+                      className={`font-normal text-[#1a0dab] dark:text-[#8ab4f8] hover:underline cursor-pointer line-clamp-2 leading-snug ${
+                        previewDevice === "mobile" ? "text-[16px]" : "text-[19px]"
+                      }`}
+                    >
+                      {effectivePreviewTitle}
+                    </h4>
+                  </div>
+
+                  {/* URL / slug */}
+                  <div className="text-[11px] text-[#006621] dark:text-[#8ab4f8]/80 font-mono mt-0.5 truncate">
+                    /blog/{effectivePreviewSlug}
+                  </div>
+
+                  {/* Meta Description snippet */}
+                  <p
+                    className={`mt-1.5 text-[#4d5156] dark:text-[#bdc1c6] line-clamp-3 leading-relaxed ${
+                      previewDevice === "mobile" ? "text-[12px]" : "text-[13px]"
+                    }`}
+                  >
+                    {effectivePreviewDesc}
+                  </p>
+                </div>
+
+                {/* Keyword Analysis Chips */}
+                {primaryKeyword.trim() ? (
+                  <div className="pt-2 border-t border-border/50 flex flex-wrap items-center gap-2 text-xs">
+                    <span className="text-muted-foreground font-medium flex items-center gap-1">
+                      <KeyRound className="h-3.5 w-3.5 text-accent" />
+                      Primary Keyword: <strong className="text-foreground">"{primaryKeyword.trim()}"</strong>
+                    </span>
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium border ${
+                        kwInTitle
+                          ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30"
+                          : "bg-muted text-muted-foreground border-border"
+                      }`}
+                    >
+                      {kwInTitle ? <CheckCircle2 className="h-3 w-3" /> : <AlertCircle className="h-3 w-3" />}
+                      In Title: {kwInTitle ? "Yes" : "No"}
+                    </span>
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium border ${
+                        kwInSlug
+                          ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30"
+                          : "bg-muted text-muted-foreground border-border"
+                      }`}
+                    >
+                      {kwInSlug ? <CheckCircle2 className="h-3 w-3" /> : <AlertCircle className="h-3 w-3" />}
+                      In Slug: {kwInSlug ? "Yes" : "No"}
+                    </span>
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium border ${
+                        kwInDesc
+                          ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30"
+                          : "bg-muted text-muted-foreground border-border"
+                      }`}
+                    >
+                      {kwInDesc ? <CheckCircle2 className="h-3 w-3" /> : <AlertCircle className="h-3 w-3" />}
+                      In Description: {kwInDesc ? "Yes" : "No"}
+                    </span>
+                  </div>
+                ) : (
+                  <p className="text-[11px] text-muted-foreground pt-1 flex items-center gap-1.5">
+                    <Tag className="h-3 w-3 text-muted-foreground" />
+                    Enter a Primary Keyword above to run live SEO keyword placement checks across Title, URL Slug, and Description.
+                  </p>
+                )}
+              </div>
+            </div>
+          );
+        })()}
       </div>
 
       <aside className="space-y-6">

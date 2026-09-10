@@ -62,7 +62,7 @@ const BASE_POST_COLS =
   "id,title,slug,excerpt,content,cover_image,category,tags,featured,published,published_at,scheduled_at,reading_minutes,views,created_at,updated_at,author_name,author_image_url,location_name,latitude,longitude";
 
 const POST_COLS =
-  "id,title,slug,excerpt,content,cover_image,category,tags,featured,published,published_at,scheduled_at,reading_minutes,views,created_at,updated_at,destination_id,travel_date,location_name,latitude,longitude,seo_title,seo_description,og_image_url,author_name,author_image_url";
+  "id,title,slug,excerpt,content,cover_image,category,tags,featured,published,published_at,scheduled_at,reading_minutes,views,created_at,updated_at,destination_id,travel_date,location_name,latitude,longitude,seo_title,seo_description,og_image_url,author_name,author_image_url,primary_keyword,secondary_keywords";
 
 export const adminListPosts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -141,6 +141,8 @@ export const adminUpsertPost = createServerFn({ method: "POST" })
         seo_title: z.string().nullable().optional(),
         seo_description: z.string().nullable().optional(),
         og_image_url: z.string().nullable().optional(),
+        primary_keyword: z.string().nullable().optional(),
+        secondary_keywords: z.string().nullable().optional(),
         gallery: z
           .array(
             z.object({
@@ -212,6 +214,12 @@ export const adminUpsertPost = createServerFn({ method: "POST" })
     }
     if (data.og_image_url !== undefined) {
       payload.og_image_url = data.og_image_url || null;
+    }
+    if (data.primary_keyword !== undefined) {
+      payload.primary_keyword = data.primary_keyword ? data.primary_keyword.trim() : null;
+    }
+    if (data.secondary_keywords !== undefined) {
+      payload.secondary_keywords = data.secondary_keywords ? data.secondary_keywords.trim() : null;
     }
 
     if (effectivePublished) {

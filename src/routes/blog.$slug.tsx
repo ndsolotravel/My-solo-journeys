@@ -65,10 +65,17 @@ export const Route = createFileRoute("/blog/$slug")({
     const title = p?.seo_title || (p ? `${p.title} — ndsolotravel` : "Story — ndsolotravel");
     const desc = p?.seo_description || p?.excerpt || "A solo travel story from ndsolotravel.";
     const image = p?.og_image_url || p?.cover_image;
+    const keywordsList = [
+      p?.primary_keyword,
+      p?.secondary_keywords,
+      p?.tags?.join(", "),
+    ].filter(Boolean).join(", ");
+
     return {
       meta: [
         { title },
         { name: "description", content: desc },
+        ...(keywordsList ? [{ name: "keywords", content: keywordsList }] : []),
         { property: "og:title", content: title },
         { property: "og:description", content: desc },
         { property: "og:type", content: "article" },
@@ -124,7 +131,7 @@ export const Route = createFileRoute("/blog/$slug")({
                 image: image ?? undefined,
                 datePublished: p.published_at ?? p.created_at,
                 articleSection: p.category,
-                keywords: p.tags?.join(", "),
+                keywords: keywordsList || p.tags?.join(", "),
                 author: { "@type": "Person", name: authorName },
               }),
             },

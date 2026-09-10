@@ -836,6 +836,8 @@ export type Database = {
           scheduled_at: string | null;
           seo_description: string | null;
           seo_title: string | null;
+          primary_keyword: string | null;
+          secondary_keywords: string | null;
           slug: string;
           tags: string[];
           title: string;
@@ -866,6 +868,8 @@ export type Database = {
           scheduled_at?: string | null;
           seo_description?: string | null;
           seo_title?: string | null;
+          primary_keyword?: string | null;
+          secondary_keywords?: string | null;
           slug: string;
           tags?: string[];
           title: string;
@@ -896,6 +900,8 @@ export type Database = {
           scheduled_at?: string | null;
           seo_description?: string | null;
           seo_title?: string | null;
+          primary_keyword?: string | null;
+          secondary_keywords?: string | null;
           slug?: string;
           tags?: string[];
           title?: string;

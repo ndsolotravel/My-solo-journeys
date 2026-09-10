@@ -33,6 +33,8 @@ export type Post = {
   seo_title?: string | null;
   seo_description?: string | null;
   og_image_url?: string | null;
+  primary_keyword?: string | null;
+  secondary_keywords?: string | null;
   gallery?: PostGalleryItem[];
   post_translations?: {
     language_code: string;
@@ -48,7 +50,7 @@ const BASE_POST_COLUMNS =
   "id,title,slug,excerpt,content,cover_image,category,tags,featured,views,reading_minutes,published_at,created_at,author_name,author_image_url,location_name,latitude,longitude";
 
 const FULL_POST_COLUMNS =
-  "id,title,slug,excerpt,content,cover_image,category,tags,featured,views,reading_minutes,published_at,created_at,destination_id,travel_date,location_name,latitude,longitude,seo_title,seo_description,og_image_url,author_name,author_image_url";
+  "id,title,slug,excerpt,content,cover_image,category,tags,featured,views,reading_minutes,published_at,created_at,destination_id,travel_date,location_name,latitude,longitude,seo_title,seo_description,og_image_url,author_name,author_image_url,primary_keyword,secondary_keywords";
 
 export const listPosts = createServerFn({ method: "GET" })
   .validator((input) =>
