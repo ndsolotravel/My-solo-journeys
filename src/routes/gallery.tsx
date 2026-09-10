@@ -118,33 +118,32 @@ function GalleryPage() {
       <GalleryHero config={heroConfig} photoCount={photos.length} />
 
       {/* Top Breadcrumbs & Gallery Content Anchor */}
-      <div id="gallery-content" className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8">
+      <div id="gallery-content" className="mx-auto max-w-7xl px-4 pt-4 sm:px-6 sm:pt-5 lg:px-8">
         <PageBreadcrumbs items={[{ label: "Gallery" }]} />
       </div>
 
       {/* 1. Centered Gallery Heading matching design reference */}
-      <header className="mx-auto max-w-3xl px-4 pt-6 pb-2 sm:pt-10 sm:pb-4 text-center">
+      <header className="mx-auto max-w-3xl px-4 pt-3 pb-1 sm:pt-4 sm:pb-2 text-center">
         {/* Small "GALLERY" label */}
-        <p className="text-[11px] sm:text-xs font-semibold tracking-[0.25em] text-muted-foreground uppercase mb-2 select-none">
+        <p className="text-[11px] sm:text-xs font-semibold tracking-[0.25em] text-muted-foreground uppercase mb-1 select-none">
           {t("GALLERY")}
         </p>
 
         {/* Strong Main Title */}
-        <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-foreground leading-tight">
+        <h1 className="font-display text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-foreground leading-tight">
           {t("My Visual Diary")}
         </h1>
 
         {/* Short Subtitle */}
-        <p className="mt-3 text-sm sm:text-base text-muted-foreground leading-relaxed max-w-lg mx-auto">
-          {t("See the world through my lens:")}
-          <br />
+        <p className="mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-lg mx-auto">
+          {t("See the world through my lens:")}{" "}
           <span className="text-foreground/80">
             {t("adventures in photographs and high-altitude journeys")}
           </span>
         </p>
 
         {/* 2. Horizontal row of rounded destination or country filter buttons */}
-        <div className="mt-7 sm:mt-9 flex items-center justify-center">
+        <div className="mt-4 sm:mt-5 flex items-center justify-center">
           <div className="flex items-center gap-2 sm:gap-2.5 overflow-x-auto no-scrollbar py-2 px-2 max-w-full sm:flex-wrap sm:justify-center">
             {/* "All" Filter Button */}
             <button

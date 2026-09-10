@@ -59,7 +59,7 @@ export function GalleryHero({ config, photoCount }: GalleryHeroProps) {
   return (
     <section
       aria-label={t("Gallery Hero Banner")}
-      className="relative min-h-[416px] sm:min-h-[464px] lg:min-h-[512px] xl:min-h-[560px] w-full overflow-hidden flex flex-col justify-end"
+      className="relative min-h-[220px] sm:min-h-[250px] md:min-h-[270px] lg:min-h-[300px] w-full overflow-hidden flex flex-col justify-center"
     >
       {/* Background Image with Ken Burns animation */}
       {image ? (
@@ -79,18 +79,18 @@ export function GalleryHero({ config, photoCount }: GalleryHeroProps) {
       {renderOverlay()}
 
       {/* Hero Content Container */}
-      <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col justify-end px-4 pb-10 pt-12 sm:px-6 sm:pb-14 sm:pt-14 lg:px-8 lg:pb-16">
+      <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col justify-center px-4 py-4 sm:px-6 sm:py-5 lg:px-8 lg:py-6">
         <div className="max-w-4xl min-w-0">
           {/* Badge */}
           {badge && (
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="flex items-center gap-3"
+              transition={{ duration: 0.5 }}
+              className="flex items-center gap-2.5"
             >
-              <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-white/30 bg-white/10 px-3.5 py-1 sm:px-4 sm:py-1.5 text-[11px] sm:text-xs font-semibold uppercase tracking-[0.2em] text-white backdrop-blur-md shadow-xs">
-                <Sparkles className="h-3 w-3 text-[#FF7A00]" />
+              <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-white/30 bg-white/10 px-3 py-0.5 sm:px-3.5 sm:py-1 text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.18em] text-white backdrop-blur-md shadow-xs">
+                <Sparkles className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-[#FF7A00]" />
                 <span>{t(badge)}</span>
               </span>
               {typeof photoCount === "number" && photoCount > 0 && (
@@ -104,14 +104,14 @@ export function GalleryHero({ config, photoCount }: GalleryHeroProps) {
 
           {/* Heading */}
           <motion.h1
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
-            className="mt-4 sm:mt-5 max-w-4xl font-display text-3xl sm:text-5xl lg:text-6xl font-bold leading-[1.15] sm:leading-[1.12] text-white tracking-tight break-words [overflow-wrap:anywhere]"
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="mt-2 sm:mt-2.5 max-w-4xl font-display text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold leading-tight sm:leading-[1.15] text-white tracking-tight break-words [overflow-wrap:anywhere]"
           >
             <span className="block">{t(title)}</span>
             {titleHighlight && (
-              <span className="block text-[#FF7A00] mt-1 sm:mt-1.5 font-extrabold">
+              <span className="block text-[#FF7A00] mt-0.5 sm:mt-1 font-extrabold">
                 {t(titleHighlight)}
               </span>
             )}
@@ -120,10 +120,10 @@ export function GalleryHero({ config, photoCount }: GalleryHeroProps) {
           {/* Description */}
           {description && (
             <motion.p
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="mt-3 sm:mt-4 max-w-2xl text-xs sm:text-base lg:text-lg text-white/85 leading-relaxed"
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="mt-1.5 sm:mt-2 max-w-2xl text-xs sm:text-sm lg:text-base text-white/85 leading-relaxed"
             >
               {t(description)}
             </motion.p>
@@ -132,18 +132,18 @@ export function GalleryHero({ config, photoCount }: GalleryHeroProps) {
           {/* CTA Button */}
           {buttonText && (
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.35 }}
-              className="mt-6 sm:mt-8 flex flex-wrap items-center gap-3.5"
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="mt-3 sm:mt-4 flex flex-wrap items-center gap-3"
             >
               <button
                 type="button"
                 onClick={scrollToContent}
-                className="group inline-flex items-center justify-center gap-2 rounded-full bg-[#FF7A00] px-6 py-3 text-sm font-semibold text-white hover:bg-[#FF7A00]/90 transition-all duration-200 shadow-lg shadow-[#FF7A00]/25 cursor-pointer hover:gap-2.5 active:scale-[0.98]"
+                className="group inline-flex items-center justify-center gap-2 rounded-full bg-[#FF7A00] px-4 py-2 sm:px-5 sm:py-2.5 text-xs sm:text-sm font-semibold text-white hover:bg-[#FF7A00]/90 transition-all duration-200 shadow-md shadow-[#FF7A00]/25 cursor-pointer hover:gap-2.5 active:scale-[0.98]"
               >
                 <span>{t(buttonText)}</span>
-                <ArrowDown className="h-4 w-4 transition-transform group-hover:translate-y-0.5" />
+                <ArrowDown className="h-3.5 w-3.5 sm:h-4 sm:w-4 transition-transform group-hover:translate-y-0.5" />
               </button>
             </motion.div>
           )}
