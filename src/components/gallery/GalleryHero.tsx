@@ -78,9 +78,6 @@ export function GalleryHero({ config, photoCount }: GalleryHeroProps) {
       {/* Dynamic Overlay */}
       {renderOverlay()}
 
-      {/* Subtle bottom vignette to ensure seamless contrast with page below */}
-      <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-background via-background/60 to-transparent pointer-events-none" />
-
       {/* Hero Content Container */}
       <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col justify-end px-4 pb-10 pt-12 sm:px-6 sm:pb-14 sm:pt-14 lg:px-8 lg:pb-16">
         <div className="max-w-4xl min-w-0">
