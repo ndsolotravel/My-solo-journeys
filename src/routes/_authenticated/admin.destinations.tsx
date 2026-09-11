@@ -215,6 +215,8 @@ function AdminDestinations() {
     onSuccess: (res: any) => {
       qc.invalidateQueries({ queryKey: ["admin-destinations"] });
       qc.invalidateQueries({ queryKey: ["destinations"] });
+      qc.invalidateQueries({ queryKey: ["photo-archive"] });
+      qc.invalidateQueries({ queryKey: ["gallery"] });
 
       const savedRow = res?.destination || editingForm;
       const updated: Dest = {
@@ -334,6 +336,8 @@ function AdminDestinations() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-destinations"] });
       qc.invalidateQueries({ queryKey: ["destinations"] });
+      qc.invalidateQueries({ queryKey: ["photo-archive"] });
+      qc.invalidateQueries({ queryKey: ["gallery"] });
       toast.success("Destination deleted");
     },
     onError: (e: Error) => toast.error(e.message),

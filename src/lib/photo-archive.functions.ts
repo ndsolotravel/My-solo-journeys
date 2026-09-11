@@ -30,6 +30,9 @@ export type ArchivePhoto = {
   categories: { id: string; name: string; slug: string }[];
   sort_order: number;
   published: boolean;
+  post_id?: string | null;
+  destination_id?: string | null;
+  source_type?: "story" | "destination" | "manual";
 };
 
 export type EditorPhoto = {
@@ -45,6 +48,9 @@ export type EditorPhoto = {
   category_ids: string[];
   sort_order: number;
   published: boolean;
+  post_id?: string | null;
+  destination_id?: string | null;
+  source_type?: "story" | "destination" | "manual";
 };
 
 type PhotoRow = {
@@ -61,10 +67,13 @@ type PhotoRow = {
   height: number | null;
   published: boolean;
   sort_order: number;
+  post_id?: string | null;
+  destination_id?: string | null;
+  source_type?: "story" | "destination" | "manual";
 };
 
 const DEFAULT_PHOTO_SELECT =
-  "id,title,slug,image_url,location,captured_at,story,camera,alt_text,width,height,published,sort_order,created_at";
+  "id,title,slug,image_url,location,captured_at,story,camera,alt_text,width,height,published,sort_order,created_at,post_id,destination_id,source_type";
 
 // ---------------- Shared helpers ----------------
 
@@ -86,6 +95,9 @@ function mapPhotoRow(row: PhotoRow, _categoriesById: Map<string, { id: string; n
     categories: [],
     sort_order: row.sort_order,
     published: row.published,
+    post_id: row.post_id ?? null,
+    destination_id: row.destination_id ?? null,
+    source_type: row.source_type ?? "manual",
   };
 }
 
@@ -219,6 +231,9 @@ export const getPhotoArchiveItem = createServerFn({ method: "GET" })
       categories,
       sort_order: row.sort_order,
       published: row.published,
+      post_id: row.post_id ?? null,
+      destination_id: row.destination_id ?? null,
+      source_type: row.source_type ?? "manual",
     };
 
     const ordered = (orderResult.data ?? []).filter(isPublishedPhotoRow);
@@ -254,6 +269,9 @@ const editorPhotoSchema = z.object({
   category_ids: z.array(z.string().uuid()).default([]),
   sort_order: z.number().int().default(0),
   published: z.boolean().default(true),
+  post_id: z.string().uuid().nullable().optional(),
+  destination_id: z.string().uuid().nullable().optional(),
+  source_type: z.enum(["story", "destination", "manual"]).optional(),
 });
 
 export const adminListPhotoArchiveEditor = createServerFn({ method: "GET" })
@@ -276,6 +294,9 @@ export const adminListPhotoArchiveEditor = createServerFn({ method: "GET" })
       category_ids: p.categories.map((c) => c.id),
       sort_order: p.sort_order,
       published: p.published,
+      post_id: p.post_id ?? null,
+      destination_id: p.destination_id ?? null,
+      source_type: p.source_type ?? "manual",
     }));
 
     return { photos: editorPhotos, categories };
@@ -295,7 +316,9 @@ export const adminSavePhotoArchive = createServerFn({ method: "POST" })
     await assertEditor(context.userId, context.supabase);
     const client = context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
 
-    const { data: existingRows } = await client.from("photos").select("id,slug,image_url");
+    const { data: existingRows } = await client
+      .from("photos")
+      .select("id,slug,image_url,post_id,destination_id,source_type");
     const existing = new Map((existingRows ?? []).map((r: any) => [r.id, r]));
     const usedSlugs = new Set((existingRows ?? []).map((r: any) => r.slug));
 
@@ -326,21 +349,30 @@ export const adminSavePhotoArchive = createServerFn({ method: "POST" })
       if (photo.id) {
         const prev = existing.get(photo.id);
         const nextSlug = photo.slug && photo.slug.trim() ? photo.slug.trim() : prev?.slug ?? finalizeSlug(photo.title);
-        const { error: updateError } = await client.from("photos").update({
-          title: photo.title,
-          slug: nextSlug,
-          image_url: photo.image_url,
-          location: photo.location || null,
-          captured_at: photo.captured_at || null,
-          story: photo.story || null,
-          camera: photo.camera || null,
-          alt_text: photo.alt_text,
-          published: photo.published,
-          sort_order: photo.sort_order,
-        }).eq("id", photo.id);
+        const { error: updateError } = await client
+          .from("photos")
+          .update({
+            title: photo.title,
+            slug: nextSlug,
+            image_url: photo.image_url,
+            location: photo.location || null,
+            captured_at: photo.captured_at || null,
+            story: photo.story || null,
+            camera: photo.camera || null,
+            alt_text: photo.alt_text,
+            published: photo.published,
+            sort_order: photo.sort_order,
+            post_id: photo.post_id ?? prev?.post_id ?? null,
+            destination_id: photo.destination_id ?? prev?.destination_id ?? null,
+            source_type: photo.source_type ?? prev?.source_type ?? "manual",
+          })
+          .eq("id", photo.id);
         if (updateError) throw new Error(updateError.message);
 
-        await removeStorageIfNeeded(prev?.image_url, photo.image_url);
+        // Only delete file from storage if it was a manual gallery upload, not a story or destination image
+        if (!photo.post_id && !photo.destination_id && !prev?.post_id && !prev?.destination_id) {
+          await removeStorageIfNeeded(prev?.image_url, photo.image_url);
+        }
         results.push({ id: photo.id, slug: nextSlug });
       } else {
         const slug = finalizeSlug(photo.title);
@@ -357,6 +389,9 @@ export const adminSavePhotoArchive = createServerFn({ method: "POST" })
             alt_text: photo.alt_text,
             published: photo.published,
             sort_order: photo.sort_order,
+            post_id: photo.post_id ?? null,
+            destination_id: photo.destination_id ?? null,
+            source_type: photo.source_type ?? "manual",
           })
           .select("id,slug")
           .single();
@@ -380,7 +415,10 @@ export const adminSavePhotoArchive = createServerFn({ method: "POST" })
     for (const id of data.deletedIds) {
       const row = existing.get(id);
       await client.from("photos").delete().eq("id", id);
-      await removeStorageIfNeeded(row?.image_url);
+      // Only remove storage if not tied to post or destination
+      if (!row?.post_id && !row?.destination_id) {
+        await removeStorageIfNeeded(row?.image_url);
+      }
     }
 
     return { ok: true, photos: results };

@@ -62,6 +62,9 @@ type DraftPhoto = {
   category_ids: string[];
   sort_order: number;
   published: boolean;
+  post_id?: string | null;
+  destination_id?: string | null;
+  source_type?: "story" | "destination" | "manual";
 };
 
 type ServerPhoto = {
@@ -77,6 +80,9 @@ type ServerPhoto = {
   category_ids: string[];
   sort_order: number;
   published: boolean;
+  post_id?: string | null;
+  destination_id?: string | null;
+  source_type?: "story" | "destination" | "manual";
 };
 
 function toDraft(p: ServerPhoto): DraftPhoto {
@@ -93,6 +99,9 @@ function toDraft(p: ServerPhoto): DraftPhoto {
     category_ids: p.category_ids,
     sort_order: p.sort_order,
     published: p.published,
+    post_id: p.post_id ?? null,
+    destination_id: p.destination_id ?? null,
+    source_type: p.source_type ?? "manual",
   };
 }
 
@@ -356,6 +365,9 @@ function AdminGalleryPage() {
           category_ids: d.category_ids,
           sort_order: d.sort_order,
           published: d.published,
+          post_id: d.post_id || null,
+          destination_id: d.destination_id || null,
+          source_type: d.source_type || "manual",
         })),
         deletedIds,
       };
@@ -750,6 +762,16 @@ function AdminGalleryPage() {
                       <span className="rounded-md bg-black/75 px-2 py-0.5 text-[10px] font-bold text-white shadow-xs backdrop-blur-xs">
                         #{item.sort_order + 1}
                       </span>
+                      {item.source_type === "story" && (
+                        <span className="rounded-md bg-sky-600/90 px-1.5 py-0.5 text-[9px] font-semibold text-white shadow-xs backdrop-blur-xs">
+                          Story
+                        </span>
+                      )}
+                      {item.source_type === "destination" && (
+                        <span className="rounded-md bg-emerald-600/90 px-1.5 py-0.5 text-[9px] font-semibold text-white shadow-xs backdrop-blur-xs">
+                          Destination
+                        </span>
+                      )}
                     </div>
 
                     <div className="absolute right-2 top-2 z-10 flex items-center gap-1">
@@ -1001,6 +1023,19 @@ function AdminGalleryPage() {
                     </span>
                   )}
                 </div>
+
+                {editing.source_type === "story" && (
+                  <div className="rounded-xl border border-sky-500/20 bg-sky-500/10 p-3 text-xs text-sky-700 dark:text-sky-300 flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 shrink-0 text-sky-500" />
+                    <span>Synchronized with <strong>Blog Story</strong> cover picture. Custom gallery caption, categories, and alt text can still be customized below.</span>
+                  </div>
+                )}
+                {editing.source_type === "destination" && (
+                  <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-3 text-xs text-emerald-700 dark:text-emerald-300 flex items-center gap-2">
+                    <MapPin className="h-4 w-4 shrink-0 text-emerald-500" />
+                    <span>Synchronized with <strong>Destination</strong> featured picture. Custom gallery caption, categories, and alt text can still be customized below.</span>
+                  </div>
+                )}
 
                 {/* Image upload / replace */}
                 <div>

@@ -94,7 +94,7 @@ export function TranslatedMarkdown({
       ),
       figcaption: ({ children, node, ...props }) => (
         <figcaption className="mt-2.5 text-center text-sm text-muted-foreground italic font-sans" {...props}>
-          {translateMarkdownChildren(children, t, isDbTranslated)}
+          {isDbTranslated ? children : translateMarkdownChildren(children, t)}
         </figcaption>
       ),
       img: ({ src, alt, node, ...props }) => (
