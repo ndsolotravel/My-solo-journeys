@@ -14,7 +14,6 @@ import { z } from "zod";
 import { listPosts } from "@/lib/posts.functions";
 import { listDestinations } from "@/lib/destinations.functions";
 import { getBlogAuthorName } from "@/lib/settings.functions";
-import { listActiveTopics } from "@/lib/topics.functions";
 import { listCategories } from "@/lib/categories.functions";
 import { PostCard } from "@/components/blog/PostCard";
 import { PostCardSkeleton } from "@/components/blog/Skeletons";
@@ -60,11 +59,6 @@ const destQO = queryOptions({
 const authorNameQO = queryOptions({
   queryKey: ["blog-author-name"],
   queryFn: () => getBlogAuthorName(),
-});
-
-const activeTopicsQO = queryOptions({
-  queryKey: ["active-topics"],
-  queryFn: () => listActiveTopics(),
 });
 
 const categoriesQO = queryOptions({
@@ -118,7 +112,6 @@ export const Route = createFileRoute("/blog/")({
       ),
       context.queryClient.ensureQueryData(destQO),
       context.queryClient.ensureQueryData(authorNameQO),
-      context.queryClient.ensureQueryData(activeTopicsQO),
       context.queryClient.ensureQueryData(categoriesQO),
     ]);
   },
@@ -142,7 +135,6 @@ function BlogIndex() {
     }),
   );
   const { data: destinations } = useSuspenseQuery(destQO);
-  const { data: activeTopics } = useSuspenseQuery(activeTopicsQO);
   const { data: dynamicCategories } = useQuery(categoriesQO);
 
   const displayCategories = useMemo(() => {
@@ -277,52 +269,6 @@ function BlogIndex() {
                 </div>
               </div>
             </Link>
-          </div>
-        )}
-
-        {/* Topic Clusters */}
-        {!hasActiveFilters && activeTopics.length > 0 && (
-          <div className="mb-14">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-accent">
-              {t("Explore Topics")}
-            </p>
-            <h2 className="mb-6 font-display text-xl font-bold text-foreground">
-              {t("Deep dives into the places and adventures that matter.")}
-            </h2>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {activeTopics.map((topic) => (
-                <Link
-                  key={topic.slug}
-                  to="/topics/$slug"
-                  params={{ slug: topic.slug }}
-                  className="group relative overflow-hidden rounded-2xl border border-border bg-card transition-all duration-300 hover:border-accent/40 hover:shadow-lg"
-                >
-                  <div className="relative h-36 overflow-hidden">
-                    {(() => {
-                      const img = topic.previewImage || topic.heroImage;
-                      return img ? (
-                        <img
-                          src={img}
-                          alt={topic.title}
-                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                      ) : (
-                        <div className="h-full w-full bg-zinc-900" />
-                      );
-                    })()}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                  </div>
-                  <div className="p-4">
-                    <h3 className="font-display text-base font-bold text-foreground group-hover:text-accent transition-colors">
-                      {t(topic.title)}
-                    </h3>
-                    <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
-                      {t(topic.subtitle)}
-                    </p>
-                  </div>
-                </Link>
-              ))}
-            </div>
           </div>
         )}
 
