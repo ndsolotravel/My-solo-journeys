@@ -18,6 +18,9 @@ import {
   Compass,
   Navigation,
   Sparkles,
+  Globe,
+  Star,
+  Check,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -28,6 +31,7 @@ import {
   adminUploadImage,
   resolveMediaUrl,
 } from "@/lib/admin.functions";
+import { adminFetchCountryCoordinates } from "@/lib/geocoding.functions";
 import { HeroBannerManager } from "@/components/admin/HeroBannerManager";
 
 export const Route = createFileRoute("/_authenticated/admin/destinations")({
@@ -56,6 +60,7 @@ function AdminDestinations() {
   const updateCoordsFn = useServerFn(adminUpdateDestinationCoordinates);
   const delFn = useServerFn(adminDeleteDestination);
   const uploadFn = useServerFn(adminUploadImage);
+  const fetchCountryCoordsFn = useServerFn(adminFetchCountryCoordinates);
   const qc = useQueryClient();
 
   const { data, isLoading } = useQuery<any>({
@@ -70,6 +75,12 @@ function AdminDestinations() {
   const [coordStatus, setCoordStatus] = useState<"idle" | "updated" | "error">("idle");
   const [coordErrorMessage, setCoordErrorMessage] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [fetchingCoords, setFetchingCoords] = useState(false);
+  const [fetchedCoordsInfo, setFetchedCoordsInfo] = useState<{
+    displayName: string;
+    lat: number;
+    lng: number;
+  } | null>(null);
 
   function handleStartEdit(d: Dest) {
     const initial: Dest = {
@@ -81,13 +92,14 @@ function AdminDestinations() {
       description: d.description ?? "",
       featured_image: d.featured_image ?? "",
       category: d.category ?? "",
-      featured: d.featured ?? false,
+      featured: Boolean(d.featured),
       published: d.published !== false,
       latitude: d.latitude != null ? Number(d.latitude) : null,
       longitude: d.longitude != null ? Number(d.longitude) : null,
     };
     setEditingOriginal(initial);
     setEditingForm(initial);
+    setFetchedCoordsInfo(null);
     setSaveStatus("idle");
     setSaveErrorMessage(null);
     setCoordStatus("idle");
@@ -97,10 +109,45 @@ function AdminDestinations() {
   function handleCloseModal() {
     setEditingOriginal(null);
     setEditingForm(null);
+    setFetchedCoordsInfo(null);
+    setFetchingCoords(false);
     setSaveStatus("idle");
     setSaveErrorMessage(null);
     setCoordStatus("idle");
     setCoordErrorMessage(null);
+  }
+
+  async function handleFetchCoordinates() {
+    if (!editingForm) return;
+    const countryQuery = (editingForm.country || "").trim();
+    if (!countryQuery) {
+      toast.error("Please enter a Country first before fetching coordinates.");
+      return;
+    }
+
+    try {
+      setFetchingCoords(true);
+      setFetchedCoordsInfo(null);
+      const res = await fetchCountryCoordsFn({ data: { country: countryQuery } });
+
+      if (res && res.success && typeof res.latitude === "number" && typeof res.longitude === "number") {
+        updateField("latitude", res.latitude);
+        updateField("longitude", res.longitude);
+        setFetchedCoordsInfo({
+          displayName: res.displayName || countryQuery,
+          lat: res.latitude,
+          lng: res.longitude,
+        });
+        setCoordStatus("idle");
+        toast.success(res.message || `Coordinates populated for "${countryQuery}"!`);
+      } else {
+        toast.error(res?.message || `Could not find coordinates for "${countryQuery}". Existing coordinates kept unchanged.`);
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to lookup coordinates. Please check the country name or enter manually.");
+    } finally {
+      setFetchingCoords(false);
+    }
   }
 
   function updateField<K extends keyof Dest>(key: K, value: Dest[K]) {
@@ -137,7 +184,7 @@ function AdminDestinations() {
       editingForm.published !== editingOriginal.published ||
       editingForm.latitude !== editingOriginal.latitude ||
       editingForm.longitude !== editingOriginal.longitude ||
-      editingForm.featured !== editingOriginal.featured
+      Boolean(editingForm.featured) !== Boolean(editingOriginal.featured)
     );
   }, [editingForm, editingOriginal]);
 
@@ -158,6 +205,7 @@ function AdminDestinations() {
 
       const dataToSave = {
         ...payload,
+        featured: Boolean(payload.featured),
         latitude: cleanLat,
         longitude: cleanLng,
       };
@@ -178,7 +226,7 @@ function AdminDestinations() {
         description: savedRow.description ?? null,
         featured_image: savedRow.featured_image ?? null,
         category: savedRow.category ?? null,
-        featured: savedRow.featured ?? false,
+        featured: Boolean(savedRow.featured),
         published: savedRow.published !== false,
         latitude: savedRow.latitude != null ? Number(savedRow.latitude) : null,
         longitude: savedRow.longitude != null ? Number(savedRow.longitude) : null,
@@ -327,7 +375,7 @@ function AdminDestinations() {
         </div>
 
         <button
-          onClick={() => handleStartEdit({ title: "", country: "Pakistan", published: true })}
+          onClick={() => handleStartEdit({ title: "", country: "Pakistan", featured: false, published: true })}
           className="inline-flex items-center gap-2 rounded-xl bg-brand px-4 py-2 text-xs sm:text-sm font-semibold text-white shadow-md shadow-brand/20 hover:bg-brand/90 transition-all cursor-pointer shrink-0"
         >
           <Plus className="h-4 w-4" /> New Destination
@@ -368,6 +416,18 @@ function AdminDestinations() {
                       No featured image
                     </div>
                   )}
+                  {/* Status badges */}
+                  <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
+                    {d.featured ? (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/90 text-white backdrop-blur-xs px-2.5 py-0.5 text-[11px] font-bold shadow-xs">
+                        <Star className="h-3 w-3 fill-white" /> Featured
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-background/80 text-muted-foreground backdrop-blur-xs px-2 py-0.5 text-[10px] font-medium border border-border/50">
+                        Standard
+                      </span>
+                    )}
+                  </div>
                   <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5">
                     <span className="inline-flex items-center gap-1 rounded-full bg-background/90 backdrop-blur-xs px-2.5 py-0.5 text-[11px] font-semibold text-foreground shadow-xs">
                       <FileText className="h-3 w-3 text-accent" />
@@ -525,17 +585,48 @@ function AdminDestinations() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-foreground mb-1.5">
-                    Country <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={editingForm.country}
-                    onChange={(e) => updateField("country", e.target.value)}
-                    placeholder="e.g. Pakistan"
-                    required
-                    className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-foreground focus:border-accent focus:outline-none transition-colors"
-                  />
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-xs font-medium text-foreground">
+                      Country <span className="text-red-500">*</span>
+                    </label>
+                  </div>
+                  <div className="space-y-2">
+                    <input
+                      type="text"
+                      value={editingForm.country}
+                      onChange={(e) => updateField("country", e.target.value)}
+                      placeholder="e.g. Pakistan"
+                      required
+                      className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-foreground focus:border-accent focus:outline-none transition-colors"
+                    />
+                    <div className="flex flex-wrap items-center gap-2 pt-0.5">
+                      <button
+                        type="button"
+                        onClick={handleFetchCoordinates}
+                        disabled={fetchingCoords}
+                        className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground shadow-2xs hover:bg-muted hover:border-accent/50 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Automatically look up geographic coordinates for this country"
+                      >
+                        {fetchingCoords ? (
+                          <>
+                            <Loader2 className="h-3.5 w-3.5 animate-spin text-accent" />
+                            <span>Fetching Coordinates...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Globe className="h-3.5 w-3.5 text-accent" />
+                            <span>Fetch Coordinates</span>
+                          </>
+                        )}
+                      </button>
+                      {fetchedCoordsInfo && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 px-2.5 py-0.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-400 animate-fade-in">
+                          <CheckCircle2 className="h-3 w-3" />
+                          <span>Populated: {fetchedCoordsInfo.lat.toFixed(4)}, {fetchedCoordsInfo.lng.toFixed(4)}</span>
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-foreground mb-1.5">
@@ -562,8 +653,7 @@ function AdminDestinations() {
                       Map Coordinates (Manual Latitude & Longitude)
                     </h4>
                     <p className="text-[11px] text-muted-foreground">
-                      Exact geographic coordinates stored directly in the database. For &quot;K2
-                      Base Camp, Concordia&quot;, these represent the Concordia campsite.
+                      Exact geographic coordinates stored in the database. Use &quot;Fetch Coordinates&quot; above to populate automatically, or edit manually.
                     </p>
                   </div>
                 </div>
@@ -676,45 +766,115 @@ function AdminDestinations() {
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-medium text-foreground mb-1.5">
-                    Category
-                  </label>
-                  <select
-                    value={editingForm.category ?? ""}
-                    onChange={(e) => updateField("category", e.target.value)}
-                    className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-foreground focus:border-accent focus:outline-none transition-colors"
-                  >
-                    <option value="">Select category</option>
-                    <option value="Mountains">Mountains</option>
-                    <option value="Motorcycle Journeys">Motorcycle Journeys</option>
-                    <option value="Trekking">Trekking</option>
-                    <option value="Adventure">Adventure</option>
-                    <option value="Cultural Experiences">Cultural Experiences</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-foreground mb-1.5">
-                    Featured
-                  </label>
-                  <div className="flex items-center gap-3 rounded-xl border border-border bg-background px-3.5 py-2.5">
+              <div>
+                <label className="block text-xs font-medium text-foreground mb-1.5">
+                  Category
+                </label>
+                <select
+                  value={editingForm.category ?? ""}
+                  onChange={(e) => updateField("category", e.target.value)}
+                  className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-foreground focus:border-accent focus:outline-none transition-colors"
+                >
+                  <option value="">Select category</option>
+                  <option value="Mountains">Mountains</option>
+                  <option value="Motorcycle Journeys">Motorcycle Journeys</option>
+                  <option value="Trekking">Trekking</option>
+                  <option value="Adventure">Adventure</option>
+                  <option value="Cultural Experiences">Cultural Experiences</option>
+                </select>
+              </div>
+
+              {/* Featured Destination Toggle Control */}
+              <div className="rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-2xs space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <div
+                        className={`p-1.5 rounded-xl transition-colors ${
+                          editingForm.featured
+                            ? "bg-amber-500/15 text-amber-500"
+                            : "bg-muted text-muted-foreground"
+                        }`}
+                      >
+                        <Star className={`h-4 w-4 ${editingForm.featured ? "fill-amber-500" : ""}`} />
+                      </div>
+                      <span className="text-xs font-bold uppercase tracking-wider text-foreground">
+                        Featured Destination
+                      </span>
+                      <span
+                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider transition-colors ${
+                          editingForm.featured
+                            ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"
+                            : "bg-zinc-500/15 text-zinc-600 dark:text-zinc-400 border border-zinc-500/30"
+                        }`}
+                      >
+                        {editingForm.featured ? (
+                          <>
+                            <Check className="h-3 w-3 stroke-[3]" />
+                            <span>ON</span>
+                          </>
+                        ) : (
+                          <>
+                            <X className="h-3 w-3 stroke-[2.5]" />
+                            <span>OFF</span>
+                          </>
+                        )}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground leading-relaxed">
+                      Controls eligibility for the <strong>Featured Destinations</strong> section on the homepage and public atlas spotlight.
+                    </p>
+                  </div>
+
+                  {/* Dual Control: Segmented ON/OFF buttons + Accessible Sliding Switch */}
+                  <div className="flex items-center gap-3 shrink-0 self-start sm:self-center">
+                    <div className="inline-flex rounded-xl border border-border bg-muted/40 p-1 shadow-inner">
+                      <button
+                        type="button"
+                        onClick={() => updateField("featured", true)}
+                        className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all cursor-pointer ${
+                          editingForm.featured
+                            ? "bg-emerald-600 text-white shadow-sm"
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        <Check className="h-3.5 w-3.5 stroke-[2.5]" /> ON
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => updateField("featured", false)}
+                        className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all cursor-pointer ${
+                          !editingForm.featured
+                            ? "bg-zinc-700 text-white shadow-sm"
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        <X className="h-3.5 w-3.5 stroke-[2.5]" /> OFF
+                      </button>
+                    </div>
+
                     <button
                       type="button"
+                      role="switch"
+                      aria-checked={Boolean(editingForm.featured)}
+                      aria-label="Toggle Featured destination on or off"
                       onClick={() => updateField("featured", !editingForm.featured)}
-                      className={`relative h-6 w-11 rounded-full transition-colors ${
-                        editingForm.featured ? "bg-accent" : "bg-muted"
+                      className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full p-0.5 transition-colors duration-200 ease-in-out cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-accent ${
+                        editingForm.featured ? "bg-emerald-600" : "bg-zinc-300 dark:bg-zinc-700"
                       }`}
                     >
                       <span
-                        className={`inline-block h-4 w-4 rounded-full bg-white shadow transition-transform ${
-                          editingForm.featured ? "translate-x-6" : "translate-x-1"
+                        className={`pointer-events-none inline-flex h-6 w-6 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out items-center justify-center ${
+                          editingForm.featured ? "translate-x-5" : "translate-x-0"
                         }`}
-                      />
+                      >
+                        {editingForm.featured ? (
+                          <Star className="h-3 w-3 text-emerald-600 fill-emerald-600" />
+                        ) : (
+                          <span className="h-1.5 w-1.5 rounded-full bg-zinc-400" />
+                        )}
+                      </span>
                     </button>
-                    <span className="text-xs text-muted-foreground">
-                      {editingForm.featured ? "Yes" : "No"}
-                    </span>
                   </div>
                 </div>
               </div>

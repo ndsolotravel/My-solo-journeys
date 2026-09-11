@@ -680,7 +680,7 @@ const destInputSchema = z.object({
   description: z.string().max(4000).optional().nullable(),
   featured_image: z.string().url().optional().nullable().or(z.literal("")),
   category: z.string().optional().nullable(),
-  featured: z.boolean().default(false),
+  featured: z.boolean().or(z.null()).transform((v) => Boolean(v)).default(false),
   published: z.boolean().default(true),
   latitude: z.number().min(-90).max(90).nullable().optional(),
   longitude: z.number().min(-180).max(180).nullable().optional(),

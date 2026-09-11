@@ -786,3 +786,126 @@ export const batchGeocodePosts = createServerFn({ method: "POST" })
       posts: results,
     };
   });
+
+/**
+ * Lookup geographic coordinates for a country using OpenStreetMap Nominatim with fallback.
+ * Validates country, supports structured and query search, and returns latitude and longitude.
+ */
+export const adminFetchCountryCoordinates = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((i: unknown) =>
+    z
+      .object({
+        country: z.string().trim().min(1, "Country name is required"),
+      })
+      .parse(i),
+  )
+  .handler(async ({ data }) => {
+    const rawCountry = data.country.trim();
+    if (!rawCountry) {
+      return {
+        success: false,
+        message: "Please enter a country name first.",
+        latitude: null,
+        longitude: null,
+      };
+    }
+
+    try {
+      // 1. First attempt: Nominatim structured search by country
+      const structuredParams = new URLSearchParams({
+        country: rawCountry,
+        format: "json",
+        limit: "1",
+        addressdetails: "1",
+      });
+
+      let res = await fetch(
+        `https://nominatim.openstreetmap.org/search?${structuredParams.toString()}`,
+        {
+          headers: {
+            "User-Agent": "NDSoloTravelKnowledgeHub/2.0 (contact@ndsolotravel.com)",
+          },
+        },
+      );
+
+      let results: any[] = res.ok ? await res.json() : [];
+
+      // 2. Second attempt: Fallback to free-form query if structured didn't return matches
+      if (!results || results.length === 0) {
+        const queryParams = new URLSearchParams({
+          q: rawCountry,
+          format: "json",
+          limit: "3",
+          addressdetails: "1",
+        });
+
+        res = await fetch(`https://nominatim.openstreetmap.org/search?${queryParams.toString()}`, {
+          headers: {
+            "User-Agent": "NDSoloTravelKnowledgeHub/2.0 (contact@ndsolotravel.com)",
+          },
+        });
+
+        results = res.ok ? await res.json() : [];
+      }
+
+      // 3. Third attempt: Photon API fallback if Nominatim had network/rate-limit issue
+      if (!results || results.length === 0) {
+        try {
+          const photonRes = await fetch(
+            `https://photon.komoot.io/api/?q=${encodeURIComponent(rawCountry)}&limit=1`,
+          );
+          if (photonRes.ok) {
+            const photonData = await photonRes.json();
+            const firstFeature = photonData?.features?.[0];
+            if (firstFeature && firstFeature.geometry?.coordinates) {
+              const [lon, lat] = firstFeature.geometry.coordinates;
+              const name = firstFeature.properties?.name || rawCountry;
+              return {
+                success: true,
+                latitude: Number(Number(lat).toFixed(4)),
+                longitude: Number(Number(lon).toFixed(4)),
+                displayName: name,
+                message: `Coordinates found for "${rawCountry}": ${Number(lat).toFixed(4)}, ${Number(lon).toFixed(4)}`,
+              };
+            }
+          }
+        } catch {
+          // Ignore fallback error and report standard not found
+        }
+      }
+
+      if (results && results.length > 0) {
+        const first = results[0];
+        const lat = parseFloat(first.lat);
+        const lon = parseFloat(first.lon);
+        if (!isNaN(lat) && !isNaN(lon)) {
+          const displayName =
+            first.display_name?.split(",")?.[0]?.trim() || first.name || rawCountry;
+          return {
+            success: true,
+            latitude: Number(lat.toFixed(4)),
+            longitude: Number(lon.toFixed(4)),
+            displayName,
+            message: `Coordinates found for "${rawCountry}": ${lat.toFixed(4)}, ${lon.toFixed(4)}`,
+          };
+        }
+      }
+
+      return {
+        success: false,
+        latitude: null,
+        longitude: null,
+        message: `Could not find coordinates for "${rawCountry}". Please check the spelling or enter coordinates manually.`,
+      };
+    } catch (err: any) {
+      console.warn(`[geocoding] Error fetching coordinates for country '${rawCountry}':`, err);
+      return {
+        success: false,
+        latitude: null,
+        longitude: null,
+        message: `Geocoding request failed: ${err.message || "Network error"}. Please enter coordinates manually.`,
+      };
+    }
+  });
+

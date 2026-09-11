@@ -157,6 +157,10 @@ function HomePage() {
   const allPosts = postsData.posts ?? [];
   const featuredPosts = featuredData.posts ?? [];
   const destinations = destinationsData ?? [];
+  const featuredDestinations = useMemo(
+    () => destinations.filter((d) => Boolean(d.featured)),
+    [destinations],
+  );
   const gallery = galleryData ?? [];
 
   const heroSettings = homepageConfig?.settings ?? {};
@@ -770,56 +774,65 @@ function HomePage() {
             </Suspense>
           ) : (
             <div className="grid grid-cols-1 gap-4 sm:gap-5 sm:grid-cols-2 lg:grid-cols-4 w-full min-w-0">
-              {destinations.length === 0
-                ? Array.from({ length: 4 }).map((_, i) => <DestinationCardSkeleton key={i} />)
-                : destinations.slice(0, 8).map((d, i) => (
-                    <motion.article
-                      key={d.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.4, delay: i * 0.05 }}
-                      className="group relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:border-[#FF7A00]/40 hover:shadow-md w-full min-w-0"
+              {featuredDestinations.length === 0 ? (
+                <div className="col-span-full py-12 text-center rounded-2xl border border-border bg-card/40">
+                  <p className="text-sm font-medium text-foreground">
+                    {t("No featured destinations at the moment.")}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {t("Explore all destinations or check back soon.")}
+                  </p>
+                </div>
+              ) : (
+                featuredDestinations.slice(0, 8).map((d, i) => (
+                  <motion.article
+                    key={d.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4, delay: i * 0.05 }}
+                    className="group relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:border-[#FF7A00]/40 hover:shadow-md w-full min-w-0"
+                  >
+                    <Link
+                      to="/destinations/$slug"
+                      params={{ slug: d.slug }}
+                      className="block w-full min-w-0"
                     >
-                      <Link
-                        to="/destinations/$slug"
-                        params={{ slug: d.slug }}
-                        className="block w-full min-w-0"
-                      >
-                        <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-                          {d.featured_image ? (
-                            <img
-                              src={d.featured_image}
-                              alt={d.title}
-                              loading="lazy"
-                              className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                            />
-                          ) : (
-                            <div className="flex h-full w-full items-center justify-center bg-muted">
-                              <span className="text-xs text-muted-foreground">No image</span>
-                            </div>
-                          )}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
-                          <div className="absolute inset-x-0 bottom-0 p-4 text-white min-w-0">
-                            <p className="text-[11px] font-semibold uppercase tracking-wider text-[#FF7A00] truncate">
-                              {t(d.country)}
-                              {d.region ? ` · ${t(d.region)}` : ""}
-                            </p>
-                            <h3 className="mt-0.5 font-display text-base sm:text-lg font-bold leading-tight group-hover:text-[#FF7A00] transition-colors break-words">
-                              {t(d.title)}
-                            </h3>
-                          </div>
-                        </div>
-                        {d.description && (
-                          <div className="p-3.5 min-w-0">
-                            <p className="line-clamp-2 text-xs text-muted-foreground break-words">
-                              {t(d.description)}
-                            </p>
+                      <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+                        {d.featured_image ? (
+                          <img
+                            src={d.featured_image}
+                            alt={d.title}
+                            loading="lazy"
+                            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center bg-muted">
+                            <span className="text-xs text-muted-foreground">No image</span>
                           </div>
                         )}
-                      </Link>
-                    </motion.article>
-                  ))}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+                        <div className="absolute inset-x-0 bottom-0 p-4 text-white min-w-0">
+                          <p className="text-[11px] font-semibold uppercase tracking-wider text-[#FF7A00] truncate">
+                            {t(d.country)}
+                            {d.region ? ` · ${t(d.region)}` : ""}
+                          </p>
+                          <h3 className="mt-0.5 font-display text-base sm:text-lg font-bold leading-tight group-hover:text-[#FF7A00] transition-colors break-words">
+                            {t(d.title)}
+                          </h3>
+                        </div>
+                      </div>
+                      {d.description && (
+                        <div className="p-3.5 min-w-0">
+                          <p className="line-clamp-2 text-xs text-muted-foreground break-words">
+                            {t(d.description)}
+                          </p>
+                        </div>
+                      )}
+                    </Link>
+                  </motion.article>
+                ))
+              )}
             </div>
           )}
         </section>
