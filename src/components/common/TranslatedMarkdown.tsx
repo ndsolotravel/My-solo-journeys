@@ -8,6 +8,7 @@ import React, {
 import ReactMarkdown, { type Components } from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import { useLanguage, useTranslations } from "@/lib/translate/store";
+import { resolveMediaUrl } from "@/lib/media";
 
 export interface TranslatedMarkdownProps {
   content: string;
@@ -85,11 +86,35 @@ export function TranslatedMarkdown({
   const { lang } = useLanguage();
 
   const components = useMemo<Components>(() => {
+    const baseMediaComponents: Components = {
+      figure: ({ children, node, ...props }) => (
+        <figure className="my-8 w-full text-center" {...props}>
+          {children}
+        </figure>
+      ),
+      figcaption: ({ children, node, ...props }) => (
+        <figcaption className="mt-2.5 text-center text-sm text-muted-foreground italic font-sans" {...props}>
+          {translateMarkdownChildren(children, t, isDbTranslated)}
+        </figcaption>
+      ),
+      img: ({ src, alt, node, ...props }) => (
+        <img
+          src={resolveMediaUrl(src)}
+          alt={alt && !isDbTranslated ? t(alt) : alt}
+          referrerPolicy="no-referrer"
+          className="my-6 rounded-2xl w-full max-w-full h-auto object-cover shadow-sm"
+          loading="lazy"
+          {...props}
+        />
+      ),
+    };
+
     if (lang === "en" || isDbTranslated) {
-      return {};
+      return baseMediaComponents;
     }
 
     return {
+      ...baseMediaComponents,
       h1: ({ children, ...props }) => (
         <h1 {...props}>{translateMarkdownChildren(children, t)}</h1>
       ),
@@ -143,9 +168,6 @@ export function TranslatedMarkdown({
       ),
       th: ({ children, ...props }) => (
         <th {...props}>{translateMarkdownChildren(children, t)}</th>
-      ),
-      figcaption: ({ children, ...props }) => (
-        <figcaption {...props}>{translateMarkdownChildren(children, t)}</figcaption>
       ),
     };
   }, [lang, isDbTranslated, t]);

@@ -1,4 +1,4 @@
-﻿import { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import {
@@ -15,6 +15,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { ImageCaptionDialog } from "./ImageCaptionDialog";
+import { resolveMediaUrl } from "@/lib/media";
 
 type Props = {
   value: string;
@@ -203,8 +204,9 @@ export function MarkdownEditor({ value, onChange }: Props) {
                   className="flex items-start gap-3 rounded-xl border border-border bg-muted/20 p-3"
                 >
                   <img
-                    src={img.src}
+                    src={resolveMediaUrl(img.src)}
                     alt={img.alt}
+                    referrerPolicy="no-referrer"
                     className="h-14 w-14 shrink-0 rounded-lg object-cover border border-border"
                   />
                   <div className="min-w-0 flex-1">
@@ -297,7 +299,33 @@ export function MarkdownEditor({ value, onChange }: Props) {
         {mode !== "write" && (
           <div className="min-h-[480px] max-h-[800px] overflow-y-auto border-l border-border p-4 prose-blog text-sm">
             {value.trim() ? (
-              <ReactMarkdown rehypePlugins={[rehypeRaw]}>{value}</ReactMarkdown>
+              <ReactMarkdown
+                rehypePlugins={[rehypeRaw]}
+                components={{
+                  figure: ({ children, node, ...props }) => (
+                    <figure className="my-6 w-full text-center" {...props}>
+                      {children}
+                    </figure>
+                  ),
+                  figcaption: ({ children, node, ...props }) => (
+                    <figcaption className="mt-2 text-center text-xs text-muted-foreground italic font-sans" {...props}>
+                      {children}
+                    </figcaption>
+                  ),
+                  img: ({ src, alt, node, ...props }) => (
+                    <img
+                      src={resolveMediaUrl(src)}
+                      alt={alt}
+                      referrerPolicy="no-referrer"
+                      className="my-4 rounded-xl w-full max-w-full h-auto object-cover shadow-sm"
+                      loading="lazy"
+                      {...props}
+                    />
+                  ),
+                }}
+              >
+                {value}
+              </ReactMarkdown>
             ) : (
               <p className="text-muted-foreground">
                 Preview will appear here…

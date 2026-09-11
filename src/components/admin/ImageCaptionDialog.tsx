@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { X, Upload, Loader2, FileImage } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { adminUploadImage } from "@/lib/admin.functions";
+import { resolveMediaUrl } from "@/lib/media";
 import { toast } from "sonner";
 
 type Props = {
@@ -9,25 +10,6 @@ type Props = {
   onClose: () => void;
   onInsert: (html: string) => void;
 };
-
-function resolveImageUrl(urlOrPath: string | null | undefined): string {
-  if (!urlOrPath || typeof urlOrPath !== "string") return "";
-  const trimmed = urlOrPath.trim();
-  if (!trimmed) return "";
-  if (
-    trimmed.startsWith("http://") ||
-    trimmed.startsWith("https://") ||
-    trimmed.startsWith("data:") ||
-    trimmed.startsWith("blob:")
-  ) {
-    return trimmed;
-  }
-  let cleanPath = trimmed.replace(/^\/+/, "");
-  if (cleanPath.startsWith("blog-media/")) {
-    cleanPath = cleanPath.slice("blog-media/".length);
-  }
-  return `https://mqoybarqgzzvillignbr.supabase.co/storage/v1/object/public/blog-media/${cleanPath}`;
-}
 
 export function ImageCaptionDialog({ open, onClose, onInsert }: Props) {
   const uploadFn = useServerFn(adminUploadImage);
@@ -55,7 +37,7 @@ export function ImageCaptionDialog({ open, onClose, onInsert }: Props) {
       const { url } = await uploadFn({
         data: { filename: file.name, contentType: file.type, base64 },
       });
-      setImageUrl(resolveImageUrl(url));
+      setImageUrl(resolveMediaUrl(url));
       if (!altText) setAltText(file.name.replace(/\.[^.]+$/, ""));
     } catch (e) {
       toast.error((e as Error).message);
@@ -66,7 +48,7 @@ export function ImageCaptionDialog({ open, onClose, onInsert }: Props) {
   }
 
   function buildHtml(): string {
-    const src = imageUrl.trim();
+    const src = resolveMediaUrl(imageUrl.trim());
     if (!src) return "";
     const alt = altText.trim();
     const cap = caption.trim();
@@ -196,8 +178,9 @@ export function ImageCaptionDialog({ open, onClose, onInsert }: Props) {
               </p>
               <figure className="m-0">
                 <img
-                  src={imageUrl}
+                  src={resolveMediaUrl(imageUrl)}
                   alt={altText}
+                  referrerPolicy="no-referrer"
                   className="w-full max-h-48 object-cover rounded-lg"
                 />
                 {caption && (

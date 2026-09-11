@@ -187,22 +187,31 @@
   & img {
     border-radius: var(--radius);
     margin: 1.5rem 0;
+    max-width: 100%;
+    height: auto;
   }
   & figure {
-    margin: 1.5rem 0;
+    margin: 2rem 0;
     text-align: center;
+    width: 100%;
   }
   & figure img {
     margin: 0 auto;
     display: block;
+    max-width: 100%;
+    width: 100%;
+    height: auto;
+    border-radius: 1rem;
+    object-fit: cover;
   }
   & figcaption {
-    margin-top: 0.5rem;
+    margin-top: 0.625rem;
     font-size: 0.875rem;
     color: var(--color-muted-foreground);
     font-style: italic;
     text-align: center;
     font-family: var(--font-sans);
+    line-height: 1.5;
   }
 }
 

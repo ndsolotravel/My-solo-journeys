@@ -18,7 +18,7 @@ export function resolveMediaUrl(urlOrPath: string | null | undefined, client?: a
   }
 
   // Convert Google Drive sharing/file links into direct renderable CDN image links
-  if (trimmed.includes("drive.google.com")) {
+  if (trimmed.includes("drive.google.com") || trimmed.includes("docs.google.com")) {
     const fileIdMatch =
       trimmed.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/);
     if (fileIdMatch && fileIdMatch[1]) {

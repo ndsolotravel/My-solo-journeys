@@ -38,6 +38,7 @@ import { PageBreadcrumbs, BreadcrumbJsonLd } from "@/components/layout/PageBread
 import { toast } from "sonner";
 import { useTranslations, useLanguage } from "@/lib/translate/store";
 import { useContentTranslation } from "@/lib/translate/contentTranslation";
+import { resolveMediaUrl } from "@/lib/media";
 
 const postQO = (slug: string) =>
   queryOptions({
@@ -503,17 +504,23 @@ function PostPage() {
                   {translateMarkdownChildren(children, t, isDbTranslated)}
                 </blockquote>
               ),
-              figcaption: ({ children }) => (
-                <figcaption className="mt-2 text-center text-xs text-muted-foreground italic">
+              figure: ({ children, node, ...props }) => (
+                <figure className="my-8 w-full text-center" {...props}>
+                  {children}
+                </figure>
+              ),
+              figcaption: ({ children, node, ...props }) => (
+                <figcaption className="mt-2.5 text-center text-sm text-muted-foreground italic font-sans" {...props}>
                   {translateMarkdownChildren(children, t, isDbTranslated)}
                 </figcaption>
               ),
-              img: ({ src, alt, ...props }) => (
+              img: ({ src, alt, node, ...props }) => (
                 <img
-                  src={src}
+                  src={resolveMediaUrl(src)}
                   alt={alt && !isDbTranslated ? t(alt) : alt}
                   referrerPolicy="no-referrer"
-                  className="my-6 rounded-2xl w-full object-cover"
+                  className="my-6 rounded-2xl w-full max-w-full h-auto object-cover shadow-sm"
+                  loading="lazy"
                   {...props}
                 />
               ),
