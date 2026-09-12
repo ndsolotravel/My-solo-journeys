@@ -63,6 +63,8 @@ function AdminPostsList() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-posts"] });
       qc.invalidateQueries({ queryKey: ["posts"] });
+      qc.invalidateQueries({ queryKey: ["home"] });
+      qc.invalidateQueries({ queryKey: ["topic-cluster"] });
       qc.invalidateQueries({ queryKey: ["photo-archive"] });
       qc.invalidateQueries({ queryKey: ["gallery"] });
       toast.success("Updated post status");
@@ -79,6 +81,8 @@ function AdminPostsList() {
       qc.invalidateQueries({ queryKey: ["admin-posts"] });
       qc.invalidateQueries({ queryKey: ["admin-analytics"] });
       qc.invalidateQueries({ queryKey: ["posts"] });
+      qc.invalidateQueries({ queryKey: ["home"] });
+      qc.invalidateQueries({ queryKey: ["topic-cluster"] });
       qc.invalidateQueries({ queryKey: ["photo-archive"] });
       qc.invalidateQueries({ queryKey: ["gallery"] });
       toast.success("Post deleted successfully");

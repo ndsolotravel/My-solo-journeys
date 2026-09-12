@@ -370,10 +370,13 @@ const KNOWN_COUNTRY_HINTS: Record<string, string> = {
   patagonia: "Chile",
   banff: "Canada",
   tromso: "Norway",
-  lofotens: "Norway",
-  lofoten: "Norway",
-  cappadocia: "Turkey",
-  santorini: "Greece",
+  // Seychelles & Islands
+  seychelles: "Seychelles",
+  mahe: "Seychelles",
+  "mahé": "Seychelles",
+  praslin: "Seychelles",
+  "la digue": "Seychelles",
+  victoria: "Seychelles",
 };
 
 /**

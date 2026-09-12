@@ -140,6 +140,17 @@ const DEFAULT_CATEGORIES: Category[] = [
     seo_title: "Motorcycle Adventure Travel — ndsolotravel",
     seo_description: "High altitude motorcycle touring, mechanical repairs on the road, and pass crossings.",
   },
+  {
+    id: "cat-travel-stories",
+    name: "Travel Stories",
+    slug: "travel-stories",
+    description: "Personal essays, overland memoirs, and candid stories from life on the road.",
+    image_url: null,
+    status: "active",
+    display_order: 12,
+    seo_title: "Solo Travel Stories & Dispatches — ndsolotravel",
+    seo_description: "Immersive, personal accounts from remote frontiers, island journeys, and mountain crossings.",
+  },
 ];
 
 export function slugify(text: string): string {

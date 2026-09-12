@@ -119,11 +119,31 @@ export const getDestinationBySlug = createServerFn({ method: "GET" })
   .validator((input) => z.object({ slug: z.string() }).parse(input))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: row, error } = await supabaseAdmin
+    const rawSlug = data.slug.trim();
+    let decodedSlug = rawSlug;
+    try {
+      decodedSlug = decodeURIComponent(rawSlug);
+    } catch {
+      // fallback to raw
+    }
+
+    let { data: row, error } = await supabaseAdmin
       .from("destinations")
       .select("*")
-      .eq("slug", data.slug)
+      .eq("slug", rawSlug)
       .maybeSingle();
+
+    if (!row && decodedSlug !== rawSlug) {
+      const fallbackRes = await supabaseAdmin
+        .from("destinations")
+        .select("*")
+        .eq("slug", decodedSlug)
+        .maybeSingle();
+      if (!error && fallbackRes.data) {
+        row = fallbackRes.data;
+      }
+    }
+
     if (error) throw new Error(error.message);
     if (!row) return null;
 

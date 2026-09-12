@@ -127,6 +127,8 @@ function getTopicIcon(topic: ActiveTopic) {
   if (text.includes("motorcycle") || text.includes("bike") || text.includes("ride")) return Bike;
   if (text.includes("trek") || text.includes("hike") || text.includes("mountain")) return Mountain;
   if (text.includes("photo") || text.includes("camera")) return Camera;
+  if (text.includes("island") || text.includes("beach") || text.includes("ocean") || text.includes("seychelles"))
+    return Compass;
   if (text.includes("guide") || text.includes("tourism") || text.includes("pakistan"))
     return Globe2;
   return Compass;

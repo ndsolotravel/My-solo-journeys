@@ -4,6 +4,8 @@ export type TopicCluster = {
   subtitle: string;
   description: string;
   heroImage: string;
+  country?: string;
+  destinationSlugs?: string[];
   tags: string[];
   categories: string[];
   pillarContent: string;
@@ -16,9 +18,11 @@ export const TOPIC_CLUSTERS: TopicCluster[] = [
     subtitle: "Ride the roof of the world",
     description:
       "A complete guide to solo motorcycle adventures across Pakistan — from the Karakoram Highway to Deosai Plains, Hunza Valley, Skardu, and Fairy Meadows.",
-    heroImage: "",
+    heroImage: "https://lh3.googleusercontent.com/d/1C6Tu8yzhNnCDZoNP976Lno4xRhMrc0FJ",
+    country: "Pakistan",
+    destinationSlugs: ["phander-valley", "karakoram-highway", "hunza-valley", "skardu-autumn"],
     tags: ["motorcycle", "motorcycle travel", "karakoram highway", "hunza", "skardu", "deosai", "fairy meadows", "gilgit", "bike", "road trip"],
-    categories: ["Motorcycle Adventure Travel"],
+    categories: ["Motorcycle Adventure Travel", "Motorcycle Journeys"],
     pillarContent: `Pakistan is one of the most dramatic motorcycle destinations on earth. The country offers an unmatched combination of towering peaks, ancient trade routes, and warm hospitality — all accessible on two wheels.
 
 ## Why Ride Pakistan Solo?
@@ -53,7 +57,9 @@ The last 13 kilometres to Fairy Meadows are on one of the world's most dangerous
     subtitle: "Trails through the roof of the world",
     description:
       "From Nanga Parbat base camp to Baltoro Glacier, explore the best trekking routes in Pakistan's Karakoram, Himalaya, and Hindu Kush ranges.",
-    heroImage: "",
+    heroImage: "https://drive.google.com/file/d/10y1O43B2_EvQV2GHsw1SG4bv9qHBnSUA/view?usp=drive_link",
+    country: "Pakistan",
+    destinationSlugs: ["k2-base-camp-concordia", "nanga-parbat-base-camp"],
     tags: ["trekking", "hiking", "nanga parbat", "baltoro", "k2", "base camp", "fairy meadows", "passu", "trail"],
     categories: ["Trekking", "Hiking"],
     pillarContent: `Pakistan sits at the junction of three of the world's greatest mountain ranges — the Karakoram, the Himalaya, and the Hindu Kush. This makes it one of the finest trekking destinations on earth, with trails ranging from gentle valley walks to high-altitude expeditions.
@@ -84,7 +90,9 @@ One of the highest lakes in the world at 4,694 metres, Rush Lake offers panorami
     subtitle: "Where the world's highest peaks meet",
     description:
       "Explore the Karakoram range — home to K2, the Baltoro Glacier, and some of the most dramatic mountain scenery in the world.",
-    heroImage: "",
+    heroImage: "https://drive.google.com/file/d/1xDSotkmM2_wVp_DY-uzHD3nsY2zjVAHs/view?usp=drive_link",
+    country: "Pakistan",
+    destinationSlugs: ["k2-base-camp-concordia", "karakoram-highway", "hunza-valley"],
     tags: ["karakoram", "k2", "baltoro", "hunza", "gilgit", "passu", "hopper", "nagar"],
     categories: ["Mountains", "Adventure Travel"],
     pillarContent: `The Karakoram is the world's most concentrated range of high mountains. It contains over 60 peaks above 7,000 metres and four above 8,000 metres, including K2 — the second-highest mountain on earth.
@@ -117,7 +125,9 @@ The Karakoram is accessible from May to October. July and August offer the warme
     subtitle: "The jewel of northern Pakistan",
     description:
       "Everything you need to know about travelling in Gilgit Baltistan — from Hunza and Skardu to the Karakoram Highway and remote valleys.",
-    heroImage: "",
+    heroImage: "https://drive.google.com/file/d/1noESGu2mfBf64TRyjspmLQezMXugVDIL/view?usp=drive_link",
+    country: "Pakistan",
+    destinationSlugs: ["hunza-valley", "phander-valley", "skardu-autumn"],
     tags: ["gilgit", "baltistan", "hunza", "skardu", "nagar", "naltar", "ghizer", "shigar", "khaplu"],
     categories: ["Pakistan Tourism", "Adventure Travel"],
     pillarContent: `Gilgit Baltistan is a region of extraordinary beauty and cultural richness. Located in the northernmost part of Pakistan, it is home to some of the world's highest mountains, oldest glaciers, and most hospitable communities.
@@ -152,8 +162,10 @@ Most of Gilgit Baltistan is open to foreign tourists without a special permit. H
     subtitle: "Your guide to exploring Pakistan alone",
     description:
       "Is Pakistan safe for solo travellers? Everything you need to know about solo travel in Pakistan — routes, tips, costs, and real experiences.",
-    heroImage: "",
-    tags: ["solo travel", "pakistan", "adventure", "budget travel", "travel tips", "safety", "backpacking"],
+    heroImage: "https://drive.google.com/file/d/1C1qHkb9MjXmumG5ebaDj2ZKqiCcsrqgQ/view?usp=sharing",
+    country: "Pakistan",
+    destinationSlugs: ["nanga-parbat-base-camp", "hunza-valley", "phander-valley", "k2-base-camp-concordia"],
+    tags: ["solo travel", "pakistan", "budget travel", "travel tips", "safety", "backpacking"],
     categories: ["Solo Travel", "Pakistan Tourism"],
     pillarContent: `Pakistan has emerged as one of the most exciting solo travel destinations in the world. With its dramatic landscapes, rich culture, and incredibly welcoming people, it rewards those who travel independently.
 
@@ -190,10 +202,12 @@ Pakistan is one of the most affordable travel destinations in the world. Budget 
     subtitle: "Everything you need before you go",
     description:
       "The complete Pakistan travel guide — visa requirements, best time to visit, top destinations, budget tips, and safety advice for first-time visitors.",
-    heroImage: "",
+    heroImage: "https://drive.google.com/file/d/190jutXD6FuWe2wOw2vt0sjTxQroOxWoM/view?usp=sharing",
+    country: "Pakistan",
+    destinationSlugs: ["karakoram-highway", "hunza-valley", "phander-valley", "skardu-autumn", "k2-base-camp-concordia", "nanga-parbat-base-camp"],
     tags: ["pakistan", "travel guide", "visa", "budget", "safety", "destinations", "tips", "first time"],
     categories: ["Pakistan Tourism", "Travel Tips"],
-    pillarContent: `Pakistan is a country of staggering beauty and complexity. From the沙漠 dunes of Sindh to the glaciers of Gilgit Baltistan, it offers experiences that rival any destination on earth.
+    pillarContent: `Pakistan is a country of staggering beauty and complexity. From the desert dunes of Sindh to the glaciers of Gilgit Baltistan, it offers experiences that rival any destination on earth.
 
 ## Before You Go
 
@@ -237,6 +251,41 @@ The coastal metropolis. Seafood, Clifton Beach, Mohatta Palace, and vibrant stre
 - Accept tea when offered — it's a sign of hospitality
 - Bargaining is expected in markets
 - Photography is sensitive near military installations`,
+  },
+  {
+    slug: "solo-travel-seychelles",
+    title: "Solo Travel Seychelles",
+    subtitle: "Island hopping across the Indian Ocean",
+    description:
+      "A complete guide to solo travel and island hopping across the Seychelles — from Mahé to Praslin, La Digue, granite coastlines, and secluded beaches.",
+    heroImage: "https://drive.google.com/file/d/12FCge3xWekhOWwFduZYU7LQb9tzXYy4d/view?usp=sharing",
+    country: "Seychelles",
+    destinationSlugs: ["Mahe=Praslin-La digue=Seychelles"],
+    tags: ["seychelles", "la digue", "praslin", "mahe", "island hopping", "island", "africa"],
+    categories: ["Travel Stories", "Adventure", "Solo Travel"],
+    pillarContent: `The Seychelles archipelago is widely seen as a luxury honeymoon destination, but exploring its islands solo reveals a completely different adventure: taking inter-island ferries across turquoise waters, cycling coastal paths along massive granite boulders, and hiking through primordial palm forests.
+
+## Why Solo Travel in the Seychelles?
+
+Travelling independently through the Seychelles allows you to move at your own rhythm. You can catch the early morning ferry from Mahé to Praslin, spend the midday heat exploring the ancient coco de mer palms of Vallée de Mai, and reach La Digue by late afternoon with a rented bicycle as your only vehicle.
+
+## The Island-Hopping Route
+
+### Mahé
+The main island and logistical gateway. Start in Victoria, the compact capital, before heading out along the coastal roads. Mahé offers rugged hiking trails through Morne Seychellois National Park and secluded bays tucked behind granite promontories.
+
+### Praslin
+A one-hour Cat Cocos ferry crossing from Mahé brings you to Praslin. Here lies the UNESCO World Heritage Vallée de Mai, home to endemic black parrots and the iconic coco de mer. Praslin's Anse Lazio offers crystal-clear waters framed by smooth granite rocks.
+
+### La Digue
+A short 15-minute ferry from Praslin delivers you to La Digue, where life slows down to bicycle speed. Cars are rare, and the primary way to explore Anse Source d'Argent and Grand Anse is on two wheels along shaded sandy trails.
+
+## Practical Tips
+
+- **Best time:** April to May and October to November offer calm seas and pleasant temperatures
+- **Transport:** Inter-island ferries (Cat Cocos & Cat Roses) are reliable and comfortable. On La Digue, rent a bicycle at the jetty
+- **Currency:** Seychelles Rupee (SCR), though card payments are widely accepted
+- **Pack:** Reef-safe sunscreen, comfortable walking sandals, and offline maps`,
   },
 ];
 

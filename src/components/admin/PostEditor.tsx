@@ -640,6 +640,8 @@ export function PostEditor({
     onSuccess: (row) => {
       qc.invalidateQueries({ queryKey: ["admin-posts"] });
       qc.invalidateQueries({ queryKey: ["posts"] });
+      qc.invalidateQueries({ queryKey: ["home"] });
+      qc.invalidateQueries({ queryKey: ["topic-cluster"] });
       qc.invalidateQueries({ queryKey: ["photo-archive"] });
       qc.invalidateQueries({ queryKey: ["gallery"] });
       if (initial?.id) {

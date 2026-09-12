@@ -184,6 +184,21 @@ export const adminUpsertPost = createServerFn({ method: "POST" })
       author_name: "Hussain",
     };
 
+    // Auto-link category_id from categories table
+    if (data.category) {
+      try {
+        const { data: matchedCat } = await (client.from("categories") as any)
+          .select("id")
+          .ilike("name", data.category.trim())
+          .maybeSingle();
+        if (matchedCat?.id) {
+          payload.category_id = matchedCat.id;
+        }
+      } catch (catErr) {
+        console.warn("[adminUpsertPost] Could not resolve category_id:", catErr);
+      }
+    }
+
     if (data.author_name !== undefined) {
       const trimmed = data.author_name ? data.author_name.trim() : "";
       payload.author_name = trimmed && trimmed.toLowerCase() !== "noman" ? trimmed : "Hussain";
