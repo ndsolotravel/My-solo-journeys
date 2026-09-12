@@ -248,7 +248,7 @@ export const listAllPostSlugs = createServerFn({ method: "GET" }).handler(async 
   return (data ?? []) as { slug: string; updated_at: string }[];
 });
 
-const KNOWN_COUNTRY_HINTS: Record<string, string> = {
+export const KNOWN_COUNTRY_HINTS: Record<string, string> = {
   // Countries
   pakistan: "Pakistan",
   nepal: "Nepal",

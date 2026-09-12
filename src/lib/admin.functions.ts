@@ -111,6 +111,337 @@ const slugify = (s: string) =>
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-");
 
+function getDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function normalizeKey(str?: string | null): string {
+  if (!str) return "";
+  return str.toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+export async function resolveOrAssignDestination(
+  client: any,
+  params: {
+    destination_mode?: "auto" | "manual";
+    destination_id?: string | null;
+    location_name?: string | null;
+    latitude?: number | null;
+    longitude?: number | null;
+    title?: string | null;
+    content?: string | null;
+    excerpt?: string | null;
+    cover_image?: string | null;
+    dryRun?: boolean;
+  },
+): Promise<{
+  destination_id: string | null;
+  destination: any | null;
+  status: "manual_attached" | "existing_found" | "new_created" | "none";
+  detected_name?: string;
+  detected_country?: string;
+}> {
+  const mode = params.destination_mode || "auto";
+  const { extractCountryFromLocation, KNOWN_COUNTRY_HINTS } = await import("@/lib/posts.functions");
+
+  // 1. Manual mode handling (Priority 1)
+  if (mode === "manual") {
+    if (params.destination_id && params.destination_id.trim()) {
+      const { data: manualDest } = await client
+        .from("destinations")
+        .select("id, title, slug, country, region, latitude, longitude, featured_image")
+        .eq("id", params.destination_id.trim())
+        .maybeSingle();
+
+      if (manualDest) {
+        // Prevent cross-country mismatch if post location specifies country
+        const detectedPostCountry =
+          extractCountryFromLocation(params.location_name) ||
+          extractCountryFromLocation(params.title);
+
+        if (
+          detectedPostCountry &&
+          manualDest.country &&
+          detectedPostCountry.toLowerCase() !== manualDest.country.toLowerCase()
+        ) {
+          throw new Error(
+            `Destination country mismatch: The selected destination "${manualDest.title}" is in ${manualDest.country}, but this story is from ${detectedPostCountry}. Please choose a matching destination.`,
+          );
+        }
+
+        return {
+          destination_id: manualDest.id,
+          destination: manualDest,
+          status: "manual_attached",
+          detected_name: manualDest.title,
+          detected_country: manualDest.country,
+        };
+      }
+    }
+    return { destination_id: null, destination: null, status: "none" };
+  }
+
+  // 2. Automatic mode:
+  // Fetch existing destinations from DB
+  const { data: allDests, error: destsErr } = await client
+    .from("destinations")
+    .select("id, title, slug, country, region, latitude, longitude, featured_image");
+
+  if (destsErr) {
+    console.warn("[resolveOrAssignDestination] Warning fetching destinations:", destsErr);
+  }
+
+  const destinations: any[] = allDests || [];
+
+  // Determine post country
+  let detectedCountry: string | null =
+    extractCountryFromLocation(params.location_name) ||
+    extractCountryFromLocation(params.title);
+
+  if (!detectedCountry && params.content) {
+    const contentSnippet = params.content.slice(0, 1000).toLowerCase();
+    for (const [kw, cName] of Object.entries(KNOWN_COUNTRY_HINTS)) {
+      if (contentSnippet.includes(kw)) {
+        detectedCountry = cName;
+        break;
+      }
+    }
+  }
+
+  // Priority 1 inside Auto: If administrator explicitly provided a valid destination_id, verify and use it
+  if (params.destination_id && params.destination_id.trim()) {
+    const existingExplicit = destinations.find((d) => d.id === params.destination_id!.trim());
+    if (existingExplicit) {
+      return {
+        destination_id: existingExplicit.id,
+        destination: existingExplicit,
+        status: "existing_found",
+        detected_name: existingExplicit.title,
+        detected_country: existingExplicit.country,
+      };
+    }
+  }
+
+  // Priority 2: Match by Location field
+  const cleanLoc = (params.location_name || "").trim();
+  let candidatePlace = "";
+  if (cleanLoc) {
+    const segments = cleanLoc.split(",").map((s) => s.trim()).filter(Boolean);
+    candidatePlace = segments[0] || cleanLoc;
+    const normLoc = normalizeKey(cleanLoc);
+    const normPrimary = normalizeKey(candidatePlace);
+
+    for (const d of destinations) {
+      const normTitle = normalizeKey(d.title);
+      const normSlug = normalizeKey(d.slug);
+      const countryMatches =
+        !detectedCountry ||
+        !d.country ||
+        d.country.toLowerCase() === detectedCountry.toLowerCase();
+
+      if (!countryMatches) continue;
+
+      // Check normalized exact title, slug, or substring match
+      if (
+        normTitle === normPrimary ||
+        normSlug === normalizeKey(slugify(candidatePlace)) ||
+        normLoc.includes(normTitle) ||
+        normTitle.includes(normPrimary)
+      ) {
+        return {
+          destination_id: d.id,
+          destination: d,
+          status: "existing_found",
+          detected_name: d.title,
+          detected_country: d.country,
+        };
+      }
+    }
+  }
+
+  // Priority 3: Match by Coordinates proximity (within 25 km in same country)
+  if (
+    typeof params.latitude === "number" &&
+    !isNaN(params.latitude) &&
+    typeof params.longitude === "number" &&
+    !isNaN(params.longitude)
+  ) {
+    for (const d of destinations) {
+      if (typeof d.latitude === "number" && typeof d.longitude === "number") {
+        const countryMatches =
+          !detectedCountry ||
+          !d.country ||
+          d.country.toLowerCase() === detectedCountry.toLowerCase();
+
+        if (countryMatches) {
+          const dist = getDistanceKm(params.latitude, params.longitude, d.latitude, d.longitude);
+          if (dist <= 25) {
+            return {
+              destination_id: d.id,
+              destination: d,
+              status: "existing_found",
+              detected_name: d.title,
+              detected_country: d.country,
+            };
+          }
+        }
+      }
+    }
+  }
+
+  // Priority 4 & 5: Match by Title keywords
+  if (params.title) {
+    const normTitle = normalizeKey(params.title);
+    for (const d of destinations) {
+      const countryMatches =
+        !detectedCountry ||
+        !d.country ||
+        d.country.toLowerCase() === detectedCountry.toLowerCase();
+
+      if (countryMatches && normTitle.includes(normalizeKey(d.title))) {
+        return {
+          destination_id: d.id,
+          destination: d,
+          status: "existing_found",
+          detected_name: d.title,
+          detected_country: d.country,
+        };
+      }
+    }
+  }
+
+  // If no existing destination matched, can we create a new one?
+  let newTitle = candidatePlace || (params.title || "").trim();
+  if (newTitle.length > 60 && newTitle.includes(",")) {
+    newTitle = newTitle.split(",")[0].trim();
+  }
+
+  if (!newTitle) {
+    return { destination_id: null, destination: null, status: "none" };
+  }
+
+  const finalCountry = detectedCountry || "Pakistan";
+  let newSlug = slugify(newTitle);
+  if (!newSlug) newSlug = slugify(`${finalCountry}-adventure`);
+
+  // Final check: did a destination with this slug already exist?
+  const slugMatch = destinations.find(
+    (d) => d.slug.toLowerCase() === newSlug.toLowerCase(),
+  );
+  if (slugMatch) {
+    return {
+      destination_id: slugMatch.id,
+      destination: slugMatch,
+      status: "existing_found",
+      detected_name: slugMatch.title,
+      detected_country: slugMatch.country,
+    };
+  }
+
+  if (params.dryRun) {
+    return {
+      destination_id: null,
+      destination: null,
+      status: "new_created",
+      detected_name: newTitle,
+      detected_country: finalCountry,
+    };
+  }
+
+  // Resolve missing coordinates if needed
+  let finalLat = params.latitude;
+  let finalLng = params.longitude;
+
+  if (
+    (finalLat == null || isNaN(finalLat) || finalLng == null || isNaN(finalLng)) &&
+    (cleanLoc || newTitle)
+  ) {
+    try {
+      const { geocodeFromTitle } = await import("@/lib/geocoding.functions");
+      const geo = await geocodeFromTitle({
+        data: { title: `${cleanLoc || newTitle}, ${finalCountry}` },
+      });
+      if (typeof geo?.latitude === "number" && typeof geo?.longitude === "number") {
+        finalLat = geo.latitude;
+        finalLng = geo.longitude;
+      }
+    } catch (e) {
+      // Ignore geocoding failure during destination creation
+    }
+  }
+
+  const newDestRecord: Record<string, any> = {
+    title: newTitle,
+    slug: newSlug,
+    country: finalCountry,
+    region: cleanLoc.includes(",") ? cleanLoc.split(",")[1].trim() : null,
+    description:
+      params.excerpt ||
+      `Explore ${newTitle}, ${finalCountry}. Motorcycle routes, hiking trails, and honest solo travel dispatches.`,
+    featured_image: params.cover_image || null, // from post, no external unsplash
+    featured: false,
+    published: true,
+    latitude: typeof finalLat === "number" && !isNaN(finalLat) ? finalLat : null,
+    longitude: typeof finalLng === "number" && !isNaN(finalLng) ? finalLng : null,
+    category: "Auto-Assigned",
+  };
+
+  const { data: created, error: insErr } = await client
+    .from("destinations")
+    .insert(newDestRecord)
+    .select("*")
+    .single();
+
+  if (insErr) {
+    console.error("[resolveOrAssignDestination] Error auto-creating destination:", insErr);
+    return { destination_id: null, destination: null, status: "none" };
+  }
+
+  return {
+    destination_id: created.id,
+    destination: created,
+    status: "new_created",
+    detected_name: created.title,
+    detected_country: created.country,
+  };
+}
+
+export const adminDetectDestination = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((i) =>
+    z
+      .object({
+        destination_mode: z.enum(["auto", "manual"]).optional().default("auto"),
+        destination_id: z.string().nullable().optional(),
+        location_name: z.string().nullable().optional(),
+        latitude: z.number().min(-90).max(90).nullable().optional(),
+        longitude: z.number().min(-180).max(180).nullable().optional(),
+        title: z.string().nullable().optional(),
+        content: z.string().nullable().optional(),
+        excerpt: z.string().nullable().optional(),
+      })
+      .parse(i),
+  )
+  .handler(async ({ context, data }) => {
+    await assertEditor(context.userId, context.supabase);
+    const client =
+      context.supabase ?? (await import("@/integrations/supabase/client.server")).supabaseAdmin;
+
+    return await resolveOrAssignDestination(client, {
+      ...data,
+      dryRun: true,
+    });
+  });
+
 export const adminUpsertPost = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((i) =>
@@ -132,6 +463,7 @@ export const adminUpsertPost = createServerFn({ method: "POST" })
         latitude: z.number().min(-90).max(90).nullable().optional(),
         longitude: z.number().min(-180).max(180).nullable().optional(),
         scheduled_at: z.string().nullable().optional(),
+        destination_mode: z.enum(["auto", "manual"]).optional().default("auto"),
         destination_id: z
           .string()
           .nullable()
@@ -215,9 +547,32 @@ export const adminUpsertPost = createServerFn({ method: "POST" })
     if (data.longitude !== undefined) {
       payload.longitude = data.longitude !== null && !isNaN(data.longitude) ? data.longitude : null;
     }
-    if (data.destination_id !== undefined) {
-      payload.destination_id = data.destination_id || null;
+    // Auto-resolve or assign destination
+    let destResult: any = null;
+    try {
+      destResult = await resolveOrAssignDestination(client, {
+        destination_mode: data.destination_mode,
+        destination_id: data.destination_id,
+        location_name: data.location_name,
+        latitude: data.latitude,
+        longitude: data.longitude,
+        title: data.title,
+        content: data.content,
+        excerpt: data.excerpt,
+        cover_image: data.cover_image,
+        dryRun: false,
+      });
+
+      if (destResult?.destination_id) {
+        payload.destination_id = destResult.destination_id;
+      } else if (data.destination_mode === "manual") {
+        payload.destination_id = null;
+      }
+    } catch (destErr: any) {
+      console.error("[adminUpsertPost] Destination resolution error:", destErr);
+      throw new Error(destErr.message || "Failed to resolve destination relationship");
     }
+
     if (data.travel_date !== undefined) {
       payload.travel_date = data.travel_date || null;
     }
@@ -307,7 +662,11 @@ export const adminUpsertPost = createServerFn({ method: "POST" })
       }
     }
 
-    return postRow;
+    return {
+      ...postRow,
+      destination: destResult?.destination || null,
+      destination_status: destResult?.status || "none",
+    };
   });
 
 export const adminDeleteGalleryImage = createServerFn({ method: "POST" })
@@ -590,7 +949,7 @@ export const adminDeletePost = createServerFn({ method: "POST" })
     // 1. Fetch post and gallery info to discover storage media before deletion
     const { data: post, error: fetchError } = await client
       .from("posts")
-      .select("id, cover_image, og_image_url, post_gallery(image_url)")
+      .select("id, destination_id, cover_image, og_image_url, post_gallery(image_url)")
       .eq("id", data.id)
       .maybeSingle();
 
@@ -656,6 +1015,30 @@ export const adminDeletePost = createServerFn({ method: "POST" })
       throw new Error(
         "Unable to delete this blog post. The post was not found or deletion permission was denied.",
       );
+    }
+
+    // 5. If post was linked to an auto-created destination, clean it up only if no other posts use it
+    if (post.destination_id) {
+      try {
+        const { data: remaining } = await client
+          .from("posts")
+          .select("id")
+          .eq("destination_id", post.destination_id);
+
+        if (!remaining || remaining.length === 0) {
+          const { data: dest } = await client
+            .from("destinations")
+            .select("id, category")
+            .eq("id", post.destination_id)
+            .maybeSingle();
+
+          if (dest && dest.category === "Auto-Assigned") {
+            await client.from("destinations").delete().eq("id", dest.id);
+          }
+        }
+      } catch (cleanDestErr) {
+        console.warn("[adminDeletePost] Auto-destination cleanup warning:", cleanDestErr);
+      }
     }
 
     return { ok: true, id: data.id };

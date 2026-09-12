@@ -35,12 +35,14 @@ import {
   AlertTriangle,
   Monitor,
   Smartphone,
+  Compass,
 } from "lucide-react";
 import { toast } from "sonner";
 import { MarkdownEditor } from "./MarkdownEditor";
 import { DraggableDialog } from "./DraggableDialog";
 import {
   adminUpsertPost,
+  adminDetectDestination,
   adminUpdatePostCoordinates,
   adminUploadImage,
   adminListDestinations,
@@ -282,6 +284,7 @@ export function PostEditor({
   const saveGalleryFn = useServerFn(adminSavePostGallery);
   const listDestinationsFn = useServerFn(adminListDestinations);
   const listCategoriesFn = useServerFn(adminListCategories);
+  const detectDestFn = useServerFn(adminDetectDestination);
 
   const { data: destinations } = useQuery({
     queryKey: ["admin-destinations"],
@@ -324,7 +327,15 @@ export function PostEditor({
   const [scheduledAt, setScheduledAt] = useState<string>(
     initial?.scheduled_at ? toLocalInput(initial.scheduled_at) : "",
   );
+  const [destinationMode, setDestinationMode] = useState<"auto" | "manual">("auto");
   const [destinationId, setDestinationId] = useState(initial?.destination_id ?? "");
+  const [detectedDest, setDetectedDest] = useState<{
+    status: string;
+    name?: string;
+    country?: string;
+    destination_id?: string | null;
+  } | null>(null);
+  const [isDetectingDest, setIsDetectingDest] = useState(false);
   const [travelDate, setTravelDate] = useState(initial?.travel_date ?? "");
   const [seoTitle, setSeoTitle] = useState(initial?.seo_title ?? "");
   const [seoDescription, setSeoDescription] = useState(initial?.seo_description ?? "");
@@ -436,6 +447,55 @@ export function PostEditor({
     setPostCoordStatus("idle");
     setPostCoordErrorMessage(null);
   }, [initial]);
+
+  // Auto-detect destination whenever locationName, title, coordinates, or mode changes
+  useEffect(() => {
+    if (destinationMode !== "auto") return;
+
+    let isMounted = true;
+    const timer = setTimeout(async () => {
+      if (!title.trim() && !locationName.trim() && !latitude.trim()) {
+        if (isMounted) setDetectedDest(null);
+        return;
+      }
+
+      setIsDetectingDest(true);
+      try {
+        const res = await detectDestFn({
+          data: {
+            destination_mode: "auto",
+            destination_id: destinationId || null,
+            location_name: locationName.trim() || null,
+            latitude: latitude.trim() !== "" ? parseFloat(latitude.trim()) : null,
+            longitude: longitude.trim() !== "" ? parseFloat(longitude.trim()) : null,
+            title: title.trim() || null,
+            content: content.slice(0, 1000) || null,
+            excerpt: excerpt.trim() || null,
+          },
+        });
+        if (isMounted && res) {
+          setDetectedDest({
+            status: res.status,
+            name: res.detected_name,
+            country: res.detected_country,
+            destination_id: res.destination_id,
+          });
+          if (res.destination_id && !destinationId) {
+            setDestinationId(res.destination_id);
+          }
+        }
+      } catch (err) {
+        console.warn("[PostEditor] Destination detection note:", err);
+      } finally {
+        if (isMounted) setIsDetectingDest(false);
+      }
+    }, 600);
+
+    return () => {
+      isMounted = false;
+      clearTimeout(timer);
+    };
+  }, [destinationMode, locationName, title, latitude, longitude, content, excerpt]);
 
   const [galleryUrlInput, setGalleryUrlInput] = useState("");
   const [uploading, setUploading] = useState<"cover" | "inline" | "gallery" | "author" | null>(null);
@@ -637,15 +697,28 @@ export function PostEditor({
 
   const save = useMutation({
     mutationFn: (payload: Record<string, unknown>) => upsertFn({ data: payload as never }),
-    onSuccess: (row) => {
+    onSuccess: (row: any) => {
       qc.invalidateQueries({ queryKey: ["admin-posts"] });
       qc.invalidateQueries({ queryKey: ["posts"] });
       qc.invalidateQueries({ queryKey: ["home"] });
       qc.invalidateQueries({ queryKey: ["topic-cluster"] });
+      qc.invalidateQueries({ queryKey: ["admin-destinations"] });
+      qc.invalidateQueries({ queryKey: ["destinations"] });
       qc.invalidateQueries({ queryKey: ["photo-archive"] });
       qc.invalidateQueries({ queryKey: ["gallery"] });
       if (initial?.id) {
         qc.invalidateQueries({ queryKey: ["admin-post", initial.id] });
+      }
+      if (row?.destination_id) {
+        setDestinationId(row.destination_id);
+      }
+      if (row?.destination_status) {
+        setDetectedDest({
+          status: row.destination_status,
+          name: row.destination?.title,
+          country: row.destination?.country,
+          destination_id: row.destination_id,
+        });
       }
       setSavedSnapshot(
         makeSnapshot({
@@ -1077,6 +1150,7 @@ export function PostEditor({
       latitude: parsedLat,
       longitude: parsedLng,
       scheduled_at: scheduledAt ? new Date(scheduledAt).toISOString() : null,
+      destination_mode: destinationMode,
       destination_id: destinationId || null,
       travel_date: travelDate || null,
       seo_title: seoTitle.trim() || null,
@@ -2112,20 +2186,196 @@ export function PostEditor({
             </div>
           </Field>
 
-          <Field label="Link Destination">
-            <select
-              value={destinationId}
-              onChange={(e) => setDestinationId(e.target.value)}
-              className={input}
-            >
-              <option value="">-- No destination link --</option>
-              {(destinations ?? []).map((d) => (
-                <option key={d.id} value={d.id}>
-                  {d.title} ({d.country})
-                </option>
-              ))}
-            </select>
-          </Field>
+          {/* Destination Connection Section */}
+          <div className="space-y-3 pt-2 border-t border-border/60">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-semibold uppercase tracking-wider text-foreground flex items-center gap-1.5">
+                <Compass className="h-3.5 w-3.5 text-sky-500" />
+                <span>Destination Connection</span>
+              </label>
+
+              {/* Mode Toggle */}
+              <div className="inline-flex rounded-lg border border-border bg-background p-0.5 text-[11px] font-medium shadow-2xs">
+                <button
+                  type="button"
+                  onClick={() => setDestinationMode("auto")}
+                  className={`px-2.5 py-1 rounded-md transition-all flex items-center gap-1 cursor-pointer ${
+                    destinationMode === "auto"
+                      ? "bg-accent text-accent-foreground font-semibold shadow-xs"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <Sparkles className="h-3 w-3" />
+                  <span>Auto</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDestinationMode("manual")}
+                  className={`px-2.5 py-1 rounded-md transition-all flex items-center gap-1 cursor-pointer ${
+                    destinationMode === "manual"
+                      ? "bg-accent text-accent-foreground font-semibold shadow-xs"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <span>Manual</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Live Status Banners */}
+            {destinationMode === "auto" ? (
+              <div className="space-y-2">
+                {isDetectingDest ? (
+                  <div className="flex items-center gap-2 rounded-xl border border-sky-500/20 bg-sky-500/5 p-3 text-xs text-sky-600 dark:text-sky-400 animate-pulse">
+                    <Loader2 className="h-4 w-4 animate-spin shrink-0" />
+                    <span>Analyzing location and detecting destination...</span>
+                  </div>
+                ) : detectedDest?.status === "existing_found" ? (
+                  <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 space-y-1">
+                    <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
+                      <CheckCircle2 className="h-4 w-4 shrink-0" />
+                      <span>Existing destination found:</span>
+                    </div>
+                    <p className="text-sm font-medium text-foreground pl-5.5">
+                      {detectedDest.name}{" "}
+                      {detectedDest.country && (
+                        <span className="text-xs font-normal text-muted-foreground">
+                          ({detectedDest.country})
+                        </span>
+                      )}
+                    </p>
+                    <p className="text-[11px] text-muted-foreground pl-5.5">
+                      Will automatically attach this blog using verified database ID.
+                    </p>
+                  </div>
+                ) : detectedDest?.status === "new_created" ? (
+                  <div className="rounded-xl border border-sky-500/30 bg-sky-500/10 p-3 space-y-1">
+                    <div className="flex items-center gap-1.5 text-xs font-semibold text-sky-700 dark:text-sky-400">
+                      <Sparkles className="h-4 w-4 shrink-0" />
+                      <span>New destination will be created:</span>
+                    </div>
+                    <p className="text-sm font-medium text-foreground pl-5.5">
+                      {detectedDest.name}{" "}
+                      {detectedDest.country && (
+                        <span className="text-xs font-normal text-muted-foreground">
+                          ({detectedDest.country})
+                        </span>
+                      )}
+                    </p>
+                    <p className="text-[11px] text-muted-foreground pl-5.5">
+                      Auto-populating name, unique slug, coordinates, description, and blog cover image upon save.
+                    </p>
+                  </div>
+                ) : (destinations ?? []).find((d) => d.id === destinationId) ? (
+                  (() => {
+                    const linked = (destinations ?? []).find((d) => d.id === destinationId);
+                    return (
+                      <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 space-y-1">
+                        <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
+                          <CheckCircle2 className="h-4 w-4 shrink-0" />
+                          <span>Destination attached:</span>
+                        </div>
+                        <p className="text-sm font-medium text-foreground pl-5.5">
+                          {linked?.title}{" "}
+                          {linked?.country && (
+                            <span className="text-xs font-normal text-muted-foreground">
+                              ({linked.country})
+                            </span>
+                          )}
+                        </p>
+                      </div>
+                    );
+                  })()
+                ) : (
+                  <div className="rounded-xl border border-border bg-muted/30 p-3 text-xs text-muted-foreground flex items-center gap-2">
+                    <Compass className="h-4 w-4 text-muted-foreground shrink-0" />
+                    <span>
+                      Destination will be auto-determined using Location, Coordinates, Country, or Title on save.
+                    </span>
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-1">
+                  <span>Priority: Location &gt; Coords &gt; Country &gt; Title</span>
+                  <button
+                    type="button"
+                    onClick={() => setDestinationMode("manual")}
+                    className="text-accent hover:underline cursor-pointer font-medium"
+                  >
+                    Manual override
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-2.5">
+                <select
+                  value={destinationId}
+                  onChange={(e) => setDestinationId(e.target.value)}
+                  className={input}
+                >
+                  <option value="">-- No destination link --</option>
+                  {(destinations ?? []).map((d) => (
+                    <option key={d.id} value={d.id}>
+                      {d.title} ({d.country})
+                    </option>
+                  ))}
+                </select>
+
+                {/* Country Mismatch Prevention Warning */}
+                {(() => {
+                  if (!destinationId) return null;
+                  const selectedDest = (destinations ?? []).find((d) => d.id === destinationId);
+                  if (!selectedDest) return null;
+
+                  const loc = locationName.toLowerCase();
+                  const destCountry = (selectedDest.country || "").toLowerCase();
+
+                  const isPakistanDest = destCountry.includes("pakistan");
+                  const isSeychellesDest = destCountry.includes("seychelles");
+                  const locHasSeychelles =
+                    loc.includes("seychelles") || loc.includes("mahe") || loc.includes("praslin") || loc.includes("la digue");
+                  const locHasPakistan =
+                    loc.includes("pakistan") || loc.includes("hunza") || loc.includes("skardu") || loc.includes("karakoram");
+
+                  const conflict =
+                    (isPakistanDest && locHasSeychelles) ||
+                    (isSeychellesDest && locHasPakistan);
+
+                  if (conflict) {
+                    return (
+                      <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-2.5 text-xs text-rose-600 dark:text-rose-400 flex items-start gap-2">
+                        <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
+                        <div>
+                          <span className="font-semibold">Country Mismatch Warning:</span>
+                          <p className="text-[11px] mt-0.5 text-foreground">
+                            Destination "{selectedDest.title}" is in {selectedDest.country}, but this story location mentions {locationName}. Please select a destination in the correct country.
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div className="inline-flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-medium pl-1">
+                      <CheckCircle2 className="h-3.5 w-3.5" />
+                      <span>Attached: {selectedDest.title} ({selectedDest.country})</span>
+                    </div>
+                  );
+                })()}
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDestinationMode("auto");
+                    setDestinationId(initial?.destination_id ?? "");
+                  }}
+                  className="text-[11px] text-accent hover:underline cursor-pointer flex items-center gap-1 pt-1"
+                >
+                  <Sparkles className="h-3 w-3" /> Revert to Automatic Detection
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Cover Image */}

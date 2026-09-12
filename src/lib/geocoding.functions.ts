@@ -167,6 +167,20 @@ const KNOWN_DESTINATIONS: KnownLocationEntry[] = [
   },
   {
     patterns: [
+      /\bseychelles\b/i,
+      /\bmah[eé]\b/i,
+      /\bpraslin\b/i,
+      /\bla\s*digue\b/i,
+      /\bvictoria\b/i,
+      /\banse\s*(source|lazio|georgette|cocos|major)\b/i,
+    ],
+    locationName: "Seychelles Islands",
+    latitude: -4.6796,
+    longitude: 55.492,
+    displayName: "Mahé, Praslin, La Digue, Seychelles",
+  },
+  {
+    patterns: [
       /\brakaposhi(\s*base\s*camp|\s*view\s*point)?\b/i,
       /\bnagar(\s*valley)?\b/i,
       /\bminapin\b/i,
