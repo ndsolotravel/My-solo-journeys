@@ -3613,6 +3613,7 @@ var ZodFirstPartyTypeKind;
 const stringType = ZodString.create;
 const numberType = ZodNumber.create;
 const booleanType = ZodBoolean.create;
+const nullType = ZodNull.create;
 ZodNever.create;
 const arrayType = ZodArray.create;
 const objectType = ZodObject.create;
@@ -3628,6 +3629,7 @@ ZodNullable.create;
 export {
   arrayType as a,
   booleanType as b,
+  nullType as c,
   enumType as e,
   literalType as l,
   numberType as n,

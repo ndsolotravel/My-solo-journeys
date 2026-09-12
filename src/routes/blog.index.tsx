@@ -82,9 +82,9 @@ export const Route = createFileRoute("/blog/")({
         property: "og:description",
         content: "Solo travel, motorcycle journeys, and alpine trekking journals.",
       },
-      { property: "og:url", content: "/blog" },
+      { property: "og:url", content: "https://ndsolotravel.com/blog" },
     ],
-    links: [{ rel: "canonical", href: "/blog" }],
+    links: [{ rel: "canonical", href: "https://ndsolotravel.com/blog" }],
     scripts: [
       {
         type: "application/ld+json",

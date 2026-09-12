@@ -31,21 +31,27 @@ export function CountUp({
       return;
     }
 
-    setDisplay(0);
     const obj = { v: 0 };
     const tween = gsap.to(obj, {
       v: end,
       duration,
       ease: "power3.out",
+      paused: true,
       onUpdate: () => setDisplay(Math.round(obj.v)),
-      scrollTrigger: {
-        trigger: ref.current,
-        start: "top 80%",
-        once: true,
+    });
+
+    const trigger = ScrollTrigger.create({
+      trigger: ref.current,
+      start: "top 85%",
+      once: true,
+      onEnter: () => {
+        setDisplay(0);
+        tween.restart();
       },
     });
+
     return () => {
-      tween.scrollTrigger?.kill();
+      trigger.kill();
       tween.kill();
     };
   }, [end, duration]);

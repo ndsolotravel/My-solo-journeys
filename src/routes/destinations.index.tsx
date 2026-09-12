@@ -45,9 +45,9 @@ export const Route = createFileRoute("/destinations/")({
       },
       { property: "og:title", content: "Destinations — ndsolotravel" },
       { property: "og:description", content: "Country and region guides for solo travellers." },
-      { property: "og:url", content: "/destinations" },
+      { property: "og:url", content: "https://ndsolotravel.com/destinations" },
     ],
-    links: [{ rel: "canonical", href: "/destinations" }],
+    links: [{ rel: "canonical", href: "https://ndsolotravel.com/destinations" }],
     scripts: [
       {
         type: "application/ld+json",
@@ -62,11 +62,16 @@ export const Route = createFileRoute("/destinations/")({
       },
     ],
   }),
-  loader: ({ context }) =>
-    Promise.all([
-      context.queryClient.ensureQueryData(destQO),
-      context.queryClient.ensureQueryData(heroQO),
-    ]).then(() => undefined),
+  loader: async ({ context }) => {
+    try {
+      await Promise.all([
+        context.queryClient.ensureQueryData(destQO),
+        context.queryClient.ensureQueryData(heroQO),
+      ]);
+    } catch (err) {
+      console.error("[destinations.index] loader error:", err);
+    }
+  },
   component: DestinationsPage,
 });
 

@@ -80,13 +80,13 @@ export const Route = createFileRoute("/blog/$slug")({
         { property: "og:title", content: title },
         { property: "og:description", content: desc },
         { property: "og:type", content: "article" },
-        { property: "og:url", content: `/blog/${params.slug}` },
+        { property: "og:url", content: `https://ndsolotravel.com/blog/${params.slug}` },
         ...(image ? [{ property: "og:image", content: image }] : []),
         ...(image ? [{ name: "twitter:image", content: image }] : []),
         { name: "twitter:card", content: "summary_large_image" },
       ],
       links: [
-        { rel: "canonical", href: `/blog/${params.slug}` },
+        { rel: "canonical", href: `https://ndsolotravel.com/blog/${params.slug}` },
         ...["id", "ms"].map((l) => ({
           rel: "alternate",
           hrefLang: l,

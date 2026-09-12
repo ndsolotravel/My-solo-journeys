@@ -20,8 +20,8 @@ export const DEFAULT_PUBLIC_POPUP_MESSAGE: PublicPopupMessage = {
   title: "Site Notice & Feedback",
   message:
     "This site is under construction and testing. Please suggest any UI/UX changes and report errors. Thanks for visiting ‘ndsolotravel’ Blogs.",
-  enabled: true,
-  is_enabled: true,
+  enabled: false,
+  is_enabled: false,
   start_at: new Date().toISOString(),
   end_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
   updated_at: new Date().toISOString(),

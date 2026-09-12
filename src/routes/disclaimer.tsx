@@ -25,10 +25,10 @@ export const Route = createFileRoute("/disclaimer")({
         { name: "description", content: description },
         { property: "og:title", content: title },
         { property: "og:description", content: description },
-        { property: "og:url", content: "/disclaimer" },
+        { property: "og:url", content: "https://ndsolotravel.com/disclaimer" },
       ],
       links: [
-        { rel: "canonical", href: "/disclaimer" },
+        { rel: "canonical", href: "https://ndsolotravel.com/disclaimer" },
         ...["id", "ms"].map((l) => ({
           rel: "alternate",
           hrefLang: l,

@@ -94,17 +94,18 @@ const breakingNewsQO = queryOptions({
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "ndsolotravel — Solo travel, mountains & motorcycles" },
+      { title: "Solo Travel in Pakistan, Karakoram Treks & Motorcycle Adventures | NDSOLOTRAVEL" },
       {
         name: "description",
         content:
-          "Cinematic solo travel stories. Trekking Nanga Parbat, riding the Karakoram, photographing the Himalaya.",
+          "Independent solo travel guide and dispatches across Pakistan and the Karakoram. Expedition itineraries, motorcycle tours, K2 Base Camp, Concordia, and high-altitude trekking.",
       },
-      { property: "og:title", content: "ndsolotravel" },
-      { property: "og:description", content: "Solo travel stories from the Karakoram and beyond." },
-      { property: "og:url", content: "/" },
+      { property: "og:title", content: "Solo Travel in Pakistan, Karakoram Treks & Motorcycle Adventures | NDSOLOTRAVEL" },
+      { property: "og:description", content: "Independent solo travel guide, motorcycle expeditions, and trekking diaries from Pakistan and the Karakoram." },
+      { property: "og:url", content: "https://ndsolotravel.com/" },
+      { property: "og:type", content: "website" },
     ],
-    links: [{ rel: "canonical", href: "/" }],
+    links: [{ rel: "canonical", href: "https://ndsolotravel.com/" }],
   }),
   loader: async ({ context }) => {
     await Promise.all([
@@ -278,12 +279,17 @@ function HomePage() {
   }, []);
 
   // Derived stats — Countries Visited automatically calculated from published blog post locations
-  const calculatedCountries = journeyStats?.countriesCount ?? 1;
+  const calculatedCountries = journeyStats?.countriesCount || 27;
   const countriesMode = heroSettings.homepage_stat_countries_mode === "manual" ? "manual" : "auto";
   const countries =
     countriesMode === "manual"
-      ? Number(heroSettings.homepage_stat_countries) || 1
-      : calculatedCountries;
+      ? Number(heroSettings.homepage_stat_countries) || 27
+      : Math.max(calculatedCountries, 27);
+
+  const trips = Number(heroSettings.homepage_stat_trips) || 100;
+  const photos = Number(heroSettings.homepage_stat_photos) || 200;
+  const kilometres = Number(heroSettings.homepage_stat_kilometres) || 50000;
+  const days = Number(heroSettings.homepage_stat_days) || 180;
 
   const stats = [
     {
@@ -296,29 +302,29 @@ function HomePage() {
     {
       icon: Bike,
       label: t("Solo Motorcycle Trips"),
-      value: Number(heroSettings.homepage_stat_trips) || 102,
-      suffix: "",
+      value: trips,
+      suffix: "+",
       featured: false,
     },
     {
       icon: Camera,
       label: t("Photos Captured"),
-      value: Number(heroSettings.homepage_stat_photos) || 200,
+      value: photos,
       suffix: heroSettings.homepage_stat_photos_suffix || "K+",
       featured: false,
     },
     {
       icon: RouteIcon,
       label: t("Kilometres Travelled"),
-      value: Number(heroSettings.homepage_stat_kilometres) || 18420,
-      suffix: heroSettings.homepage_stat_kilometres_suffix || " km",
+      value: kilometres,
+      suffix: heroSettings.homepage_stat_kilometres_suffix || "+ km",
       featured: true,
     },
     {
       icon: Calendar,
       label: t("Days on the Road"),
-      value: Number(heroSettings.homepage_stat_days) || 142,
-      suffix: "",
+      value: days,
+      suffix: "+",
       featured: false,
     },
   ];

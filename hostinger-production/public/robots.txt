@@ -1,2 +1,8 @@
+# robots.txt for ndsolotravel.com
 User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /auth
+Disallow: /account
+
+Sitemap: https://ndsolotravel.com/sitemap.xml

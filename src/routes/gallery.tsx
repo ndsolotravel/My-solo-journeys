@@ -38,9 +38,9 @@ export const Route = createFileRoute("/gallery")({
           "See the world through my lens: adventures and solo journeys in photographs across the Karakoram, high passes, and remote frontiers.",
       },
       { property: "og:title", content: "Gallery — My Visual Diary | ndsolotravel" },
-      { property: "og:url", content: "/gallery" },
+      { property: "og:url", content: "https://ndsolotravel.com/gallery" },
     ],
-    links: [{ rel: "canonical", href: "/gallery" }],
+    links: [{ rel: "canonical", href: "https://ndsolotravel.com/gallery" }],
     scripts: [
       {
         type: "application/ld+json",

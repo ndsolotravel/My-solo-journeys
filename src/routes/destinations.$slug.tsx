@@ -1,4 +1,4 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, redirect } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
 import { ArrowLeft, MapPin, Compass, BookOpen, Camera, Globe, ArrowRight } from "lucide-react";
@@ -28,6 +28,25 @@ const allDestQO = queryOptions({
 
 export const Route = createFileRoute("/destinations/$slug")({
   loader: async ({ params, context }) => {
+    const rawSlug = (params.slug || "").trim();
+    let decoded = rawSlug;
+    try {
+      decoded = decodeURIComponent(rawSlug);
+    } catch {
+      // ignore
+    }
+
+    if (
+      (rawSlug.includes("Mahe") || decoded.includes("Mahe=") || rawSlug.toLowerCase().includes("praslin-la digue")) &&
+      rawSlug !== "seychelles-mahe-praslin-la-digue"
+    ) {
+      throw redirect({
+        to: "/destinations/$slug",
+        params: { slug: "seychelles-mahe-praslin-la-digue" },
+        statusCode: 301,
+      });
+    }
+
     const [d, all] = await Promise.all([
       context.queryClient.ensureQueryData(qo(params.slug)),
       context.queryClient.ensureQueryData(allDestQO),
@@ -42,17 +61,18 @@ export const Route = createFileRoute("/destinations/$slug")({
       : "Destination — ndsolotravel";
     const description = d?.description ?? "Country and region travel guide.";
     const ogTitle = d?.title ?? "Destination";
+    const canonical = `https://ndsolotravel.com/destinations/${params.slug}`;
     return {
       meta: [
         { title },
         { name: "description", content: description },
         { property: "og:title", content: ogTitle },
         { property: "og:description", content: description },
-        { property: "og:url", content: `/destinations/${params.slug}` },
+        { property: "og:url", content: canonical },
         ...(d?.featured_image ? [{ property: "og:image", content: d.featured_image }] : []),
       ],
       links: [
-        { rel: "canonical", href: `/destinations/${params.slug}` },
+        { rel: "canonical", href: canonical },
         ...["id", "ms"].map((l) => ({
           rel: "alternate",
           hrefLang: l,
@@ -61,7 +81,7 @@ export const Route = createFileRoute("/destinations/$slug")({
         {
           rel: "alternate",
           hrefLang: "x-default",
-          href: `https://ndsolotravel.com/destinations/${params.slug}`,
+          href: canonical,
         },
       ],
       scripts: d

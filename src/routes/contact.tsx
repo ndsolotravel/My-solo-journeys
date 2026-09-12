@@ -89,9 +89,9 @@ export const Route = createFileRoute("/contact")({
       },
       { property: "og:title", content: "Contact — ndsolotravel" },
       { property: "og:description", content: "Get in touch with ndsolotravel." },
-      { property: "og:url", content: "/contact" },
+      { property: "og:url", content: "https://ndsolotravel.com/contact" },
     ],
-    links: [{ rel: "canonical", href: "/contact" }],
+    links: [{ rel: "canonical", href: "https://ndsolotravel.com/contact" }],
     scripts: [
       {
         type: "application/ld+json",

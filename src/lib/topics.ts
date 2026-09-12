@@ -260,7 +260,7 @@ The coastal metropolis. Seafood, Clifton Beach, Mohatta Palace, and vibrant stre
       "A complete guide to solo travel and island hopping across the Seychelles — from Mahé to Praslin, La Digue, granite coastlines, and secluded beaches.",
     heroImage: "https://drive.google.com/file/d/12FCge3xWekhOWwFduZYU7LQb9tzXYy4d/view?usp=sharing",
     country: "Seychelles",
-    destinationSlugs: ["Mahe=Praslin-La digue=Seychelles"],
+    destinationSlugs: ["seychelles-mahe-praslin-la-digue"],
     tags: ["seychelles", "la digue", "praslin", "mahe", "island hopping", "island", "africa"],
     categories: ["Travel Stories", "Adventure", "Solo Travel"],
     pillarContent: `The Seychelles archipelago is widely seen as a luxury honeymoon destination, but exploring its islands solo reveals a completely different adventure: taking inter-island ferries across turquoise waters, cycling coastal paths along massive granite boulders, and hiking through primordial palm forests.

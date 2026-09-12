@@ -25,10 +25,10 @@ export const Route = createFileRoute("/privacy-policy")({
         { name: "description", content: description },
         { property: "og:title", content: title },
         { property: "og:description", content: description },
-        { property: "og:url", content: "/privacy-policy" },
+        { property: "og:url", content: "https://ndsolotravel.com/privacy-policy" },
       ],
       links: [
-        { rel: "canonical", href: "/privacy-policy" },
+        { rel: "canonical", href: "https://ndsolotravel.com/privacy-policy" },
         ...["id", "ms"].map((l) => ({
           rel: "alternate",
           hrefLang: l,

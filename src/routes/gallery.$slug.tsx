@@ -48,13 +48,13 @@ export const Route = createFileRoute("/gallery/$slug")({
         { property: "og:title", content: title },
         { property: "og:description", content: description },
         { property: "og:type", content: "article" },
-        { property: "og:url", content: `/gallery/${params.slug}` },
+        { property: "og:url", content: `https://ndsolotravel.com/gallery/${params.slug}` },
         ...(image ? [{ property: "og:image", content: image }] : []),
         ...(image ? [{ name: "twitter:image", content: image }] : []),
         { name: "twitter:card", content: "summary_large_image" },
       ],
       links: [
-        { rel: "canonical", href: `/gallery/${params.slug}` },
+        { rel: "canonical", href: `https://ndsolotravel.com/gallery/${params.slug}` },
         ...["id", "ms"].map((l) => ({
           rel: "alternate",
           hrefLang: l,

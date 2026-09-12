@@ -26,12 +26,12 @@ export const Route = createFileRoute("/topics/$slug")({
         { name: "description", content: t.description },
         { property: "og:title", content: title },
         { property: "og:description", content: t.description },
-        { property: "og:url", content: `/topics/${t.slug}` },
+        { property: "og:url", content: `https://ndsolotravel.com/topics/${t.slug}` },
         ...(t.posts[0]?.cover_image
           ? [{ property: "og:image", content: t.posts[0].cover_image }]
           : []),
       ],
-      links: [{ rel: "canonical", href: `/topics/${t.slug}` }],
+      links: [{ rel: "canonical", href: `https://ndsolotravel.com/topics/${t.slug}` }],
       scripts: [
         {
           type: "application/ld+json",

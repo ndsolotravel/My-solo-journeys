@@ -37,11 +37,12 @@ export const Route = createFileRoute("/news/$slug")({
         { property: "og:title", content: item.title },
         { property: "og:description", content: item.summary || item.title },
         { property: "og:type", content: "article" },
+        { property: "og:url", content: `https://ndsolotravel.com/news/${item.slug}` },
         ...(item.image_url
           ? [{ property: "og:image", content: resolveMediaUrl(item.image_url) }]
           : []),
       ],
-      links: [{ rel: "canonical", href: `/news/${item.slug}` }],
+      links: [{ rel: "canonical", href: `https://ndsolotravel.com/news/${item.slug}` }],
     };
   },
   component: NewsDetailPage,

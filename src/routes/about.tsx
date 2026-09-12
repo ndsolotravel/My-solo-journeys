@@ -69,7 +69,10 @@ export const Route = createFileRoute("/about")({
     const ogImg = loaderData?.about_og_image
       ? resolveMediaUrl(loaderData.about_og_image)
       : undefined;
-    const canonical = loaderData?.about_canonical_url || "/about";
+    const canonical =
+      loaderData?.about_canonical_url && loaderData.about_canonical_url.startsWith("http")
+        ? loaderData.about_canonical_url
+        : "https://ndsolotravel.com/about";
 
     return {
       meta: [
