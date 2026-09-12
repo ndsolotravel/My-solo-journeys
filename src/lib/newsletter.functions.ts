@@ -46,13 +46,13 @@ export const subscribe = createServerFn({ method: "POST" })
     if (dbError) {
       console.error(`[subscribe] Supabase newsletter_subscribe RPC error: ${dbError.message}`);
       throw new Error(
-        "Subscription could not be saved. Please try again later or email us directly at ndsolotravel@gmail.com.",
+        "Subscription could not be saved. Please try again later or email us directly at contact@ndsolotravel.com.",
       );
     }
     if (!rpcData?.id) {
       console.error(`[subscribe] Subscriber insert returned no id (RLS or insert blocked).`);
       throw new Error(
-        "Subscription could not be saved. Please try again later or email us directly at ndsolotravel@gmail.com.",
+        "Subscription could not be saved. Please try again later or email us directly at contact@ndsolotravel.com.",
       );
     }
 

@@ -156,7 +156,7 @@ function ContactPage() {
           error_message: "Your message could not be sent. Please try again.",
           notification_email_enabled: true,
           confirmation_email_enabled: false,
-          notification_email: "ndsolotravel@gmail.com",
+          notification_email: "contact@ndsolotravel.com",
           max_name: 120,
           max_email: 320,
           max_subject: 200,
@@ -736,18 +736,12 @@ function ContactPage() {
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand/15 text-brand shrink-0 mt-0.5">
                       <Mail className="h-5 w-5" />
                     </div>
-                    <div className="flex flex-col min-w-0 gap-1.5">
+                    <div className="flex flex-col min-w-0">
                       <a
                         href="mailto:contact@ndsolotravel.com"
                         className="block w-full text-sm sm:text-base font-medium text-secondary-foreground hover:text-brand transition-colors break-all leading-snug"
                       >
                         contact@ndsolotravel.com
-                      </a>
-                      <a
-                        href="mailto:ndsolotravel@gmail.com"
-                        className="block w-full text-xs sm:text-sm text-secondary-foreground/75 hover:text-brand transition-colors break-all leading-snug"
-                      >
-                        ndsolotravel@gmail.com
                       </a>
                     </div>
                   </div>

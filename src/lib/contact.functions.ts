@@ -170,7 +170,7 @@ export const getPublicContactSettings = createServerFn({ method: "GET" }).handle
     error_message: "Your message could not be sent. Please try again.",
     notification_email_enabled: true,
     confirmation_email_enabled: false,
-    notification_email: process.env.CONTACT_NOTIFICATION_EMAIL || "ndsolotravel@gmail.com",
+    notification_email: process.env.CONTACT_NOTIFICATION_EMAIL || "contact@ndsolotravel.com",
     max_name: MAX_NAME,
     max_email: MAX_EMAIL,
     max_subject: MAX_SUBJECT,
@@ -423,8 +423,12 @@ export const submitContactMessage = createServerFn({ method: "POST" })
     const spamScore = computeSpamScore(data.name, data.email, subject || "", data.message);
     const spamStatus = spamScore >= 70 ? "spam" : spamScore >= 40 ? "suspected" : "clean";
 
-    // ── Insert into public.messages via service role ──────────────────────
+    // ── Insert into public.messages via service role (or anon fallback) ─
+    // Pre-generating the UUID avoids chaining .select("id"), which requires
+    // SELECT RLS privileges that are intentionally withheld from anon visitors.
+    const messageId = crypto.randomUUID();
     const record: Record<string, unknown> = {
+      id: messageId,
       name: data.name,
       email: data.email.toLowerCase(),
       subject,
@@ -440,25 +444,22 @@ export const submitContactMessage = createServerFn({ method: "POST" })
       email_delivery_error: null,
     };
 
-    const { data: inserted, error: insertError } = await supabaseAdmin
+    const { error: insertError } = await supabaseAdmin
       .from("messages")
-      .insert(record)
-      .select("id")
-      .single();
+      .insert(record);
 
     if (insertError) {
       console.error(`[contact] DB insert failed:`, insertError.message);
       return {
         ok: false,
         message:
-          "Your message could not be saved. Please try again later or email us directly at ndsolotravel@gmail.com.",
+          "Your message could not be saved. Please try again later or email us directly at contact@ndsolotravel.com.",
         emailDelivered: false,
         saved: false,
         code: "DB_ERROR",
       };
     }
 
-    const messageId = inserted?.id as string | undefined;
     console.log(`[contact] Message stored in Supabase messages table (id: ${messageId}).`);
 
     // ── Email notification (independent — never blocks success) ───────────
@@ -838,7 +839,7 @@ interface SmtpResult {
 }
 
 async function dispatchContactNotification(params: ContactNotificationParams): Promise<SmtpResult> {
-  const recipient = process.env.CONTACT_NOTIFICATION_EMAIL || "ndsolotravel@gmail.com";
+  const recipient = process.env.CONTACT_NOTIFICATION_EMAIL || "contact@ndsolotravel.com";
   const cleanName = sanitizeLine(params.name.replace(/["\\]/g, ""), 120);
   const replyTo = `"${cleanName}" <${sanitizeLine(params.email, 320)}>`;
   const subjectLine = sanitizeLine(
@@ -989,13 +990,13 @@ async function sendSmtpEmail(params: SmtpEmailParams): Promise<SmtpResult> {
   const smtpHost = process.env.SMTP_HOST || "smtp.gmail.com";
   const smtpPort = Number(process.env.SMTP_PORT) || 587;
   const smtpSecure = process.env.SMTP_SECURE === "true";
-  const smtpUser = process.env.SMTP_USER || "ndsolotravel@gmail.com";
+  const smtpUser = process.env.SMTP_USER || "contact@ndsolotravel.com";
   const smtpPass = process.env.SMTP_PASS?.trim();
-  const smtpFrom = process.env.SMTP_FROM || "NDSOLOTRAVEL <ndsolotravel@gmail.com>";
+  const smtpFrom = process.env.SMTP_FROM || "NDSOLOTRAVEL <contact@ndsolotravel.com>";
 
   if (!smtpPass) {
     const reason =
-      "Gmail App Password (SMTP_PASS) is not configured in server environment variables.";
+      "SMTP password (SMTP_PASS) is not configured in server environment variables.";
     console.warn(`[contact] SMTP skipped: ${reason}`);
     return { sent: false, reason };
   }
