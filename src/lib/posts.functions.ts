@@ -454,3 +454,15 @@ export async function computeJourneyCountries(
   };
 }
 
+/**
+ * Backward compatibility server function:
+ * Provided so active browser tabs, search engine crawlers, or cached clients
+ * requesting the legacy journey stats endpoint resolve cleanly without throwing
+ * 'Server function info not found' errors.
+ */
+export const getJourneyStats = createServerFn({ method: "GET" }).handler(async () => {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  return computeJourneyCountries(supabaseAdmin);
+});
+
+

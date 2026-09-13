@@ -91,7 +91,30 @@ export default {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);
-    } catch (error) {
+    } catch (error: any) {
+      // Gracefully handle requests from cached/stale browser tabs targeting old server function IDs
+      const errorMessage = typeof error?.message === "string" ? error.message : "";
+      if (
+        errorMessage.includes("Server function info not found") ||
+        errorMessage.includes("Server function module not resolved")
+      ) {
+        console.warn(`[Stale ServerFn Call] ${errorMessage}`);
+        return new Response(
+          JSON.stringify({
+            error: "Server function not found",
+            message: "This client session may be running an outdated build. Please reload the page.",
+            staleBuild: true,
+          }),
+          {
+            status: 404,
+            headers: {
+              "content-type": "application/json",
+              "cache-control": "no-store, no-cache, must-revalidate",
+            },
+          },
+        );
+      }
+
       console.error(error);
       return new Response(renderErrorPage(), {
         status: 500,
@@ -100,3 +123,4 @@ export default {
     }
   },
 };
+
