@@ -33,10 +33,14 @@ export const subscribe = createServerFn({ method: "POST" })
       .parse({ email, sessionId });
   })
   .handler(async ({ data }) => {
-    const subscriberEmail = data.email.toLowerCase();
+    const subscriberEmail = data.email.trim().toLowerCase();
     console.log(`[subscribe] Processing newsletter subscription for: <${subscriberEmail}>`);
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    let isNew = true;
+    let subscriberId: string | null = null;
+
     const { data: rpcRaw, error: dbError } = await supabaseAdmin.rpc("newsletter_subscribe", {
       p_email: subscriberEmail,
     });
@@ -44,16 +48,49 @@ export const subscribe = createServerFn({ method: "POST" })
     const rpcData = rpcRaw as RpcSubscribeResult | null;
 
     if (dbError) {
-      console.error(`[subscribe] Supabase newsletter_subscribe RPC error: ${dbError.message}`);
-      throw new Error(
-        "Subscription could not be saved. Please try again later or email us directly at contact@ndsolotravel.com.",
+      console.warn(
+        `[subscribe] newsletter_subscribe RPC error (${dbError.message}). Attempting direct insert fallback...`,
       );
-    }
-    if (!rpcData?.id) {
-      console.error(`[subscribe] Subscriber insert returned no id (RLS or insert blocked).`);
-      throw new Error(
-        "Subscription could not be saved. Please try again later or email us directly at contact@ndsolotravel.com.",
-      );
+      // Direct table insert fallback
+      const { data: insertRow, error: insertErr } = await supabaseAdmin
+        .from("subscribers")
+        .insert({ email: subscriberEmail, status: "active" })
+        .select("id")
+        .maybeSingle();
+
+      if (insertErr) {
+        // Unique constraint violation (23505) indicates already subscribed
+        if (
+          insertErr.code === "23505" ||
+          insertErr.message?.toLowerCase().includes("unique") ||
+          insertErr.message?.toLowerCase().includes("duplicate")
+        ) {
+          console.log(`[subscribe] Fallback detected existing subscriber: <${subscriberEmail}>`);
+          return {
+            ok: true,
+            created: false,
+            alreadySubscribed: true,
+            message: "You are already subscribed.",
+          };
+        }
+
+        console.error(`[subscribe] Direct insert fallback error: ${insertErr.message}`);
+        throw new Error(
+          "Subscription could not be saved. Please try again later or email us directly at contact@ndsolotravel.com.",
+        );
+      }
+
+      subscriberId = insertRow?.id ?? null;
+      isNew = true;
+    } else {
+      if (!rpcData?.id) {
+        console.error(`[subscribe] Subscriber insert returned no id.`);
+        throw new Error(
+          "Subscription could not be saved. Please try again later or email us directly at contact@ndsolotravel.com.",
+        );
+      }
+      subscriberId = rpcData.id;
+      isNew = rpcData.created !== false;
     }
 
     // Link subscriber_email to current visitor session if sessionId is available
@@ -76,8 +113,6 @@ export const subscribe = createServerFn({ method: "POST" })
         );
       }
     }
-
-    const isNew = rpcData.created !== false;
 
     if (!isNew) {
       console.log(`[subscribe] Subscriber already exists in Supabase: <${subscriberEmail}>`);
