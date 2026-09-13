@@ -159,7 +159,7 @@ const manifest = {
   },
   "36147828ec7f00cb3fa62463e9b7c81359c52057f31406b51e60ec2e09cd0023": {
     functionName: "adminUpdateSubscriberStatus_createServerFn_handler",
-    importer: () => import("./newsletter.functions-bmOlHxRf.mjs")
+    importer: () => import("./newsletter.functions-Do7MVpyV.mjs")
   },
   "36c6a4e76a76bf4a189af9bbed4e4d6439e9a4acdb9c4f52ab791b173a03cbe1": {
     functionName: "getCategoryBySlug_createServerFn_handler",
@@ -203,7 +203,7 @@ const manifest = {
   },
   "47788b7666be982aca3ef5f15a2fcc6897f28fce0ebb29e9fb1da0ab79c42b13": {
     functionName: "subscribe_createServerFn_handler",
-    importer: () => import("./newsletter.functions-bmOlHxRf.mjs")
+    importer: () => import("./newsletter.functions-Do7MVpyV.mjs")
   },
   "477f53872e7f74097d1fa91e6ad5d40dac65aeed83df8c36f4fd079c43c79773": {
     functionName: "listPhotoArchive_createServerFn_handler",
@@ -271,7 +271,7 @@ const manifest = {
   },
   "720444115414c1dc4c9ac4ddd501401a50a0fce2886ec398bcb73b9ac5519a3f": {
     functionName: "adminListSubscribers_createServerFn_handler",
-    importer: () => import("./newsletter.functions-bmOlHxRf.mjs")
+    importer: () => import("./newsletter.functions-Do7MVpyV.mjs")
   },
   "72eaf964ab7ce14d623874daf7be210de5431691ecf47076df88fef9c15ca3d3": {
     functionName: "adminUploadImage_createServerFn_handler",
@@ -279,7 +279,7 @@ const manifest = {
   },
   "75c289fbf36a05cdded0534cf68c668e0d9e882b0f80347e2e9541902a86093e": {
     functionName: "adminDeleteSubscriber_createServerFn_handler",
-    importer: () => import("./newsletter.functions-bmOlHxRf.mjs")
+    importer: () => import("./newsletter.functions-Do7MVpyV.mjs")
   },
   "778ec9633cb0adcb3eb8cb30c2a7968a85e3490a27fccb0807eaacfbd6dd15b2": {
     functionName: "getLegalPageBySlug_createServerFn_handler",
