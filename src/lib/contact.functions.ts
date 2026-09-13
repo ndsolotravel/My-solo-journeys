@@ -483,13 +483,25 @@ export const submitContactMessage = createServerFn({ method: "POST" })
 
     // ── Record email delivery status ──────────────────────────────────────
     if (messageId) {
-      await supabaseAdmin
-        .from("messages")
-        .update({
-          email_delivery_status: deliveryStatus,
-          email_delivery_error: deliveryError,
-        })
-        .eq("id", messageId);
+      try {
+        const { error: rpcErr } = await supabaseAdmin.rpc("update_message_delivery_status", {
+          p_message_id: messageId,
+          p_status: deliveryStatus,
+          p_error: deliveryError,
+        });
+        if (rpcErr) {
+          console.warn("[contact] Delivery status RPC notice:", rpcErr.message);
+          await supabaseAdmin
+            .from("messages")
+            .update({
+              email_delivery_status: deliveryStatus,
+              email_delivery_error: deliveryError,
+            })
+            .eq("id", messageId);
+        }
+      } catch (err) {
+        console.warn("[contact] Delivery status update notice:", err);
+      }
     }
 
     // ── Optional visitor confirmation email ───────────────────────────────
@@ -987,12 +999,16 @@ interface SmtpEmailParams {
 }
 
 async function sendSmtpEmail(params: SmtpEmailParams): Promise<SmtpResult> {
-  const smtpHost = process.env.SMTP_HOST || "smtp.gmail.com";
-  const smtpPort = Number(process.env.SMTP_PORT) || 587;
-  const smtpSecure = process.env.SMTP_SECURE === "true";
+  const smtpHost = process.env.SMTP_HOST || "smtp.hostinger.com";
+  const configuredPort = process.env.SMTP_PORT ? Number(process.env.SMTP_PORT) : undefined;
+  const smtpPort = configuredPort || 465;
+  const smtpSecure =
+    process.env.SMTP_SECURE !== undefined
+      ? process.env.SMTP_SECURE === "true"
+      : smtpPort === 465;
   const smtpUser = process.env.SMTP_USER || "contact@ndsolotravel.com";
   const smtpPass = process.env.SMTP_PASS?.trim();
-  const smtpFrom = process.env.SMTP_FROM || "NDSOLOTRAVEL <contact@ndsolotravel.com>";
+  const smtpFrom = process.env.SMTP_FROM || `NDSOLOTRAVEL <${smtpUser}>`;
 
   if (!smtpPass) {
     const reason =
@@ -1008,6 +1024,9 @@ async function sendSmtpEmail(params: SmtpEmailParams): Promise<SmtpResult> {
       port: smtpPort,
       secure: smtpSecure,
       auth: { user: smtpUser, pass: smtpPass },
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
+      socketTimeout: 15000,
     });
 
     try {
@@ -1031,7 +1050,10 @@ async function sendSmtpEmail(params: SmtpEmailParams): Promise<SmtpResult> {
     console.log(`[contact] Email sent (ID: ${info.messageId})`);
     return { sent: true, id: info.messageId };
   } catch (err: unknown) {
-    const errMsg = err instanceof Error ? err.message : String(err);
+    let errMsg = err instanceof Error ? err.message : String(err);
+    if (smtpPass) {
+      errMsg = errMsg.split(smtpPass).join("[REDACTED]");
+    }
     console.error(`[contact] Email delivery failed: ${errMsg}`);
     return { sent: false, reason: errMsg };
   }

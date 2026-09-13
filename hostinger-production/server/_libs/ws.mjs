@@ -1,7 +1,7 @@
 import require$$0$4 from "events";
 import require$$1$2 from "https";
 import require$$2$1 from "http";
-import require$$3 from "net";
+import require$$7$1 from "net";
 import require$$4 from "tls";
 import require$$7 from "url";
 import require$$0 from "zlib";
@@ -2260,7 +2260,7 @@ function requireWebsocket() {
   const EventEmitter = require$$0$4;
   const https = require$$1$2;
   const http = require$$2$1;
-  const net = require$$3;
+  const net = require$$7$1;
   const tls = require$$4;
   const { randomBytes, createHash } = require$$1$1;
   const { Duplex, Readable } = require$$0$2;

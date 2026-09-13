@@ -1,6 +1,6 @@
 import require$$2$1 from "fs";
-import require$$5 from "dns";
-import require$$7$1 from "os";
+import require$$6 from "dns";
+import require$$8 from "os";
 import require$$0$4 from "path";
 import require$$0$6 from "child_process";
 import { g as getDefaultExportFromCjs } from "./react.mjs";
@@ -11,7 +11,7 @@ import require$$2 from "http";
 import require$$1 from "https";
 import require$$0$2 from "zlib";
 import require$$0$1 from "stream";
-import require$$3 from "net";
+import require$$7$1 from "net";
 import require$$1$1 from "crypto";
 import require$$4 from "tls";
 function _mergeNamespaces(n, m) {
@@ -578,7 +578,7 @@ function requireCookies() {
   return cookies;
 }
 const name = "nodemailer";
-const version = "9.0.5";
+const version = "9.1.1";
 const homepage = "https://nodemailer.com/";
 const require$$10 = {
   name,
@@ -611,6 +611,7 @@ function requireErrors() {
       EOAUTH2: "OAuth2 token generation or refresh error",
       // Resource errors
       EMAXLIMIT: "Pool resource limit reached (max messages per connection)",
+      EMAXRECIPIENTS: "Recipient count exceeds maxRecipients",
       // Transport-specific errors
       ESENDMAIL: "Sendmail command error",
       ESES: "AWS SES transport error",
@@ -628,6 +629,25 @@ function requireErrors() {
   })(errors);
   return errors.exports;
 }
+var objects = { exports: {} };
+var hasRequiredObjects;
+function requireObjects() {
+  if (hasRequiredObjects) return objects.exports;
+  hasRequiredObjects = 1;
+  (function(module) {
+    module.exports.isProtoKey = (key) => key === "__proto__";
+    module.exports.copyOwnKeys = (target, source, skip) => {
+      Object.keys(source || {}).forEach((key) => {
+        if (module.exports.isProtoKey(key) || skip && skip(key)) {
+          return;
+        }
+        target[key] = source[key];
+      });
+      return target;
+    };
+  })(objects);
+  return objects.exports;
+}
 var hasRequiredFetch;
 function requireFetch() {
   if (hasRequiredFetch) return fetch.exports;
@@ -639,9 +659,45 @@ function requireFetch() {
   const { PassThrough } = require$$0$1;
   const Cookies = requireCookies();
   const packageData = require$$10;
-  const net = require$$3;
+  const net = require$$7$1;
   const errors2 = requireErrors();
+  const { isProtoKey } = requireObjects();
   const MAX_REDIRECTS = 5;
+  const TLS_OPTION_KEYS = [
+    "ALPNProtocols",
+    "ca",
+    "cert",
+    "checkServerIdentity",
+    "ciphers",
+    "crl",
+    "dhparam",
+    "ecdhCurve",
+    "honorCipherOrder",
+    "key",
+    "maxVersion",
+    "minVersion",
+    "passphrase",
+    "pfx",
+    "rejectUnauthorized",
+    "secureContext",
+    "secureOptions",
+    "secureProtocol",
+    "servername",
+    "sessionIdContext",
+    "sigalgs"
+  ];
+  function parseFetchUrl(url2) {
+    let parsed;
+    try {
+      parsed = urllib.parse(url2);
+    } catch (_err) {
+      return false;
+    }
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+      return false;
+    }
+    return parsed;
+  }
   fetch.exports = function(url2, options) {
     return nmfetch(url2, options);
   };
@@ -652,14 +708,27 @@ function requireFetch() {
     options.cookies = options.cookies || new Cookies();
     options.redirects = options.redirects || 0;
     options.maxRedirects = isNaN(options.maxRedirects) ? MAX_REDIRECTS : options.maxRedirects;
+    const fetchRes = options.fetchRes;
+    const parsed = parseFetchUrl(url2);
+    if (!parsed) {
+      if (options.body && typeof options.body.destroy === "function") {
+        options.body.on("error", () => false);
+        options.body.destroy();
+      }
+      setImmediate(() => {
+        const err = new Error("Unsupported protocol for URL " + url2);
+        err.code = errors2.EFETCH;
+        err.sourceUrl = url2;
+        fetchRes.emit("error", err);
+      });
+      return fetchRes;
+    }
     if (options.cookie) {
       [].concat(options.cookie || []).forEach((cookie) => {
         options.cookies.set(cookie, url2);
       });
       options.cookie = false;
     }
-    const fetchRes = options.fetchRes;
-    const parsed = urllib.parse(url2);
     let method = (options.method || "").toString().trim().toUpperCase() || "GET";
     let finished = false;
     let cookies2;
@@ -670,6 +739,9 @@ function requireFetch() {
       "user-agent": "nodemailer/" + packageData.version
     };
     Object.keys(options.headers || {}).forEach((key) => {
+      if (isProtoKey(key.toLowerCase().trim())) {
+        return;
+      }
       headers[key.toLowerCase().trim()] = options.headers[key];
     });
     if (options.userAgent) {
@@ -740,7 +812,11 @@ function requireFetch() {
       agent: false
     };
     if (options.tls) {
-      Object.assign(reqOptions, options.tls);
+      Object.keys(options.tls).forEach((key) => {
+        if (TLS_OPTION_KEYS.includes(key)) {
+          reqOptions[key] = options.tls[key];
+        }
+      });
     }
     if (parsed.protocol === "https:" && parsed.hostname && parsed.hostname !== reqOptions.host && !net.isIP(parsed.hostname) && !reqOptions.servername) {
       reqOptions.servername = parsed.hostname;
@@ -807,8 +883,22 @@ function requireFetch() {
         }
         options.method = "GET";
         options.body = false;
-        const redirectUrl = urllib.resolve(url2, res.headers.location);
-        const redirectParsed = urllib.parse(redirectUrl);
+        let redirectUrl;
+        try {
+          redirectUrl = urllib.resolve(url2, res.headers.location);
+        } catch (_err) {
+          redirectUrl = res.headers.location;
+        }
+        const redirectParsed = parseFetchUrl(redirectUrl);
+        if (!redirectParsed) {
+          finished = true;
+          const err = new Error("Unsupported protocol for URL " + redirectUrl);
+          err.code = errors2.EFETCH;
+          err.sourceUrl = redirectUrl;
+          fetchRes.emit("error", err);
+          req.abort();
+          return;
+        }
         const crossHost = redirectParsed.hostname !== parsed.hostname;
         const downgrade = parsed.protocol === "https:" && redirectParsed.protocol === "http:";
         if (options.headers && (crossHost || downgrade)) {
@@ -889,9 +979,12 @@ function requireShared() {
     const fs = require$$2$1;
     const nmfetch = requireFetch();
     const errors2 = requireErrors();
-    const dns = require$$5;
-    const net = require$$3;
-    const os = require$$7$1;
+    const objects2 = requireObjects();
+    const dns = require$$6;
+    const net = require$$7$1;
+    const os = require$$8;
+    const isProtoKey = module.exports.isProtoKey = objects2.isProtoKey;
+    module.exports.copyOwnKeys = objects2.copyOwnKeys;
     const DNS_TTL = 5 * 60 * 1e3;
     const CACHE_CLEANUP_INTERVAL = 30 * 1e3;
     const MAX_CACHE_SIZE = 1e3;
@@ -1160,7 +1253,7 @@ function requireShared() {
         } else if (key.indexOf(".") >= 0) {
           return;
         }
-        if (!(lKey in obj)) {
+        if (!isProtoKey(lKey) && !(lKey in obj)) {
           obj[lKey] = value;
         }
       });
@@ -1234,7 +1327,7 @@ function requireShared() {
         if (sepPos > 0) {
           const key = entry.substring(0, sepPos).trim();
           const value = entry.substring(sepPos + 1).trim();
-          if (key) {
+          if (key && !isProtoKey(key)) {
             params[key] = value;
           }
         }
@@ -1294,18 +1387,19 @@ function requireShared() {
             }
             callback(null, value);
           });
-        } else if (/^https?:\/\//i.test(content.path || content.href)) {
+        } else if (/^data:/i.test(content.path || content.href)) {
+          const parsedDataUri = module.exports.parseDataURI(content.path || content.href);
+          return callback(null, parsedDataUri && parsedDataUri.data ? parsedDataUri.data : Buffer.alloc(0));
+        } else if (content.href || /^https?:\/\//i.test(content.path)) {
+          const url2 = content.href || content.path;
           if (options.disableUrlAccess) {
             return setImmediate(() => {
-              const err = new Error("Url access rejected for " + (content.path || content.href));
+              const err = new Error("Url access rejected for " + url2);
               err.code = errors2.EURLACCESS;
               callback(err);
             });
           }
-          return resolveStream(nmfetch(content.path || content.href, { headers: content.httpHeaders, tls: content.tls }), callback);
-        } else if (/^data:/i.test(content.path || content.href)) {
-          const parsedDataUri = module.exports.parseDataURI(content.path || content.href);
-          return callback(null, parsedDataUri && parsedDataUri.data ? parsedDataUri.data : Buffer.alloc(0));
+          return resolveStream(nmfetch(url2, { headers: content.httpHeaders, tls: content.tls }), callback);
         } else if (content.path) {
           if (options.disableFileAccess) {
             return setImmediate(() => {
@@ -1327,8 +1421,11 @@ function requireShared() {
       const target = args.shift() || {};
       args.forEach((source) => {
         Object.keys(source || {}).forEach((key) => {
+          if (isProtoKey(key)) {
+            return;
+          }
           if (["tls", "auth"].includes(key) && source[key] && typeof source[key] === "object") {
-            target[key] = Object.assign(target[key] || {}, source[key]);
+            target[key] = module.exports.copyOwnKeys(target[key] || {}, source[key]);
           } else {
             target[key] = source[key];
           }
@@ -3798,6 +3895,7 @@ function requireMimeFuncs() {
   const base642 = requireBase64();
   const qp2 = requireQp();
   const mimeTypes = requireMimeTypes();
+  const { isProtoKey } = requireObjects();
   mimeFuncs = {
     /**
      * Checks if a value is plaintext string (uses only printable 7bit chars)
@@ -4095,6 +4193,11 @@ function requireMimeFuncs() {
         value: false,
         params: {}
       };
+      const setParam = (name2, value2) => {
+        if (!isProtoKey(name2)) {
+          response.params[name2] = value2;
+        }
+      };
       let key = false;
       let value = "";
       let type = "value";
@@ -4125,7 +4228,7 @@ function requireMimeFuncs() {
             if (key === false) {
               response.value = value.trim();
             } else {
-              response.params[key] = value.trim();
+              setParam(key, value.trim());
             }
             type = "key";
             value = "";
@@ -4139,16 +4242,20 @@ function requireMimeFuncs() {
         if (key === false) {
           response.value = value.trim();
         } else {
-          response.params[key] = value.trim();
+          setParam(key, value.trim());
         }
       } else if (value.trim()) {
-        response.params[value.trim().toLowerCase()] = "";
+        setParam(value.trim().toLowerCase(), "");
       }
       Object.keys(response.params).forEach((key2) => {
         let actualKey, nr, match, value2;
         if (match = key2.match(/(\*(\d+)|\*(\d+)\*|\*)$/)) {
           actualKey = key2.substr(0, match.index);
           nr = Number(match[2] || match[3]) || 0;
+          if (isProtoKey(actualKey)) {
+            delete response.params[key2];
+            return;
+          }
           if (!response.params[actualKey] || typeof response.params[actualKey] !== "object") {
             response.params[actualKey] = {
               charset: false,
@@ -4248,15 +4355,16 @@ function requireMimeFuncs() {
      */
     splitMimeEncodedString: (str, maxlen) => {
       const lines = [];
-      let curLine, match, chr, done;
+      let curLine, fallbackLine, match, chr, done;
       maxlen = Math.max(maxlen || 0, 12);
       while (str.length) {
         curLine = str.substr(0, maxlen);
         if (match = curLine.match(/[=][0-9A-F]?$/i)) {
           curLine = curLine.substr(0, match.index);
         }
+        fallbackLine = curLine.length ? curLine : str.substr(0, maxlen);
         done = false;
-        while (!done) {
+        while (!done && curLine.length) {
           done = true;
           if (match = str.substr(curLine.length).match(/^[=]([0-9A-F]{2})/i)) {
             chr = parseInt(match[1], 16);
@@ -4266,9 +4374,10 @@ function requireMimeFuncs() {
             }
           }
         }
-        if (curLine.length) {
-          lines.push(curLine);
+        if (!curLine.length) {
+          curLine = fallbackLine;
         }
+        lines.push(curLine);
         str = str.substr(curLine.length);
       }
       return lines;
@@ -4316,6 +4425,41 @@ function requireAddressparser() {
     }
     return '"' + user.replace(/["\\]/g, "\\$&") + '"@' + address.substr(lastAt + 1);
   }
+  const HAS_WHITESPACE = /\s/;
+  const QUOTED_LOCAL_ADDR = /^("(?:[^"\\]|\\[\s\S])*"@\S+)(?:\s+([\s\S]+))?$/;
+  const ADDR_SPEC = /^[^@\s]+@[^@\s]+$/;
+  const LOOSE_ADDR_SPEC = /^[^@\s]+@\S+$/;
+  function _recoverAddrSpec(data) {
+    if (!HAS_WHITESPACE.test(data.address)) {
+      return;
+    }
+    let address;
+    let rest;
+    const quoted = data.address.match(QUOTED_LOCAL_ADDR);
+    if (quoted) {
+      if (!quoted[2]) {
+        return;
+      }
+      address = quoted[1];
+      rest = [quoted[2]];
+    } else {
+      if (data.address.indexOf('"') >= 0) {
+        return;
+      }
+      const parts = data.address.split(/\s+/);
+      let addrIndex = parts.findIndex((part) => ADDR_SPEC.test(part));
+      if (addrIndex < 0) {
+        addrIndex = parts.findIndex((part) => LOOSE_ADDR_SPEC.test(part));
+      }
+      if (addrIndex < 0) {
+        return;
+      }
+      address = parts.splice(addrIndex, 1)[0];
+      rest = parts;
+    }
+    data.address = address;
+    data.text = [data.text].concat(rest).filter((part) => part).join(" ");
+  }
   function _handleAddress(tokens, depth) {
     let isGroup = false;
     let state = "text";
@@ -4359,7 +4503,9 @@ function requireAddressparser() {
         if (state === "address") {
           token.value = token.value.replace(/^[^<]*<\s*/, "");
         }
-        if (prevToken && prevToken.noBreak && data[state].length) {
+        const parts = data[state];
+        const joins = prevToken && prevToken.noBreak && parts.length && (prevToken.value !== ")" || parts[parts.length - 1].slice(-1) === "@" || token.value.charAt(0) === "@");
+        if (joins) {
           data[state][data[state].length - 1] += token.value;
           if (state === "text" && insideQuotes) {
             data.textWasQuoted[data.textWasQuoted.length - 1] = true;
@@ -4396,7 +4542,7 @@ function requireAddressparser() {
     } else {
       if (!data.address.length && data.text.length) {
         for (let i = data.text.length - 1; i >= 0; i--) {
-          if (!data.textWasQuoted[i] && /^[^@\s]+@[^@\s]+$/.test(data.text[i])) {
+          if (!data.textWasQuoted[i] && ADDR_SPEC.test(data.text[i])) {
             data.address = data.text.splice(i, 1);
             data.textWasQuoted.splice(i, 1);
             break;
@@ -4431,6 +4577,7 @@ function requireAddressparser() {
       const addressFromQuotedText = !data.address.length && data.textWasQuoted.some((wasQuoted) => wasQuoted);
       data.text = data.text.join(" ");
       data.address = data.address.join(" ");
+      _recoverAddrSpec(data);
       const address = {
         address: data.address || data.text || "",
         name: data.text || data.address || ""
@@ -4577,18 +4724,22 @@ function requireAddressparser() {
     }
     addresses.forEach((addr) => {
       const handled = _handleAddress(addr, depth);
-      if (handled.length) {
-        parsedAddresses = parsedAddresses.concat(handled);
+      for (let i = 0; i < handled.length; i++) {
+        parsedAddresses.push(handled[i]);
       }
     });
-    for (let i = parsedAddresses.length - 2; i >= 0; i--) {
+    const mergedAddresses = [];
+    for (let i = parsedAddresses.length - 1; i >= 0; i--) {
       const current = parsedAddresses[i];
-      const next = parsedAddresses[i + 1];
-      if (current.address === "" && current.name && !current.group && next.address && next.name) {
+      const next = mergedAddresses.length ? mergedAddresses[mergedAddresses.length - 1] : null;
+      if (next && current.address === "" && current.name && !current.group && next.address && next.name) {
         next.name = current.name + ", " + next.name;
-        parsedAddresses.splice(i, 1);
+      } else {
+        mergedAddresses.push(current);
       }
     }
+    mergedAddresses.reverse();
+    parsedAddresses = mergedAddresses;
     if (options.flatten) {
       const flatAddresses = [];
       const walkAddressList = (list) => {
@@ -4727,6 +4878,7 @@ function requireMimeNode() {
   const punycode = requirePunycode();
   const { PassThrough } = require$$0$1;
   const shared2 = requireShared();
+  const urlModule = require$$7;
   const mimeFuncs2 = requireMimeFuncs();
   const qp2 = requireQp();
   const base642 = requireBase64();
@@ -4741,6 +4893,17 @@ function requireMimeNode() {
   const DOT_ATOM = new RegExp("^" + ATEXT + "+(?:\\." + ATEXT + "+)*$");
   const QUOTED_STRING = /^"(?:[^"\\]|\\[\s\S])*"$/;
   const PLAIN_ADDRESS = /^[^\s"(),:;<>@[\\\]]+@[^\s"(),:;<>@[\\\]]+$/;
+  const URL_PARSER_UNSAFE = /[/\\?#%\x00-\x20\x7F]/;
+  function normalizeDomain(domain, toUnicode) {
+    const mapper = toUnicode ? urlModule.domainToUnicode : urlModule.domainToASCII;
+    if (typeof mapper === "function" && !URL_PARSER_UNSAFE.test(domain)) {
+      const mapped = mapper(domain);
+      if (mapped) {
+        return mapped;
+      }
+    }
+    return toUnicode ? punycode.toUnicode(domain) : punycode.toASCII(domain);
+  }
   class MimeNode {
     constructor(contentType, options) {
       this.nodeCounter = 0;
@@ -4801,6 +4964,9 @@ function requireMimeNode() {
      * @return {Object} Appended node object
      */
     appendChild(childNode) {
+      if (childNode.parentNode && childNode.parentNode !== this) {
+        childNode.remove();
+      }
       if (childNode.rootNode !== this.rootNode) {
         childNode.rootNode = this.rootNode;
         childNode._nodeId = ++this.rootNode.nodeCounter;
@@ -5067,11 +5233,7 @@ function requireMimeNode() {
         const options = {};
         const formattedHeaders = FORMATTED_HEADERS;
         if (value && typeof value === "object" && !formattedHeaders.includes(key)) {
-          Object.keys(value).forEach((key2) => {
-            if (key2 !== "value") {
-              options[key2] = value[key2];
-            }
-          });
+          shared2.copyOwnKeys(options, value, (optionKey) => optionKey === "value");
           value = (value.value || "").toString();
           if (!value.trim()) {
             return;
@@ -5330,18 +5492,15 @@ function requireMimeNode() {
           this._envelope.from = list[0].address;
         }
       }
+      const seenRecipients = /* @__PURE__ */ new Set();
       ["to", "cc", "bcc"].forEach((key) => {
         if (envelope[key]) {
-          this._convertAddresses(this._parseEnvelopeAddresses(envelope[key]), this._envelope.to);
+          this._convertAddresses(this._parseEnvelopeAddresses(envelope[key]), this._envelope.to, seenRecipients);
         }
       });
       this._envelope.to = this._envelope.to.map((to) => to.address).filter((address) => address);
       const standardFields = ["to", "cc", "bcc", "from"];
-      Object.keys(envelope).forEach((key) => {
-        if (!standardFields.includes(key)) {
-          this._envelope[key] = envelope[key];
-        }
-      });
+      shared2.copyOwnKeys(this._envelope, envelope, (key) => standardFields.includes(key));
       return this;
     }
     /**
@@ -5351,13 +5510,15 @@ function requireMimeNode() {
      */
     getAddresses() {
       const addresses = {};
+      const seenByKey = /* @__PURE__ */ new Map();
       this._headers.forEach((header) => {
         const key = header.key.toLowerCase();
         if (["from", "sender", "reply-to", "to", "cc", "bcc"].includes(key)) {
           if (!Array.isArray(addresses[key])) {
             addresses[key] = [];
+            seenByKey.set(key, /* @__PURE__ */ new Set());
           }
-          this._convertAddresses(this._parseAddresses(header.value), addresses[key]);
+          this._convertAddresses(this._parseAddresses(header.value), addresses[key], seenByKey.get(key));
         }
       });
       return addresses;
@@ -5375,6 +5536,7 @@ function requireMimeNode() {
         from: false,
         to: []
       };
+      const seenRecipients = /* @__PURE__ */ new Set();
       this._headers.forEach((header) => {
         const list = [];
         if (header.key === "From" || !envelope.from && ["Reply-To", "Sender"].includes(header.key)) {
@@ -5383,7 +5545,7 @@ function requireMimeNode() {
             envelope.from = list[0].address;
           }
         } else if (["To", "Cc", "Bcc"].includes(header.key)) {
-          this._convertAddresses(this._parseAddresses(header.value), envelope.to);
+          this._convertAddresses(this._parseAddresses(header.value), envelope.to, seenRecipients);
         }
       });
       envelope.to = envelope.to.map((to) => to.address);
@@ -5420,6 +5582,25 @@ function requireMimeNode() {
     }
     /////// PRIVATE METHODS
     /**
+     * Checks an access policy flag for this node and every node above it. The flags are set
+     * from the options the node was built with, and createChild only ever sees the options
+     * the caller passed, so a child of a closed tree starts out open. Reading the answer off
+     * the parent chain keeps it right whatever order the tree was assembled in.
+     *
+     * @param {String} flag Either 'disableFileAccess' or 'disableUrlAccess'
+     * @return {Boolean} true if this node or an ancestor closed that access
+     */
+    _accessDisabled(flag) {
+      let node = this;
+      while (node) {
+        if (node[flag]) {
+          return true;
+        }
+        node = node.parentNode;
+      }
+      return false;
+    }
+    /**
      * Detects and returns handle to a stream related with the content.
      *
      * @param {Mixed} content Node content
@@ -5442,7 +5623,7 @@ function requireMimeNode() {
         return content;
       }
       if (content && typeof content.path === "string" && !content.href) {
-        if (this.disableFileAccess) {
+        if (this._accessDisabled("disableFileAccess")) {
           contentStream = new PassThrough();
           setImmediate(() => {
             const err = new Error("File access rejected for " + content.path);
@@ -5454,7 +5635,7 @@ function requireMimeNode() {
         return fs.createReadStream(content.path);
       }
       if (content && typeof content.href === "string") {
-        if (this.disableUrlAccess) {
+        if (this._accessDisabled("disableUrlAccess")) {
           contentStream = new PassThrough();
           setImmediate(() => {
             const err = new Error("Url access rejected for " + content.href);
@@ -5483,22 +5664,26 @@ function requireMimeNode() {
      * @return {Array} An array of address objects
      */
     _parseAddresses(addresses) {
-      return [].concat.apply(
-        [],
-        [].concat(addresses).map((address) => {
-          if (address && address.address) {
-            const normalized = this._normalizeAddress(address.address);
-            if (normalized === address.address && typeof address.name === "string") {
-              return [address];
-            }
-            const copy = Object.assign({}, address);
-            copy.address = normalized;
-            copy.name = address.name || "";
-            return [copy];
+      const flattened = [];
+      [].concat(addresses).forEach((address) => {
+        if (address && address.address) {
+          const normalized = this._normalizeAddress(address.address);
+          if (normalized === address.address && typeof address.name === "string") {
+            flattened.push(address);
+            return;
           }
-          return this._normalizeParsedAddresses(addressparser(address));
-        })
-      );
+          const copy = shared2.copyOwnKeys({}, address);
+          copy.address = normalized;
+          copy.name = address.name || "";
+          flattened.push(copy);
+          return;
+        }
+        const parsed = this._normalizeParsedAddresses(addressparser(address));
+        for (let i = 0; i < parsed.length; i++) {
+          flattened.push(parsed[i]);
+        }
+      });
+      return flattened;
     }
     /**
      * Normalizes the addresses of a freshly parsed address list, groups included.
@@ -5640,9 +5825,15 @@ function requireMimeNode() {
      * @param {Array} [uniqueList] An array to be populated with addresses
      * @return {String} address string
      */
-    _convertAddresses(addresses, uniqueList) {
+    _convertAddresses(addresses, uniqueList, seenAddresses) {
       const values = [];
       uniqueList = uniqueList || [];
+      if (!seenAddresses) {
+        seenAddresses = /* @__PURE__ */ new Set();
+        for (let i = 0; i < uniqueList.length; i++) {
+          seenAddresses.add(uniqueList[i].address);
+        }
+      }
       [].concat(addresses || []).forEach((address) => {
         if (address.address) {
           address.address = this._normalizeAddress(address.address);
@@ -5651,11 +5842,12 @@ function requireMimeNode() {
           } else {
             values.push(`${this._encodeAddressName(address.name)} <${address.address}>`);
           }
-          if (!uniqueList.some((a) => a.address === address.address)) {
+          if (!seenAddresses.has(address.address)) {
+            seenAddresses.add(address.address);
             uniqueList.push(address);
           }
         } else if (address.group) {
-          const groupListAddresses = (address.group.length ? this._convertAddresses(address.group, uniqueList) : "").trim();
+          const groupListAddresses = (address.group.length ? this._convertAddresses(address.group, uniqueList, seenAddresses) : "").trim();
           values.push(`${this._encodeAddressName(address.name)}:${groupListAddresses};`);
         }
       });
@@ -5679,12 +5871,9 @@ function requireMimeNode() {
       const user = address.substr(0, lastAt);
       const domain = address.substr(lastAt + 1);
       let encodedDomain = domain;
+      const smtputf8 = /[\x80-\uFFFF]/.test(user);
       try {
-        if (/[\x80-\uFFFF]/.test(user)) {
-          encodedDomain = punycode.toUnicode(domain.toLowerCase());
-        } else {
-          encodedDomain = punycode.toASCII(domain.toLowerCase());
-        }
+        encodedDomain = normalizeDomain(domain.toLowerCase(), smtputf8);
       } catch (_err) {
       }
       return `${this._normalizeLocalPart(user)}@${encodedDomain}`;
@@ -5793,7 +5982,7 @@ function requireMailComposer() {
   hasRequiredMailComposer = 1;
   const MimeNode = requireMimeNode();
   const mimeFuncs2 = requireMimeFuncs();
-  const { parseDataURI } = requireShared();
+  const { parseDataURI, copyOwnKeys } = requireShared();
   class MailComposer {
     constructor(mail) {
       this.mail = mail || {};
@@ -5946,7 +6135,7 @@ function requireMailComposer() {
       if (!this._icalEvent) {
         let icalEvent;
         if (typeof this.mail.icalEvent === "object" && (this.mail.icalEvent.content || this.mail.icalEvent.path || this.mail.icalEvent.href || this.mail.icalEvent.raw)) {
-          icalEvent = Object.assign({}, this.mail.icalEvent);
+          icalEvent = copyOwnKeys({}, this.mail.icalEvent);
         } else {
           icalEvent = {
             content: this.mail.icalEvent
@@ -6243,7 +6432,7 @@ function requireMailComposer() {
             detectedType = parts[0].trim();
           }
         }
-        return Object.assign({}, element, {
+        return Object.assign(copyOwnKeys({}, element), {
           path: false,
           href: false,
           content: Buffer.alloc(0),
@@ -6597,6 +6786,7 @@ function requireDkim() {
   const fs = require$$2$1;
   const path = require$$0$4;
   const crypto = require$$1$1;
+  const { copyOwnKeys } = requireObjects();
   const DKIM_ALGO = "sha256";
   const MAX_MESSAGE_SIZE = 2 * 1024 * 1024;
   class DKIMSigner {
@@ -6763,7 +6953,8 @@ function requireDkim() {
       }
       let options = this.options;
       if (extraOptions && Object.keys(extraOptions).length) {
-        options = Object.assign({}, extraOptions, this.options);
+        options = copyOwnKeys({}, extraOptions);
+        copyOwnKeys(options, this.options);
       }
       const signer = new DKIMSigner(options, this.keys, inputStream, output);
       setImmediate(() => {
@@ -6785,7 +6976,7 @@ var hasRequiredHttpProxyClient;
 function requireHttpProxyClient() {
   if (hasRequiredHttpProxyClient) return httpProxyClient_1;
   hasRequiredHttpProxyClient = 1;
-  const net = require$$3;
+  const net = require$$7$1;
   const tls = require$$4;
   const urllib = requireUrl();
   const errors2 = requireErrors();
@@ -6904,6 +7095,7 @@ function requireMailMessage() {
   const shared2 = requireShared();
   const MimeNode = requireMimeNode();
   const mimeFuncs2 = requireMimeFuncs();
+  const hasOwn = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
   class MailMessage {
     constructor(mailer2, data) {
       this.mailer = mailer2;
@@ -6912,27 +7104,32 @@ function requireMailMessage() {
       data = data || {};
       const options = mailer2.options || {};
       const defaults = mailer2._defaults || {};
-      Object.assign(this.data, data);
+      shared2.copyOwnKeys(this.data, data);
       this.data.headers = this.data.headers || {};
-      Object.keys(defaults).forEach((key) => {
-        if (!(key in this.data)) {
-          this.data[key] = defaults[key];
-        } else if (key === "headers") {
-          Object.keys(defaults.headers).forEach((key2) => {
-            if (!(key2 in this.data.headers)) {
-              this.data.headers[key2] = defaults.headers[key2];
-            }
-          });
-        }
-      });
-      ["disableFileAccess", "disableUrlAccess", "normalizeHeaderKey"].forEach((key) => {
+      shared2.copyOwnKeys(this.data, defaults, (key) => hasOwn(this.data, key));
+      shared2.copyOwnKeys(this.data.headers, defaults.headers, (key) => hasOwn(this.data.headers, key));
+      ["disableFileAccess", "disableUrlAccess", "normalizeHeaderKey", "maxRecipients"].forEach((key) => {
         if (key in options) {
           this.data[key] = options[key];
         }
       });
+      ["disableFileAccess", "disableUrlAccess"].forEach((key) => {
+        if (!(key in options) && hasOwn(defaults, key)) {
+          this.data[key] = this.data[key] || defaults[key];
+        }
+      });
     }
-    resolveContent(...args) {
-      return shared2.resolveContent(...args);
+    resolveContent(data, key, options, callback) {
+      if (!callback && typeof options === "function") {
+        callback = options;
+        options = false;
+      }
+      options = options || {};
+      const policy = {
+        disableFileAccess: this.data.disableFileAccess || options.disableFileAccess,
+        disableUrlAccess: this.data.disableUrlAccess || options.disableUrlAccess
+      };
+      return shared2.resolveContent(data, key, policy, callback);
     }
     resolveAll(callback) {
       const keys = [
@@ -7002,11 +7199,7 @@ function requireMailMessage() {
               content: value
             };
             if (args[0][args[1]] && typeof args[0][args[1]] === "object" && !Buffer.isBuffer(args[0][args[1]])) {
-              Object.keys(args[0][args[1]]).forEach((key) => {
-                if (!(key in node) && !["content", "path", "href", "raw"].includes(key)) {
-                  node[key] = args[0][args[1]][key];
-                }
-              });
+              shared2.copyOwnKeys(node, args[0][args[1]], (key) => key in node || ["content", "path", "href", "raw"].includes(key));
             }
             args[0][args[1]] = node;
             resolveNext();
@@ -7055,6 +7248,9 @@ function requireMailMessage() {
         }
         data.normalizedHeaders = {};
         Object.keys(data.headers || {}).forEach((key) => {
+          if (shared2.isProtoKey(key)) {
+            return;
+          }
           let value = [].concat(data.headers[key] || []).shift();
           value = value && value.value || value;
           if (value) {
@@ -7169,9 +7365,10 @@ function requireMailer() {
   const urllib = requireUrl();
   const packageData = require$$10;
   const MailMessage = requireMailMessage();
-  const net = require$$3;
-  const dns = require$$5;
+  const net = require$$7$1;
+  const dns = require$$6;
   const crypto = require$$1$1;
+  const DEFAULT_MAX_RECIPIENTS = 1e5;
   class Mail extends EventEmitter {
     constructor(transporter, options, defaults) {
       super();
@@ -7307,6 +7504,24 @@ function requireMailer() {
         mail.setMailerHeader();
         mail.setPriorityHeaders();
         mail.setListHeaders();
+        const maxRecipients = mail.data.maxRecipients === void 0 ? DEFAULT_MAX_RECIPIENTS : mail.data.maxRecipients;
+        const recipientCount = mail.message.getEnvelope().to.length;
+        if (maxRecipients && recipientCount > maxRecipients) {
+          const err2 = new Error(
+            `Message has ${recipientCount} recipients, which is over the ${maxRecipients} allowed by maxRecipients`
+          );
+          err2.code = errors2.EMAXRECIPIENTS;
+          this.logger.error(
+            {
+              err: err2,
+              tnx: "transport",
+              action: "send"
+            },
+            "Send Error: %s",
+            err2.message
+          );
+          return callback(err2);
+        }
         this._processPlugins("stream", mail, (err2) => {
           if (err2) {
             this.logger.error(
@@ -7638,9 +7853,9 @@ function requireSmtpConnection() {
   hasRequiredSmtpConnection = 1;
   const packageInfo = require$$10;
   const { EventEmitter } = require$$0$5;
-  const net = require$$3;
+  const net = require$$7$1;
   const tls = require$$4;
-  const os = require$$7$1;
+  const os = require$$8;
   const crypto = require$$1$1;
   const DataStream = requireDataStream();
   const { PassThrough } = require$$0$1;
@@ -11275,7 +11490,7 @@ function requireSesTransport() {
             );
             return callback(err);
           }
-          const sesMessage = Object.assign(
+          const sesMessage = shared2.copyOwnKeys(
             {
               Content: {
                 Raw: {
@@ -11289,7 +11504,7 @@ function requireSesTransport() {
                 ToAddresses: envelope.to
               }
             },
-            mail.data.ses || {}
+            mail.data.ses
           );
           this.getRegion((err2, region) => {
             if (err2 || !region) {
