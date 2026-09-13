@@ -16,7 +16,7 @@ import {
   LayoutGrid,
 } from "lucide-react";
 import { useEffect, useState, useMemo, lazy, Suspense } from "react";
-import { listPosts, getJourneyStats, type Post } from "../lib/posts.functions";
+import { listPosts, type Post } from "../lib/posts.functions";
 import { listDestinations } from "../lib/destinations.functions";
 import { listGallery } from "../lib/gallery.functions";
 import { getHomepageConfig } from "../lib/homepage.functions";
@@ -74,10 +74,6 @@ const galleryQO = queryOptions({
   queryKey: ["home", "gallery"],
   queryFn: () => listGallery(),
 });
-const journeyStatsQO = queryOptions({
-  queryKey: ["home", "journey-stats"],
-  queryFn: () => getJourneyStats(),
-});
 const homepageQO = queryOptions({
   queryKey: ["home", "homepage-config"],
   queryFn: () => getHomepageConfig(),
@@ -113,7 +109,6 @@ export const Route = createFileRoute("/")({
       context.queryClient.ensureQueryData(featuredQO),
       context.queryClient.ensureQueryData(destQO),
       context.queryClient.ensureQueryData(galleryQO),
-      context.queryClient.ensureQueryData(journeyStatsQO),
       context.queryClient.ensureQueryData(homepageQO),
       context.queryClient.ensureQueryData(topicsQO),
       context.queryClient.ensureQueryData(breakingNewsQO),
@@ -152,7 +147,6 @@ function HomePage() {
   const { data: destinationsData } = useSuspenseQuery(destQO);
   const { data: activeTopicsData } = useSuspenseQuery(topicsQO);
   const { data: galleryData } = useSuspenseQuery(galleryQO);
-  const { data: journeyStats } = useSuspenseQuery(journeyStatsQO);
   const { data: homepageConfig } = useSuspenseQuery(homepageQO);
   const { data: breakingNews } = useSuspenseQuery(breakingNewsQO);
 
@@ -278,53 +272,55 @@ function HomePage() {
     }
   }, []);
 
-  // Derived stats — Countries Visited automatically calculated from published blog post locations
-  const calculatedCountries = journeyStats?.countriesCount || 27;
-  const countriesMode = heroSettings.homepage_stat_countries_mode === "manual" ? "manual" : "auto";
-  const countries =
-    countriesMode === "manual"
-      ? Number(heroSettings.homepage_stat_countries) || 27
-      : Math.max(calculatedCountries, 27);
-
-  const trips = Number(heroSettings.homepage_stat_trips) || 100;
-  const photos = Number(heroSettings.homepage_stat_photos) || 200;
-  const kilometres = Number(heroSettings.homepage_stat_kilometres) || 50000;
-  const days = Number(heroSettings.homepage_stat_days) || 180;
+  // Resolved "Journey in Numbers" stats — single source of truth (site_settings)
+  const jinStats = homepageConfig?.stats ?? {
+    countries: 27,
+    countriesCalculated: 2,
+    countriesMode: "manual",
+    trips: 102,
+    tripsSuffix: "+",
+    photos: 200,
+    photosSuffix: "K+",
+    kilometres: 18420,
+    kilometresSuffix: "km",
+    days: 142,
+    daysSuffix: "+",
+  };
 
   const stats = [
     {
       icon: Globe2,
       label: t("Countries Covered in Blogs"),
-      value: countries,
+      value: jinStats.countries,
       suffix: "",
       featured: false,
     },
     {
       icon: Bike,
       label: t("Solo Motorcycle Trips"),
-      value: trips,
-      suffix: "+",
+      value: jinStats.trips,
+      suffix: jinStats.tripsSuffix,
       featured: false,
     },
     {
       icon: Camera,
       label: t("Photos Captured"),
-      value: photos,
-      suffix: heroSettings.homepage_stat_photos_suffix || "K+",
+      value: jinStats.photos,
+      suffix: jinStats.photosSuffix,
       featured: false,
     },
     {
       icon: RouteIcon,
       label: t("Kilometres Travelled"),
-      value: kilometres,
-      suffix: heroSettings.homepage_stat_kilometres_suffix || "+ km",
+      value: jinStats.kilometres,
+      suffix: jinStats.kilometresSuffix,
       featured: true,
     },
     {
       icon: Calendar,
       label: t("Days on the Road"),
-      value: days,
-      suffix: "+",
+      value: jinStats.days,
+      suffix: jinStats.daysSuffix,
       featured: false,
     },
   ];
@@ -524,12 +520,12 @@ function HomePage() {
             mainFeatured={mainFeatured}
             secondaryFeatured={secondaryFeatured}
             stats={{
-              countries,
-              trips: Number(heroSettings.homepage_stat_trips) || 102,
-              photos: Number(heroSettings.homepage_stat_photos) || 200,
-              photosSuffix: heroSettings.homepage_stat_photos_suffix || "K+",
-              kilometres: Number(heroSettings.homepage_stat_kilometres) || 18420,
-              kilometresSuffix: heroSettings.homepage_stat_kilometres_suffix || " km",
+              countries: jinStats.countries,
+              trips: jinStats.trips,
+              photos: jinStats.photos,
+              photosSuffix: jinStats.photosSuffix,
+              kilometres: jinStats.kilometres,
+              kilometresSuffix: jinStats.kilometresSuffix,
             }}
           />
         </section>
@@ -697,18 +693,18 @@ function HomePage() {
           </div>
 
           <div className="grid grid-cols-2 gap-2.5 sm:gap-3.5 sm:grid-cols-3 lg:grid-cols-5 w-full min-w-0">
-            {stats.map((s) => (
+            {stats.map((s, idx) => (
               <div
                 key={s.label}
                 data-reveal={s.featured ? "featured" : "card"}
                 className={`jin-card rounded-2xl border border-border bg-card p-3 sm:p-4.5 transition-all duration-300 hover:border-[#FF7A00]/40 w-full min-w-0 overflow-hidden ${
-                  s.featured ? "jin-featured" : ""
-                }`}
+                  idx === 4 ? "col-span-2 sm:col-span-1" : ""
+                } ${s.featured ? "jin-featured" : ""}`}
               >
                 <div className="inline-flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-xl bg-[#FF7A00]/10 text-[#FF7A00]">
                   <s.icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 </div>
-                <div className="mt-2.5 sm:mt-3 font-display text-xl sm:text-2xl lg:text-3xl font-bold text-foreground truncate">
+                <div className="mt-2.5 sm:mt-3 font-display text-lg min-[360px]:text-xl sm:text-2xl lg:text-3xl font-bold text-foreground tabular-nums whitespace-nowrap">
                   <CountUp end={s.value} suffix={s.suffix} />
                 </div>
                 <div className="mt-0.5 sm:mt-1 text-[11px] sm:text-xs text-muted-foreground leading-snug min-w-0">

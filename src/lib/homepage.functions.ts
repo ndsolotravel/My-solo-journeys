@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { assertEditor } from "@/lib/admin.functions";
 import { resolveMediaUrl } from "@/lib/media";
+import { computeJourneyCountries } from "@/lib/posts.functions";
 
 // ---------------------------------------------------------------------------
 // Homepage settings keys and defaults (mirror the original hardcoded homepage)
@@ -28,11 +29,13 @@ const HOMEPAGE_KEYS = [
   "homepage_stat_countries_mode",
   "homepage_stat_countries",
   "homepage_stat_trips",
+  "homepage_stat_trips_suffix",
   "homepage_stat_photos",
   "homepage_stat_photos_suffix",
   "homepage_stat_kilometres",
   "homepage_stat_kilometres_suffix",
   "homepage_stat_days",
+  "homepage_stat_days_suffix",
   // Featured / Latest Blog Post
   "homepage_featured_mode",
   "homepage_featured_post_id",
@@ -54,14 +57,16 @@ const HOMEPAGE_DEFAULTS: Record<string, string> = {
   homepage_hero_button_link: "/blog",
   homepage_hero_secondary_button_text: "Explore destinations",
   homepage_hero_secondary_button_link: "/destinations",
-  homepage_stat_countries_mode: "auto",
+  homepage_stat_countries_mode: "manual",
   homepage_stat_countries: "27",
-  homepage_stat_trips: "100",
+  homepage_stat_trips: "102",
+  homepage_stat_trips_suffix: "+",
   homepage_stat_photos: "200",
   homepage_stat_photos_suffix: "K+",
-  homepage_stat_kilometres: "50000",
-  homepage_stat_kilometres_suffix: "+ km",
-  homepage_stat_days: "180",
+  homepage_stat_kilometres: "18420",
+  homepage_stat_kilometres_suffix: "km",
+  homepage_stat_days: "142",
+  homepage_stat_days_suffix: "+",
   homepage_featured_mode: "auto",
   homepage_featured_post_id: "",
 };
@@ -76,11 +81,26 @@ export type HomepagePost = {
   reading_minutes: number;
 };
 
+export type HomepageStats = {
+  countries: number;
+  countriesCalculated: number;
+  countriesMode: "auto" | "manual";
+  trips: number;
+  tripsSuffix: string;
+  photos: number;
+  photosSuffix: string;
+  kilometres: number;
+  kilometresSuffix: string;
+  days: number;
+  daysSuffix: string;
+};
+
 export type HomepageConfig = {
   settings: Record<string, string>;
   heroPost: HomepagePost | null;
   heroImagePosts: HomepagePost[];
   featuredPost: HomepagePost | null;
+  stats: HomepageStats;
 };
 
 type SupabaseRow = {
@@ -112,6 +132,11 @@ function mergeDefaults(rows: Map<string, string>): Record<string, string> {
     }
   }
   return settings;
+}
+
+function toNonNegativeNumber(value: string | undefined, fallback: number): number {
+  const n = Number(value);
+  return Number.isFinite(n) && n >= 0 ? n : fallback;
 }
 
 const POST_COLS = "id,title,slug,excerpt,cover_image,category,reading_minutes";
@@ -237,7 +262,28 @@ export const getHomepageConfig = createServerFn({ method: "GET" }).handler(async
     if (!featuredPost) featuredPost = await resolveLatestPost(supabaseAdmin);
   }
 
-  return { settings, heroPost, heroImagePosts, featuredPost } satisfies HomepageConfig;
+  // Resolve Journey in Numbers stats (countries computed from published posts in auto mode)
+  const journey = await computeJourneyCountries(supabaseAdmin);
+  const countriesMode = settings.homepage_stat_countries_mode === "manual" ? "manual" : "auto";
+  const manualCountries = toNonNegativeNumber(settings.homepage_stat_countries, 27);
+  const stats: HomepageStats = {
+    countries:
+      countriesMode === "manual" && settings.homepage_stat_countries.trim() !== ""
+        ? manualCountries
+        : journey.countriesCount,
+    countriesCalculated: journey.countriesCount,
+    countriesMode,
+    trips: toNonNegativeNumber(settings.homepage_stat_trips, 102),
+    tripsSuffix: settings.homepage_stat_trips_suffix || "+",
+    photos: toNonNegativeNumber(settings.homepage_stat_photos, 200),
+    photosSuffix: settings.homepage_stat_photos_suffix || "K+",
+    kilometres: toNonNegativeNumber(settings.homepage_stat_kilometres, 18420),
+    kilometresSuffix: settings.homepage_stat_kilometres_suffix || "km",
+    days: toNonNegativeNumber(settings.homepage_stat_days, 142),
+    daysSuffix: settings.homepage_stat_days_suffix || "+",
+  };
+
+  return { settings, heroPost, heroImagePosts, featuredPost, stats } satisfies HomepageConfig;
 });
 
 // ------------------------- Admin functions -------------------------
@@ -258,8 +304,11 @@ export const adminGetHomepageEditor = createServerFn({ method: "GET" })
 
     if (error) throw new Error(error.message);
 
+    const journey = await computeJourneyCountries(client);
+
     return {
       settings,
+      computedCountries: journey.countriesCount,
       posts: (posts ?? []) as Array<{
         id: string;
         title: string;

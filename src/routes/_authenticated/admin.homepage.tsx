@@ -32,6 +32,11 @@ import {
   Check,
   ImageIcon,
   ArrowRight,
+  Globe2,
+  Bike,
+  Camera,
+  Route as RouteIcon,
+  Calendar,
 } from "lucide-react";
 import { toast } from "sonner";
 import { adminGetHomepageEditor, adminSaveHomepageSettings } from "@/lib/homepage.functions";
@@ -76,6 +81,7 @@ type PostOption = {
 type EditorData = {
   settings: Record<string, string>;
   posts: PostOption[];
+  computedCountries: number;
 };
 
 type HeroSlotPreview = {
@@ -813,6 +819,7 @@ function AdminHomepagePage() {
   const posts: PostOption[] = ((data as EditorData | undefined)?.posts ?? []).filter(
     (p) => p.published,
   );
+  const computedCountries = (data as EditorData | undefined)?.computedCountries ?? 0;
   const heroMode = draft.homepage_hero_mode === "manual" ? "manual" : "auto";
   const heroImagesMode = draft.homepage_hero_images_mode === "manual" ? "manual" : "auto";
   const featuredMode = draft.homepage_featured_mode === "manual" ? "manual" : "auto";
@@ -1561,7 +1568,7 @@ function AdminHomepagePage() {
                   <span>Journey in Numbers</span>
                 </h2>
                 <p className="mt-0.5 text-xs text-muted-foreground">
-                  The stats strip (countries, trips, photos, kilometres, days) above the newsletter.
+                  The stats strip (countries covered in blogs, trips, photos, kilometres, days) above the newsletter.
                 </p>
               </div>
               <span className="inline-flex items-center gap-1 rounded-full bg-accent/10 px-2.5 py-0.5 text-xs font-medium text-accent">
@@ -1570,7 +1577,9 @@ function AdminHomepagePage() {
             </div>
 
             <div className="space-y-2">
-              <label className="block text-xs font-medium text-foreground">Countries Visited</label>
+              <label className="block text-xs font-medium text-foreground">
+                Countries Covered in Blogs
+              </label>
               <div className="grid gap-2 sm:grid-cols-2">
                 <button
                   type="button"
@@ -1607,7 +1616,7 @@ function AdminHomepagePage() {
                   </span>
                 </button>
               </div>
-              {draft.homepage_stat_countries_mode === "manual" && (
+              {draft.homepage_stat_countries_mode === "manual" ? (
                 <div className="space-y-1.5 pt-1">
                   <label
                     htmlFor="homepage_stat_countries"
@@ -1619,10 +1628,31 @@ function AdminHomepagePage() {
                     id="homepage_stat_countries"
                     type="number"
                     min={0}
+                    placeholder="27"
                     value={draft.homepage_stat_countries ?? ""}
                     onChange={(e) => set("homepage_stat_countries", e.target.value)}
                     className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm font-medium outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
                   />
+                  <p className="text-xs text-muted-foreground">
+                    The homepage and the Expedition Stats widget display this exact number as the "Countries Covered in Blogs" count.
+                  </p>
+                </div>
+              ) : (
+                <div className="mt-1 rounded-xl border border-accent/25 bg-accent/5 p-4 space-y-2">
+                  <p className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                    <Sparkles className="h-3.5 w-3.5 text-accent" />
+                    Auto-calculated from published stories
+                  </p>
+                  <p className="text-sm">
+                    The homepage currently shows{" "}
+                    <strong>
+                      {computedCountries} {computedCountries === 1 ? "country" : "countries"}
+                    </strong>
+                    , computed from the locations of published blog posts.
+                  </p>
+                  <p className="text-[11px] text-muted-foreground">
+                    Switch to Manual to pin a fixed number instead.
+                  </p>
                 </div>
               )}
             </div>
@@ -1635,14 +1665,24 @@ function AdminHomepagePage() {
                 >
                   Solo Motorcycle Trips
                 </label>
-                <input
-                  id="homepage_stat_trips"
-                  type="number"
-                  min={0}
-                  value={draft.homepage_stat_trips ?? ""}
-                  onChange={(e) => set("homepage_stat_trips", e.target.value)}
-                  className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm font-medium outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
-                />
+                <div className="flex gap-2">
+                  <input
+                    id="homepage_stat_trips"
+                    type="number"
+                    min={0}
+                    value={draft.homepage_stat_trips ?? ""}
+                    onChange={(e) => set("homepage_stat_trips", e.target.value)}
+                    className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm font-medium outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                  />
+                  <input
+                    type="text"
+                    value={draft.homepage_stat_trips_suffix ?? "+"}
+                    onChange={(e) => set("homepage_stat_trips_suffix", e.target.value)}
+                    placeholder="+"
+                    className="w-20 rounded-xl border border-border bg-background px-3 py-2.5 text-sm font-medium text-center outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                    title="Suffix (e.g. +)"
+                  />
+                </div>
               </div>
               <div className="space-y-1.5">
                 <label
@@ -1662,10 +1702,11 @@ function AdminHomepagePage() {
                   />
                   <input
                     type="text"
-                    value={draft.homepage_stat_kilometres_suffix ?? ""}
+                    value={draft.homepage_stat_kilometres_suffix ?? "km"}
                     onChange={(e) => set("homepage_stat_kilometres_suffix", e.target.value)}
-                    placeholder=" km"
+                    placeholder="km"
                     className="w-20 rounded-xl border border-border bg-background px-3 py-2.5 text-sm font-medium text-center outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                    title="Suffix (e.g. km)"
                   />
                 </div>
               </div>
@@ -1687,10 +1728,11 @@ function AdminHomepagePage() {
                   />
                   <input
                     type="text"
-                    value={draft.homepage_stat_photos_suffix ?? ""}
+                    value={draft.homepage_stat_photos_suffix ?? "K+"}
                     onChange={(e) => set("homepage_stat_photos_suffix", e.target.value)}
                     placeholder="K+"
                     className="w-20 rounded-xl border border-border bg-background px-3 py-2.5 text-sm font-medium text-center outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                    title="Suffix (e.g. K+)"
                   />
                 </div>
               </div>
@@ -1701,14 +1743,98 @@ function AdminHomepagePage() {
                 >
                   Days on the Road
                 </label>
-                <input
-                  id="homepage_stat_days"
-                  type="number"
-                  min={0}
-                  value={draft.homepage_stat_days ?? ""}
-                  onChange={(e) => set("homepage_stat_days", e.target.value)}
-                  className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm font-medium outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
-                />
+                <div className="flex gap-2">
+                  <input
+                    id="homepage_stat_days"
+                    type="number"
+                    min={0}
+                    value={draft.homepage_stat_days ?? ""}
+                    onChange={(e) => set("homepage_stat_days", e.target.value)}
+                    className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm font-medium outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                  />
+                  <input
+                    type="text"
+                    value={draft.homepage_stat_days_suffix ?? "+"}
+                    onChange={(e) => set("homepage_stat_days_suffix", e.target.value)}
+                    placeholder="+"
+                    className="w-20 rounded-xl border border-border bg-background px-3 py-2.5 text-sm font-medium text-center outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                    title="Suffix (e.g. +)"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* LIVE PREVIEW OF JOURNEY IN NUMBERS */}
+            <div className="rounded-xl border border-border/70 bg-muted/20 p-4 sm:p-5 space-y-3">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                  <Eye className="h-3.5 w-3.5 text-accent" />
+                  Live Section Preview (How it renders on the Homepage)
+                </p>
+                <span className="text-[11px] text-muted-foreground">Synchronized with draft</span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 w-full min-w-0">
+                <div className="rounded-2xl border border-border bg-card p-3 sm:p-4 transition-all hover:border-accent/40 w-full min-w-0 overflow-hidden">
+                  <div className="inline-flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-xl bg-accent/10 text-accent">
+                    <Globe2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  </div>
+                  <div className="mt-2.5 sm:mt-3 font-display text-lg sm:text-xl lg:text-2xl font-bold text-foreground tabular-nums whitespace-nowrap">
+                    {draft.homepage_stat_countries_mode === "manual"
+                      ? (draft.homepage_stat_countries?.trim() || "27")
+                      : computedCountries}
+                  </div>
+                  <div className="mt-0.5 sm:mt-1 text-[11px] sm:text-xs text-muted-foreground leading-snug">
+                    Countries Covered in Blogs
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-border bg-card p-3 sm:p-4 transition-all hover:border-accent/40 w-full min-w-0 overflow-hidden">
+                  <div className="inline-flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-xl bg-accent/10 text-accent">
+                    <Bike className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  </div>
+                  <div className="mt-2.5 sm:mt-3 font-display text-lg sm:text-xl lg:text-2xl font-bold text-foreground tabular-nums whitespace-nowrap">
+                    {draft.homepage_stat_trips || "102"}{draft.homepage_stat_trips_suffix ?? "+"}
+                  </div>
+                  <div className="mt-0.5 sm:mt-1 text-[11px] sm:text-xs text-muted-foreground leading-snug">
+                    Solo Motorcycle Trips
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-border bg-card p-3 sm:p-4 transition-all hover:border-accent/40 w-full min-w-0 overflow-hidden">
+                  <div className="inline-flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-xl bg-accent/10 text-accent">
+                    <Camera className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  </div>
+                  <div className="mt-2.5 sm:mt-3 font-display text-lg sm:text-xl lg:text-2xl font-bold text-foreground tabular-nums whitespace-nowrap">
+                    {draft.homepage_stat_photos || "200"}{draft.homepage_stat_photos_suffix || "K+"}
+                  </div>
+                  <div className="mt-0.5 sm:mt-1 text-[11px] sm:text-xs text-muted-foreground leading-snug">
+                    Photos Captured
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-accent/40 bg-card p-3 sm:p-4 transition-all hover:border-accent/60 w-full min-w-0 overflow-hidden">
+                  <div className="inline-flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-xl bg-accent/10 text-accent">
+                    <RouteIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  </div>
+                  <div className="mt-2.5 sm:mt-3 font-display text-lg sm:text-xl lg:text-2xl font-bold text-foreground tabular-nums whitespace-nowrap">
+                    {Number(draft.homepage_stat_kilometres || "18420").toLocaleString()}{draft.homepage_stat_kilometres_suffix || "km"}
+                  </div>
+                  <div className="mt-0.5 sm:mt-1 text-[11px] sm:text-xs text-muted-foreground leading-snug">
+                    Kilometres Travelled
+                  </div>
+                </div>
+
+                <div className="col-span-2 sm:col-span-1 rounded-2xl border border-border bg-card p-3 sm:p-4 transition-all hover:border-accent/40 w-full min-w-0 overflow-hidden">
+                  <div className="inline-flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-xl bg-accent/10 text-accent">
+                    <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  </div>
+                  <div className="mt-2.5 sm:mt-3 font-display text-lg sm:text-xl lg:text-2xl font-bold text-foreground tabular-nums whitespace-nowrap">
+                    {draft.homepage_stat_days || "142"}{draft.homepage_stat_days_suffix ?? "+"}
+                  </div>
+                  <div className="mt-0.5 sm:mt-1 text-[11px] sm:text-xs text-muted-foreground leading-snug">
+                    Days on the Road
+                  </div>
+                </div>
               </div>
             </div>
           </section>

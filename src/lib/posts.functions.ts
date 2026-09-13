@@ -416,13 +416,15 @@ export function extractCountryFromLocation(locationName?: string | null): string
 }
 
 /**
- * Dynamically calculate Journey in Numbers statistics from database.
+ * Dynamically calculate the Countries Covered in Blogs count from published
+ * post locations (shared between the homepage config and the journey-stats
+ * server function, so the CMS and homepage always stay in sync).
  */
-export const getJourneyStats = createServerFn({ method: "GET" }).handler(async () => {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-
+export async function computeJourneyCountries(
+  client: any,
+): Promise<{ countriesCount: number; countriesList: string[] }> {
   // Fetch all published posts' location_name and destinations
-  const { data: posts } = await (supabaseAdmin
+  const { data: posts } = await (client
     .from("posts") as any)
     .select("id, title, location_name, destination_id, destinations(country)")
     .eq("published", true);
@@ -450,5 +452,5 @@ export const getJourneyStats = createServerFn({ method: "GET" }).handler(async (
     countriesCount: Math.max(countrySet.size, 1),
     countriesList: Array.from(countrySet),
   };
-});
+}
 
