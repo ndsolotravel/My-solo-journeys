@@ -59,10 +59,16 @@ export const subscribe = createServerFn({ method: "POST" })
     // Link subscriber_email to current visitor session if sessionId is available
     if (data.sessionId) {
       try {
-        await supabaseAdmin
-          .from("visitor_sessions")
-          .update({ subscriber_email: subscriberEmail })
-          .eq("session_id", data.sessionId);
+        const { error: linkErr } = await supabaseAdmin.rpc("upsert_visitor_session", {
+          p_session_id: data.sessionId,
+          p_subscriber_email: subscriberEmail,
+        });
+        if (linkErr) {
+          await supabaseAdmin
+            .from("visitor_sessions")
+            .update({ subscriber_email: subscriberEmail })
+            .eq("session_id", data.sessionId);
+        }
       } catch (err) {
         console.warn(
           `[subscribe] Could not link subscriber email to session <${data.sessionId}>:`,

@@ -121,6 +121,18 @@ export const getHitCounterStats = createServerFn({ method: "GET" }).handler(asyn
 async function countLive(): Promise<number> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
+  // Prefer atomic SECURITY DEFINER RPC (works without exposing table read access to anon)
+  try {
+    const { data, error } = await supabaseAdmin.rpc("get_live_visitor_count", {
+      p_timeout_seconds: Math.round(ACTIVITY_TIMEOUT_MS / 1000),
+    });
+    if (!error && typeof data === "number") {
+      return data;
+    }
+  } catch {
+    // Fall back to table query
+  }
+
   // Lazy cleanup of obsolete sessions > 365 days
   try {
     await supabaseAdmin.rpc("cleanup_stale_visitor_sessions");
@@ -133,6 +145,6 @@ async function countLive(): Promise<number> {
     .from("visitor_sessions")
     .select("session_id", { count: "exact", head: true })
     .gte("last_active_at", cutoff);
-  if (error) throw new Error(error.message);
+  if (error) return 0;
   return count ?? 0;
 }

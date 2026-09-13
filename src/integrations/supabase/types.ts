@@ -1119,6 +1119,10 @@ export type Database = {
         Returns: Json;
       };
       cleanup_stale_visitor_sessions: { Args: never; Returns: undefined };
+      get_live_visitor_count: {
+        Args: { p_timeout_seconds?: number };
+        Returns: number;
+      };
       get_public_hit_stats: { Args: never; Returns: Json };
       has_role: {
         Args: {
