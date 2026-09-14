@@ -147,7 +147,7 @@ export const Route = createFileRoute("/blog/$slug")({
 function PostNotFound() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-24 text-center">
-      <h1 className="font-display text-3xl font-bold">Story not found</h1>
+      <h1 className="font-display text-3xl font-semibold">Story not found</h1>
       <p className="mt-2 text-muted-foreground">This trail has been moved or doesn't exist.</p>
       <Link to="/blog" className="mt-6 inline-flex items-center gap-2 text-sm text-accent">
         <ArrowLeft className="h-4 w-4" /> Back to all stories
