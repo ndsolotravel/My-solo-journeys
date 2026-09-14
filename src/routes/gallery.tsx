@@ -130,7 +130,7 @@ function GalleryPage() {
         </p>
 
         {/* Strong Main Title */}
-        <h1 className="font-display text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-foreground leading-tight">
+        <h1 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-foreground leading-tight">
           {t("My Visual Diary")}
         </h1>
 

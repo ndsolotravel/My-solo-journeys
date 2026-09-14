@@ -127,7 +127,7 @@ function AdminAnalyticsPage() {
               <Activity className="h-4 w-4 animate-pulse" />
             </div>
           </div>
-          <p className="mt-3 font-display text-4xl font-extrabold text-foreground">
+          <p className="mt-3 font-display text-4xl font-bold text-foreground">
             {isLoading ? "—" : (data?.liveNow ?? 0)}
           </p>
           <p className="mt-1 text-xs text-muted-foreground flex items-center gap-1">

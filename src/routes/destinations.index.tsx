@@ -147,7 +147,7 @@ function DestinationsPage() {
                   <stat.icon className="h-5 w-5" />
                 </span>
                 <div>
-                  <p className="atlas-ledger-value font-display text-2xl font-extrabold tracking-tight sm:text-3xl">
+                   <p className="atlas-ledger-value font-display text-2xl font-bold tracking-tight sm:text-3xl">
                     {stat.value}
                   </p>
                   <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
@@ -182,9 +182,9 @@ function DestinationsPage() {
               </p>
               <h2
                 id="atlas-map-heading"
-                className="atlas-section-title mt-3 font-display text-4xl font-extrabold tracking-tight sm:text-5xl"
-              >
-                {t("Every place, mapped.")}
+                 className="atlas-section-title mt-3 font-display text-4xl font-bold tracking-tight sm:text-5xl"
+               >
+                 {t("Every place, mapped.")}
               </h2>
               <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">
                 {t(
@@ -238,7 +238,7 @@ function DestinationsPage() {
                       params={{ slug: d.slug }}
                       className="group flex items-center gap-4 px-4 py-3.5 transition-colors hover:bg-muted/60"
                     >
-                      <span className="atlas-ghost atlas-ghost-dark w-8 shrink-0 font-display text-lg font-extrabold">
+                       <span className="atlas-ghost atlas-ghost-dark w-8 shrink-0 font-display text-lg font-bold">
                         {String(i + 1).padStart(2, "0")}
                       </span>
                       <span className="min-w-0 flex-1">
@@ -284,9 +284,9 @@ function DestinationsPage() {
             </p>
             <h2
               id="chapters-heading"
-              className="atlas-section-title mt-3 font-display text-4xl font-extrabold tracking-tight sm:text-5xl"
-            >
-              {t("Expeditions, by journey.")}
+               className="atlas-section-title mt-3 font-display text-4xl font-bold tracking-tight sm:text-5xl"
+             >
+               {t("Expeditions, by journey.")}
             </h2>
             <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">
               {t(
@@ -332,7 +332,7 @@ function DestinationsPage() {
                       <div>
                         <h3
                           id={`chapter-${cIdx}`}
-                          className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl"
+                           className="font-display text-3xl font-bold tracking-tight sm:text-4xl"
                         >
                           {t(chapter.cat)}
                         </h3>
@@ -406,7 +406,7 @@ function DestinationsPage() {
         <section className="mt-28 scroll-mt-24">
           <div className="section-divider mb-16" />
           <div className="text-center">
-            <h2 className="atlas-section-title font-display text-4xl font-extrabold tracking-tight sm:text-5xl">
+             <h2 className="atlas-section-title font-display text-4xl font-bold tracking-tight sm:text-5xl">
               {t("More to Discover")}
             </h2>
             <p className="mx-auto mt-4 max-w-lg text-muted-foreground sm:text-base">

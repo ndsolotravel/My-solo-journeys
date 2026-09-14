@@ -107,11 +107,11 @@ export function GalleryHero({ config, photoCount }: GalleryHeroProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="mt-2 sm:mt-2.5 max-w-4xl font-display text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold leading-tight sm:leading-[1.15] text-white tracking-tight break-words [overflow-wrap:anywhere]"
+            className="mt-2 sm:mt-2.5 max-w-4xl font-display text-xl sm:text-2xl md:text-3xl lg:text-4xl font-semibold leading-tight sm:leading-[1.15] text-white tracking-tight break-words [overflow-wrap:anywhere]"
           >
             <span className="block">{t(title)}</span>
             {titleHighlight && (
-              <span className="block text-[#FF7A00] mt-0.5 sm:mt-1 font-extrabold">
+              <span className="block text-[#FF7A00] mt-0.5 sm:mt-1 font-bold">
                 {t(titleHighlight)}
               </span>
             )}

@@ -1135,7 +1135,7 @@ function AdminNewsPage() {
                 {/* Mock Breaking News Running Marquee Ticker */}
                 <div className="ticker-container relative flex h-10 sm:h-11 w-full items-center overflow-hidden rounded-xl border border-red-500/30 bg-black/80 backdrop-blur-xl shadow-lg">
                   {/* Left Pinned Badge */}
-                  <div className="relative z-20 flex shrink-0 items-center gap-2 bg-gradient-to-r from-red-600 via-red-600 to-red-700 px-3 sm:px-4 py-1.5 text-[11px] font-black tracking-wider text-white uppercase shadow-md rounded-l-[11px]">
+                   <div className="relative z-20 flex shrink-0 items-center gap-2 bg-gradient-to-r from-red-600 via-red-600 to-red-700 px-3 sm:px-4 py-1.5 text-[11px] font-bold tracking-wider text-white uppercase shadow-md rounded-l-[11px]">
                     <span className="relative flex h-2 w-2">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-80"></span>
                       <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>

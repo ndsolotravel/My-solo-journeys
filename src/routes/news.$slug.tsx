@@ -159,7 +159,7 @@ function NewsDetailPage() {
       </div>
 
       {/* Headline */}
-      <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-foreground leading-[1.15]">
+      <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-foreground leading-[1.15]">
         {newsItem.title}
       </h1>
 

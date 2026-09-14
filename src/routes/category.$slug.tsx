@@ -134,7 +134,7 @@ function CategoryPage() {
             </span>
           </div>
 
-          <h1 className="mt-3 font-display text-3xl font-extrabold tracking-tight text-foreground sm:text-5xl">
+          <h1 className="mt-3 font-display text-3xl font-bold tracking-tight text-foreground sm:text-5xl">
             {t(category.name)}
           </h1>
 

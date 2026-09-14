@@ -92,10 +92,10 @@ function PrivacyPolicyPage() {
         )}
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70" />
         <div className="relative z-10 flex flex-col items-center justify-center text-center px-4 max-w-4xl mx-auto">
-          <span className="rounded-full bg-brand px-3.5 py-1 text-xs font-bold uppercase tracking-[0.2em] text-brand-foreground shadow-sm mb-3">
+          <span className="rounded-full bg-brand px-3.5 py-1 text-xs font-medium uppercase tracking-[0.2em] text-brand-foreground shadow-sm mb-3">
             {t("Legal")}
           </span>
-          <h1 className="font-display text-3xl sm:text-5xl font-extrabold text-white tracking-tight drop-shadow-md">
+          <h1 className="font-display text-3xl sm:text-5xl font-bold text-white tracking-tight drop-shadow-md">
             {localizedPage.title}
           </h1>
           <div className="mt-3">

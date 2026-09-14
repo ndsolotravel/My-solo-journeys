@@ -96,7 +96,7 @@ export function ExpeditionTile({
 
             <div className="atlas-text-move">
               <h3
-                className={`atlas-title mt-3 font-display font-extrabold leading-[1.05] tracking-tight text-white ${
+                className={`atlas-title mt-3 font-display font-bold leading-[1.05] tracking-tight text-white ${
                   preferred ? "text-3xl sm:text-4xl" : "text-2xl sm:text-3xl"
                 }`}
               >

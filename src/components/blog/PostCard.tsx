@@ -123,7 +123,7 @@ export function PostCard({ post, index = 0 }: { post: Post; index?: number }) {
         </div>
 
         <Link to="/blog/$slug" params={{ slug: post.slug }} className="block">
-          <h3 className="mt-1.5 font-display text-xl font-semibold leading-snug group-hover:text-accent transition-colors">
+          <h3 className="mt-1.5 font-display text-xl font-medium leading-snug group-hover:text-accent transition-colors">
             {localizedPost.title}
           </h3>
           {localizedPost.excerpt && (

@@ -78,7 +78,7 @@ export function AtlasHero({ image }: AtlasHeroProps) {
             initial={{ opacity: 0, y: 44, filter: "blur(10px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             transition={{ duration: 1.15, delay: 0.12, ease: EASE }}
-            className="atlas-hero-title max-w-[13ch] font-display text-[2.6rem] font-extrabold leading-[0.98] tracking-tight text-white sm:text-6xl lg:text-7xl"
+            className="atlas-hero-title max-w-[13ch] font-display text-[2.6rem] font-bold leading-[0.98] tracking-tight text-white sm:text-6xl lg:text-7xl"
           >
             {t("Where the road runs out.")}
           </motion.h1>
@@ -100,7 +100,7 @@ export function AtlasHero({ image }: AtlasHeroProps) {
           >
             <a
               href="#interactive-map"
-              className="group inline-flex items-center gap-2.5 rounded-full bg-[#FF7A00] px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-[#FF7A00]/25 transition-all hover:bg-[#ff8a21] hover:shadow-[#FF7A00]/40"
+              className="group inline-flex items-center gap-2.5 rounded-full bg-[#FF7A00] px-7 py-3.5 text-sm font-medium text-white shadow-lg shadow-[#FF7A00]/25 transition-all hover:bg-[#ff8a21] hover:shadow-[#FF7A00]/40"
             >
               {t("Explore the Journey")}
               <ChevronDown className="h-4 w-4 transition-transform duration-300 group-hover:translate-y-0.5" />

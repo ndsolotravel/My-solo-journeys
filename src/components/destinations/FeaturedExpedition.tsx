@@ -95,7 +95,7 @@ export function FeaturedExpedition({ destination: d }: FeaturedExpeditionProps) 
                 whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                 viewport={{ once: true, amount: 0.4 }}
                 transition={{ duration: 0.9, delay: 0.08, ease: EASE }}
-                className="atlas-section-title mt-5 max-w-xl font-display text-4xl font-extrabold leading-[1.02] tracking-tight text-white sm:text-5xl xl:text-6xl"
+                className="atlas-section-title mt-5 max-w-xl font-display text-4xl font-bold leading-[1.02] tracking-tight text-white sm:text-5xl xl:text-6xl"
               >
                 {t(d.title)}
               </motion.h2>
@@ -122,7 +122,7 @@ export function FeaturedExpedition({ destination: d }: FeaturedExpeditionProps) 
                 <Link
                   to="/destinations/$slug"
                   params={{ slug: d.slug }}
-                  className="group inline-flex items-center gap-3 rounded-full bg-[#FF7A00] px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-[#FF7A00]/25 transition-colors hover:bg-[#ff8a21]"
+                  className="group inline-flex items-center gap-3 rounded-full bg-[#FF7A00] px-7 py-3.5 text-sm font-medium text-white shadow-lg shadow-[#FF7A00]/25 transition-colors hover:bg-[#ff8a21]"
                 >
                   {t("Read the field report")}
                   <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />

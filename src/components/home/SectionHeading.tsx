@@ -32,7 +32,7 @@ export function SectionHeading({
       <div className="flex flex-wrap items-center justify-between gap-3">
         {/* Left: Title + Badge */}
         <div className="flex items-center gap-3">
-          <h2 className="font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+          <h2 className="font-display text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
             {t(title)}
           </h2>
           {badge && (

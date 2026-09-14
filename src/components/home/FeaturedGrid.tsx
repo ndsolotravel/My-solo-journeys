@@ -90,7 +90,7 @@ export function FeaturedGrid({
                 </div>
               )}
               <div className="absolute left-3 top-3 rtl:left-auto rtl:right-3">
-                <span className="rounded-full bg-[#FF7A00] px-2.5 py-1 text-[11px] sm:px-3 sm:py-1 sm:text-xs font-semibold uppercase tracking-wider text-white shadow-sm">
+                <span className="rounded-full bg-[#FF7A00] px-2.5 py-1 text-[11px] sm:px-3 sm:py-1 sm:text-xs font-medium uppercase tracking-wider text-white shadow-sm">
                   {t(mainFeatured.category || "Featured")}
                 </span>
               </div>
@@ -110,7 +110,7 @@ export function FeaturedGrid({
                   </span>
                 </div>
 
-                <h3 className="mt-2.5 sm:mt-3 font-display text-xl sm:text-2xl lg:text-3xl font-bold leading-snug text-foreground transition-colors group-hover:text-[#FF7A00] break-words [overflow-wrap:anywhere]">
+                <h3 className="mt-2.5 sm:mt-3 font-display text-xl sm:text-2xl lg:text-3xl font-semibold leading-snug text-foreground transition-colors group-hover:text-[#FF7A00] break-words [overflow-wrap:anywhere]">
                   {getPostTitle(mainFeatured)}
                 </h3>
 
@@ -122,7 +122,7 @@ export function FeaturedGrid({
               </div>
 
               <div className="mt-4 sm:mt-5 pt-3.5 sm:pt-4 border-t border-border/60">
-                <span className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#FF7A00]">
+                <span className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-[#FF7A00]">
                   {t("Read full story")}
                   <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 transition-transform duration-300 group-hover:translate-x-1 rtl:rotate-180" />
                 </span>
@@ -158,7 +158,7 @@ export function FeaturedGrid({
 
               <div className="relative z-10 flex h-full flex-col justify-between p-4 sm:p-5 text-white min-w-0">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="rounded-full bg-white/20 backdrop-blur-md px-2.5 py-0.5 text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-white">
+                  <span className="rounded-full bg-white/20 backdrop-blur-md px-2.5 py-0.5 text-[10px] sm:text-[11px] font-medium uppercase tracking-wider text-white">
                     {t(post.category || "Featured")}
                   </span>
                   <span className="text-[11px] sm:text-xs text-white/75 shrink-0">
@@ -167,10 +167,10 @@ export function FeaturedGrid({
                 </div>
 
                 <div className="mt-3 min-w-0">
-                  <h4 className="font-display text-base sm:text-lg font-bold leading-snug text-white transition-colors group-hover:text-[#FF7A00] line-clamp-2 break-words [overflow-wrap:anywhere]">
+                  <h4 className="font-display text-base sm:text-lg font-semibold leading-snug text-white transition-colors group-hover:text-[#FF7A00] line-clamp-2 break-words [overflow-wrap:anywhere]">
                     {getPostTitle(post)}
                   </h4>
-                  <div className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-[#FF7A00]">
+                  <div className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-[#FF7A00]">
                     <span>{t("Read story")}</span>
                     <ArrowUpRight className="h-3 w-3 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 rtl:scale-x-[-1]" />
                   </div>
@@ -190,10 +190,10 @@ export function FeaturedGrid({
       {/* 3. Right: Social Feed & Quick Connect Card - Span 3 */}
       <div className="flex flex-col rounded-2xl border border-border bg-card p-3.5 sm:p-4 shadow-sm lg:col-span-3 w-full min-w-0">
         <div className="mb-3 border-b border-border pb-2.5">
-          <span className="rounded-md bg-[#FF7A00]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#FF7A00]">
+          <span className="rounded-md bg-[#FF7A00]/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-[#FF7A00]">
             {t("Connect")}
           </span>
-          <h3 className="mt-1 font-display text-base sm:text-lg font-bold text-foreground">
+          <h3 className="mt-1 font-display text-base sm:text-lg font-semibold text-foreground">
             {t("Follow the Journey")}
           </h3>
         </div>
@@ -210,9 +210,9 @@ export function FeaturedGrid({
               <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#E1306C] text-white">
                 <Instagram className="h-3.5 w-3.5" />
               </div>
-              <span className="font-semibold truncate">{t("Instagram")}</span>
+              <span className="font-medium truncate">{t("Instagram")}</span>
             </div>
-            <span className="text-[11px] font-semibold text-[#E1306C] shrink-0">{t("Follow")} →</span>
+            <span className="text-[11px] font-medium text-[#E1306C] shrink-0">{t("Follow")} →</span>
           </a>
 
           <a
@@ -225,9 +225,9 @@ export function FeaturedGrid({
               <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#FF0000] text-white">
                 <Youtube className="h-3.5 w-3.5" />
               </div>
-              <span className="font-semibold truncate">{t("YouTube")}</span>
+              <span className="font-medium truncate">{t("YouTube")}</span>
             </div>
-            <span className="text-[11px] font-semibold text-[#FF0000] shrink-0">{t("Subscribe")} →</span>
+            <span className="text-[11px] font-medium text-[#FF0000] shrink-0">{t("Subscribe")} →</span>
           </a>
 
           <a
@@ -240,25 +240,25 @@ export function FeaturedGrid({
               <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-foreground text-background">
                 <Twitter className="h-3.5 w-3.5" />
               </div>
-              <span className="font-semibold truncate">X (Twitter)</span>
+              <span className="font-medium truncate">X (Twitter)</span>
             </div>
-            <span className="text-[11px] font-semibold text-muted-foreground shrink-0">{t("Follow")} →</span>
+            <span className="text-[11px] font-medium text-muted-foreground shrink-0">{t("Follow")} →</span>
           </a>
         </div>
 
         {/* Travel Highlights mini widget */}
         <div className="mt-4 rounded-xl border border-border/80 bg-muted/40 p-3 w-full min-w-0">
-          <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#FF7A00]">
+          <div className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-[#FF7A00]">
             <Globe2 className="h-3.5 w-3.5 shrink-0" />
             <span className="truncate">{t("Expedition Stats")}</span>
           </div>
           <div className="mt-2.5 grid grid-cols-2 gap-2 text-center">
             <div className="rounded-lg bg-background p-2 border border-border/50 min-w-0">
-              <div className="font-display text-base sm:text-lg font-bold text-foreground truncate">{stats.countries}</div>
+              <div className="font-display text-base sm:text-lg font-semibold text-foreground truncate">{stats.countries}</div>
               <div className="text-[10px] text-muted-foreground truncate">{t("Countries")}</div>
             </div>
             <div className="rounded-lg bg-background p-2 border border-border/50 min-w-0">
-              <div className="font-display text-base sm:text-lg font-bold text-[#FF7A00] truncate">{stats.trips}</div>
+              <div className="font-display text-base sm:text-lg font-semibold text-[#FF7A00] truncate">{stats.trips}</div>
               <div className="text-[10px] text-muted-foreground truncate">{t("Trips")}</div>
             </div>
           </div>

@@ -71,7 +71,7 @@ export function TrendingStories({
                 </div>
               )}
               <div className="absolute left-3 top-3 rtl:left-auto rtl:right-3">
-                <span className="rounded-full bg-[#FF7A00] px-2.5 py-1 text-[11px] sm:px-3 sm:py-1 sm:text-xs font-semibold uppercase tracking-wider text-white shadow-sm">
+                <span className="rounded-full bg-[#FF7A00] px-2.5 py-1 text-[11px] sm:px-3 sm:py-1 sm:text-xs font-medium uppercase tracking-wider text-white shadow-sm">
                   {t(primaryPost.category || "Story")}
                 </span>
               </div>
@@ -108,7 +108,7 @@ export function TrendingStories({
                   ) : null}
                 </div>
 
-                <h3 className="mt-2.5 sm:mt-3 font-display text-xl sm:text-2xl lg:text-3xl font-bold leading-snug text-foreground transition-colors group-hover:text-[#FF7A00] break-words [overflow-wrap:anywhere]">
+                <h3 className="mt-2.5 sm:mt-3 font-display text-xl sm:text-2xl lg:text-3xl font-semibold leading-snug text-foreground transition-colors group-hover:text-[#FF7A00] break-words [overflow-wrap:anywhere]">
                   {getPostTitle(primaryPost)}
                 </h3>
 
@@ -120,7 +120,7 @@ export function TrendingStories({
               </div>
 
               <div className="mt-4 sm:mt-5 pt-3.5 sm:pt-4 border-t border-border/60">
-                <span className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#FF7A00]">
+                <span className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-[#FF7A00]">
                   {t("Read full story")}
                   <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 transition-transform duration-300 group-hover:translate-x-1 rtl:rotate-180" />
                 </span>
@@ -164,14 +164,14 @@ export function TrendingStories({
               <div className="flex flex-1 flex-col justify-between py-0.5 min-w-0">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-[10px] sm:text-[11px] text-muted-foreground">
-                    <span className="font-semibold uppercase tracking-wider text-[#FF7A00]">
+                    <span className="font-medium uppercase tracking-wider text-[#FF7A00]">
                       {t(post.category || "Story")}
                     </span>
                     <span aria-hidden className="text-muted-foreground/50">·</span>
                     <span className="truncate">{formatDate(post.published_at || post.created_at)}</span>
                   </div>
 
-                  <h4 className="mt-1 font-display text-sm sm:text-base font-bold leading-snug text-foreground transition-colors group-hover:text-[#FF7A00] line-clamp-2 break-words [overflow-wrap:anywhere]">
+                  <h4 className="mt-1 font-display text-sm sm:text-base font-semibold leading-snug text-foreground transition-colors group-hover:text-[#FF7A00] line-clamp-2 break-words [overflow-wrap:anywhere]">
                     {getPostTitle(post)}
                   </h4>
                 </div>
@@ -189,7 +189,7 @@ export function TrendingStories({
       {/* 3. Right Column: Categories Sidebar List - Span 3 */}
       <div className="flex flex-col rounded-2xl border border-border bg-card p-3.5 sm:p-4 shadow-sm lg:col-span-3 w-full min-w-0">
         <div className="mb-3 flex items-center justify-between border-b border-border pb-3">
-          <h3 className="font-display text-base sm:text-lg font-bold tracking-tight text-foreground">
+          <h3 className="font-display text-base sm:text-lg font-semibold tracking-tight text-foreground">
             {t("Categories")}
           </h3>
           <Link
@@ -218,11 +218,11 @@ export function TrendingStories({
                 ) : null;
               })()}
               <div className="relative z-10 flex items-center gap-2.5 min-w-0">
-                <span className="font-display text-xs sm:text-sm font-semibold text-foreground group-hover:text-[#FF7A00] transition-colors truncate">
+                <span className="font-display text-xs sm:text-sm font-medium text-foreground group-hover:text-[#FF7A00] transition-colors truncate">
                   {t(cat.name)}
                 </span>
               </div>
-              <span className="relative z-10 inline-flex h-5 min-w-[20px] shrink-0 items-center justify-center rounded-full bg-background/80 px-1.5 text-[10px] font-bold text-muted-foreground shadow-xs group-hover:bg-[#FF7A00] group-hover:text-white transition-colors">
+              <span className="relative z-10 inline-flex h-5 min-w-[20px] shrink-0 items-center justify-center rounded-full bg-background/80 px-1.5 text-[10px] font-medium text-muted-foreground shadow-xs group-hover:bg-[#FF7A00] group-hover:text-white transition-colors">
                 {cat.count}
               </span>
             </Link>

@@ -365,7 +365,7 @@ function AboutPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1 }}
-                className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-[1.1]"
+                className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white leading-[1.1]"
               >
                 {t(heroHeadline)}
               </motion.h1>
@@ -504,9 +504,9 @@ function AboutPage() {
                     <span className="h-px w-6 bg-accent" />
                     <span>{t(profileEyebrow)}</span>
                   </div>
-                  <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight leading-tight">
-                    {t(biographyTitle)}
-                  </h2>
+                   <h2 className="font-display text-3xl sm:text-4xl font-bold text-foreground tracking-tight leading-tight">
+                     {t(biographyTitle)}
+                   </h2>
                 </div>
 
                 {/* Core Bio Paragraphs */}
@@ -577,9 +577,9 @@ function AboutPage() {
                 <Compass className="w-3.5 h-3.5 text-accent" />
                 <span>{t(whyTravelEyebrow)}</span>
               </div>
-              <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">
-                {t(whyTravelTitle)}
-              </h2>
+               <h2 className="font-display text-3xl sm:text-4xl font-bold text-foreground tracking-tight">
+                 {t(whyTravelTitle)}
+               </h2>
               {whyTravelDescription && (
                 <p className="text-muted-foreground text-base sm:text-lg leading-relaxed">
                   {t(whyTravelDescription)}
@@ -649,9 +649,9 @@ function AboutPage() {
                   <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">
                     {t(motorcycleEyebrow)}
                   </p>
-                  <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
-                    {t(motorcycleTitle)}
-                  </h2>
+                   <h2 className="font-display text-3xl sm:text-4xl font-bold text-white tracking-tight leading-tight">
+                     {t(motorcycleTitle)}
+                   </h2>
                 </div>
 
                 {motorcycleDescription && (
@@ -705,9 +705,9 @@ function AboutPage() {
                   <Mountain className="w-3.5 h-3.5" />
                   <span>{t(trekkingEyebrow)}</span>
                 </div>
-                <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight leading-tight">
-                  {t(trekkingTitle)}
-                </h2>
+                 <h2 className="font-display text-3xl sm:text-4xl font-bold text-foreground tracking-tight leading-tight">
+                   {t(trekkingTitle)}
+                 </h2>
               </div>
 
               {trekkingDescription && (
@@ -784,7 +784,7 @@ function AboutPage() {
                   <Quote className="w-8 h-8 text-accent" />
                 </div>
 
-                <blockquote className="font-display text-2xl sm:text-3xl lg:text-4xl font-extrabold text-foreground leading-tight tracking-tight">
+                 <blockquote className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground leading-tight tracking-tight">
                   &ldquo;{t(philosophyQuote)}&rdquo;
                 </blockquote>
 
@@ -831,9 +831,9 @@ function AboutPage() {
                   <Globe className="w-3.5 h-3.5 text-accent" />
                   <span>{t(numbersEyebrow)}</span>
                 </div>
-                <h2 className="font-display text-2xl sm:text-4xl font-extrabold text-foreground tracking-tight">
-                  {t(numbersTitle)}
-                </h2>
+                 <h2 className="font-display text-2xl sm:text-4xl font-bold text-foreground tracking-tight">
+                   {t(numbersTitle)}
+                 </h2>
               </div>
               {numbersDescription && (
                 <p className="text-muted-foreground text-sm max-w-md">{t(numbersDescription)}</p>
@@ -848,7 +848,7 @@ function AboutPage() {
                     key={stat.id}
                     className="p-3 min-[380px]:p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-card border border-border/80 flex flex-col justify-start space-y-1 sm:space-y-1.5 min-w-0"
                   >
-                    <p className="font-display text-[1.35rem] min-[360px]:text-[1.65rem] min-[400px]:text-3xl sm:text-5xl font-black text-brand tracking-tight whitespace-nowrap leading-none">
+                     <p className="font-display text-[1.35rem] min-[360px]:text-[1.65rem] min-[400px]:text-3xl sm:text-5xl font-bold text-brand tracking-tight whitespace-nowrap leading-none">
                       {stat.value}
                     </p>
                     <h4 className="text-xs sm:text-sm font-bold text-foreground leading-snug break-words">
@@ -895,9 +895,9 @@ function AboutPage() {
                 <Layers className="w-3.5 h-3.5 text-accent" />
                 <span>{t(contentEyebrow)}</span>
               </div>
-              <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">
-                {t(contentTitle)}
-              </h2>
+               <h2 className="font-display text-3xl sm:text-4xl font-bold text-foreground tracking-tight">
+                 {t(contentTitle)}
+               </h2>
               {contentDescription && (
                 <p className="text-muted-foreground text-base sm:text-lg leading-relaxed">
                   {t(contentDescription)}
@@ -952,9 +952,9 @@ function AboutPage() {
                 <span>{t(ctaEyebrow)}</span>
               </div>
 
-              <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">
-                {t(ctaTitle)}
-              </h2>
+               <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-white tracking-tight leading-tight">
+                 {t(ctaTitle)}
+               </h2>
 
               {ctaDescription && (
                 <p className="text-zinc-300 text-base sm:text-lg leading-relaxed font-light">

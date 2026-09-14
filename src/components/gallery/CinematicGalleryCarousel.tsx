@@ -307,7 +307,7 @@ export function CinematicGalleryCarousel({
           )}
 
           {/* Main Title / Description from CMS */}
-          <h2 className="font-display text-lg sm:text-xl md:text-2xl font-bold text-foreground leading-snug tracking-tight">
+          <h2 className="font-display text-lg sm:text-xl md:text-2xl font-semibold text-foreground leading-snug tracking-tight">
             {t(activePhoto.title)}
           </h2>
 

@@ -365,7 +365,7 @@ function HomePage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
-                className="inline-flex w-fit items-center rounded-full border border-white/30 bg-white/10 px-3.5 py-1 sm:px-4 sm:py-1.5 text-[11px] sm:text-xs font-semibold uppercase tracking-[0.2em] text-white backdrop-blur-md"
+                className="inline-flex w-fit items-center rounded-full border border-white/30 bg-white/10 px-3.5 py-1 sm:px-4 sm:py-1.5 text-[11px] sm:text-xs font-medium uppercase tracking-[0.2em] text-white backdrop-blur-md"
               >
                 {t(heroSettings.homepage_hero_badge || "Solo · Slow · Cinematic")}
               </motion.span>
@@ -374,7 +374,7 @@ function HomePage() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.1 }}
-                className="mt-4 sm:mt-5 max-w-4xl font-display text-3xl sm:text-5xl lg:text-6xl font-bold leading-[1.15] sm:leading-[1.12] text-white tracking-tight break-words [overflow-wrap:anywhere]"
+                className="mt-4 sm:mt-5 max-w-4xl font-display text-3xl sm:text-5xl lg:text-6xl font-semibold leading-[1.15] sm:leading-[1.12] text-white tracking-tight break-words [overflow-wrap:anywhere]"
               >
                 <span className="block">
                   {t(heroSettings.homepage_hero_title || "Stories from the high places")}
@@ -416,7 +416,7 @@ function HomePage() {
                 ) : (
                   <Link
                     to={heroPrimaryTo as any}
-                    className="inline-flex items-center justify-center gap-2 rounded-full bg-[#FF7A00] px-6 py-3 text-sm font-semibold text-white hover:bg-[#FF7A00]/90 transition-colors shadow-md text-center"
+                    className="inline-flex items-center justify-center gap-2 rounded-full bg-[#FF7A00] px-6 py-3 text-sm font-medium text-white hover:bg-[#FF7A00]/90 transition-colors shadow-md text-center"
                   >
                     {t(heroSettings.homepage_hero_button_text || "Read the stories")}
                     <ArrowRight className="h-4 w-4 rtl:rotate-180" />
@@ -427,14 +427,14 @@ function HomePage() {
                     href={heroSecondaryTo}
                     target={heroSecondaryTo.startsWith("http") ? "_blank" : undefined}
                     rel={heroSecondaryTo.startsWith("http") ? "noopener noreferrer" : undefined}
-                    className="inline-flex items-center justify-center gap-2 rounded-full border border-white/40 bg-black/20 backdrop-blur-md px-6 py-3 text-sm font-semibold text-white hover:bg-white/15 transition-colors text-center"
+                    className="inline-flex items-center justify-center gap-2 rounded-full border border-white/40 bg-black/20 backdrop-blur-md px-6 py-3 text-sm font-medium text-white hover:bg-white/15 transition-colors text-center"
                   >
                     {t(heroSettings.homepage_hero_secondary_button_text || "Explore destinations")}
                   </a>
                 ) : (
                   <Link
                     to={heroSecondaryTo as any}
-                    className="inline-flex items-center justify-center gap-2 rounded-full border border-white/40 bg-black/20 backdrop-blur-md px-6 py-3 text-sm font-semibold text-white hover:bg-white/15 transition-colors text-center"
+                    className="inline-flex items-center justify-center gap-2 rounded-full border border-white/40 bg-black/20 backdrop-blur-md px-6 py-3 text-sm font-medium text-white hover:bg-white/15 transition-colors text-center"
                   >
                     {t(heroSettings.homepage_hero_secondary_button_text || "Explore destinations")}
                   </Link>
@@ -467,7 +467,7 @@ function HomePage() {
                       <Calendar className="h-2.5 w-2.5 text-[#FF7A00]" />
                       <span>{formatDate(hp.published_at || hp.created_at)}</span>
                     </div>
-                    <h4 className="mt-0.5 line-clamp-2 font-display text-xs font-bold leading-snug text-white transition-colors group-hover:text-[#FF7A00]">
+                    <h4 className="mt-0.5 line-clamp-2 font-display text-xs font-medium leading-snug text-white transition-colors group-hover:text-[#FF7A00]">
                       {getPostTitle(hp)}
                     </h4>
                   </div>
@@ -574,7 +574,7 @@ function HomePage() {
                     })()}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
                     <div className="relative p-4 sm:p-6 text-white min-w-0">
-                      <div className="inline-flex items-center gap-1.5 rounded-full bg-[#FF7A00] px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-white shadow-sm mb-3">
+                      <div className="inline-flex items-center gap-1.5 rounded-full bg-[#FF7A00] px-3 py-1 text-[11px] font-medium uppercase tracking-wider text-white shadow-sm mb-3">
                         {(() => {
                           const Icon = getTopicIcon(activeTopics[0]);
                           return <Icon className="h-3 w-3" />;
@@ -584,13 +584,13 @@ function HomePage() {
                           {activeTopics[0].postCount === 1 ? t("story") : t("stories")}
                         </span>
                       </div>
-                      <h3 className="font-display text-xl sm:text-2xl lg:text-3xl font-bold leading-tight text-white transition-colors group-hover:text-[#FF7A00] break-words [overflow-wrap:anywhere]">
+                      <h3 className="font-display text-xl sm:text-2xl lg:text-3xl font-semibold leading-tight text-white transition-colors group-hover:text-[#FF7A00] break-words [overflow-wrap:anywhere]">
                         {t(activeTopics[0].title)}
                       </h3>
                       <p className="mt-2 text-xs sm:text-sm text-white/80 line-clamp-3">
                         {t(activeTopics[0].subtitle || activeTopics[0].description)}
                       </p>
-                      <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#FF7A00]">
+                      <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-[#FF7A00]">
                         {t("Explore Topic")}
                         <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1 rtl:rotate-180" />
                       </span>
@@ -631,13 +631,13 @@ function HomePage() {
                       })()}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
                       <div className="relative p-4 sm:p-5 text-white min-w-0">
-                        <div className="inline-flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#FF7A00] backdrop-blur-md border border-white/10 mb-2">
+                        <div className="inline-flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-[#FF7A00] backdrop-blur-md border border-white/10 mb-2">
                           <Icon className="h-3 w-3" />
                           <span>
                             {topic.postCount} {topic.postCount === 1 ? t("story") : t("stories")}
                           </span>
                         </div>
-                        <h3 className="font-display text-base sm:text-lg font-bold leading-tight text-white transition-colors group-hover:text-[#FF7A00] line-clamp-2 break-words [overflow-wrap:anywhere]">
+                        <h3 className="font-display text-base sm:text-lg font-semibold leading-tight text-white transition-colors group-hover:text-[#FF7A00] line-clamp-2 break-words [overflow-wrap:anywhere]">
                           {t(topic.title)}
                         </h3>
                         <p className="mt-1 text-xs text-white/75 line-clamp-1">
@@ -680,7 +680,7 @@ function HomePage() {
               <h2
                 data-reveal="heading"
                 id="journey-numbers-heading"
-                className="mt-1 font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl"
+                className="mt-1 font-display text-2xl font-semibold tracking-tight text-foreground sm:text-3xl"
               >
                 {t("Journey in numbers")}
               </h2>
@@ -704,7 +704,7 @@ function HomePage() {
                 <div className="inline-flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-xl bg-[#FF7A00]/10 text-[#FF7A00]">
                   <s.icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 </div>
-                <div className="mt-2.5 sm:mt-3 font-display text-lg min-[360px]:text-xl sm:text-2xl lg:text-3xl font-bold text-foreground tabular-nums whitespace-nowrap">
+                <div className="mt-2.5 sm:mt-3 font-display text-lg min-[360px]:text-xl sm:text-2xl lg:text-3xl font-semibold text-foreground tabular-nums whitespace-nowrap">
                   <CountUp end={s.value} suffix={s.suffix} />
                 </div>
                 <div className="mt-0.5 sm:mt-1 text-[11px] sm:text-xs text-muted-foreground leading-snug min-w-0">
@@ -821,7 +821,7 @@ function HomePage() {
                             {t(d.country)}
                             {d.region ? ` · ${t(d.region)}` : ""}
                           </p>
-                          <h3 className="mt-0.5 font-display text-base sm:text-lg font-bold leading-tight group-hover:text-[#FF7A00] transition-colors break-words">
+                          <h3 className="mt-0.5 font-display text-base sm:text-lg font-semibold leading-tight group-hover:text-[#FF7A00] transition-colors break-words">
                             {t(d.title)}
                           </h3>
                         </div>
@@ -876,11 +876,11 @@ function HomePage() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent flex items-end p-4 sm:p-5">
                       <div className="min-w-0">
-                        <span className="rounded-full bg-[#FF7A00] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
+                        <span className="rounded-full bg-[#FF7A00] px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-white">
                           {t("Spotlight")}
                         </span>
                         {gallery[0].caption && (
-                          <p className="mt-2 font-display text-sm sm:text-base font-bold text-white line-clamp-2 break-words">
+                          <p className="mt-2 font-display text-sm sm:text-base font-semibold text-white line-clamp-2 break-words">
                             {t(gallery[0].caption)}
                           </p>
                         )}
@@ -941,12 +941,12 @@ function HomePage() {
         <section aria-labelledby="newsletter-heading" className="pb-6 sm:pb-8 w-full min-w-0">
           <div className="rounded-2xl sm:rounded-3xl border border-border bg-gradient-to-br from-card to-muted/50 p-6 sm:p-12 text-center shadow-sm w-full min-w-0">
             <div className="mx-auto max-w-2xl min-w-0">
-              <span className="rounded-full bg-[#FF7A00]/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-[#FF7A00]">
+              <span className="rounded-full bg-[#FF7A00]/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.2em] text-[#FF7A00]">
                 {t("Join the Journey")}
               </span>
               <h2
                 id="newsletter-heading"
-                className="mt-3 font-display text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-foreground break-words"
+                className="mt-3 font-display text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-foreground break-words"
               >
                 {t("Get the next dispatch")}
               </h2>
