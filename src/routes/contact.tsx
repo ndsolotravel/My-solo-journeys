@@ -99,7 +99,7 @@ export const Route = createFileRoute("/contact")({
           "@context": "https://schema.org",
           "@type": "BreadcrumbList",
           itemListElement: [
-            { "@type": "ListItem", position: 1, name: "Home", item: "https://ndsolotravel.com" },
+            { "@type": "ListItem", position: 1, name: "Home", item: "https://ndsolotravel.com/" },
             { "@type": "ListItem", position: 2, name: "Contact" },
           ],
         }),

@@ -112,9 +112,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       ...LANGUAGES.map((l) => ({
         rel: "alternate",
         hrefLang: l.code,
-        href: "https://ndsolotravel.com",
+        href: "https://ndsolotravel.com/",
       })),
-      { rel: "alternate", hrefLang: "x-default", href: "https://ndsolotravel.com" },
+      { rel: "alternate", hrefLang: "x-default", href: "https://ndsolotravel.com/" },
     ],
     scripts: [
       {

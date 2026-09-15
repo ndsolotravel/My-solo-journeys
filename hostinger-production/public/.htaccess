@@ -1,0 +1,13 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # 1. Canonical Redirect: www.ndsolotravel.com -> https://ndsolotravel.com (HTTP or HTTPS)
+  RewriteCond %{HTTP_HOST} ^www\.ndsolotravel\.com$ [NC]
+  RewriteRule ^(.*)$ https://ndsolotravel.com/$1 [L,R=301]
+
+  # 2. Canonical Redirect: Force HTTPS for ndsolotravel.com
+  RewriteCond %{HTTPS} off
+  RewriteCond %{HTTP:X-Forwarded-Proto} !https [NC]
+  RewriteCond %{HTTP_HOST} ^ndsolotravel\.com$ [NC]
+  RewriteRule ^(.*)$ https://ndsolotravel.com/$1 [L,R=301]
+</IfModule>

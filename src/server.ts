@@ -85,8 +85,83 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
   });
 }
 
+function getCanonicalRedirect(request: Request): Response | null {
+  try {
+    const url = new URL(request.url);
+    const rawHost = (
+      request.headers.get("x-forwarded-host") ||
+      request.headers.get("host") ||
+      url.host ||
+      ""
+    ).toLowerCase().trim();
+
+    // Isolate hostname without port
+    const hostname = rawHost.split(":")[0];
+
+    // Local / development bypass - never redirect local dev or health checks
+    if (
+      !hostname ||
+      hostname === "localhost" ||
+      hostname === "127.0.0.1" ||
+      hostname.startsWith("192.168.") ||
+      hostname.startsWith("10.") ||
+      hostname.endsWith(".local")
+    ) {
+      return null;
+    }
+
+    const isWww =
+      hostname === "www.ndsolotravel.com" ||
+      hostname === "www.ndsolotravel.com.cdn.hstgr.net";
+    const isApex = hostname === "ndsolotravel.com";
+
+    // Protocol check: x-forwarded-proto or request url protocol
+    const rawProto = (
+      request.headers.get("x-forwarded-proto") ||
+      request.headers.get("x-forwarded-protocol") ||
+      url.protocol.replace(":", "") ||
+      "https"
+    ).toLowerCase().trim();
+    const isHttp = rawProto === "http";
+
+    if (isWww) {
+      // Always redirect www to canonical apex with HTTPS
+      const targetUrl = `https://ndsolotravel.com${url.pathname}${url.search}`;
+      return new Response(null, {
+        status: 301,
+        headers: {
+          Location: targetUrl,
+          "Cache-Control": "public, max-age=31536000, immutable",
+        },
+      });
+    }
+
+    if (isApex && isHttp) {
+      // Force HTTPS on apex if forwarded as HTTP
+      const targetUrl = `https://ndsolotravel.com${url.pathname}${url.search}`;
+      return new Response(null, {
+        status: 301,
+        headers: {
+          Location: targetUrl,
+          "Cache-Control": "public, max-age=31536000, immutable",
+        },
+      });
+    }
+  } catch {
+    // Non-blocking fallback
+  }
+
+  return null;
+}
+
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
+    // 1. Canonical domain & HTTPS redirection
+    const redirectResponse = getCanonicalRedirect(request);
+    if (redirectResponse) {
+      return redirectResponse;
+    }
+
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);

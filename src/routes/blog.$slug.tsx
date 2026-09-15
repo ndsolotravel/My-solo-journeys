@@ -110,7 +110,7 @@ export const Route = createFileRoute("/blog/$slug")({
                     "@type": "ListItem",
                     position: 1,
                     name: "Home",
-                    item: "https://ndsolotravel.com",
+                    item: "https://ndsolotravel.com/",
                   },
                   {
                     "@type": "ListItem",
@@ -438,7 +438,7 @@ function PostPage() {
                 return (
                   <h1
                     id={id}
-                    className="scroll-mt-24 font-display text-3xl font-bold mt-10 mb-4 text-foreground"
+                    className="scroll-mt-24 font-display text-3xl font-semibold mt-10 mb-4 text-foreground"
                   >
                     {translateMarkdownChildren(children, t, isDbTranslated)}
                   </h1>
