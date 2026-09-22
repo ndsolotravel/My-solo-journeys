@@ -384,7 +384,7 @@ function HomePage() {
                  initial={{ opacity: 0 }}
                  animate={{ opacity: 1 }}
                  transition={{ duration: 0.8, delay: 0.2 }}
-                 className="mt-2 sm:mt-3 max-w-xl text-base sm:text-lg lg:text-xl font-sans text-[#FF7A00] leading-relaxed"
+                 className="mt-2 sm:mt-3 max-w-xl text-3xl sm:text-4xl lg:text-5xl font-sans text-[#FF7A00] leading-relaxed"
                >
                  {t(heroSettings.homepage_hero_title_highlight || "Stories from the high places. Most people only fly over.")}
                </motion.p>
