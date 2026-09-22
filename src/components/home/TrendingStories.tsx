@@ -171,7 +171,7 @@ export function TrendingStories({
                     <span className="truncate">{formatDate(post.published_at || post.created_at)}</span>
                   </div>
 
-                  <h4 className="mt-1 font-display text-sm sm:text-base font-semibold leading-snug text-foreground transition-colors group-hover:text-[#FF7A00] line-clamp-2 break-words [overflow-wrap:anywhere]">
+                  <h4 className="mt-1 text-sm sm:text-base font-semibold leading-snug text-foreground transition-colors group-hover:text-[#FF7A00] line-clamp-2 break-words [overflow-wrap:anywhere]">
                     {getPostTitle(post)}
                   </h4>
                 </div>
@@ -189,7 +189,7 @@ export function TrendingStories({
       {/* 3. Right Column: Categories Sidebar List - Span 3 */}
       <div className="flex flex-col rounded-2xl border border-border bg-card p-3.5 sm:p-4 shadow-sm lg:col-span-3 w-full min-w-0">
         <div className="mb-3 flex items-center justify-between border-b border-border pb-3">
-          <h3 className="font-display text-base sm:text-lg font-semibold tracking-tight text-foreground">
+          <h3 className="text-base sm:text-lg font-semibold tracking-tight text-foreground">
             {t("Categories")}
           </h3>
           <Link
@@ -218,7 +218,7 @@ export function TrendingStories({
                 ) : null;
               })()}
               <div className="relative z-10 flex items-center gap-2.5 min-w-0">
-                <span className="font-display text-xs sm:text-sm font-medium text-foreground group-hover:text-[#FF7A00] transition-colors truncate">
+                <span className="text-xs sm:text-sm font-medium text-foreground group-hover:text-[#FF7A00] transition-colors truncate">
                   {t(cat.name)}
                 </span>
               </div>

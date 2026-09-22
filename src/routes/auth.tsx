@@ -137,7 +137,7 @@ function AuthPage() {
 
       <div className="mt-8 rounded-3xl border border-border bg-card p-8 shadow-elegant">
         <div className="flex items-center justify-between">
-          <h1 className="font-display text-2xl font-bold">
+          <h1 className="text-2xl font-bold">
             {showReset ? "Reset Password" : isForAdmin ? "Admin Sign In" : "Sign In"}
           </h1>
           {isForAdmin && (

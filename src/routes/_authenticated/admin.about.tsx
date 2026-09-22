@@ -292,7 +292,7 @@ function AdminAboutPage() {
             <User className="h-6 w-6 text-accent" />
           </div>
           <div>
-            <h1 className="font-display text-2xl font-bold text-foreground">
+            <h1 className="text-2xl font-bold text-foreground">
               About Page Management
             </h1>
             <p className="text-xs text-muted-foreground mt-0.5">
@@ -463,7 +463,7 @@ function AdminAboutPage() {
                     type="text"
                     value={draft.about_hero_headline ?? ""}
                     onChange={(e) => updateField("about_hero_headline", e.target.value)}
-                    className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-foreground focus:border-accent focus:outline-none font-display font-bold"
+                    className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-foreground focus:border-accent focus:outline-none font-bold"
                   />
                 </div>
 
@@ -635,7 +635,7 @@ function AdminAboutPage() {
                   <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent">
                     {draft.about_hero_label || ABOUT_DEFAULTS.about_hero_label}
                   </span>
-                  <h4 className="font-display text-base font-bold leading-tight mt-1 line-clamp-2">
+                  <h4 className="text-base font-bold leading-tight mt-1 line-clamp-2">
                     {draft.about_hero_headline || ABOUT_DEFAULTS.about_hero_headline}
                   </h4>
                 </div>
@@ -1384,7 +1384,7 @@ function AdminAboutPage() {
                   <span className="text-[10px] font-bold uppercase tracking-widest text-accent">
                     {draft.about_motorcycle_badge || ABOUT_DEFAULTS.about_motorcycle_badge}
                   </span>
-                  <h4 className="font-display text-base font-bold mt-1">
+                  <h4 className="text-base font-bold mt-1">
                     {draft.about_motorcycle_title || ABOUT_DEFAULTS.about_motorcycle_title}
                   </h4>
                 </div>
@@ -1646,7 +1646,7 @@ function AdminAboutPage() {
                     rows={3}
                     value={draft.about_philosophy_quote ?? ""}
                     onChange={(e) => updateField("about_philosophy_quote", e.target.value)}
-                    className="w-full rounded-xl border border-border bg-background p-3.5 text-base italic font-serif text-foreground focus:border-accent focus:outline-none leading-relaxed"
+                    className="w-full rounded-xl border border-border bg-background p-3.5 text-base italic font-sans text-foreground focus:border-accent focus:outline-none leading-relaxed"
                   />
                 </div>
 
@@ -1673,7 +1673,7 @@ function AdminAboutPage() {
                 <span>Quote Box Preview</span>
               </h3>
               <div className="rounded-2xl bg-muted/40 p-6 border border-border/50 shadow-sm space-y-3">
-                <blockquote className="text-base italic leading-relaxed text-foreground font-serif">
+                <blockquote className="text-base italic leading-relaxed text-foreground font-sans">
                   &ldquo;{draft.about_philosophy_quote || ABOUT_DEFAULTS.about_philosophy_quote}
                   &rdquo;
                 </blockquote>
@@ -2353,7 +2353,7 @@ function AdminAboutPage() {
                 <span className="text-[10px] font-bold uppercase tracking-widest text-accent">
                   {draft.about_cta_eyebrow || ABOUT_DEFAULTS.about_cta_eyebrow}
                 </span>
-                <h4 className="font-display text-lg font-bold">
+                <h4 className="text-lg font-bold">
                   {draft.about_cta_title || ABOUT_DEFAULTS.about_cta_title}
                 </h4>
                 <p className="text-xs text-zinc-300 leading-relaxed font-light">

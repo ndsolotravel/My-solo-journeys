@@ -807,7 +807,7 @@ function AboutPage() {
                     <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center font-bold text-accent">
                       {card.number}
                     </div>
-                    <h3 className="font-display font-bold text-base text-foreground">
+                    <h3 className="font-bold text-base text-foreground">
                       {t(card.title)}
                     </h3>
                     <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
@@ -921,7 +921,7 @@ function AboutPage() {
                           fallback={Compass}
                         />
                       </div>
-                      <h3 className="font-display text-lg font-bold text-foreground group-hover:text-brand transition-colors">
+                      <h3 className="text-lg font-bold text-foreground group-hover:text-brand transition-colors">
                         {t(card.title)}
                       </h3>
                       <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">

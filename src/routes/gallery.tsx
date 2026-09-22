@@ -188,7 +188,7 @@ function GalleryPage() {
               <div className="mx-auto mb-4 w-fit rounded-2xl bg-brand/10 p-3.5 text-brand">
                 <ImagePlus className="h-8 w-8 text-accent" />
               </div>
-              <h3 className="font-display text-xl font-bold text-foreground">
+              <h3 className="text-xl font-bold text-foreground">
                 {t("No photographs in this category yet")}
               </h3>
               <p className="mt-2 text-sm text-muted-foreground leading-relaxed">

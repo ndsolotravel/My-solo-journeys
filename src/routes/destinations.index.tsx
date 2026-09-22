@@ -223,7 +223,7 @@ function DestinationsPage() {
               aria-label={t("Atlas index of destinations")}
             >
               <div className="mb-4 flex items-baseline justify-between">
-                <h3 className="font-display text-sm font-bold uppercase tracking-[0.24em]">
+                <h3 className="text-sm font-bold uppercase tracking-[0.24em]">
                   {t("Atlas Index")}
                 </h3>
                 <span className="text-xs font-medium text-muted-foreground">
@@ -242,7 +242,7 @@ function DestinationsPage() {
                         {String(i + 1).padStart(2, "0")}
                       </span>
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate font-display text-sm font-semibold transition-colors group-hover:text-[#FF7A00]">
+                        <span className="block truncate text-sm font-semibold transition-colors group-hover:text-[#FF7A00]">
                           {t(d.title)}
                         </span>
                         <span className="block truncate text-xs text-muted-foreground">
@@ -303,7 +303,7 @@ function DestinationsPage() {
               transition={{ duration: 0.8 }}
               className="mt-16 rounded-2xl border border-border py-24 text-center"
             >
-              <p className="font-display text-lg font-semibold">
+              <p className="text-lg font-semibold">
                 {t("The atlas is being compiled.")}
               </p>
               <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">

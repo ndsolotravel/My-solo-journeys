@@ -117,7 +117,7 @@ export function CookieConsentPopup() {
                 <Cookie className="h-5 w-5" />
               </div>
               <div className="space-y-1">
-                <h3 className="font-display text-sm sm:text-base font-bold tracking-tight text-foreground">
+                <h3 className="text-sm sm:text-base font-bold tracking-tight text-foreground">
                   {t("We value your privacy")}
                 </h3>
                 <p

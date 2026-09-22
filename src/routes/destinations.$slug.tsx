@@ -219,7 +219,7 @@ function DestinationPage() {
             <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
               {t("Country")}
             </p>
-            <p className="mt-1 font-display text-lg font-bold text-foreground">
+            <p className="mt-1 text-lg font-semibold text-foreground">
               {localizedDest.country}
             </p>
           </div>
@@ -227,7 +227,7 @@ function DestinationPage() {
             <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
               {t("Region")}
             </p>
-            <p className="mt-1 font-display text-lg font-bold text-foreground">
+            <p className="mt-1 text-lg font-semibold text-foreground">
               {localizedDest.region ? localizedDest.region : "—"}
             </p>
           </div>
@@ -235,13 +235,13 @@ function DestinationPage() {
             <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
               {t("Stories & Guides")}
             </p>
-            <p className="mt-1 font-display text-lg font-bold text-foreground">{posts.length}</p>
+            <p className="mt-1 text-lg font-semibold text-foreground">{posts.length}</p>
           </div>
           <div className="p-2">
             <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
               {t("Expedition Style")}
             </p>
-            <p className="mt-1 font-display text-lg font-bold text-accent">{t("Solo · Slow")}</p>
+            <p className="mt-1 text-lg font-semibold text-accent">{t("Solo · Slow")}</p>
           </div>
         </div>
       </div>
@@ -249,7 +249,7 @@ function DestinationPage() {
       {/* Description */}
       <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
         {localizedDest.description && (
-          <p className="text-xl leading-relaxed text-muted-foreground font-display">
+          <p className="text-xl leading-relaxed text-muted-foreground">
             {localizedDest.description}
           </p>
         )}
@@ -314,7 +314,7 @@ function DestinationPage() {
             </div>
           ) : (
             <div className="mt-8 rounded-3xl border border-border bg-card p-12 text-center text-muted-foreground">
-              <p className="font-display text-lg font-semibold">
+              <p className="text-lg font-semibold">
                 {t("No stories under this category yet.")}
               </p>
               <button

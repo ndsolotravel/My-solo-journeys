@@ -221,7 +221,7 @@ function HeroImageTile({
                   <span className="block text-[10px] font-semibold uppercase tracking-wider text-accent/90">
                     Slide {slot} of 3
                   </span>
-                  <p className="truncate font-display text-xs sm:text-sm font-semibold text-white/95">
+                  <p className="truncate text-xs sm:text-sm font-semibold text-white/95">
                     {postTitle || caption || `Hero Background ${slot}`}
                   </p>
                 </div>
@@ -379,7 +379,7 @@ function LiveHeroSimulator({
 
         {/* Live Hero Text & CTA Overlay (simulating live index.tsx) */}
         <div className="absolute inset-x-4 bottom-14 sm:bottom-16 max-w-2xl text-white space-y-2 pointer-events-none z-10">
-          <h3 className="font-display text-lg sm:text-2xl lg:text-3xl font-bold leading-tight drop-shadow-md">
+          <h3 className="text-lg sm:text-2xl lg:text-3xl font-bold leading-tight drop-shadow-md">
             <span>{draft.homepage_hero_title || "Stories from the high places"}</span>{" "}
             <span className="text-[#FF7A00]">
               {draft.homepage_hero_title_highlight || "Most people only fly over."}
@@ -889,7 +889,7 @@ function AdminHomepagePage() {
             <Compass className="h-6 w-6 text-accent" />
           </div>
           <div>
-            <h1 className="font-display text-2xl font-bold text-foreground">Homepage Management</h1>
+            <h1 className="text-2xl font-bold text-foreground">Homepage Management</h1>
             <p className="text-xs text-muted-foreground mt-0.5">
               Structured control over the Hero Banner slideshow, Journey in Numbers stats, and
               Featured Stories.
@@ -965,7 +965,7 @@ function AdminHomepagePage() {
       <section className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-6">
         <div className="flex flex-wrap items-start justify-between gap-4 border-b border-border/60 pb-4">
           <div className="space-y-1">
-            <h2 className="font-display text-lg font-semibold flex items-center gap-2 text-foreground">
+            <h2 className="text-lg font-semibold flex items-center gap-2 text-foreground">
               <ImagePlus className="h-5 w-5 text-accent" />
               <span>Hero Banner Preview</span>
             </h2>
@@ -1086,7 +1086,7 @@ function AdminHomepagePage() {
           <section className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-5">
             <div className="flex items-start justify-between gap-4 border-b border-border/60 pb-4">
               <div>
-                <h2 className="font-display text-lg font-semibold flex items-center gap-2 text-foreground">
+                <h2 className="text-lg font-semibold flex items-center gap-2 text-foreground">
                   <Rocket className="h-5 w-5 text-accent" />
                   <span>Hero Banner Settings</span>
                 </h2>
@@ -1563,7 +1563,7 @@ function AdminHomepagePage() {
           <section className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-5">
             <div className="flex items-start justify-between gap-4 border-b border-border/60 pb-4">
               <div>
-                <h2 className="font-display text-lg font-semibold flex items-center gap-2 text-foreground">
+                <h2 className="text-lg font-semibold flex items-center gap-2 text-foreground">
                   <BarChart3 className="h-5 w-5 text-accent" />
                   <span>Journey in Numbers</span>
                 </h2>
@@ -1778,7 +1778,7 @@ function AdminHomepagePage() {
                   <div className="inline-flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-xl bg-accent/10 text-accent">
                     <Globe2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   </div>
-                  <div className="mt-2.5 sm:mt-3 font-display text-lg sm:text-xl lg:text-2xl font-bold text-foreground tabular-nums whitespace-nowrap">
+                  <div className="mt-2.5 sm:mt-3 text-lg sm:text-xl lg:text-2xl font-bold text-foreground tabular-nums whitespace-nowrap">
                     {draft.homepage_stat_countries_mode === "manual"
                       ? (draft.homepage_stat_countries?.trim() || "27")
                       : computedCountries}
@@ -1792,7 +1792,7 @@ function AdminHomepagePage() {
                   <div className="inline-flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-xl bg-accent/10 text-accent">
                     <Bike className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   </div>
-                  <div className="mt-2.5 sm:mt-3 font-display text-lg sm:text-xl lg:text-2xl font-bold text-foreground tabular-nums whitespace-nowrap">
+                  <div className="mt-2.5 sm:mt-3 text-lg sm:text-xl lg:text-2xl font-bold text-foreground tabular-nums whitespace-nowrap">
                     {draft.homepage_stat_trips || "102"}{draft.homepage_stat_trips_suffix ?? "+"}
                   </div>
                   <div className="mt-0.5 sm:mt-1 text-[11px] sm:text-xs text-muted-foreground leading-snug">
@@ -1804,7 +1804,7 @@ function AdminHomepagePage() {
                   <div className="inline-flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-xl bg-accent/10 text-accent">
                     <Camera className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   </div>
-                  <div className="mt-2.5 sm:mt-3 font-display text-lg sm:text-xl lg:text-2xl font-bold text-foreground tabular-nums whitespace-nowrap">
+                  <div className="mt-2.5 sm:mt-3 text-lg sm:text-xl lg:text-2xl font-bold text-foreground tabular-nums whitespace-nowrap">
                     {draft.homepage_stat_photos || "200"}{draft.homepage_stat_photos_suffix || "K+"}
                   </div>
                   <div className="mt-0.5 sm:mt-1 text-[11px] sm:text-xs text-muted-foreground leading-snug">
@@ -1816,7 +1816,7 @@ function AdminHomepagePage() {
                   <div className="inline-flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-xl bg-accent/10 text-accent">
                     <RouteIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   </div>
-                  <div className="mt-2.5 sm:mt-3 font-display text-lg sm:text-xl lg:text-2xl font-bold text-foreground tabular-nums whitespace-nowrap">
+                  <div className="mt-2.5 sm:mt-3 text-lg sm:text-xl lg:text-2xl font-bold text-foreground tabular-nums whitespace-nowrap">
                     {Number(draft.homepage_stat_kilometres || "18420").toLocaleString()}{draft.homepage_stat_kilometres_suffix || "km"}
                   </div>
                   <div className="mt-0.5 sm:mt-1 text-[11px] sm:text-xs text-muted-foreground leading-snug">
@@ -1828,7 +1828,7 @@ function AdminHomepagePage() {
                   <div className="inline-flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-xl bg-accent/10 text-accent">
                     <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   </div>
-                  <div className="mt-2.5 sm:mt-3 font-display text-lg sm:text-xl lg:text-2xl font-bold text-foreground tabular-nums whitespace-nowrap">
+                  <div className="mt-2.5 sm:mt-3 text-lg sm:text-xl lg:text-2xl font-bold text-foreground tabular-nums whitespace-nowrap">
                     {draft.homepage_stat_days || "142"}{draft.homepage_stat_days_suffix ?? "+"}
                   </div>
                   <div className="mt-0.5 sm:mt-1 text-[11px] sm:text-xs text-muted-foreground leading-snug">
@@ -1843,7 +1843,7 @@ function AdminHomepagePage() {
           <section className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-5">
             <div className="flex items-start justify-between gap-4 border-b border-border/60 pb-4">
               <div>
-                <h2 className="font-display text-lg font-semibold flex items-center gap-2 text-foreground">
+                <h2 className="text-lg font-semibold flex items-center gap-2 text-foreground">
                   <BookMarked className="h-5 w-5 text-accent" />
                   <span>Featured / Latest Blog Post</span>
                 </h2>
@@ -1949,7 +1949,7 @@ function AdminHomepagePage() {
                 <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent">
                   {draft.homepage_hero_badge || "Solo · Slow · Cinematic"}
                 </span>
-                <h4 className="font-display text-xs sm:text-sm font-bold leading-tight mt-0.5 line-clamp-2">
+                <h4 className="text-xs sm:text-sm font-bold leading-tight mt-0.5 line-clamp-2">
                   {draft.homepage_hero_title || "Stories from the high places"}{" "}
                   <span className="text-[#FF7A00]">
                     {draft.homepage_hero_title_highlight || "Most people only fly over."}
@@ -1970,7 +1970,7 @@ function AdminHomepagePage() {
 
           {/* Security & Architecture card */}
           <div className="rounded-2xl border border-border bg-card p-5 shadow-sm space-y-4">
-            <h3 className="font-display text-sm font-semibold flex items-center gap-2 text-foreground">
+            <h3 className="text-sm font-semibold flex items-center gap-2 text-foreground">
               <Shield className="h-4 w-4 text-accent" />
               <span>Security & Architecture</span>
             </h3>
@@ -2001,7 +2001,7 @@ function AdminHomepagePage() {
 
           {/* Tips card */}
           <div className="rounded-2xl border border-border bg-card p-5 shadow-sm space-y-3">
-            <h3 className="font-display text-sm font-semibold text-foreground">CMS Tips</h3>
+            <h3 className="text-sm font-semibold text-foreground">CMS Tips</h3>
             <ul className="space-y-2 text-xs text-muted-foreground list-disc pl-4">
               <li>
                 Use <strong>Auto mode</strong> for slideshow images to keep the homepage freshly

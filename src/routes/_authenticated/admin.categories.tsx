@@ -287,7 +287,7 @@ function AdminCategoriesPage() {
             <FolderTree className="h-6 w-6 text-accent" />
           </div>
           <div>
-            <h1 className="font-display text-2xl font-bold text-foreground">Category Management</h1>
+            <h1 className="text-2xl font-bold text-foreground">Category Management</h1>
             <p className="text-xs text-muted-foreground mt-0.5">
               Create, organize, and manage blog categories with auto-slugs and post associations.
             </p>
@@ -375,7 +375,7 @@ function AdminCategoriesPage() {
           <div className="p-3 rounded-2xl bg-brand/10 text-brand mx-auto mb-3 w-fit">
             <FolderTree className="h-6 w-6 text-accent" />
           </div>
-          <h3 className="font-display text-base font-semibold text-foreground">
+          <h3 className="text-base font-semibold text-foreground">
             No categories found
           </h3>
           <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
@@ -553,7 +553,7 @@ function AdminCategoriesPage() {
                   <FolderTree className="h-4 w-4" />
                 </div>
                 <div>
-                  <h2 className="font-display text-lg font-bold">
+                  <h2 className="text-lg font-bold">
                     {editing.id ? "Edit Category" : "Create New Category"}
                   </h2>
                   <p className="text-xs text-muted-foreground">
@@ -843,7 +843,7 @@ function AdminCategoriesPage() {
           <AlertDialogHeader>
             <div className="flex items-center gap-2 text-amber-500">
               <AlertTriangle className="h-5 w-5" />
-              <AlertDialogTitle className="font-display text-lg font-bold text-foreground">
+              <AlertDialogTitle className="text-lg font-bold text-foreground">
                 {deleteTarget && (deleteTarget.post_count ?? 0) > 0
                   ? "Cannot Delete Category"
                   : "Delete Category?"}

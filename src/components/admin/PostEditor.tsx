@@ -1213,7 +1213,7 @@ export function PostEditor({
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-display text-base font-semibold flex items-center gap-2">
+                <h3 className="text-base font-semibold flex items-center gap-2">
                   <ImageIcon className="h-5 w-5 text-accent" /> Post Photo Gallery
                 </h3>
                 {gallery.length > 0 && (
@@ -1584,7 +1584,7 @@ export function PostEditor({
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/70 pb-4">
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="font-display text-base sm:text-lg font-semibold flex items-center gap-2 text-foreground">
+                    <h3 className="text-base sm:text-lg font-semibold flex items-center gap-2 text-foreground">
                       <Globe className="h-5 w-5 text-accent" /> SEO & Search Engine Optimization
                     </h3>
                     <span className="rounded-full bg-accent/10 px-2.5 py-0.5 text-xs font-semibold text-accent border border-accent/20">
@@ -2568,7 +2568,7 @@ export function PostEditor({
           </div>
           <div>
             <div className="flex items-center gap-2.5">
-              <h1 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
                 {initial?.id ? "Edit Story" : "New Solo Story"}
               </h1>
               {published && (
@@ -2637,7 +2637,7 @@ export function PostEditor({
             )}
 
             <div className="hidden sm:block min-w-0">
-              <p className="truncate text-xs font-bold text-foreground font-display max-w-[200px] lg:max-w-xs">
+              <p className="truncate text-xs font-bold text-foreground max-w-[200px] lg:max-w-xs">
                 {title || "Untitled Story"}
               </p>
               <p className="text-[11px] text-muted-foreground">

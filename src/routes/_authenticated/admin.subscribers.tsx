@@ -176,7 +176,7 @@ function AdminSubscribersPage() {
             <Users className="h-6 w-6 text-accent" />
           </div>
           <div>
-            <h1 className="font-display text-2xl font-bold text-foreground">
+            <h1 className="text-2xl font-bold text-foreground">
               Newsletter Subscribers
             </h1>
             <p className="text-xs text-muted-foreground mt-0.5">
@@ -226,7 +226,7 @@ function AdminSubscribersPage() {
               <UserCheck className="h-4 w-4" />
             </div>
           </div>
-          <p className="mt-3 font-display text-4xl font-bold text-foreground">
+          <p className="mt-3 text-4xl font-bold text-foreground">
             {stats.active}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">Ready for next dispatch</p>
@@ -242,7 +242,7 @@ function AdminSubscribersPage() {
               <Users className="h-4 w-4" />
             </div>
           </div>
-          <p className="mt-3 font-display text-3xl font-bold text-foreground">{stats.total}</p>
+          <p className="mt-3 text-3xl font-bold text-foreground">{stats.total}</p>
           <p className="mt-1 text-xs text-muted-foreground">All subscriber records</p>
         </div>
 
@@ -256,7 +256,7 @@ function AdminSubscribersPage() {
               <Calendar className="h-4 w-4" />
             </div>
           </div>
-          <p className="mt-3 font-display text-3xl font-bold text-foreground">{stats.today}</p>
+          <p className="mt-3 text-3xl font-bold text-foreground">{stats.today}</p>
           <p className="mt-1 text-xs text-muted-foreground">Joined in last 24 hours</p>
         </div>
 
@@ -270,7 +270,7 @@ function AdminSubscribersPage() {
               <UserX className="h-4 w-4" />
             </div>
           </div>
-          <p className="mt-3 font-display text-3xl font-bold text-foreground">
+          <p className="mt-3 text-3xl font-bold text-foreground">
             {stats.unsubscribed}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">Opted out</p>

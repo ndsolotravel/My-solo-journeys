@@ -421,7 +421,7 @@ function BlogIndex() {
         {/* Stories Grid */}
         {gridPosts.length === 0 ? (
           <div className="rounded-3xl border border-border bg-card p-16 text-center shadow-sm">
-            <p className="font-display text-xl font-semibold text-foreground">
+            <p className="text-xl font-semibold text-foreground">
               {t("No expedition stories found")}
             </p>
             <p className="mt-2 text-sm text-muted-foreground">

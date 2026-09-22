@@ -462,7 +462,7 @@ function ContactPage() {
                     <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400">
                       <CheckCircle2 className="h-8 w-8" />
                     </div>
-                    <h4 className="font-display text-xl font-bold text-foreground">
+                    <h4 className="text-xl font-bold text-foreground">
                       {t("Message Sent Successfully!")}
                     </h4>
                     <p className="text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">

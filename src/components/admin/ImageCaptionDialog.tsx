@@ -77,7 +77,7 @@ export function ImageCaptionDialog({ open, onClose, onInsert }: Props) {
         className="relative flex max-h-[90dvh] w-full max-w-lg flex-col overflow-hidden border border-border bg-background shadow-2xl sm:rounded-2xl"
       >
         <div className="flex items-center justify-between gap-3 border-b border-border bg-card/60 px-5 py-3">
-          <div className="flex items-center gap-2 font-display text-lg font-semibold">
+          <div className="flex items-center gap-2 text-lg font-semibold">
             <FileImage className="h-5 w-5 text-accent" /> Insert Image
           </div>
           <button

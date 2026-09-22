@@ -64,7 +64,7 @@ function AdminAnalyticsPage() {
       <div className="sticky top-16 z-20 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border bg-background/95 backdrop-blur-md pb-4 pt-3 shadow-2xs">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="font-display text-3xl font-bold tracking-tight">Live Analytics</h1>
+            <h1 className="text-3xl font-bold tracking-tight">Live Analytics</h1>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -127,7 +127,7 @@ function AdminAnalyticsPage() {
               <Activity className="h-4 w-4 animate-pulse" />
             </div>
           </div>
-          <p className="mt-3 font-display text-4xl font-bold text-foreground">
+          <p className="mt-3 text-4xl font-bold text-foreground">
             {isLoading ? "—" : (data?.liveNow ?? 0)}
           </p>
           <p className="mt-1 text-xs text-muted-foreground flex items-center gap-1">
@@ -190,7 +190,7 @@ function AdminAnalyticsPage() {
       <div className="rounded-2xl border border-border bg-background p-6">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between pb-6 border-b border-border">
           <div>
-            <h2 className="font-display text-lg font-bold flex items-center gap-2">
+            <h2 className="text-lg font-bold flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-accent" />
               Traffic Trends
             </h2>
@@ -271,7 +271,7 @@ function AdminAnalyticsPage() {
         {/* Popular Pages */}
         <div className="rounded-2xl border border-border bg-background p-6">
           <div className="flex items-center justify-between pb-4 border-b border-border">
-            <h2 className="font-display text-lg font-bold flex items-center gap-2">
+            <h2 className="text-lg font-bold flex items-center gap-2">
               <Globe className="h-5 w-5 text-accent" />
               Popular Pages
             </h2>
@@ -313,7 +313,7 @@ function AdminAnalyticsPage() {
         {/* Top Blog Posts */}
         <div className="rounded-2xl border border-border bg-background p-6">
           <div className="flex items-center justify-between pb-4 border-b border-border">
-            <h2 className="font-display text-lg font-bold flex items-center gap-2">
+            <h2 className="text-lg font-bold flex items-center gap-2">
               <FileText className="h-5 w-5 text-accent" />
               Top Blog Posts
             </h2>
@@ -377,7 +377,7 @@ function AdminAnalyticsPage() {
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Device Statistics */}
         <div className="rounded-2xl border border-border bg-background p-6">
-          <h2 className="font-display text-lg font-bold flex items-center gap-2 pb-4 border-b border-border">
+          <h2 className="text-lg font-bold flex items-center gap-2 pb-4 border-b border-border">
             <Laptop className="h-5 w-5 text-accent" />
             Device Breakdown
           </h2>
@@ -440,7 +440,7 @@ function AdminAnalyticsPage() {
 
         {/* Traffic Sources */}
         <div className="rounded-2xl border border-border bg-background p-6">
-          <h2 className="font-display text-lg font-bold flex items-center gap-2 pb-4 border-b border-border">
+          <h2 className="text-lg font-bold flex items-center gap-2 pb-4 border-b border-border">
             <Share2 className="h-5 w-5 text-accent" />
             Traffic Sources
           </h2>
@@ -476,7 +476,7 @@ function AdminAnalyticsPage() {
       <div className="rounded-2xl border border-border bg-background p-6">
         <div className="flex items-center justify-between pb-4 border-b border-border">
           <div>
-            <h2 className="font-display text-lg font-bold flex items-center gap-2">
+            <h2 className="text-lg font-bold flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-accent" />
               Recent Visitors Log
             </h2>
@@ -577,7 +577,7 @@ function StatCard({
         </p>
         <Icon className="h-4 w-4 text-muted-foreground" />
       </div>
-      <p className="mt-3 font-display text-3xl font-bold">
+      <p className="mt-3 text-3xl font-bold">
         {loading ? "—" : (value ?? 0).toLocaleString()}
       </p>
       {sub && <p className="mt-1 text-xs text-muted-foreground">{sub}</p>}
@@ -602,7 +602,7 @@ function DeviceCard({
         <Icon className="h-6 w-6" />
       </div>
       <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="mt-1 font-display text-2xl font-bold">{percentage}%</p>
+      <p className="mt-1 text-2xl font-bold">{percentage}%</p>
       <p className="text-[10px] text-muted-foreground">{count.toLocaleString()} sessions</p>
     </div>
   );

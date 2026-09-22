@@ -394,7 +394,7 @@ function PostPage() {
       {/* Body */}
       <div className="mx-auto mt-12 max-w-3xl px-4 sm:px-6">
         {localizedPost.excerpt && (
-          <p className="font-display text-xl leading-relaxed text-muted-foreground border-l-2 border-accent pl-4 py-1 italic">
+          <p className="text-xl leading-relaxed text-muted-foreground border-l-2 border-accent pl-4 py-1 italic">
             {localizedPost.excerpt}
           </p>
         )}
@@ -405,7 +405,7 @@ function PostPage() {
             aria-label={t("Table of Contents")}
             className="my-8 rounded-2xl border border-border bg-card p-5 shadow-sm"
           >
-            <div className="flex items-center gap-2 font-display text-sm font-semibold text-foreground mb-3">
+            <div className="flex items-center gap-2 text-sm font-semibold text-foreground mb-3">
               <List className="h-4 w-4 text-accent" />
               <span>{t("Expedition Contents")}</span>
             </div>
@@ -693,7 +693,7 @@ function PostPage() {
                 <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
                   <ArrowLeft className="h-3 w-3" /> {t("Previous Story")}
                 </span>
-                <span className="mt-2 font-display text-base font-semibold text-foreground group-hover:text-accent transition-colors line-clamp-1">
+                <span className="mt-2 text-base font-semibold text-foreground group-hover:text-accent transition-colors line-clamp-1">
                   {t(prevStory.title)}
                 </span>
               </Link>
@@ -709,7 +709,7 @@ function PostPage() {
                 <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider flex items-center justify-end gap-1">
                   {t("Next Story")} <ArrowRightIcon className="h-3 w-3" />
                 </span>
-                <span className="mt-2 font-display text-base font-semibold text-foreground group-hover:text-accent transition-colors line-clamp-1">
+                <span className="mt-2 text-base font-semibold text-foreground group-hover:text-accent transition-colors line-clamp-1">
                   {t(nextStory.title)}
                 </span>
               </Link>

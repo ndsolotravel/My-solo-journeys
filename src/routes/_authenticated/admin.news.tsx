@@ -461,7 +461,7 @@ function AdminNewsPage() {
             <Radio className="h-6 w-6 text-accent animate-pulse" />
           </div>
           <div>
-            <h1 className="font-display text-2xl font-bold text-foreground">News Management</h1>
+            <h1 className="text-2xl font-bold text-foreground">News Management</h1>
             <p className="text-xs text-muted-foreground mt-0.5">
               Manage breaking dispatches, travel alerts, and homepage news bulletins
             </p>
@@ -484,7 +484,7 @@ function AdminNewsPage() {
             <span className="text-xs font-semibold uppercase tracking-wider">Total News</span>
             <Radio className="h-4 w-4 text-accent" />
           </div>
-          <p className="font-display text-2xl font-bold text-foreground">{metrics.total}</p>
+          <p className="text-2xl font-bold text-foreground">{metrics.total}</p>
           <p className="text-[11px] text-muted-foreground">All entries created</p>
         </div>
 
@@ -493,7 +493,7 @@ function AdminNewsPage() {
             <span className="text-xs font-semibold uppercase tracking-wider">Active Breaking</span>
             <Flame className="h-4 w-4 text-accent fill-accent/20" />
           </div>
-          <p className="font-display text-2xl font-bold text-brand">{metrics.breaking}</p>
+          <p className="text-2xl font-bold text-brand">{metrics.breaking}</p>
           <p className="text-[11px] text-brand/80">Live on homepage ticker</p>
         </div>
 
@@ -502,7 +502,7 @@ function AdminNewsPage() {
             <span className="text-xs font-semibold uppercase tracking-wider">Published</span>
             <CheckCircle2 className="h-4 w-4 text-emerald-500" />
           </div>
-          <p className="font-display text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+          <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
             {metrics.published}
           </p>
           <p className="text-[11px] text-emerald-600/80 dark:text-emerald-400/80">
@@ -515,7 +515,7 @@ function AdminNewsPage() {
             <span className="text-xs font-semibold uppercase tracking-wider">Drafts</span>
             <FileText className="h-4 w-4 text-muted-foreground" />
           </div>
-          <p className="font-display text-2xl font-bold text-foreground">{metrics.drafts}</p>
+          <p className="text-2xl font-bold text-foreground">{metrics.drafts}</p>
           <p className="text-[11px] text-muted-foreground">Unpublished</p>
         </div>
       </div>
@@ -801,7 +801,7 @@ function AdminNewsPage() {
           <DialogHeader>
             <div className="flex items-center justify-between">
               <div>
-                <DialogTitle className="font-display text-xl sm:text-2xl font-bold text-foreground">
+                <DialogTitle className="text-xl sm:text-2xl font-bold text-foreground">
                   {editingItem ? "Edit News Dispatch" : "Create News Dispatch"}
                 </DialogTitle>
                 <DialogDescription className="text-xs text-muted-foreground mt-1">
@@ -1154,7 +1154,7 @@ function AdminNewsPage() {
                     <div className="animate-ticker flex items-center shrink-0">
                       {[1, 2, 3, 4].map((i) => (
                         <div key={i} className="flex items-center">
-                          <span className="font-display text-xs sm:text-sm font-medium text-neutral-100 tracking-normal">
+                          <span className="text-xs sm:text-sm font-medium text-neutral-100 tracking-normal">
                             {formData.title || "Headline preview appears here..."}
                           </span>
                           <span className="inline-flex items-center gap-1 text-[11px] font-sans text-neutral-400 ml-2">
@@ -1191,7 +1191,7 @@ function AdminNewsPage() {
                   </span>
                 </div>
 
-                <h2 className="font-display text-2xl font-bold leading-tight">
+                <h2 className="text-2xl font-bold leading-tight">
                   {formData.title || "Untitled Headline"}
                 </h2>
 
@@ -1253,7 +1253,7 @@ function AdminNewsPage() {
                 </span>
               </div>
 
-              <h2 className="font-display text-2xl font-bold leading-tight text-foreground">
+              <h2 className="text-2xl font-bold leading-tight text-foreground">
                 {previewTarget.title}
               </h2>
 
@@ -1327,7 +1327,7 @@ function AdminNewsPage() {
       >
         <AlertDialogContent className="rounded-3xl border border-border bg-card shadow-2xl p-6">
           <AlertDialogHeader>
-            <AlertDialogTitle className="font-display text-lg font-bold text-foreground">
+            <AlertDialogTitle className="text-lg font-bold text-foreground">
               Delete news dispatch?
             </AlertDialogTitle>
             <AlertDialogDescription className="text-xs text-muted-foreground mt-1">

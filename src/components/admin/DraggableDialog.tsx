@@ -102,7 +102,7 @@ export function DraggableDialog({ open, onClose, title, children, footer, width 
           onPointerCancel={onHeaderPointerUp}
           className={`flex items-center justify-between gap-3 border-b border-border bg-card/60 px-5 py-3 ${isDesktop ? "cursor-move select-none" : ""}`}
         >
-          <div className="min-w-0 flex-1 truncate font-display text-lg font-semibold">{title}</div>
+          <div className="min-w-0 flex-1 truncate text-lg font-semibold">{title}</div>
           <button
             type="button"
             onClick={onClose}

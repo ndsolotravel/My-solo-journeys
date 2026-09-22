@@ -369,7 +369,7 @@ function AdminDestinations() {
             <Compass className="h-6 w-6 text-accent" />
           </div>
           <div>
-            <h1 className="font-display text-2xl font-bold text-foreground">
+            <h1 className="text-2xl font-bold text-foreground">
               Destinations Management
             </h1>
             <p className="text-xs text-muted-foreground mt-0.5">
@@ -460,7 +460,7 @@ function AdminDestinations() {
                     )}
                   </div>
 
-                  <h3 className="font-display text-base font-bold text-foreground">{d.title}</h3>
+                  <h3 className="text-base font-bold text-foreground">{d.title}</h3>
 
                   {/* Manual Coordinates Badge */}
                   {d.latitude != null && d.longitude != null ? (
@@ -530,7 +530,7 @@ function AdminDestinations() {
                   <Compass className="h-5 w-5 text-accent" />
                 </div>
                 <div>
-                  <h2 className="font-display text-lg font-bold text-foreground">
+                  <h2 className="text-lg font-bold text-foreground">
                     {editingForm.id ? "Edit Destination" : "New Destination"}
                   </h2>
                   <p className="text-xs text-muted-foreground mt-0.5">

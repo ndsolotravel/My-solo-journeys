@@ -87,7 +87,7 @@ export function AtlasHero({ image }: AtlasHeroProps) {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, delay: 0.34, ease: EASE }}
-            className="mt-6 max-w-2xl font-display text-base leading-relaxed text-white/80 sm:text-lg"
+            className="mt-6 max-w-2xl text-base leading-relaxed text-white/80 sm:text-lg"
           >
             {t("Honest country guides, trekking routes and the maps I wish I'd had before I left.")}
           </motion.p>

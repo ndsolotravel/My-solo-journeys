@@ -59,7 +59,7 @@ function AccountPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6">
-      <h1 className="font-display text-3xl font-bold">Your account</h1>
+      <h1 className="text-3xl font-bold">Your account</h1>
       <p className="mt-1 text-sm text-muted-foreground">Signed in as {email}</p>
 
       <form onSubmit={save} className="mt-8 space-y-4">

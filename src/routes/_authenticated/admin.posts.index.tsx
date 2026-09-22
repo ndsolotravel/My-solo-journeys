@@ -145,7 +145,7 @@ function AdminPostsList() {
           </div>
           <div>
             <div className="flex items-center gap-2.5">
-              <h1 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
                 Stories Management
               </h1>
               <span className="hidden sm:inline-flex items-center rounded-full bg-[#FF7A00]/10 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-[#FF7A00]">
@@ -261,7 +261,7 @@ function AdminPostsList() {
                       <Link
                         to="/admin/posts/$id"
                         params={{ id: p.id }}
-                        className="font-display font-bold hover:text-[#FF7A00] transition-colors line-clamp-1 text-foreground"
+                        className="font-bold hover:text-[#FF7A00] transition-colors line-clamp-1 text-foreground"
                       >
                         {p.title}
                       </Link>
@@ -370,7 +370,7 @@ function AdminPostsList() {
       >
         <AlertDialogContent className="rounded-2xl border border-border bg-background shadow-xl">
           <AlertDialogHeader>
-            <AlertDialogTitle className="font-display text-lg font-bold text-foreground">
+            <AlertDialogTitle className="text-lg font-bold text-foreground">
               Delete story?
             </AlertDialogTitle>
             <AlertDialogDescription className="text-xs sm:text-sm text-muted-foreground">

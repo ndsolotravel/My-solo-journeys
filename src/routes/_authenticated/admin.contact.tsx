@@ -149,7 +149,7 @@ function AdminContactPage() {
             <Mail className="h-6 w-6 text-accent" />
           </div>
           <div>
-            <h1 className="font-display text-2xl font-bold text-foreground">
+            <h1 className="text-2xl font-bold text-foreground">
               Contact Page Management
             </h1>
             <p className="text-xs text-muted-foreground mt-0.5">
@@ -222,7 +222,7 @@ function AdminContactPage() {
                   <MessageSquare className="h-5 w-5 text-accent" />
                 </div>
                 <div>
-                  <h2 className="font-display text-lg font-semibold">Contact Form Settings</h2>
+                  <h2 className="text-lg font-semibold">Contact Form Settings</h2>
                   <p className="mt-0.5 text-xs text-muted-foreground">
                     Configure the labels, placeholders, validation and messages used by the public
                     contact form.
@@ -377,7 +377,7 @@ function AdminContactPage() {
                   <BellRing className="h-5 w-5 text-accent" />
                 </div>
                 <div>
-                  <h2 className="font-display text-lg font-semibold">Email Notifications</h2>
+                  <h2 className="text-lg font-semibold">Email Notifications</h2>
                   <p className="mt-0.5 text-xs text-muted-foreground">
                     Control when email notifications are sent for new contact messages.
                   </p>
@@ -468,7 +468,7 @@ function AdminContactPage() {
           <section className="rounded-2xl border border-border bg-card p-6 shadow-xs space-y-5">
             <div className="flex items-center gap-3 border-b border-border/60 pb-4">
               <div>
-                <h2 className="font-display text-lg font-semibold">Contact Hero Banner</h2>
+                <h2 className="text-lg font-semibold">Contact Hero Banner</h2>
                 <p className="mt-0.5 text-xs text-muted-foreground">
                   Control the banner image at the top of the public contact page.
                 </p>

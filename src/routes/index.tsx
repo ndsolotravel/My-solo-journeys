@@ -416,7 +416,7 @@ function HomePage() {
                 ) : (
                   <Link
                     to={heroPrimaryTo as any}
-                    className="inline-flex items-center justify-center gap-2 rounded-full bg-[#FF7A00] px-6 py-3 text-sm font-medium text-white hover:bg-[#FF7A00]/90 transition-colors shadow-md text-center"
+                    className="inline-flex items-center justify-center gap-2 rounded-full bg-[#FF7A00] px-6 py-3 text-sm font-semibold text-white hover:bg-[#FF7A00]/90 transition-colors shadow-md text-center"
                   >
                     {t(heroSettings.homepage_hero_button_text || "Read the stories")}
                     <ArrowRight className="h-4 w-4 rtl:rotate-180" />
@@ -427,14 +427,14 @@ function HomePage() {
                     href={heroSecondaryTo}
                     target={heroSecondaryTo.startsWith("http") ? "_blank" : undefined}
                     rel={heroSecondaryTo.startsWith("http") ? "noopener noreferrer" : undefined}
-                    className="inline-flex items-center justify-center gap-2 rounded-full border border-white/40 bg-black/20 backdrop-blur-md px-6 py-3 text-sm font-medium text-white hover:bg-white/15 transition-colors text-center"
+                    className="inline-flex items-center justify-center gap-2 rounded-full border border-white/40 bg-black/20 backdrop-blur-md px-6 py-3 text-sm font-semibold text-white hover:bg-white/15 transition-colors text-center"
                   >
                     {t(heroSettings.homepage_hero_secondary_button_text || "Explore destinations")}
                   </a>
                 ) : (
                   <Link
                     to={heroSecondaryTo as any}
-                    className="inline-flex items-center justify-center gap-2 rounded-full border border-white/40 bg-black/20 backdrop-blur-md px-6 py-3 text-sm font-medium text-white hover:bg-white/15 transition-colors text-center"
+                    className="inline-flex items-center justify-center gap-2 rounded-full border border-white/40 bg-black/20 backdrop-blur-md px-6 py-3 text-sm font-semibold text-white hover:bg-white/15 transition-colors text-center"
                   >
                     {t(heroSettings.homepage_hero_secondary_button_text || "Explore destinations")}
                   </Link>
@@ -467,7 +467,7 @@ function HomePage() {
                       <Calendar className="h-2.5 w-2.5 text-[#FF7A00]" />
                       <span>{formatDate(hp.published_at || hp.created_at)}</span>
                     </div>
-                    <h4 className="mt-0.5 line-clamp-2 font-display text-xs font-medium leading-snug text-white transition-colors group-hover:text-[#FF7A00]">
+                    <h4 className="mt-0.5 line-clamp-2 text-xs font-medium leading-snug text-white transition-colors group-hover:text-[#FF7A00]">
                       {getPostTitle(hp)}
                     </h4>
                   </div>
@@ -637,7 +637,7 @@ function HomePage() {
                             {topic.postCount} {topic.postCount === 1 ? t("story") : t("stories")}
                           </span>
                         </div>
-                        <h3 className="font-display text-base sm:text-lg font-semibold leading-tight text-white transition-colors group-hover:text-[#FF7A00] line-clamp-2 break-words [overflow-wrap:anywhere]">
+                        <h3 className="text-base sm:text-lg font-semibold leading-tight text-white transition-colors group-hover:text-[#FF7A00] line-clamp-2 break-words [overflow-wrap:anywhere]">
                           {t(topic.title)}
                         </h3>
                         <p className="mt-1 text-xs text-white/75 line-clamp-1">
@@ -821,7 +821,7 @@ function HomePage() {
                             {t(d.country)}
                             {d.region ? ` · ${t(d.region)}` : ""}
                           </p>
-                          <h3 className="mt-0.5 font-display text-base sm:text-lg font-semibold leading-tight group-hover:text-[#FF7A00] transition-colors break-words">
+                          <h3 className="mt-0.5 text-base sm:text-lg font-semibold leading-tight group-hover:text-[#FF7A00] transition-colors break-words">
                             {t(d.title)}
                           </h3>
                         </div>
@@ -880,7 +880,7 @@ function HomePage() {
                           {t("Spotlight")}
                         </span>
                         {gallery[0].caption && (
-                          <p className="mt-2 font-display text-sm sm:text-base font-semibold text-white line-clamp-2 break-words">
+                          <p className="mt-2 text-sm sm:text-base font-semibold text-white line-clamp-2 break-words">
                             {t(gallery[0].caption)}
                           </p>
                         )}

@@ -171,7 +171,7 @@ function CategoryPage() {
         ) : (
           <div className="rounded-3xl border border-dashed border-border py-20 text-center bg-card/40">
             <Layers className="mx-auto h-12 w-12 text-muted-foreground/40 mb-3" />
-            <h2 className="font-display text-xl font-bold">
+            <h2 className="text-xl font-bold">
               {t("No stories in this category yet")}
             </h2>
             <p className="mt-2 text-sm text-muted-foreground max-w-md mx-auto">

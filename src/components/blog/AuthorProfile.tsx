@@ -130,7 +130,7 @@ export function AuthorProfile({
         {/* Info */}
         <div className="flex-1 text-center sm:text-left">
           <div className="flex items-center justify-center sm:justify-start gap-2">
-            <h3 className="font-display text-lg font-bold text-foreground">
+            <h3 className="text-lg font-bold text-foreground">
               {t(name)}
             </h3>
             <span className="inline-flex items-center gap-1 rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-semibold text-accent uppercase tracking-wider">

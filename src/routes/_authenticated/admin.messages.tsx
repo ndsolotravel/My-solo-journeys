@@ -274,7 +274,7 @@ function AdminMessages() {
               >
                 <ChevronLeft className="h-3.5 w-3.5" /> Back to Inbox
               </button>
-              <h1 className="font-display text-xl sm:text-2xl font-bold">Message Detail</h1>
+              <h1 className="text-xl sm:text-2xl font-bold">Message Detail</h1>
             </div>
           </div>
         </div>
@@ -286,7 +286,7 @@ function AdminMessages() {
               <div className="rounded-2xl border border-border bg-card p-6 shadow-xs">
                 <div className="flex items-start justify-between gap-4 border-b border-border/60 pb-4">
                   <div className="min-w-0">
-                    <h2 className="font-display text-lg font-bold text-foreground break-words">
+                    <h2 className="text-lg font-bold text-foreground break-words">
                       {detail.subject || "No subject"}
                     </h2>
                     <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -574,7 +574,7 @@ function AdminMessages() {
     <div className="space-y-6">
       <div className="sticky top-16 z-20 flex flex-col gap-3 border-b border-border bg-background/95 backdrop-blur-md pb-4 pt-3 shadow-2xs">
         <div>
-          <h1 className="font-display text-2xl sm:text-3xl font-bold flex items-center gap-2">
+          <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2">
             Messages
             {counts.new > 0 && (
               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-accent-foreground">

@@ -429,7 +429,7 @@ function AdminGalleryPage() {
             <ImageIcon className="h-6 w-6 text-accent" />
           </div>
           <div>
-            <h1 className="font-display text-2xl font-bold text-foreground">Photography Archive</h1>
+            <h1 className="text-2xl font-bold text-foreground">Photography Archive</h1>
             <p className="text-xs text-muted-foreground mt-0.5">
               Curate the public gallery — titles, locations, camera details, stories, and
               categories.
@@ -521,7 +521,7 @@ function AdminGalleryPage() {
             </p>
             <ImageIcon className="h-4 w-4 text-accent" />
           </div>
-          <p className="mt-2 font-display text-3xl font-bold">
+          <p className="mt-2 text-3xl font-bold">
             {isLoading ? "—" : (drafts?.length ?? 0).toLocaleString()}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">Curated frames in the archive</p>
@@ -532,7 +532,7 @@ function AdminGalleryPage() {
             <p className="text-xs uppercase tracking-wider text-muted-foreground">Categories</p>
             <Layers className="h-4 w-4 text-accent" />
           </div>
-          <p className="mt-2 font-display text-3xl font-bold">{categories.length}</p>
+          <p className="mt-2 text-3xl font-bold">{categories.length}</p>
           <p className="mt-1 text-xs text-muted-foreground">Mountains, motorcycles, roads & more</p>
         </div>
 
@@ -541,7 +541,7 @@ function AdminGalleryPage() {
             <p className="text-xs uppercase tracking-wider text-muted-foreground">Pending Work</p>
             <Sparkles className="h-4 w-4 text-accent" />
           </div>
-          <p className="mt-2 font-display text-3xl font-bold">
+          <p className="mt-2 text-3xl font-bold">
             {pendingNewCount + draftCount + deletedIds.length}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
@@ -649,7 +649,7 @@ function AdminGalleryPage() {
       <div className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-5">
         <div className="flex items-start justify-between gap-4 border-b border-border/60 pb-4">
           <div>
-            <h3 className="font-display text-base font-semibold flex items-center gap-2 text-foreground">
+            <h3 className="text-base font-semibold flex items-center gap-2 text-foreground">
               <Upload className="h-5 w-5 text-accent" />
               <span>Add photographs to the archive</span>
             </h3>
@@ -957,7 +957,7 @@ function AdminGalleryPage() {
       >
         <AlertDialogContent className="rounded-3xl border border-border bg-card shadow-2xl p-6">
           <AlertDialogHeader>
-            <AlertDialogTitle className="font-display text-lg font-bold text-foreground">
+            <AlertDialogTitle className="text-lg font-bold text-foreground">
               Remove photograph from the archive?
             </AlertDialogTitle>
             <AlertDialogDescription className="text-xs text-muted-foreground mt-1">
@@ -992,7 +992,7 @@ function AdminGalleryPage() {
           >
             <div className="flex items-center justify-between gap-3 border-b border-border px-6 py-4">
               <div>
-                <h2 className="font-display text-lg font-bold text-foreground">
+                <h2 className="text-lg font-bold text-foreground">
                   {editing.id.startsWith("new-") ? "New Photograph" : "Photograph Details"}
                 </h2>
                 <p className="text-xs text-muted-foreground mt-0.5">

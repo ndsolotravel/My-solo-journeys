@@ -29,7 +29,7 @@ function AdminDashboard() {
     <div>
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-display text-3xl font-bold">Dashboard</h1>
+          <h1 className="text-3xl font-bold">Dashboard</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Overview of your content and audience.
           </p>
@@ -86,7 +86,7 @@ function AdminDashboard() {
 
       <div className="mt-10 rounded-2xl border border-border p-5">
         <div className="flex items-center justify-between">
-          <h2 className="font-display text-lg font-semibold">Most viewed</h2>
+          <h2 className="text-lg font-semibold">Most viewed</h2>
           <Link to="/admin/posts" className="text-xs text-accent hover:underline">
             All posts →
           </Link>
@@ -134,7 +134,7 @@ function Stat({
         <p className="text-xs uppercase tracking-wider text-muted-foreground">{label}</p>
         <Icon className="h-4 w-4 text-muted-foreground" />
       </div>
-      <p className="mt-2 font-display text-3xl font-bold">
+      <p className="mt-2 text-3xl font-bold">
         {loading ? "—" : (value ?? 0).toLocaleString()}
       </p>
       {sub && <p className="mt-1 text-xs text-muted-foreground">{sub}</p>}

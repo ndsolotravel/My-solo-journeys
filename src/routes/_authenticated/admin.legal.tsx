@@ -172,7 +172,7 @@ function AdminLegalPage() {
             <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-accent">
               Legal & Governance
             </div>
-            <h1 className="font-display text-2xl font-bold text-foreground">Legal Pages CMS</h1>
+            <h1 className="text-2xl font-bold text-foreground">Legal Pages CMS</h1>
             <p className="text-xs text-muted-foreground mt-0.5">
               Manage, edit, and publish your Privacy Policy and Disclaimer pages with instant public
               updates.
@@ -304,7 +304,7 @@ function AdminLegalPage() {
           <div className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-4">
             <div className="flex items-start justify-between gap-4 border-b border-border/60 pb-4">
               <div>
-                <h2 className="font-display text-lg font-semibold flex items-center gap-2 text-foreground">
+                <h2 className="text-lg font-semibold flex items-center gap-2 text-foreground">
                   <Edit3 className="h-5 w-5 text-accent" />
                   <span>Page Title & URL</span>
                 </h2>
@@ -345,7 +345,7 @@ function AdminLegalPage() {
           <div className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/60 pb-4">
               <div>
-                <h2 className="font-display text-lg font-semibold flex items-center gap-2 text-foreground">
+                <h2 className="text-lg font-semibold flex items-center gap-2 text-foreground">
                   <ImageIcon className="h-5 w-5 text-accent" />
                   Document Body (Markdown & HTML)
                 </h2>
@@ -492,7 +492,7 @@ function AdminLegalPage() {
         <div className="space-y-6">
           {/* Publishing Card */}
           <div className="rounded-2xl border border-border bg-card p-5 shadow-sm space-y-4">
-            <h3 className="font-display text-sm font-semibold text-foreground">
+            <h3 className="text-sm font-semibold text-foreground">
               <Sparkles className="h-4 w-4 text-accent -mt-0.5" /> Publishing Status
             </h3>
 
@@ -531,7 +531,7 @@ function AdminLegalPage() {
 
           {/* Hero Banner Card */}
           <div className="rounded-2xl border border-border bg-card p-5 shadow-sm space-y-4">
-            <h3 className="font-display text-sm font-semibold text-foreground">
+            <h3 className="text-sm font-semibold text-foreground">
               <ImageIcon className="h-4 w-4 text-accent -mt-0.5" /> Hero Header Image
             </h3>
 
@@ -560,7 +560,7 @@ function AdminLegalPage() {
 
           {/* SEO Metadata Card */}
           <div className="rounded-2xl border border-border bg-card p-5 shadow-sm space-y-4">
-            <h3 className="font-display text-sm font-semibold text-foreground">
+            <h3 className="text-sm font-semibold text-foreground">
               <CheckCircle2 className="h-4 w-4 text-accent -mt-0.5" /> Search Engine Optimization
             </h3>
 

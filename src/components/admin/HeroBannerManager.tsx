@@ -269,7 +269,7 @@ export function HeroBannerManager({
     <section className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-5">
       <div className="flex items-start justify-between gap-4 border-b border-border/60 pb-4">
         <div>
-          <h2 className="font-display text-lg font-semibold flex items-center gap-2 text-foreground">
+          <h2 className="text-lg font-semibold flex items-center gap-2 text-foreground">
             <BookMarked className="h-5 w-5 text-accent" />
             <span>{title}</span>
           </h2>
@@ -386,7 +386,7 @@ export function HeroBannerManager({
                         {draftBadge}
                       </span>
                     )}
-                    <h3 className="font-display text-base sm:text-xl md:text-2xl font-bold leading-tight text-white tracking-tight">
+                    <h3 className="text-base sm:text-xl md:text-2xl font-bold leading-tight text-white tracking-tight">
                       <span>{draftTitle || "Moments Frozen in the Wild"}</span>{" "}
                       {draftTitleHighlight && (
                         <span className="text-[#FF7A00]">{draftTitleHighlight}</span>

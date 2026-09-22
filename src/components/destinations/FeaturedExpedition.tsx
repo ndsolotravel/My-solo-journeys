@@ -106,7 +106,7 @@ export function FeaturedExpedition({ destination: d }: FeaturedExpeditionProps) 
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, amount: 0.4 }}
                   transition={{ duration: 0.8, delay: 0.18, ease: EASE }}
-                  className="mt-6 max-w-2xl font-display text-base leading-relaxed text-white/80 sm:text-lg"
+                  className="mt-6 max-w-2xl text-base leading-relaxed text-white/80 sm:text-lg"
                 >
                   {t(d.description)}
                 </motion.p>
@@ -157,7 +157,7 @@ export function FeaturedExpedition({ destination: d }: FeaturedExpeditionProps) 
                     <dt className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/55">
                       {row.label}
                     </dt>
-                    <dd className="text-right font-display text-sm font-semibold text-white sm:text-[15px]">
+                    <dd className="text-right text-sm font-semibold text-white sm:text-[15px]">
                       {row.value}
                     </dd>
                   </motion.div>

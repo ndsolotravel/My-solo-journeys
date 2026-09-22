@@ -192,7 +192,7 @@ function AdminSettingsPage() {
             <Settings className="h-6 w-6 text-accent" />
           </div>
           <div>
-            <h1 className="font-display text-2xl font-bold text-foreground">CMS Settings</h1>
+            <h1 className="text-2xl font-bold text-foreground">CMS Settings</h1>
             <p className="text-xs text-muted-foreground mt-0.5">
               Global website configuration, author metadata, portrait sync, and admin accounts.
             </p>
@@ -242,7 +242,7 @@ function AdminSettingsPage() {
             <div className="rounded-2xl border border-border bg-card p-6 shadow-xs space-y-5">
               <div className="flex items-start justify-between gap-4 border-b border-border/60 pb-4">
                 <div>
-                  <h2 className="font-display text-lg font-semibold flex items-center gap-2">
+                  <h2 className="text-lg font-semibold flex items-center gap-2">
                     <User className="h-5 w-5 text-accent" /> Blog Author Configuration
                   </h2>
                   <p className="mt-0.5 text-xs text-muted-foreground">
@@ -299,7 +299,7 @@ function AdminSettingsPage() {
                   <p className="text-xs uppercase tracking-widest text-accent font-semibold">
                     Solo Travel
                   </p>
-                  <p className="font-display text-base font-bold text-foreground mt-1 line-clamp-1">
+                  <p className="text-base font-bold text-foreground mt-1 line-clamp-1">
                     Phander Valley: A Symphony of Autumn Colors
                   </p>
                   <div className="mt-2.5 flex flex-wrap items-center gap-3 text-xs text-muted-foreground border-t border-border/40 pt-2">
@@ -320,7 +320,7 @@ function AdminSettingsPage() {
             <div className="rounded-2xl border border-border bg-card p-6 shadow-xs space-y-5">
               <div className="flex items-start justify-between gap-4 border-b border-border/60 pb-4">
                 <div>
-                  <h2 className="font-display text-lg font-semibold flex items-center gap-2">
+                  <h2 className="text-lg font-semibold flex items-center gap-2">
                     <ImageIcon className="h-5 w-5 text-accent" /> About Page Picture
                   </h2>
                   <p className="mt-0.5 text-xs text-muted-foreground">
@@ -431,7 +431,7 @@ function AdminSettingsPage() {
           <div className="rounded-2xl border border-border bg-card p-6 shadow-xs space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/60 pb-4">
               <div>
-                <h2 className="font-display text-lg font-semibold flex items-center gap-2">
+                <h2 className="text-lg font-semibold flex items-center gap-2">
                   <UserPlus className="h-5 w-5 text-accent" /> Administrator Account Provisioning
                 </h2>
                 <p className="mt-0.5 text-xs text-muted-foreground">
@@ -555,7 +555,7 @@ function AdminSettingsPage() {
         {/* Sidebar Info & Architecture Card */}
         <aside className="space-y-6">
           <div className="rounded-2xl border border-border bg-card p-5 shadow-xs space-y-4">
-            <h3 className="font-display text-sm font-semibold flex items-center gap-2">
+            <h3 className="text-sm font-semibold flex items-center gap-2">
               <Shield className="h-4 w-4 text-accent" /> Security & Architecture
             </h3>
             <ul className="space-y-3 text-xs text-muted-foreground">

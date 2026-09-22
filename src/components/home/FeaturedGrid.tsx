@@ -167,7 +167,7 @@ export function FeaturedGrid({
                 </div>
 
                 <div className="mt-3 min-w-0">
-                  <h4 className="font-display text-base sm:text-lg font-semibold leading-snug text-white transition-colors group-hover:text-[#FF7A00] line-clamp-2 break-words [overflow-wrap:anywhere]">
+                  <h4 className="text-base sm:text-lg font-semibold leading-snug text-white transition-colors group-hover:text-[#FF7A00] line-clamp-2 break-words [overflow-wrap:anywhere]">
                     {getPostTitle(post)}
                   </h4>
                   <div className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-[#FF7A00]">
@@ -193,7 +193,7 @@ export function FeaturedGrid({
           <span className="rounded-md bg-[#FF7A00]/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-[#FF7A00]">
             {t("Connect")}
           </span>
-          <h3 className="mt-1 font-display text-base sm:text-lg font-semibold text-foreground">
+          <h3 className="mt-1 text-base sm:text-lg font-semibold text-foreground">
             {t("Follow the Journey")}
           </h3>
         </div>
@@ -254,11 +254,11 @@ export function FeaturedGrid({
           </div>
           <div className="mt-2.5 grid grid-cols-2 gap-2 text-center">
             <div className="rounded-lg bg-background p-2 border border-border/50 min-w-0">
-              <div className="font-display text-base sm:text-lg font-semibold text-foreground truncate">{stats.countries}</div>
+              <div className="text-base sm:text-lg font-semibold text-foreground truncate">{stats.countries}</div>
               <div className="text-[10px] text-muted-foreground truncate">{t("Countries")}</div>
             </div>
             <div className="rounded-lg bg-background p-2 border border-border/50 min-w-0">
-              <div className="font-display text-base sm:text-lg font-semibold text-[#FF7A00] truncate">{stats.trips}</div>
+              <div className="text-base sm:text-lg font-semibold text-[#FF7A00] truncate">{stats.trips}</div>
               <div className="text-[10px] text-muted-foreground truncate">{t("Trips")}</div>
             </div>
           </div>
