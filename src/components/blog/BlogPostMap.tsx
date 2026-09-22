@@ -78,8 +78,8 @@ export function BlogPostMap({ locationName, latitude, longitude, title }: BlogPo
       });
 
       const popupContent = `
-        <div style="font-family: Montserrat, system-ui, -apple-system, sans-serif; min-width: 180px; padding: 2px;">
-          ${title ? `<p style="font-family: Montserrat, system-ui, -apple-system, sans-serif; font-size: 14px; font-weight: 600; margin: 0 0 4px; color: #111; line-height: 1.25;">${title}</p>` : ""}
+        <div style="font-family: Manrope, system-ui, -apple-system, sans-serif; min-width: 180px; padding: 2px;">
+          ${title ? `<p style="font-family: Manrope, system-ui, -apple-system, sans-serif; font-size: 14px; font-weight: 600; margin: 0 0 4px; color: #111; line-height: 1.25;">${title}</p>` : ""}
           ${locationName ? `<p style="font-size: 12px; margin: 0 0 6px; color: #555; display: flex; align-items: center; gap: 4px;">📍 ${locationName}</p>` : ""}
           <p style="font-size: 11px; margin: 0; color: #888;">Coordinates: ${latitude.toFixed(4)}° N, ${longitude.toFixed(4)}° E</p>
         </div>
