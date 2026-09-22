@@ -104,7 +104,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@400&family=Manrope:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Oswald:wght@400&family=Manrope:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&display=swap",
       },
       { rel: "manifest", href: "/manifest.webmanifest" },
       { rel: "icon", href: "/favicon.png", type: "image/png" },

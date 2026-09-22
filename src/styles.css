@@ -34,7 +34,7 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-ring-offset-background: var(--background);
-  --font-display: "Bodoni Moda", "Noto Naskh Arabic", "Noto Nastaliq Urdu", Georgia, serif;
+  --font-display: "Oswald", "Noto Naskh Arabic", "Noto Nastaliq Urdu", system-ui, sans-serif;
   --font-sans: "Manrope", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --shadow-elegant: 0 30px 80px -40px color-mix(in oklab, var(--primary) 40%, transparent);
 }
@@ -137,9 +137,9 @@
   }
 }
 
-/* Bodoni Moda display typography — single weight (400), elegant and cinematic.
+/* Oswald display typography — single weight (400), clean and cinematic.
    Unlayered so it wins over layered utilities (font-bold/tracking-tight) and
-   prevents faux-bold synthesis. Tight tracking suits Bodoni Moda's refined forms. */
+   prevents faux-bold synthesis. Tight tracking suits Oswald's tall forms. */
 .font-display {
   font-family: var(--font-display);
   font-weight: 400;
