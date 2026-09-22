@@ -388,7 +388,7 @@ function LiveHeroSimulator({
 
           <p className="text-xs sm:text-sm text-white/85 line-clamp-2 leading-relaxed drop-shadow-sm max-w-xl">
             {draft.homepage_hero_description ||
-              "Solo expeditions, motorcycle journeys and trekking diaries from Pakistan, the Karakoram and the world's wildest borders."}
+              "Welcome to NDSOLOTRAVEL, a personal travel journal covering solo travel, motorcycle adventures, and mountain treks across Pakistan, the Karakoram, and around the world."}
           </p>
 
           <div className="flex flex-wrap items-center gap-2 pt-1">

@@ -52,7 +52,7 @@ const HOMEPAGE_DEFAULTS: Record<string, string> = {
   homepage_hero_title: "Solo travel, motorcycle adventures, and trekking",
   homepage_hero_title_highlight: "in Pakistan and the Karakoram.",
   homepage_hero_description:
-    "First-hand solo expeditions, motorcycle journeys, and high-altitude trekking diaries from Pakistan, the Karakoram, and remote mountain frontiers.",
+    "Welcome to NDSOLOTRAVEL, a personal travel journal covering solo travel, motorcycle adventures, and mountain treks across Pakistan, the Karakoram, and around the world.",
   homepage_hero_button_text: "Read the stories",
   homepage_hero_button_link: "/blog",
   homepage_hero_secondary_button_text: "Explore destinations",

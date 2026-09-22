@@ -34,8 +34,8 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-ring-offset-background: var(--background);
-  --font-display: "Manrope", system-ui, -apple-system, sans-serif;
-  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-display: "Cormorant Garamond", serif;
+  --font-sans: "Manrope", system-ui, -apple-system, sans-serif;
   --shadow-elegant: 0 30px 80px -40px color-mix(in oklab, var(--primary) 40%, transparent);
 }
 
@@ -120,12 +120,7 @@
     max-width: 100%;
     min-width: 0;
   }
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
+  h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
     letter-spacing: -0.025em;
     line-height: 1.2;

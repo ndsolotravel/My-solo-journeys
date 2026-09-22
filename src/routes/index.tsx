@@ -392,7 +392,7 @@ function HomePage() {
               >
                 {t(
                   heroSettings.homepage_hero_description ||
-                    "Solo expeditions, motorcycle journeys and trekking diaries from Pakistan, the Karakoram and the world's wildest borders.",
+                    "Welcome to NDSOLOTRAVEL, a personal travel journal covering solo travel, motorcycle adventures, and mountain treks across Pakistan, the Karakoram, and around the world.",
                 )}
               </motion.p>
 
