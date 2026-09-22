@@ -370,24 +370,19 @@ function HomePage() {
                 {t(heroSettings.homepage_hero_badge || "Solo · Slow · Cinematic")}
               </motion.span>
 
-<motion.h1
-                 initial={{ opacity: 0, y: 30 }}
-                 animate={{ opacity: 1, y: 0 }}
-                 transition={{ duration: 0.8, delay: 0.1 }}
-                 className="mt-4 sm:mt-5 max-w-4xl font-display text-4xl sm:text-5xl lg:text-6xl leading-[1.15] sm:leading-[1.12] text-white break-words [overflow-wrap:anywhere]"
-               >
-                 <span className="block">
-                   Solo journeys, motorcycle adventures, and trekking across the world
-                 </span>
-               </motion.h1>
-               <motion.p
-                 initial={{ opacity: 0 }}
-                 animate={{ opacity: 1 }}
-                 transition={{ duration: 0.8, delay: 0.2 }}
-                 className="mt-2 sm:mt-3 max-w-xl text-sm sm:text-base lg:text-lg font-sans text-[#FF7A00] leading-relaxed"
-               >
-                 {t(heroSettings.homepage_hero_title_highlight || "Stories from the high places. Most people only fly over.")}
-               </motion.p>
+              <motion.h1
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.1 }}
+                className="mt-4 sm:mt-5 max-w-4xl font-display text-3xl sm:text-5xl lg:text-6xl font-semibold leading-[1.15] sm:leading-[1.12] text-white tracking-tight break-words [overflow-wrap:anywhere]"
+              >
+                <span className="block">
+                  {t(heroSettings.homepage_hero_title || "Stories from the high places")}
+                </span>
+                <span className="block text-[#FF7A00] mt-1 sm:mt-1.5">
+                  {t(heroSettings.homepage_hero_title_highlight || "Most people only fly over.")}
+                </span>
+              </motion.h1>
 
               <motion.p
                 initial={{ opacity: 0, y: 30 }}
