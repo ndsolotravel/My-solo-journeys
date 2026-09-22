@@ -127,12 +127,12 @@ export function DestinationsMap({ destinations }: { destinations: Destination[] 
           ? `<p style="font-size:11px;color:#555;margin:0 0 6px 0;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${d.description.replace(/<[^>]*>/g, "")}</p>`
           : "";
         const popup = `
-          <div style="min-width:190px;max-width:220px;font-family:system-ui,-apple-system,sans-serif;padding:2px;">
+          <div style="min-width:190px;max-width:220px;font-family:Roboto,system-ui,-apple-system,sans-serif;padding:2px;">
             ${d.featured_image ? `<img src="${d.featured_image}" alt="${d.title}" style="width:100%;height:85px;object-fit:cover;border-radius:8px;margin-bottom:6px;" onerror="this.style.display='none'"/>` : ""}
-            <strong style="font-size:13px;color:#111;display:block;margin-bottom:2px;">${d.title}</strong>
+            <strong style="font-family:Lora,serif;font-size:14px;font-weight:600;color:#111;display:block;margin-bottom:2px;line-height:1.25;">${d.title}</strong>
             <span style="font-size:11px;color:#666;display:block;margin-bottom:4px;">📍 ${d.country}${d.region ? ` · ${d.region}` : ""}</span>
             ${descHtml}
-            <a href="/destinations/${d.slug}" style="color:#FF7A00;font-size:12px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:3px;">View Story →</a>
+            <a href="/destinations/${d.slug}" style="color:#FF7A00;font-size:12px;font-weight:500;text-decoration:none;display:inline-flex;align-items:center;gap:3px;">View Story →</a>
           </div>`;
         L.marker(c, { icon: pinIcon, title: d.title }).addTo(map).bindPopup(popup);
       });

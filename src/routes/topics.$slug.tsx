@@ -102,7 +102,7 @@ function TopicPage() {
         <div className="absolute inset-x-0 bottom-0 mx-auto max-w-4xl px-4 pb-12 text-white sm:px-6">
           <PageBreadcrumbs items={[{ label: "Stories", href: "/blog" }, { label: topic.title }]} />
           <p className="mt-3 text-xs uppercase tracking-[0.2em] text-accent">{t("Topic Guide")}</p>
-          <h1 className="mt-3 font-display text-3xl font-bold leading-tight sm:text-5xl">
+          <h1 className="mt-3 font-display text-3xl font-semibold leading-tight sm:text-5xl">
             {t(topic.title)}
           </h1>
           <p className="mt-3 max-w-xl text-sm text-white/80">{t(topic.description)}</p>
@@ -120,7 +120,7 @@ function TopicPage() {
           <section className="mt-16">
             <div className="flex items-center gap-2 mb-8">
               <BookOpen className="h-5 w-5 text-accent" />
-              <h2 className="font-display text-2xl font-bold">
+              <h2 className="font-display text-2xl font-semibold">
                 {t("Related Stories")} ({topic.posts.length})
               </h2>
             </div>

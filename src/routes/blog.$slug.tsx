@@ -357,7 +357,7 @@ function PostPage() {
           <p className="mt-4 text-xs uppercase tracking-[0.2em] text-accent">
             {t(localizedPost.category)}
           </p>
-          <h1 className="mt-3 font-display text-3xl font-bold leading-tight sm:text-5xl">
+          <h1 className="mt-3 font-display text-3xl font-semibold leading-tight sm:text-5xl">
             {localizedPost.title}
           </h1>
           <div className="mt-5 flex flex-wrap items-center gap-4 text-xs text-white/80">
@@ -453,7 +453,7 @@ function PostPage() {
                 return (
                   <h2
                     id={id}
-                    className="scroll-mt-24 font-display text-2xl font-bold mt-10 mb-4 text-foreground"
+                    className="scroll-mt-24 font-display text-2xl font-semibold mt-10 mb-4 text-foreground"
                   >
                     {translateMarkdownChildren(children, t, isDbTranslated)}
                   </h2>
@@ -543,7 +543,7 @@ function PostPage() {
         {/* Multi-Photo Gallery Grid */}
         {gallery.length > 0 && (
           <section className="mt-14 rounded-2xl border border-border bg-card p-6 shadow-sm">
-            <h3 className="font-display text-xl font-bold flex items-center gap-2 mb-4">
+            <h3 className="font-display text-xl font-semibold flex items-center gap-2 mb-4">
               <ImageIcon className="h-5 w-5 text-accent" /> {t("Photo Gallery")}
             </h3>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -721,7 +721,7 @@ function PostPage() {
 
         {/* Article Bottom Newsletter Dispatch CTA */}
         <section className="mt-14 rounded-3xl border border-border bg-muted/30 p-6 sm:p-8 text-center shadow-xs">
-          <h3 className="font-display text-2xl font-bold">{t("Enjoyed this dispatch?")}</h3>
+          <h3 className="font-display text-2xl font-semibold">{t("Enjoyed this dispatch?")}</h3>
           <p className="mt-2 text-sm text-muted-foreground max-w-md mx-auto">
             {t("Get an email when a new expedition story drops. No spam, no algorithm noise.")}
           </p>
@@ -736,7 +736,7 @@ function PostPage() {
       {/* Related */}
       {localizedRelated.length > 0 && (
         <div className="mx-auto mt-20 max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="font-display text-2xl font-bold">{t("Keep reading")}</h2>
+          <h2 className="font-display text-2xl font-semibold">{t("Keep reading")}</h2>
           <div className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {localizedRelated.map((p: Post, i: number) => (
               <PostCard key={p.id} post={p} index={i} />
@@ -850,7 +850,7 @@ function CommentsSection({ postId }: { postId: string }) {
   return (
     <section className="mt-12">
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <h3 className="font-display text-2xl font-bold">{t("Reviews & Comments")}</h3>
+        <h3 className="font-display text-2xl font-semibold">{t("Reviews & Comments")}</h3>
         {stats && stats.count > 0 && (
           <div className="flex items-center gap-3">
             <StarDisplay value={stats.average} size={18} />

@@ -34,8 +34,9 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-ring-offset-background: var(--background);
-  --font-display: "Cormorant Garamond", serif;
-  --font-sans: "Manrope", system-ui, -apple-system, sans-serif;
+  --font-display: "Lora", Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-serif: "Lora", Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-sans: "Roboto", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --shadow-elegant: 0 30px 80px -40px color-mix(in oklab, var(--primary) 40%, transparent);
 }
 
@@ -112,6 +113,8 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
+    font-weight: 400;
+    line-height: 1.75;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -122,9 +125,32 @@
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
-    letter-spacing: -0.025em;
-    line-height: 1.2;
+    letter-spacing: -0.015em;
+    line-height: 1.25;
   }
+  h1 {
+    font-weight: 600;
+  }
+  h2 {
+    font-weight: 500;
+  }
+  h3, h4, h5, h6 {
+    font-weight: 500;
+  }
+}
+
+/* Maintain modern, lightweight Lora headings across components without excessive bold weight */
+.font-display {
+  font-family: var(--font-display);
+}
+.font-display.font-bold {
+  font-weight: 600;
+}
+.font-serif {
+  font-family: var(--font-serif);
+}
+.font-sans {
+  font-family: var(--font-sans);
 }
 
 @utility glass {
@@ -134,13 +160,23 @@
 }
 
 @utility prose-blog {
+  & h1 {
+    font-family: var(--font-display);
+    font-size: 2.25rem;
+    margin-top: 2.5rem;
+    margin-bottom: 1.25rem;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    line-height: 1.25;
+  }
   & h2 {
     font-family: var(--font-display);
     font-size: 1.875rem;
     margin-top: 2.5rem;
     margin-bottom: 1rem;
-    font-weight: 600;
-    letter-spacing: -0.02em;
+    font-weight: 500;
+    letter-spacing: -0.015em;
+    line-height: 1.3;
   }
   & h3 {
     font-family: var(--font-display);
@@ -148,11 +184,21 @@
     margin-top: 2rem;
     margin-bottom: 0.75rem;
     font-weight: 500;
-    letter-spacing: -0.015em;
+    letter-spacing: -0.01em;
+    line-height: 1.35;
+  }
+  & h4 {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    line-height: 1.4;
   }
   & p {
     font-family: var(--font-sans);
-    line-height: 1.75;
+    line-height: 1.8;
     margin-bottom: 1.25rem;
     font-size: 1.0625rem;
     font-weight: 400;
@@ -165,21 +211,26 @@
   }
   & blockquote {
     border-left: 3px solid var(--color-accent);
-    padding-left: 1rem;
+    padding-left: 1.25rem;
     font-style: italic;
-    margin: 1.5rem 0;
+    margin: 1.75rem 0;
     color: var(--color-muted-foreground);
-    font-family: var(--font-sans);
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 1.125rem;
+    line-height: 1.75;
   }
   & ul,
   & ol {
     padding-left: 1.5rem;
     margin-bottom: 1.25rem;
     font-family: var(--font-sans);
+    font-weight: 400;
   }
   & li {
     margin-bottom: 0.5rem;
     line-height: 1.75;
+    font-family: var(--font-sans);
   }
   & img {
     border-radius: var(--radius);
@@ -208,6 +259,7 @@
     font-style: italic;
     text-align: center;
     font-family: var(--font-sans);
+    font-weight: 400;
     line-height: 1.5;
   }
 }
@@ -761,7 +813,7 @@ html[dir="rtl"] .flex-row {
 /* Ghosted expedition index number */
 .atlas-ghost {
   font-family: var(--font-display);
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.04em;
   line-height: 1;
   color: transparent;
@@ -786,7 +838,7 @@ html[dir="rtl"] .flex-row {
 /* Chapter section heading number */
 .atlas-chapter-num {
   font-family: var(--font-display);
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.06em;
   line-height: 1;
 }
