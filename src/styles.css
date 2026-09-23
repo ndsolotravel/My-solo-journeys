@@ -34,8 +34,8 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-ring-offset-background: var(--background);
-  --font-display: "Oswald", "Noto Naskh Arabic", "Noto Nastaliq Urdu", system-ui, sans-serif;
-  --font-sans: "Manrope", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-display: "Playfair Display", serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --shadow-elegant: 0 30px 80px -40px color-mix(in oklab, var(--primary) 40%, transparent);
 }
 
@@ -180,9 +180,8 @@ h6 {
 }
 }
 
-/* Oswald display typography — weights 400 and 700, clean and cinematic.
-   Unlayered so it wins over layered utilities (font-bold/tracking-tight) and
-   prevents faux-bold synthesis. Tight tracking suits Oswald's tall forms. */
+/* Playfair Display typography — weights 400 and 700, elegant serif.
+   Tall, elegant forms with strong contrast. Tight tracking suits serif display. */
 .font-display {
   font-family: var(--font-display);
   font-weight: 700;
@@ -504,7 +503,7 @@ select {
 /* RTL support (Urdu) */
 html[dir="rtl"] {
   font-family:
-    "Noto Naskh Arabic", "Jameel Noori Nastaleeq", "Noto Nastaliq Urdu", var(--font-sans);
+    "Playfair Display", "Noto Naskh Arabic", "Jameel Noori Nastaleeq", "Noto Nastaliq Urdu", var(--font-sans);
   text-align: right;
 }
 
@@ -514,7 +513,7 @@ html[dir="rtl"] h3,
 html[dir="rtl"] h4,
 html[dir="rtl"] h5,
 html[dir="rtl"] h6 {
-  font-family: "Noto Naskh Arabic", var(--font-display);
+  font-family: "Playfair Display", "Noto Naskh Arabic", serif;
   text-align: right;
 }
 html[dir="rtl"] .container {
