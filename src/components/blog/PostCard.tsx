@@ -93,7 +93,7 @@ export function PostCard({ post, index = 0 }: { post: Post; index?: number }) {
           </div>
         </div>
 
-        <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+        <div className="mt-3 flex flex-wrap items-center gap-2 text-caption">
           <span>{formatDate(localizedPost.published_at ?? localizedPost.created_at)}</span>
           <span aria-hidden>·</span>
           <span className="inline-flex items-center gap-1">
@@ -123,11 +123,11 @@ export function PostCard({ post, index = 0 }: { post: Post; index?: number }) {
         </div>
 
         <Link to="/blog/$slug" params={{ slug: post.slug }} className="block">
-          <h3 className="mt-1.5 font-display text-xl font-medium leading-snug group-hover:text-accent transition-colors">
+          <h3 className="mt-1.5 text-h3 group-hover:text-accent transition-colors">
             {localizedPost.title}
           </h3>
           {localizedPost.excerpt && (
-            <p className="mt-1.5 line-clamp-2 text-sm text-muted-foreground">{localizedPost.excerpt}</p>
+            <p className="mt-1.5 line-clamp-2 text-body">{localizedPost.excerpt}</p>
           )}
           <span className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-foreground">
             {t("Read story")}

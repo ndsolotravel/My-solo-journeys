@@ -118,7 +118,7 @@ export function Header() {
               className={`h-8 w-auto ${overHero ? "brightness-0 invert" : ""}`}
             />
           </Link>
-          <nav className="hidden md:flex items-center gap-7 text-sm">
+          <nav className="hidden md:flex items-center gap-7 text-base">
             {LINKS.map((l) => {
               const isHashLink = "hash" in l && !!l.hash;
               const active =
@@ -266,7 +266,7 @@ export function Header() {
                 to={l.to}
                 hash={isHashLink ? (l as { hash: string }).hash : undefined}
                 onClick={() => setOpen(false)}
-                className={`rounded-lg px-4 py-3 text-sm transition-colors duration-200 ease-in-out ${
+                className={`rounded-lg px-4 py-3 text-base font-medium transition-colors duration-200 ease-in-out ${
                   active
                     ? "bg-muted text-accent font-medium"
                     : "text-foreground hover:bg-muted hover:text-[#FF7A00]"
