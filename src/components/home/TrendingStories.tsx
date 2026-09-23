@@ -171,7 +171,7 @@ export function TrendingStories({
                     <span className="truncate">{formatDate(post.published_at || post.created_at)}</span>
                   </div>
 
-                  <h4 className="mt-1 text-sm sm:text-base font-semibold leading-snug text-foreground transition-colors group-hover:text-[#FF7A00] line-clamp-2 break-words [overflow-wrap:anywhere]">
+                  <h4 className="mt-1 font-display text-sm sm:text-base font-semibold leading-snug text-foreground transition-colors group-hover:text-[#FF7A00] line-clamp-2 break-words [overflow-wrap:anywhere]">
                     {getPostTitle(post)}
                   </h4>
                 </div>

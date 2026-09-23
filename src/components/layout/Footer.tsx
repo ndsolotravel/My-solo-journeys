@@ -120,7 +120,7 @@ export function Footer() {
             </div>
           </div>
           <div>
-            <h4 className="text-sm font-medium uppercase tracking-wider">{t("Explore")}</h4>
+            <h4 className="text-sm font-semibold uppercase tracking-wider font-sans">{t("Explore")}</h4>
             <ul className="mt-4 space-y-2 text-sm text-secondary-foreground/70">
               <li>
                 <Link to="/blog" className="transition-colors duration-200 hover:text-accent">
@@ -150,7 +150,7 @@ export function Footer() {
             </ul>
           </div>
           <div>
-            <h4 className="text-sm font-medium uppercase tracking-wider">{t("Newsletter")}</h4>
+            <h4 className="text-sm font-semibold uppercase tracking-wider font-sans">{t("Newsletter")}</h4>
             <p className="mt-3 text-sm text-secondary-foreground/70">
               {t("Stories from the road. No spam, ever.")}
             </p>

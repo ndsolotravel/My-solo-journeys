@@ -130,14 +130,14 @@ function AuthPage() {
   }
 
   return (
-    <div className="mx-auto flex min-h-[80vh] max-w-md flex-col justify-center px-4 py-12 sm:px-6">
+    <div className="font-sans mx-auto flex min-h-[80vh] max-w-md flex-col justify-center px-4 py-12 sm:px-6">
       <Link to="/" className="mx-auto inline-flex items-center gap-2">
         <img src={logoPath} alt="ndsolotravel" className="h-8 w-auto" />
       </Link>
 
       <div className="mt-8 rounded-3xl border border-border bg-card p-8 shadow-elegant">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">
+          <h1 className="text-2xl font-bold font-sans">
             {showReset ? "Reset Password" : isForAdmin ? "Admin Sign In" : "Sign In"}
           </h1>
           {isForAdmin && (

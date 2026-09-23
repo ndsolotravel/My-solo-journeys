@@ -153,7 +153,7 @@ function CategoryPage() {
             <div className="flex items-center justify-between border-b border-border pb-4">
               <div className="flex items-center gap-2 text-foreground font-semibold">
                 <BookOpen className="h-5 w-5 text-accent" />
-                <h2>
+                <h2 className="font-display text-xl font-semibold">
                   {t("Published Stories in")} {t(category.name)}
                 </h2>
               </div>

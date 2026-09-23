@@ -370,9 +370,10 @@ export async function resolveOrAssignDestination(
       const geo = await geocodeFromTitle({
         data: { title: `${cleanLoc || newTitle}, ${finalCountry}` },
       });
-      if (typeof geo?.latitude === "number" && typeof geo?.longitude === "number") {
-        finalLat = geo.latitude;
-        finalLng = geo.longitude;
+      const geoResult = geo && "result" in geo ? geo.result : null;
+      if (geoResult && typeof geoResult.latitude === "number" && typeof geoResult.longitude === "number") {
+        finalLat = geoResult.latitude;
+        finalLng = geoResult.longitude;
       }
     } catch (e) {
       // Ignore geocoding failure during destination creation

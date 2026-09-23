@@ -167,7 +167,7 @@ export function FeaturedGrid({
                 </div>
 
                 <div className="mt-3 min-w-0">
-                  <h4 className="text-base sm:text-lg font-semibold leading-snug text-white transition-colors group-hover:text-[#FF7A00] line-clamp-2 break-words [overflow-wrap:anywhere]">
+                  <h4 className="font-display text-base sm:text-lg font-semibold leading-snug text-white transition-colors group-hover:text-[#FF7A00] line-clamp-2 break-words [overflow-wrap:anywhere]">
                     {getPostTitle(post)}
                   </h4>
                   <div className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-[#FF7A00]">
