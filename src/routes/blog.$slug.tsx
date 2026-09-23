@@ -149,7 +149,7 @@ function PostNotFound() {
     <div className="mx-auto max-w-2xl px-4 py-24 text-center">
       <h1 className="font-display text-3xl font-semibold">Story not found</h1>
       <p className="mt-2 text-muted-foreground">This trail has been moved or doesn't exist.</p>
-      <Link to="/blog" className="mt-6 inline-flex items-center gap-2 text-sm text-accent">
+      <Link to="/blog" className="mt-6 inline-flex items-center gap-2 text-sm text-[#5ABCFF]">
         <ArrowLeft className="h-4 w-4" /> Back to all stories
       </Link>
     </div>
@@ -354,7 +354,7 @@ function PostPage() {
             />
           </div>
 
-          <p className="mt-4 text-xs uppercase tracking-[0.2em] text-accent">
+          <p className="mt-4 text-xs uppercase tracking-[0.2em] text-[#5ABCFF]">
             {t(localizedPost.category)}
           </p>
           <h1 className="mt-3 font-display text-3xl font-semibold leading-tight sm:text-5xl">
@@ -414,7 +414,7 @@ function PostPage() {
                 <li key={item.id} style={{ paddingLeft: item.level === 3 ? "1.25rem" : "0" }}>
                   <a
                     href={`#${item.id}`}
-                    className="text-muted-foreground hover:text-accent transition-colors flex items-center gap-1.5"
+                    className="text-muted-foreground hover:text-[#5ABCFF] transition-colors flex items-center gap-1.5"
                   >
                     <span className="h-1 w-1 rounded-full bg-accent/60" />
                     {item.text}
@@ -667,7 +667,7 @@ function PostPage() {
                 key={tag}
                 to="/blog"
                 search={{ tag }}
-                className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground hover:border-accent hover:text-accent"
+                className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground hover:border-accent hover:text-[#5ABCFF]"
               >
                 #{tag}
               </Link>
@@ -693,7 +693,7 @@ function PostPage() {
                 <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
                   <ArrowLeft className="h-3 w-3" /> {t("Previous Story")}
                 </span>
-                <span className="mt-2 text-base font-semibold text-foreground group-hover:text-accent transition-colors line-clamp-1">
+                <span className="mt-2 text-base font-semibold text-foreground group-hover:text-[#5ABCFF] transition-colors line-clamp-1">
                   {t(prevStory.title)}
                 </span>
               </Link>
@@ -709,7 +709,7 @@ function PostPage() {
                 <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider flex items-center justify-end gap-1">
                   {t("Next Story")} <ArrowRightIcon className="h-3 w-3" />
                 </span>
-                <span className="mt-2 text-base font-semibold text-foreground group-hover:text-accent transition-colors line-clamp-1">
+                <span className="mt-2 text-base font-semibold text-foreground group-hover:text-[#5ABCFF] transition-colors line-clamp-1">
                   {t(nextStory.title)}
                 </span>
               </Link>

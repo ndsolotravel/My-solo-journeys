@@ -121,7 +121,7 @@ export function AuthorProfile({
           />
         ) : (
           <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-accent/10 ring-2 ring-accent/20">
-            <span className="font-display text-2xl font-bold text-accent">
+            <span className="font-display text-2xl font-bold text-[#5ABCFF]">
               {initials}
             </span>
           </div>
@@ -133,7 +133,7 @@ export function AuthorProfile({
             <h3 className="text-lg font-bold text-foreground">
               {t(name)}
             </h3>
-            <span className="inline-flex items-center gap-1 rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-semibold text-accent uppercase tracking-wider">
+            <span className="inline-flex items-center gap-1 rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-semibold text-[#5ABCFF] uppercase tracking-wider">
               <MapPin className="h-2.5 w-2.5" />
               {t("Author")}
             </span>

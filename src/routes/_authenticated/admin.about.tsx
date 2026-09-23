@@ -1929,7 +1929,7 @@ function AdminAboutPage() {
                         updated[idx].value = e.target.value;
                         updateField("about_numbers_stats", JSON.stringify(updated));
                       }}
-                      className="w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-base font-bold text-brand"
+                      className="w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-base font-bold text-[#5ABCFF]"
                     />
                   </div>
 

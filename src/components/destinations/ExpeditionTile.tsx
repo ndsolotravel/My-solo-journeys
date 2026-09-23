@@ -83,7 +83,7 @@ export function ExpeditionTile({
           <div className="relative z-10 p-6 sm:p-8">
             <div className="flex flex-wrap items-center gap-2.5">
               {d.category && (
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-black/35 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#FF7A00] backdrop-blur-sm">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-black/35 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#5ABCFF] backdrop-blur-sm">
                   <Compass className="h-2.5 w-2.5" />
                   {t(d.category)}
                 </span>

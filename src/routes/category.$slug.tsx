@@ -125,7 +125,7 @@ function CategoryPage() {
           />
 
           <div className="mt-4 flex flex-wrap items-center gap-2.5">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-accent/20 border border-accent/40 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent backdrop-blur-md">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-accent/20 border border-accent/40 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-[#5ABCFF] backdrop-blur-md">
               <FolderTree className="h-3.5 w-3.5" />
               {t("Category Archive")}
             </span>
@@ -194,7 +194,7 @@ function CategoryPage() {
         <div className="mt-16 border-t border-border pt-8">
           <Link
             to="/blog"
-            className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-accent transition-colors"
+            className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-[#5ABCFF] transition-colors"
           >
             <ArrowLeft className="h-4 w-4" /> {t("Back to all stories")}
           </Link>

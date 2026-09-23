@@ -111,7 +111,7 @@ export function GalleryHero({ config, photoCount }: GalleryHeroProps) {
           >
             <span className="block">{t(title)}</span>
             {titleHighlight && (
-              <span className="block text-[#FF7A00] mt-0.5 sm:mt-1 font-bold">
+              <span className="block text-[#5ABCFF] mt-0.5 sm:mt-1 font-bold">
                 {t(titleHighlight)}
               </span>
             )}

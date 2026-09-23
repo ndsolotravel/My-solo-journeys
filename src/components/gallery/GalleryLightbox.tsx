@@ -173,7 +173,7 @@ export function GalleryLightbox({
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-t border-white/10 px-5 py-3 bg-black/60 text-xs text-white/70 shrink-0">
           <div className="flex flex-wrap items-center gap-2 truncate max-w-md">
             {photo.categories.length > 0 && (
-              <span className="inline-flex items-center gap-1 rounded-full border border-white/20 bg-black/40 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-accent backdrop-blur-sm">
+              <span className="inline-flex items-center gap-1 rounded-full border border-white/20 bg-black/40 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#5ABCFF] backdrop-blur-sm">
                 {photo.categories[0].name}
               </span>
             )}

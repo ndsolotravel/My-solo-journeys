@@ -110,7 +110,7 @@ export function FeaturedGrid({
                   </span>
                 </div>
 
-                <h3 className="mt-2.5 sm:mt-3 font-display text-xl sm:text-2xl lg:text-3xl font-semibold leading-snug text-foreground transition-colors group-hover:text-[#FF7A00] break-words [overflow-wrap:anywhere]">
+                <h3 className="mt-2.5 sm:mt-3 font-display text-xl sm:text-2xl lg:text-3xl font-semibold leading-snug text-foreground transition-colors group-hover:text-[#5ABCFF] break-words [overflow-wrap:anywhere]">
                   {getPostTitle(mainFeatured)}
                 </h3>
 
@@ -122,7 +122,7 @@ export function FeaturedGrid({
               </div>
 
               <div className="mt-4 sm:mt-5 pt-3.5 sm:pt-4 border-t border-border/60">
-                <span className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-[#FF7A00]">
+                <span className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-[#5ABCFF]">
                   {t("Read full story")}
                   <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 transition-transform duration-300 group-hover:translate-x-1 rtl:rotate-180" />
                 </span>
@@ -167,10 +167,10 @@ export function FeaturedGrid({
                 </div>
 
                 <div className="mt-3 min-w-0">
-                  <h4 className="text-base sm:text-lg font-semibold leading-snug text-white transition-colors group-hover:text-[#FF7A00] line-clamp-2 break-words [overflow-wrap:anywhere]">
+                  <h4 className="text-base sm:text-lg font-semibold leading-snug text-white transition-colors group-hover:text-[#5ABCFF] line-clamp-2 break-words [overflow-wrap:anywhere]">
                     {getPostTitle(post)}
                   </h4>
-                  <div className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-[#FF7A00]">
+                  <div className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-[#5ABCFF]">
                     <span>{t("Read story")}</span>
                     <ArrowUpRight className="h-3 w-3 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 rtl:scale-x-[-1]" />
                   </div>
@@ -190,7 +190,7 @@ export function FeaturedGrid({
       {/* 3. Right: Social Feed & Quick Connect Card - Span 3 */}
       <div className="flex flex-col rounded-2xl border border-border bg-card p-3.5 sm:p-4 shadow-sm lg:col-span-3 w-full min-w-0">
         <div className="mb-3 border-b border-border pb-2.5">
-          <span className="rounded-md bg-[#FF7A00]/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-[#FF7A00]">
+          <span className="rounded-md bg-[#FF7A00]/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-[#5ABCFF]">
             {t("Connect")}
           </span>
           <h3 className="mt-1 text-base sm:text-lg font-semibold text-foreground">
@@ -248,7 +248,7 @@ export function FeaturedGrid({
 
         {/* Travel Highlights mini widget */}
         <div className="mt-4 rounded-xl border border-border/80 bg-muted/40 p-3 w-full min-w-0">
-          <div className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-[#FF7A00]">
+          <div className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-[#5ABCFF]">
             <Globe2 className="h-3.5 w-3.5 shrink-0" />
             <span className="truncate">{t("Expedition Stats")}</span>
           </div>
@@ -258,7 +258,7 @@ export function FeaturedGrid({
               <div className="text-[10px] text-muted-foreground truncate">{t("Countries")}</div>
             </div>
             <div className="rounded-lg bg-background p-2 border border-border/50 min-w-0">
-              <div className="text-base sm:text-lg font-semibold text-[#FF7A00] truncate">{stats.trips}</div>
+              <div className="text-base sm:text-lg font-semibold text-[#5ABCFF] truncate">{stats.trips}</div>
               <div className="text-[10px] text-muted-foreground truncate">{t("Trips")}</div>
             </div>
           </div>

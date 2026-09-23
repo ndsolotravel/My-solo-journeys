@@ -129,7 +129,7 @@ export function CookieConsentPopup() {
                   )}{" "}
                   <Link
                     to="/privacy-policy"
-                    className="inline-block text-brand font-medium underline underline-offset-2 hover:opacity-80 transition-opacity"
+                    className="inline-block text-[#5ABCFF] font-medium underline underline-offset-2 hover:opacity-80 transition-opacity"
                   >
                     {t("Privacy Policy")}
                   </Link>

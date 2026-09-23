@@ -113,7 +113,7 @@ function PhotoNotFound() {
       </p>
       <Link
         to="/gallery"
-        className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-accent"
+        className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-[#5ABCFF]"
       >
         <ArrowLeft className="h-4 w-4" /> Back to the archive
       </Link>
@@ -169,7 +169,7 @@ function PhotoDetailPage() {
 
         <Link
           to="/gallery"
-          className="mb-6 inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-accent"
+          className="mb-6 inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-[#5ABCFF]"
         >
           <ChevronLeft className="h-4 w-4 rtl:rotate-180" /> {t("Back to the archive")}
         </Link>
@@ -197,7 +197,7 @@ function PhotoDetailPage() {
             <div className="rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-7">
               {photo.categories.length > 0 && (
                 <div className="mb-4 flex flex-wrap items-center gap-2">
-                  <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-accent">
+                  <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#5ABCFF]">
                     <Tag className="h-3 w-3" /> {t("Categories")}
                   </span>
                   {photo.categories.map((cat: { id: string; name: string; slug: string }) => (
@@ -205,7 +205,7 @@ function PhotoDetailPage() {
                       key={cat.id}
                       to="/gallery"
                       search={{ category: cat.slug }}
-                      className="rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-[11px] font-medium text-accent transition-colors hover:bg-accent hover:text-white"
+                      className="rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-[11px] font-medium text-[#5ABCFF] transition-colors hover:bg-accent hover:text-white"
                     >
                       {t(cat.name)}
                     </Link>
@@ -245,7 +245,7 @@ function PhotoDetailPage() {
 
               {localizedPhoto.story && (
                 <div className="mt-5 border-t border-border/60 pt-5">
-                  <h2 className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-accent">
+                  <h2 className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-[#5ABCFF]">
                     <Sparkles className="h-3 w-3" /> {t("The story behind this frame")}
                   </h2>
                   <p className="whitespace-pre-line text-sm leading-relaxed text-foreground/85">
@@ -273,7 +273,7 @@ function PhotoDetailPage() {
                           className="h-10 w-10 shrink-0 rounded-lg object-cover"
                           loading="lazy"
                         />
-                        <span className="line-clamp-2 text-xs font-medium text-foreground group-hover:text-accent">
+                        <span className="line-clamp-2 text-xs font-medium text-foreground group-hover:text-[#5ABCFF]">
                           {t(prev.title)}
                         </span>
                       </div>
@@ -291,7 +291,7 @@ function PhotoDetailPage() {
                         {t("Next")} <ChevronRight className="h-3 w-3 rtl:rotate-180" />
                       </span>
                       <div className="mt-1.5 flex items-center justify-end gap-2">
-                        <span className="line-clamp-2 text-xs font-medium text-foreground group-hover:text-accent">
+                        <span className="line-clamp-2 text-xs font-medium text-foreground group-hover:text-[#5ABCFF]">
                           {t(next.title)}
                         </span>
                         <img
@@ -314,7 +314,7 @@ function PhotoDetailPage() {
         {/* Related photographs */}
         {primaryCategory && related.length > 0 && (
           <section className="mt-12">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#5ABCFF]">
               {t("More photographs")}
             </p>
             <h2 className="mt-1 mb-5 font-display text-xl font-bold text-foreground">

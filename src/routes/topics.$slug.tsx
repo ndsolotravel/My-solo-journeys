@@ -101,7 +101,7 @@ function TopicPage() {
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/80" />
         <div className="absolute inset-x-0 bottom-0 mx-auto max-w-4xl px-4 pb-12 text-white sm:px-6">
           <PageBreadcrumbs items={[{ label: "Stories", href: "/blog" }, { label: topic.title }]} />
-          <p className="mt-3 text-xs uppercase tracking-[0.2em] text-accent">{t("Topic Guide")}</p>
+          <p className="mt-3 text-xs uppercase tracking-[0.2em] text-[#5ABCFF]">{t("Topic Guide")}</p>
           <h1 className="mt-3 font-display text-3xl font-semibold leading-tight sm:text-5xl">
             {t(topic.title)}
           </h1>
@@ -136,7 +136,7 @@ function TopicPage() {
         <div className="mt-16 mb-12">
           <Link
             to="/blog"
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-accent transition-colors"
+            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-[#5ABCFF] transition-colors"
           >
             <ArrowLeft className="h-4 w-4" /> {t("Back to all stories")}
           </Link>

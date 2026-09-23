@@ -107,13 +107,13 @@ export function PostCard({ post, index = 0 }: { post: Post; index?: number }) {
                 <Link
                   to="/destinations/$slug"
                   params={{ slug: destination.slug }}
-                  className="inline-flex items-center gap-1 text-accent hover:underline font-medium"
+                  className="inline-flex items-center gap-1 text-[#5ABCFF] hover:underline font-medium"
                 >
                   <MapPin className="h-3 w-3" />
                   {localizedPost.location_name || t(destination.title)}
                 </Link>
               ) : (
-                <span className="inline-flex items-center gap-1 text-accent font-medium">
+                <span className="inline-flex items-center gap-1 text-[#5ABCFF] font-medium">
                   <MapPin className="h-3 w-3" />
                   {localizedPost.location_name}
                 </span>
@@ -123,7 +123,7 @@ export function PostCard({ post, index = 0 }: { post: Post; index?: number }) {
         </div>
 
         <Link to="/blog/$slug" params={{ slug: post.slug }} className="block">
-          <h3 className="mt-1.5 font-display text-xl font-medium leading-snug group-hover:text-accent transition-colors">
+          <h3 className="mt-1.5 font-display text-xl font-medium leading-snug group-hover:text-[#5ABCFF] transition-colors">
             {localizedPost.title}
           </h3>
           {localizedPost.excerpt && (

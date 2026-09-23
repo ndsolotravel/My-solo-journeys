@@ -717,7 +717,7 @@ function AdminPublicMessagePage() {
                   <Megaphone className="h-5 w-5" />
                 </div>
                 <div className="space-y-1 pr-6">
-                  <div className="inline-flex items-center gap-1 rounded-full bg-accent/10 px-2.5 py-0.5 text-[11px] font-semibold text-accent uppercase tracking-wider">
+                  <div className="inline-flex items-center gap-1 rounded-full bg-accent/10 px-2.5 py-0.5 text-[11px] font-semibold text-[#5ABCFF] uppercase tracking-wider">
                     <MessageSquareCode className="h-3 w-3" /> Preview Mode
                   </div>
                   <h3 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">

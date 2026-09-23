@@ -177,7 +177,7 @@ function DestinationsPage() {
             className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between"
           >
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.26em] text-[#FF7A00]">
+              <p className="text-[11px] font-bold uppercase tracking-[0.26em] text-[#5ABCFF]">
                 {t("The Route Atlas")}
               </p>
               <h2
@@ -242,7 +242,7 @@ function DestinationsPage() {
                         {String(i + 1).padStart(2, "0")}
                       </span>
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-semibold transition-colors group-hover:text-[#FF7A00]">
+                        <span className="block truncate text-sm font-semibold transition-colors group-hover:text-[#5ABCFF]">
                           {t(d.title)}
                         </span>
                         <span className="block truncate text-xs text-muted-foreground">
@@ -279,7 +279,7 @@ function DestinationsPage() {
             viewport={{ once: true, amount: 0.4 }}
             transition={{ duration: 0.8, ease: EASE }}
           >
-            <p className="text-[11px] font-bold uppercase tracking-[0.26em] text-[#FF7A00]">
+            <p className="text-[11px] font-bold uppercase tracking-[0.26em] text-[#5ABCFF]">
               {t("The Chapters")}
             </p>
             <h2

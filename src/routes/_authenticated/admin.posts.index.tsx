@@ -148,7 +148,7 @@ function AdminPostsList() {
               <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
                 Stories Management
               </h1>
-              <span className="hidden sm:inline-flex items-center rounded-full bg-[#FF7A00]/10 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-[#FF7A00]">
+              <span className="hidden sm:inline-flex items-center rounded-full bg-[#FF7A00]/10 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-[#5ABCFF]">
                 {data ? `${data.length} Total` : "Posts"}
               </span>
             </div>
@@ -261,7 +261,7 @@ function AdminPostsList() {
                       <Link
                         to="/admin/posts/$id"
                         params={{ id: p.id }}
-                        className="font-bold hover:text-[#FF7A00] transition-colors line-clamp-1 text-foreground"
+                        className="font-bold hover:text-[#5ABCFF] transition-colors line-clamp-1 text-foreground"
                       >
                         {p.title}
                       </Link>

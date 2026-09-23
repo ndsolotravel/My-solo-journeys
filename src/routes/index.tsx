@@ -384,7 +384,7 @@ function HomePage() {
                  initial={{ opacity: 0 }}
                  animate={{ opacity: 1 }}
                  transition={{ duration: 0.8, delay: 0.2 }}
-                 className="mt-2 sm:mt-3 max-w-xl text-base sm:text-lg lg:text-4xl font-sans text-[#FF7A00] leading-relaxed"
+                 className="mt-2 sm:mt-3 max-w-xl text-base sm:text-lg lg:text-4xl font-sans text-[#5ABCFF] leading-relaxed"
                >
                  {t(heroSettings.homepage_hero_title_highlight || "Stories from the high places. Most people only fly over.")}
                </motion.p>
@@ -472,7 +472,7 @@ function HomePage() {
                       <Calendar className="h-2.5 w-2.5 text-[#FF7A00]" />
                       <span>{formatDate(hp.published_at || hp.created_at)}</span>
                     </div>
-                    <h4 className="mt-0.5 line-clamp-2 text-xs font-medium leading-snug text-white transition-colors group-hover:text-[#FF7A00]">
+                    <h4 className="mt-0.5 line-clamp-2 text-xs font-medium leading-snug text-white transition-colors group-hover:text-[#5ABCFF]">
                       {getPostTitle(hp)}
                     </h4>
                   </div>
@@ -589,13 +589,13 @@ function HomePage() {
                           {activeTopics[0].postCount === 1 ? t("story") : t("stories")}
                         </span>
                       </div>
-                      <h3 className="font-display text-xl sm:text-2xl lg:text-3xl font-semibold leading-tight text-white transition-colors group-hover:text-[#FF7A00] break-words [overflow-wrap:anywhere]">
+                      <h3 className="font-display text-xl sm:text-2xl lg:text-3xl font-semibold leading-tight text-white transition-colors group-hover:text-[#5ABCFF] break-words [overflow-wrap:anywhere]">
                         {t(activeTopics[0].title)}
                       </h3>
                       <p className="mt-2 text-xs sm:text-sm text-white/80 line-clamp-3">
                         {t(activeTopics[0].subtitle || activeTopics[0].description)}
                       </p>
-                      <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-[#FF7A00]">
+                      <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-[#5ABCFF]">
                         {t("Explore Topic")}
                         <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1 rtl:rotate-180" />
                       </span>
@@ -636,13 +636,13 @@ function HomePage() {
                       })()}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
                       <div className="relative p-4 sm:p-5 text-white min-w-0">
-                        <div className="inline-flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-[#FF7A00] backdrop-blur-md border border-white/10 mb-2">
+                        <div className="inline-flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-[#5ABCFF] backdrop-blur-md border border-white/10 mb-2">
                           <Icon className="h-3 w-3" />
                           <span>
                             {topic.postCount} {topic.postCount === 1 ? t("story") : t("stories")}
                           </span>
                         </div>
-                        <h3 className="text-base sm:text-lg font-semibold leading-tight text-white transition-colors group-hover:text-[#FF7A00] line-clamp-2 break-words [overflow-wrap:anywhere]">
+                        <h3 className="text-base sm:text-lg font-semibold leading-tight text-white transition-colors group-hover:text-[#5ABCFF] line-clamp-2 break-words [overflow-wrap:anywhere]">
                           {t(topic.title)}
                         </h3>
                         <p className="mt-1 text-xs text-white/75 line-clamp-1">
@@ -678,7 +678,7 @@ function HomePage() {
             <div>
               <p
                 data-reveal="heading"
-                className="text-xs font-semibold uppercase tracking-[0.2em] text-[#FF7A00]"
+                className="text-xs font-semibold uppercase tracking-[0.2em] text-[#5ABCFF]"
               >
                 {t("By the numbers")}
               </p>
@@ -822,11 +822,11 @@ function HomePage() {
                         )}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
                         <div className="absolute inset-x-0 bottom-0 p-4 text-white min-w-0">
-                          <p className="text-[11px] font-semibold uppercase tracking-wider text-[#FF7A00] truncate">
+                          <p className="text-[11px] font-semibold uppercase tracking-wider text-[#5ABCFF] truncate">
                             {t(d.country)}
                             {d.region ? ` · ${t(d.region)}` : ""}
                           </p>
-                          <h3 className="mt-0.5 text-base sm:text-lg font-semibold leading-tight group-hover:text-[#FF7A00] transition-colors break-words">
+                          <h3 className="mt-0.5 text-base sm:text-lg font-semibold leading-tight group-hover:text-[#5ABCFF] transition-colors break-words">
                             {t(d.title)}
                           </h3>
                         </div>
@@ -946,7 +946,7 @@ function HomePage() {
         <section aria-labelledby="newsletter-heading" className="pb-6 sm:pb-8 w-full min-w-0">
           <div className="rounded-2xl sm:rounded-3xl border border-border bg-gradient-to-br from-card to-muted/50 p-6 sm:p-12 text-center shadow-sm w-full min-w-0">
             <div className="mx-auto max-w-2xl min-w-0">
-              <span className="rounded-full bg-[#FF7A00]/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.2em] text-[#FF7A00]">
+              <span className="rounded-full bg-[#FF7A00]/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.2em] text-[#5ABCFF]">
                 {t("Join the Journey")}
               </span>
               <h2

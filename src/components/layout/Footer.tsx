@@ -123,27 +123,27 @@ export function Footer() {
             <h4 className="text-sm font-medium uppercase tracking-wider">{t("Explore")}</h4>
             <ul className="mt-4 space-y-2 text-sm text-secondary-foreground/70">
               <li>
-                <Link to="/blog" className="transition-colors duration-200 hover:text-accent">
+                <Link to="/blog" className="transition-colors duration-200 hover:text-[#5ABCFF]">
                   {t("Stories")}
                 </Link>
               </li>
               <li>
-                <Link to="/destinations" className="transition-colors duration-200 hover:text-accent">
+                <Link to="/destinations" className="transition-colors duration-200 hover:text-[#5ABCFF]">
                   {t("Destinations")}
                 </Link>
               </li>
               <li>
-                <Link to="/gallery" className="transition-colors duration-200 hover:text-accent">
+                <Link to="/gallery" className="transition-colors duration-200 hover:text-[#5ABCFF]">
                   {t("Gallery")}
                 </Link>
               </li>
               <li>
-                <Link to="/about" className="transition-colors duration-200 hover:text-accent">
+                <Link to="/about" className="transition-colors duration-200 hover:text-[#5ABCFF]">
                   {t("About")}
                 </Link>
               </li>
               <li>
-                <Link to="/contact" className="transition-colors duration-200 hover:text-accent">
+                <Link to="/contact" className="transition-colors duration-200 hover:text-[#5ABCFF]">
                   {t("Contact")}
                 </Link>
               </li>
@@ -162,18 +162,18 @@ export function Footer() {
         <div className="mt-12 flex flex-col gap-3 border-t border-white/10 pt-6 text-xs text-secondary-foreground/60 sm:flex-row sm:items-center sm:justify-between">
           <p>© {year} {SITE.name}. {t("All stories made on the move.")}</p>
           <div className="flex flex-wrap items-center gap-3">
-            <Link to="/privacy-policy" className="hover:text-accent transition-colors">
+            <Link to="/privacy-policy" className="hover:text-[#5ABCFF] transition-colors">
               {t("Privacy Policy")}
             </Link>
             <span aria-hidden="true">·</span>
-            <Link to="/disclaimer" className="hover:text-accent transition-colors">
+            <Link to="/disclaimer" className="hover:text-[#5ABCFF] transition-colors">
               {t("Disclaimer")}
             </Link>
             <span aria-hidden="true">·</span>
             <button
               type="button"
               onClick={openCookieConsentModal}
-              className="hover:text-accent transition-colors cursor-pointer"
+              className="hover:text-[#5ABCFF] transition-colors cursor-pointer"
             >
               {t("Cookie Preferences")}
             </button>

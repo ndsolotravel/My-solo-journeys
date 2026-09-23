@@ -141,7 +141,7 @@ function AuthPage() {
             {showReset ? "Reset Password" : isForAdmin ? "Admin Sign In" : "Sign In"}
           </h1>
           {isForAdmin && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-accent/10 px-2.5 py-0.5 text-xs font-semibold text-accent">
+            <span className="inline-flex items-center gap-1 rounded-full bg-accent/10 px-2.5 py-0.5 text-xs font-semibold text-[#5ABCFF]">
               <KeyRound className="h-3 w-3" /> Admin CMS
             </span>
           )}
@@ -272,7 +272,7 @@ function AuthPage() {
           <button
             type="button"
             onClick={() => setShowAdminHelp(!showAdminHelp)}
-            className="text-accent hover:underline flex items-center gap-1"
+            className="text-[#5ABCFF] hover:underline flex items-center gap-1"
           >
             <Info className="h-3.5 w-3.5" /> Admin Help
           </button>
