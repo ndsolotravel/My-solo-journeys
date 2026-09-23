@@ -505,8 +505,16 @@ select {
 html[dir="rtl"] {
   font-family:
     "Noto Naskh Arabic", "Jameel Noori Nastaleeq", "Noto Nastaliq Urdu", var(--font-sans);
+  text-align: right;
 }
-html[dir="rtl"] body {
+
+html[dir="rtl"] h1,
+html[dir="rtl"] h2,
+html[dir="rtl"] h3,
+html[dir="rtl"] h4,
+html[dir="rtl"] h5,
+html[dir="rtl"] h6 {
+  font-family: "Noto Naskh Arabic", var(--font-display);
   text-align: right;
 }
 html[dir="rtl"] .container {
@@ -858,7 +866,7 @@ html[dir="rtl"] .flex-row {
   }
 }
 
-/* Tablet and mobile responsive */
+/* Mobile responsive typography (below 768px) */
 @media (max-width: 768px) {
   .dest-hero-title {
     font-size: 2.5rem;
@@ -873,6 +881,50 @@ html[dir="rtl"] .flex-row {
   }
 
   .dest-category-heading {
+    font-size: 1.5rem;
+  }
+
+  h1, .text-h1, .text-display {
+    font-size: 1.75rem;
+  }
+
+  h2, .text-h2 {
+    font-size: 1.5rem;
+  }
+
+  h3, .text-h3 {
+    font-size: 1.25rem;
+  }
+
+  h4, .text-h4 {
+    font-size: 1.125rem;
+  }
+
+  body {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .text-body-lg {
+    font-size: 1rem;
+  }
+
+  .prose-blog & p {
+    font-size: 1rem;
+  }
+}
+
+/* Tablet responsive typography (768px to 1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+  h1, .text-h1 {
+    font-size: 2.5rem;
+  }
+
+  h2, .text-h2 {
+    font-size: 2rem;
+  }
+
+  h3, .text-h3 {
     font-size: 1.5rem;
   }
 }
