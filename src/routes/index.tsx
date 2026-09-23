@@ -709,7 +709,7 @@ function HomePage() {
                 <div className="inline-flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-xl bg-[#FF7A00]/10 text-[#FF7A00]">
                   <s.icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 </div>
-                <div className="mt-2.5 sm:mt-3 font-display text-lg min-[360px]:text-xl sm:text-2xl lg:text-3xl font-semibold text-foreground tabular-nums whitespace-nowrap">
+                <div className="mt-2.5 sm:mt-3 font-sans text-lg min-[360px]:text-xl sm:text-2xl lg:text-3xl font-bold text-foreground tabular-nums whitespace-nowrap">
                   <CountUp end={s.value} suffix={s.suffix} />
                 </div>
                 <div className="mt-0.5 sm:mt-1 text-[11px] sm:text-xs text-muted-foreground leading-snug min-w-0">

@@ -235,7 +235,7 @@ function DestinationPage() {
             <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
               {t("Stories & Guides")}
             </p>
-            <p className="mt-1 text-lg font-semibold text-foreground">{posts.length}</p>
+            <p className="mt-1 text-lg font-semibold text-foreground font-sans tabular-nums">{posts.length}</p>
           </div>
           <div className="p-2">
             <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">

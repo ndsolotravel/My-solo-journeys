@@ -466,7 +466,7 @@ function AdminDestinations() {
                   {d.latitude != null && d.longitude != null ? (
                     <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/50 rounded-lg px-2.5 py-1 w-fit border border-border/50">
                       <Navigation className="h-3 w-3 text-accent shrink-0" />
-                      <span className="font-mono text-[11px]">
+                      <span className="font-sans tabular-nums text-[11px] font-medium">
                         {Number(d.latitude).toFixed(4)}, {Number(d.longitude).toFixed(4)}
                       </span>
                     </div>

@@ -174,7 +174,7 @@ export function BreakingNewsSection({ items, className }: BreakingNewsSectionPro
                     <Flame className="h-3.5 w-3.5 fill-current animate-pulse" />
                     Breaking News Dispatch
                   </span>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-xs text-muted-foreground font-sans tabular-nums">
                     {new Date(activeModalItem.published_at).toLocaleDateString("en-US", {
                       weekday: "short",
                       month: "short",
@@ -184,7 +184,7 @@ export function BreakingNewsSection({ items, className }: BreakingNewsSectionPro
                   </span>
                 </div>
 
-                <span className="text-xs text-muted-foreground flex items-center gap-1 font-mono">
+                <span className="text-xs text-muted-foreground flex items-center gap-1 font-sans tabular-nums">
                   <Clock className="h-3 w-3" />
                   {new Date(activeModalItem.published_at).toLocaleTimeString([], {
                     hour: "2-digit",

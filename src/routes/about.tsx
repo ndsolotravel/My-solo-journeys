@@ -848,7 +848,7 @@ function AboutPage() {
                     key={stat.id}
                     className="p-3 min-[380px]:p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-card border border-border/80 flex flex-col justify-start space-y-1 sm:space-y-1.5 min-w-0"
                   >
-                     <p className="font-display text-[1.35rem] min-[360px]:text-[1.65rem] min-[400px]:text-3xl sm:text-5xl font-bold text-brand tracking-tight whitespace-nowrap leading-none">
+                     <p className="font-sans tabular-nums text-[1.35rem] min-[360px]:text-[1.65rem] min-[400px]:text-3xl sm:text-5xl font-bold text-brand tracking-tight whitespace-nowrap leading-none">
                       {stat.value}
                     </p>
                     <h4 className="text-xs sm:text-sm font-bold text-foreground leading-snug break-words">

@@ -147,7 +147,7 @@ function NewsDetailPage() {
           </span>
         </div>
 
-        <div className="flex items-center gap-1 font-mono">
+        <div className="flex items-center gap-1 font-sans tabular-nums text-xs">
           <Clock className="h-3.5 w-3.5" />
           <span>
             {publishDate.toLocaleTimeString([], {

@@ -1778,7 +1778,7 @@ function AdminHomepagePage() {
                   <div className="inline-flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-xl bg-accent/10 text-accent">
                     <Globe2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   </div>
-                  <div className="mt-2.5 sm:mt-3 text-lg sm:text-xl lg:text-2xl font-bold text-foreground tabular-nums whitespace-nowrap">
+                  <div className="mt-2.5 sm:mt-3 font-sans text-lg sm:text-xl lg:text-2xl font-bold text-foreground tabular-nums whitespace-nowrap">
                     {draft.homepage_stat_countries_mode === "manual"
                       ? (draft.homepage_stat_countries?.trim() || "27")
                       : computedCountries}
@@ -1792,7 +1792,7 @@ function AdminHomepagePage() {
                   <div className="inline-flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-xl bg-accent/10 text-accent">
                     <Bike className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   </div>
-                  <div className="mt-2.5 sm:mt-3 text-lg sm:text-xl lg:text-2xl font-bold text-foreground tabular-nums whitespace-nowrap">
+                  <div className="mt-2.5 sm:mt-3 font-sans text-lg sm:text-xl lg:text-2xl font-bold text-foreground tabular-nums whitespace-nowrap">
                     {draft.homepage_stat_trips || "102"}{draft.homepage_stat_trips_suffix ?? "+"}
                   </div>
                   <div className="mt-0.5 sm:mt-1 text-[11px] sm:text-xs text-muted-foreground leading-snug">
@@ -1804,7 +1804,7 @@ function AdminHomepagePage() {
                   <div className="inline-flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-xl bg-accent/10 text-accent">
                     <Camera className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   </div>
-                  <div className="mt-2.5 sm:mt-3 text-lg sm:text-xl lg:text-2xl font-bold text-foreground tabular-nums whitespace-nowrap">
+                  <div className="mt-2.5 sm:mt-3 font-sans text-lg sm:text-xl lg:text-2xl font-bold text-foreground tabular-nums whitespace-nowrap">
                     {draft.homepage_stat_photos || "200"}{draft.homepage_stat_photos_suffix || "K+"}
                   </div>
                   <div className="mt-0.5 sm:mt-1 text-[11px] sm:text-xs text-muted-foreground leading-snug">
@@ -1816,7 +1816,7 @@ function AdminHomepagePage() {
                   <div className="inline-flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-xl bg-accent/10 text-accent">
                     <RouteIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   </div>
-                  <div className="mt-2.5 sm:mt-3 text-lg sm:text-xl lg:text-2xl font-bold text-foreground tabular-nums whitespace-nowrap">
+                  <div className="mt-2.5 sm:mt-3 font-sans text-lg sm:text-xl lg:text-2xl font-bold text-foreground tabular-nums whitespace-nowrap">
                     {Number(draft.homepage_stat_kilometres || "18420").toLocaleString()}{draft.homepage_stat_kilometres_suffix || "km"}
                   </div>
                   <div className="mt-0.5 sm:mt-1 text-[11px] sm:text-xs text-muted-foreground leading-snug">
@@ -1828,7 +1828,7 @@ function AdminHomepagePage() {
                   <div className="inline-flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-xl bg-accent/10 text-accent">
                     <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   </div>
-                  <div className="mt-2.5 sm:mt-3 text-lg sm:text-xl lg:text-2xl font-bold text-foreground tabular-nums whitespace-nowrap">
+                  <div className="mt-2.5 sm:mt-3 font-sans text-lg sm:text-xl lg:text-2xl font-bold text-foreground tabular-nums whitespace-nowrap">
                     {draft.homepage_stat_days || "142"}{draft.homepage_stat_days_suffix ?? "+"}
                   </div>
                   <div className="mt-0.5 sm:mt-1 text-[11px] sm:text-xs text-muted-foreground leading-snug">

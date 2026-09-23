@@ -57,7 +57,7 @@ export function CountUp({
   }, [end, duration]);
 
   return (
-    <span ref={ref} className="tabular-nums">
+    <span ref={ref} className="font-sans tabular-nums">
       {display.toLocaleString()}
       {suffix}
     </span>

@@ -121,7 +121,7 @@ function TopicPage() {
             <div className="flex items-center gap-2 mb-8">
               <BookOpen className="h-5 w-5 text-accent" />
               <h2 className="font-display text-2xl font-semibold">
-                {t("Related Stories")} ({topic.posts.length})
+                {t("Related Stories")} <span className="font-sans tabular-nums font-semibold">({topic.posts.length})</span>
               </h2>
             </div>
             <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">

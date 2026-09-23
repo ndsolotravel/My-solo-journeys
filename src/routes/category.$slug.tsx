@@ -157,7 +157,7 @@ function CategoryPage() {
                   {t("Published Stories in")} {t(category.name)}
                 </h2>
               </div>
-              <span className="text-xs text-muted-foreground">
+              <span className="text-xs text-muted-foreground font-sans tabular-nums">
                 {t("Showing")} {posts.length} {posts.length === 1 ? t("story") : t("stories")}
               </span>
             </div>

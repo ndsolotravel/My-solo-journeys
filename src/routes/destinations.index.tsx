@@ -147,7 +147,7 @@ function DestinationsPage() {
                   <stat.icon className="h-5 w-5" />
                 </span>
                 <div>
-                   <p className="atlas-ledger-value font-display text-2xl font-bold tracking-tight sm:text-3xl">
+                  <p className="atlas-ledger-value font-sans tabular-nums text-2xl font-bold tracking-tight sm:text-3xl">
                     {stat.value}
                   </p>
                   <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
@@ -226,7 +226,7 @@ function DestinationsPage() {
                 <h3 className="text-sm font-bold uppercase tracking-[0.24em]">
                   {t("Atlas Index")}
                 </h3>
-                <span className="text-xs font-medium text-muted-foreground">
+                <span className="text-xs font-semibold text-muted-foreground font-sans tabular-nums">
                   {String(destinations.length).padStart(2, "0")}
                 </span>
               </div>
@@ -238,7 +238,7 @@ function DestinationsPage() {
                       params={{ slug: d.slug }}
                       className="group flex items-center gap-4 px-4 py-3.5 transition-colors hover:bg-muted/60"
                     >
-                       <span className="atlas-ghost atlas-ghost-dark w-8 shrink-0 font-display text-lg font-bold">
+                      <span className="atlas-ghost atlas-ghost-dark w-8 shrink-0 font-sans tabular-nums text-lg font-bold">
                         {String(i + 1).padStart(2, "0")}
                       </span>
                       <span className="min-w-0 flex-1">
@@ -251,7 +251,7 @@ function DestinationsPage() {
                         </span>
                       </span>
                       {d.latitude && d.longitude && (
-                        <span className="hidden font-mono text-[10px] font-medium tracking-wide text-muted-foreground/70 xl:inline-block">
+                        <span className="hidden font-sans tabular-nums text-[11px] font-medium tracking-wide text-muted-foreground/70 xl:inline-block">
                           {Number(d.latitude).toFixed(2)}, {Number(d.longitude).toFixed(2)}
                         </span>
                       )}
