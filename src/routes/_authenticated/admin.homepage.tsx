@@ -381,7 +381,7 @@ function LiveHeroSimulator({
         <div className="absolute inset-x-4 bottom-14 sm:bottom-16 max-w-2xl text-white space-y-2 pointer-events-none z-10">
           <h3 className="text-lg sm:text-2xl lg:text-3xl font-bold leading-tight drop-shadow-md">
             <span>{draft.homepage_hero_title || "Stories from the high places"}</span>{" "}
-            <span className="text-[#5ABCFF]">
+            <span className="text-[#FF7A00]">
               {draft.homepage_hero_title_highlight || "Most people only fly over."}
             </span>
           </h3>
@@ -1466,7 +1466,7 @@ function AdminHomepagePage() {
                   className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm font-medium outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
                 />
                 <p className="text-xs text-muted-foreground">
-                  The second phrase of the title, highlighted in blue (#5ABCFF).
+                  The second phrase of the title, highlighted in orange (#FF7A00).
                 </p>
               </div>
               <div className="space-y-1.5 sm:col-span-2">
@@ -1951,7 +1951,7 @@ function AdminHomepagePage() {
                 </span>
                 <h4 className="text-xs sm:text-sm font-bold leading-tight mt-0.5 line-clamp-2">
                   {draft.homepage_hero_title || "Stories from the high places"}{" "}
-                  <span className="text-[#5ABCFF]">
+                  <span className="text-[#FF7A00]">
                     {draft.homepage_hero_title_highlight || "Most people only fly over."}
                   </span>
                 </h4>

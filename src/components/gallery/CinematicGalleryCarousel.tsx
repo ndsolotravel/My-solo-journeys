@@ -300,7 +300,7 @@ export function CinematicGalleryCarousel({
         <div className="mt-6 sm:mt-8 max-w-2xl mx-auto px-4 text-center transition-all duration-500 animate-fade-in">
           {/* Location Badge */}
           {activePhoto.location && (
-            <div className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#5ABCFF] tracking-wide mb-2">
+            <div className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-brand tracking-wide mb-2">
               <MapPin className="h-3.5 w-3.5 shrink-0" />
               <span>{t(activePhoto.location)}</span>
             </div>
@@ -338,7 +338,7 @@ export function CinematicGalleryCarousel({
               <Link
                 to="/gallery/$slug"
                 params={{ slug: activePhoto.slug }}
-                className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#5ABCFF] hover:underline transition-colors"
+                className="inline-flex items-center gap-1 text-[11px] font-semibold text-brand hover:underline transition-colors"
               >
                 <span>{t("View full story")}</span>
                 <ExternalLink className="h-3 w-3" />

@@ -420,7 +420,7 @@ function ContactPage() {
         <div className="mx-auto max-w-6xl w-full min-w-0">
           {/* Section Header */}
           <div className="mb-10 sm:mb-12 text-left">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-brand/10 border border-brand/20 px-3.5 py-1 text-xs font-bold uppercase tracking-[0.2em] text-[#5ABCFF]">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-brand/10 border border-brand/20 px-3.5 py-1 text-xs font-bold uppercase tracking-[0.2em] text-brand">
               {t("Get In Touch")}
             </span>
             <h2 className="mt-3 font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-foreground">
@@ -497,7 +497,7 @@ function ContactPage() {
                           className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2"
                         >
                           {mergedConfig.name_label || t("Your Name")}{" "}
-                          {config.name_required && <span className="text-[#5ABCFF]">*</span>}
+                          {config.name_required && <span className="text-brand">*</span>}
                         </label>
                         <input
                           id="contact-name"
@@ -530,7 +530,7 @@ function ContactPage() {
                           className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2"
                         >
                           {mergedConfig.email_label || t("Email Address")}{" "}
-                          {config.email_required && <span className="text-[#5ABCFF]">*</span>}
+                          {config.email_required && <span className="text-brand">*</span>}
                         </label>
                         <input
                           id="contact-email"
@@ -565,7 +565,7 @@ function ContactPage() {
                       >
                         {mergedConfig.subject_label || t("Subject")}{" "}
                         {config.subject_required ? (
-                          <span className="text-[#5ABCFF]">*</span>
+                          <span className="text-brand">*</span>
                         ) : (
                           <span className="text-muted-foreground/60 text-[10px]">
                             ({t("Optional")})
@@ -606,7 +606,7 @@ function ContactPage() {
                           className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2"
                         >
                           {mergedConfig.message_label || t("Your Message")}{" "}
-                          {config.message_required && <span className="text-[#5ABCFF]">*</span>}
+                          {config.message_required && <span className="text-brand">*</span>}
                         </label>
                         <span className="text-[10px] text-muted-foreground/70">
                           {message.value.length}/{config.max_message}
@@ -707,7 +707,7 @@ function ContactPage() {
             {/* Right Column: Contact Info & Social Panel (unchanged) */}
             <div className="lg:col-span-5 bg-secondary text-secondary-foreground p-6 sm:p-10 lg:p-12 flex flex-col justify-between border-t lg:border-t-0 lg:border-l border-border w-full min-w-0">
               <div>
-                <span className="inline-flex items-center rounded-full bg-brand/15 px-3 py-0.5 text-[11px] font-bold uppercase tracking-wider text-[#5ABCFF]">
+                <span className="inline-flex items-center rounded-full bg-brand/15 px-3 py-0.5 text-[11px] font-bold uppercase tracking-wider text-brand">
                   {t("Direct Channels")}
                 </span>
                 <h3 className="mt-2 font-display text-2xl sm:text-3xl font-bold text-secondary-foreground tracking-tight">
@@ -739,7 +739,7 @@ function ContactPage() {
                     <div className="flex flex-col min-w-0">
                       <a
                         href="mailto:contact@ndsolotravel.com"
-                        className="block w-full text-sm sm:text-base font-medium text-secondary-foreground hover:text-[#5ABCFF] transition-colors break-all leading-snug"
+                        className="block w-full text-sm sm:text-base font-medium text-secondary-foreground hover:text-brand transition-colors break-all leading-snug"
                       >
                         contact@ndsolotravel.com
                       </a>

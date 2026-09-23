@@ -129,7 +129,7 @@ function NewsDetailPage() {
             Breaking News Dispatch
           </span>
         ) : (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FF7A00]/10 border border-[#FF7A00]/20 px-3 py-1 font-bold text-[#5ABCFF] uppercase tracking-wider">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FF7A00]/10 border border-[#FF7A00]/20 px-3 py-1 font-bold text-[#FF7A00] uppercase tracking-wider">
             <Radio className="h-3.5 w-3.5" />
             Official Bulletin
           </span>

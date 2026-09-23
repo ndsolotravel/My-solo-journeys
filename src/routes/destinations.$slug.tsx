@@ -122,7 +122,7 @@ function DestinationNotFound() {
     <div className="mx-auto max-w-2xl px-4 py-24 text-center">
       <h1 className="font-display text-3xl font-bold">{t("Destination not found")}</h1>
       <p className="mt-2 text-muted-foreground">{t("This region isn't mapped yet.")}</p>
-      <Link to="/destinations" className="mt-6 inline-flex items-center gap-2 text-sm text-[#5ABCFF]">
+      <Link to="/destinations" className="mt-6 inline-flex items-center gap-2 text-sm text-accent">
         <ArrowLeft className="h-4 w-4 rtl:rotate-180" /> {t("Back to destinations atlas")}
       </Link>
     </div>
@@ -241,7 +241,7 @@ function DestinationPage() {
             <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
               {t("Expedition Style")}
             </p>
-            <p className="mt-1 text-lg font-semibold text-[#5ABCFF]">{t("Solo · Slow")}</p>
+            <p className="mt-1 text-lg font-semibold text-accent">{t("Solo · Slow")}</p>
           </div>
         </div>
       </div>
@@ -260,7 +260,7 @@ function DestinationPage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-[#5ABCFF]">
+              <p className="text-xs font-semibold uppercase tracking-wider text-accent">
                 {t("Field Notes")}
               </p>
               <h2 className="mt-1 font-display text-3xl font-bold sm:text-4xl">
@@ -320,7 +320,7 @@ function DestinationPage() {
               <button
                 type="button"
                 onClick={() => setActiveTab("all")}
-                className="mt-4 text-xs font-medium text-[#5ABCFF] hover:underline cursor-pointer"
+                className="mt-4 text-xs font-medium text-accent hover:underline cursor-pointer"
               >
                 {t("View all stories for")} {d.title}
               </button>
@@ -334,7 +334,7 @@ function DestinationPage() {
         <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
           <div className="mb-10 flex items-end justify-between">
             <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-[#5ABCFF]">
+              <p className="text-xs uppercase tracking-[0.2em] text-accent">
                 {t("Continue exploring")}
               </p>
               <h2 className="mt-1 font-display text-3xl font-bold sm:text-4xl">

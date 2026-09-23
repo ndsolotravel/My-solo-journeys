@@ -83,7 +83,7 @@ export function FeaturedExpedition({ destination: d }: FeaturedExpeditionProps) 
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.4 }}
                 transition={{ duration: 0.7, ease: EASE }}
-                className="flex items-center gap-2.5 text-[11px] font-bold uppercase tracking-[0.3em] text-[#5ABCFF] sm:text-xs"
+                className="flex items-center gap-2.5 text-[11px] font-bold uppercase tracking-[0.3em] text-[#FF7A00] sm:text-xs"
               >
                 <span className="h-px w-10 bg-[#FF7A00]/70" />
                 {t("Featured Expedition")}

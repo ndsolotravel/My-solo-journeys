@@ -112,7 +112,7 @@ export function DashboardMap({ destinations }: { destinations: Destination[] }) 
             ${d.featured_image ? `<img src="${d.featured_image}" alt="${d.title}" style="width:100%;height:85px;object-fit:cover;border-radius:6px;margin-bottom:6px" onerror="this.style.display='none'"/>` : ""}
             <strong style="font-family:Manrope,system-ui,-apple-system,sans-serif;font-size:14px;font-weight:600;color:#111;display:block;margin-bottom:2px;line-height:1.25;">${d.title}</strong>
             <span style="font-size:11px;color:#666;display:block;margin-bottom:6px;">📍 ${d.country}${d.region ? ` · ${d.region}` : ""}</span>
-            <a href="/destinations/${d.slug}" style="color:#5ABCFF;font-size:12px;font-weight:500;text-decoration:none;">View destination →</a>
+            <a href="/destinations/${d.slug}" style="color:#FF7A00;font-size:12px;font-weight:500;text-decoration:none;">View destination →</a>
           </div>`;
         L.marker(c, { icon: pinIcon, title: d.title }).addTo(map).bindPopup(popup);
       });

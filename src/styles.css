@@ -202,7 +202,7 @@
     color: var(--color-foreground);
   }
   & a {
-    color: #5abcff;
+    color: var(--color-accent);
     text-decoration: underline;
     text-underline-offset: 3px;
   }
@@ -567,7 +567,7 @@ html[dir="rtl"] .flex-row {
   padding: 0.25rem 0.75rem;
   border-radius: 9999px;
   background-color: rgba(255, 122, 0, 0.15);
-  color: #5abcff;
+  color: var(--brand);
 }
 
 /* Section divider */
@@ -803,7 +803,7 @@ html[dir="rtl"] .flex-row {
   }
 
   .atlas-tile:hover .atlas-title {
-    color: #5abcff;
+    color: var(--accent);
   }
 }
 

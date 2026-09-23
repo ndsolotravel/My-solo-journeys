@@ -185,7 +185,7 @@ function BlogIndex() {
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/40 to-black/85" />
         <div className="absolute inset-0 flex items-end">
           <div className="mx-auto w-full max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-xs uppercase tracking-[0.2em] text-[#5ABCFF] backdrop-blur-md">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-xs uppercase tracking-[0.2em] text-accent backdrop-blur-md">
               <Sparkles className="h-3 w-3" /> {t("Expedition Journal")}
             </span>
             <h1 className="mt-3 max-w-3xl font-display text-4xl font-bold leading-tight text-white sm:text-5xl lg:text-6xl">
@@ -229,7 +229,7 @@ function BlogIndex() {
                 <div>
                   <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                     {featuredPost.category && (
-                      <span className="rounded-md bg-accent/10 px-2 py-0.5 font-medium text-[#5ABCFF]">
+                      <span className="rounded-md bg-accent/10 px-2 py-0.5 font-medium text-accent">
                         {t(featuredPost.category)}
                       </span>
                     )}
@@ -243,7 +243,7 @@ function BlogIndex() {
                       </span>
                     )}
                   </div>
-                  <h2 className="mt-4 font-display text-2xl font-bold leading-tight text-foreground transition-colors group-hover:text-[#5ABCFF] sm:text-3xl">
+                  <h2 className="mt-4 font-display text-2xl font-bold leading-tight text-foreground transition-colors group-hover:text-accent sm:text-3xl">
                     {t(featuredPost.title)}
                   </h2>
                   {featuredPost.excerpt && (
@@ -262,7 +262,7 @@ function BlogIndex() {
                         year: "numeric",
                       })}
                     </span>
-                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#5ABCFF] group-hover:translate-x-1 transition-transform">
+                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-accent group-hover:translate-x-1 transition-transform">
                       {t("Read story")} <ArrowRight className="h-3.5 w-3.5 rtl:rotate-180" />
                     </span>
                   </div>
@@ -399,7 +399,7 @@ function BlogIndex() {
                 search={(prev: any) => ({ ...prev, tag: search.tag === tag ? undefined : tag })}
                 className={`rounded-md border px-2.5 py-0.5 text-[11px] transition-colors ${
                   search.tag === tag
-                    ? "border-accent bg-accent/10 text-[#5ABCFF] font-medium"
+                    ? "border-accent bg-accent/10 text-accent font-medium"
                     : "border-border/60 text-muted-foreground hover:border-accent"
                 }`}
               >
@@ -410,7 +410,7 @@ function BlogIndex() {
               <Link
                 to="/blog"
                 search={{}}
-                className="ml-auto text-xs text-[#5ABCFF] hover:underline font-medium"
+                className="ml-auto text-xs text-accent hover:underline font-medium"
               >
                 {t("Clear all filters")}
               </Link>

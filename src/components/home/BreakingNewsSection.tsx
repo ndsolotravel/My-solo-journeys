@@ -111,7 +111,7 @@ export function BreakingNewsSection({ items, className }: BreakingNewsSectionPro
                     onClick={() => setActiveModalItem(item)}
                     className="group/item inline-flex items-center gap-2 text-left cursor-pointer transition-colors focus:outline-none"
                   >
-                    <span className="text-xs sm:text-sm font-medium text-neutral-100 group-hover/item:text-[#5ABCFF] transition-colors tracking-normal">
+                    <span className="text-xs sm:text-sm font-medium text-neutral-100 group-hover/item:text-[#FF7A00] transition-colors tracking-normal">
                       {item.title}
                     </span>
                     <span className="inline-flex items-center gap-1 text-[11px] font-sans text-neutral-400 group-hover/item:text-neutral-300">
@@ -139,7 +139,7 @@ export function BreakingNewsSection({ items, className }: BreakingNewsSectionPro
                     tabIndex={-1}
                     className="group/item inline-flex items-center gap-2 text-left cursor-pointer transition-colors focus:outline-none"
                   >
-                    <span className="text-xs sm:text-sm font-medium text-neutral-100 group-hover/item:text-[#5ABCFF] transition-colors tracking-normal">
+                    <span className="text-xs sm:text-sm font-medium text-neutral-100 group-hover/item:text-[#FF7A00] transition-colors tracking-normal">
                       {item.title}
                     </span>
                     <span className="inline-flex items-center gap-1 text-[11px] font-sans text-neutral-400 group-hover/item:text-neutral-300">

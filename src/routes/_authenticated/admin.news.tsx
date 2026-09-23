@@ -489,12 +489,12 @@ function AdminNewsPage() {
         </div>
 
         <div className="rounded-2xl border border-brand/20 bg-brand/5 p-5 shadow-xs space-y-2">
-          <div className="flex items-center justify-between text-[#5ABCFF]">
+          <div className="flex items-center justify-between text-brand">
             <span className="text-xs font-semibold uppercase tracking-wider">Active Breaking</span>
             <Flame className="h-4 w-4 text-accent fill-accent/20" />
           </div>
-          <p className="text-2xl font-bold text-[#5ABCFF]">{metrics.breaking}</p>
-          <p className="text-[11px] text-[#5ABCFF]/80">Live on homepage ticker</p>
+          <p className="text-2xl font-bold text-brand">{metrics.breaking}</p>
+          <p className="text-[11px] text-brand/80">Live on homepage ticker</p>
         </div>
 
         <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-5 shadow-xs space-y-2">
@@ -1180,7 +1180,7 @@ function AdminNewsPage() {
               {/* Full News Card Preview */}
               <div className="rounded-2xl border border-border bg-background p-6 shadow-sm space-y-4">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <span className="inline-flex items-center gap-1 rounded-full bg-[#FF7A00]/10 px-2.5 py-0.5 font-bold text-[#5ABCFF]">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-[#FF7A00]/10 px-2.5 py-0.5 font-bold text-[#FF7A00]">
                     <Flame className="h-3 w-3" /> OFFICIAL DISPATCH
                   </span>
                   <span>·</span>

@@ -319,7 +319,7 @@ function AdminMessages() {
                     </p>
                     <a
                       href={`mailto:${detail.email}`}
-                      className="mt-0.5 inline-flex items-center gap-1 text-sm font-medium text-[#5ABCFF] hover:text-[#5ABCFF]/80 hover:underline break-all"
+                      className="mt-0.5 inline-flex items-center gap-1 text-sm font-medium text-brand hover:text-brand/80 hover:underline break-all"
                     >
                       <Mail className="h-3.5 w-3.5" /> {detail.email}
                     </a>

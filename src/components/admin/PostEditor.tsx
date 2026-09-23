@@ -1805,7 +1805,7 @@ export function PostEditor({
                 >
                   {/* Google site info line */}
                   <div className="flex items-center gap-2.5 mb-1.5">
-                    <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-100 dark:bg-[#303134] border border-border/50 text-[10px] font-bold text-[#5ABCFF]">
+                    <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-100 dark:bg-[#303134] border border-border/50 text-[10px] font-bold text-[#FF7A00]">
                       ND
                     </div>
                     <div className="min-w-0 flex-1 leading-tight">
@@ -2659,7 +2659,7 @@ export function PostEditor({
               </div>
             )}
             {saveStatus === "idle" && isDirty && (
-              <div className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-[#FF7A00]/10 border border-[#FF7A00]/25 px-3 py-1 text-xs font-semibold text-[#5ABCFF] animate-fade-in">
+              <div className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-[#FF7A00]/10 border border-[#FF7A00]/25 px-3 py-1 text-xs font-semibold text-[#FF7A00] animate-fade-in">
                 <Sparkles className="h-3 w-3 shrink-0" />
                 <span>Unsaved changes</span>
               </div>

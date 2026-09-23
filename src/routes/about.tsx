@@ -319,7 +319,7 @@ function AboutPage() {
   const ctaTertiaryUrl = settings?.about_cta_tertiary_url || ABOUT_DEFAULTS.about_cta_tertiary_url;
 
   return (
-    <div className="min-h-screen w-full overflow-x-clip bg-background text-foreground selection:bg-brand/20 selection:text-[#5ABCFF]">
+    <div className="min-h-screen w-full overflow-x-clip bg-background text-foreground selection:bg-brand/20 selection:text-brand">
       <BreadcrumbJsonLd items={[{ label: "About" }]} />
 
       {/* -------------------------------------------------------------
@@ -354,7 +354,7 @@ function AboutPage() {
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-semibold uppercase tracking-[0.2em] text-[#5ABCFF]"
+                className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-semibold uppercase tracking-[0.2em] text-accent"
               >
                 <Compass className="w-3.5 h-3.5 text-accent animate-pulse" />
                 <span>{t(heroLabel)}</span>
@@ -455,7 +455,7 @@ function AboutPage() {
 
                     {/* Gradient bottom overlay on image */}
                     <div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black/90 via-black/50 to-transparent text-white">
-                      <p className="text-xs uppercase tracking-widest font-semibold text-[#5ABCFF] mb-1">
+                      <p className="text-xs uppercase tracking-widest font-semibold text-accent mb-1">
                         {t("NDSOLOTRAVEL")}
                       </p>
                       <h3 className="font-display text-2xl font-bold">{t(profileName)}</h3>
@@ -500,7 +500,7 @@ function AboutPage() {
               {/* Right: Narrative Story & Engineering Evolution */}
               <div className="lg:col-span-7 space-y-8">
                 <div className="space-y-3">
-                  <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#5ABCFF]">
+                  <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-accent">
                     <span className="h-px w-6 bg-accent" />
                     <span>{t(profileEyebrow)}</span>
                   </div>
@@ -573,7 +573,7 @@ function AboutPage() {
         {whyTravelEnabled && (
           <section className="space-y-12">
             <div className="text-center max-w-3xl mx-auto space-y-3">
-              <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#5ABCFF]">
+              <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-accent">
                 <Compass className="w-3.5 h-3.5 text-accent" />
                 <span>{t(whyTravelEyebrow)}</span>
               </div>
@@ -635,7 +635,7 @@ function AboutPage() {
                 )}
                 {motorcycleBadge && (
                   <div className="absolute bottom-4 sm:bottom-6 left-4 sm:left-6 right-4 sm:right-6 z-10 pointer-events-none">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-xs font-semibold uppercase tracking-wider text-[#5ABCFF] pointer-events-auto">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-xs font-semibold uppercase tracking-wider text-accent pointer-events-auto">
                       <Bike className="w-3.5 h-3.5" />
                       <span>{t(motorcycleBadge)}</span>
                     </div>
@@ -646,7 +646,7 @@ function AboutPage() {
               {/* Right: Text & Motorcycle Identity */}
               <div className="lg:col-span-6 p-8 sm:p-12 lg:p-14 space-y-6 flex flex-col justify-center">
                 <div className="space-y-2">
-                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#5ABCFF]">
+                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">
                     {t(motorcycleEyebrow)}
                   </p>
                    <h2 className="font-display text-3xl sm:text-4xl font-bold text-white tracking-tight leading-tight">
@@ -682,7 +682,7 @@ function AboutPage() {
                   <div className="pt-2">
                     <Link
                       to={motorcycleCtaUrl}
-                      className="inline-flex items-center gap-2 text-sm font-semibold text-[#5ABCFF] hover:text-[#5ABCFF]/80 transition-colors"
+                      className="inline-flex items-center gap-2 text-sm font-semibold text-accent hover:text-accent/80 transition-colors"
                     >
                       <span>{t(motorcycleCtaText)}</span>
                       <ArrowRight className="w-4 h-4" />
@@ -701,7 +701,7 @@ function AboutPage() {
           <section className="grid lg:grid-cols-12 gap-12 items-center">
             <div className="lg:col-span-6 space-y-6 order-2 lg:order-1">
               <div className="space-y-2">
-                <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#5ABCFF]">
+                <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-accent">
                   <Mountain className="w-3.5 h-3.5" />
                   <span>{t(trekkingEyebrow)}</span>
                 </div>
@@ -754,7 +754,7 @@ function AboutPage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                 <div className="absolute bottom-6 left-6 right-6 text-white">
                   {trekkingLocationLabel && (
-                    <p className="text-xs uppercase font-semibold tracking-wider text-[#5ABCFF]">
+                    <p className="text-xs uppercase font-semibold tracking-wider text-accent">
                       {t(trekkingLocationLabel)}
                     </p>
                   )}
@@ -827,7 +827,7 @@ function AboutPage() {
           <section className="rounded-2xl sm:rounded-3xl border border-border/80 bg-muted/30 p-3.5 min-[360px]:p-4 sm:p-12 space-y-6 sm:space-y-10">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6 pb-5 sm:pb-6 border-b border-border/60">
               <div className="space-y-2">
-                <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#5ABCFF]">
+                <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-accent">
                   <Globe className="w-3.5 h-3.5 text-accent" />
                   <span>{t(numbersEyebrow)}</span>
                 </div>
@@ -848,7 +848,7 @@ function AboutPage() {
                     key={stat.id}
                     className="p-3 min-[380px]:p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-card border border-border/80 flex flex-col justify-start space-y-1 sm:space-y-1.5 min-w-0"
                   >
-                     <p className="font-display text-[1.35rem] min-[360px]:text-[1.65rem] min-[400px]:text-3xl sm:text-5xl font-bold text-[#5ABCFF] tracking-tight whitespace-nowrap leading-none">
+                     <p className="font-display text-[1.35rem] min-[360px]:text-[1.65rem] min-[400px]:text-3xl sm:text-5xl font-bold text-brand tracking-tight whitespace-nowrap leading-none">
                       {stat.value}
                     </p>
                     <h4 className="text-xs sm:text-sm font-bold text-foreground leading-snug break-words">
@@ -891,7 +891,7 @@ function AboutPage() {
         {contentEnabled && (
           <section className="space-y-10">
             <div className="text-center max-w-3xl mx-auto space-y-3">
-              <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-[#5ABCFF]">
+              <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-accent">
                 <Layers className="w-3.5 h-3.5 text-accent" />
                 <span>{t(contentEyebrow)}</span>
               </div>
@@ -921,14 +921,14 @@ function AboutPage() {
                           fallback={Compass}
                         />
                       </div>
-                      <h3 className="text-lg font-bold text-foreground group-hover:text-[#5ABCFF] transition-colors">
+                      <h3 className="text-lg font-bold text-foreground group-hover:text-brand transition-colors">
                         {t(card.title)}
                       </h3>
                       <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                         {t(card.description)}
                       </p>
                     </div>
-                    <div className="pt-6 flex items-center text-xs font-semibold text-[#5ABCFF] gap-1 group-hover:translate-x-1 transition-transform">
+                    <div className="pt-6 flex items-center text-xs font-semibold text-accent gap-1 group-hover:translate-x-1 transition-transform">
                       <span>{t(card.ctaText)}</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </div>
@@ -947,7 +947,7 @@ function AboutPage() {
             <div className="absolute top-0 right-0 w-64 h-64 bg-brand/20 rounded-full blur-3xl pointer-events-none" />
 
             <div className="relative z-10 max-w-3xl space-y-6">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-xs font-semibold uppercase tracking-wider text-[#5ABCFF]">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-xs font-semibold uppercase tracking-wider text-accent">
                 <Flag className="w-3.5 h-3.5" />
                 <span>{t(ctaEyebrow)}</span>
               </div>

@@ -92,7 +92,7 @@ export function TrendingStories({
                   {primaryPost.destinations ? (
                     <>
                       <span aria-hidden className="text-muted-foreground/50">·</span>
-                      <span className="inline-flex items-center gap-1 text-[#5ABCFF] font-medium min-w-0">
+                      <span className="inline-flex items-center gap-1 text-[#FF7A00] font-medium min-w-0">
                         <MapPin className="h-3 w-3 shrink-0" />
                         <span className="truncate">{t(primaryPost.destinations.title)}</span>
                       </span>
@@ -108,7 +108,7 @@ export function TrendingStories({
                   ) : null}
                 </div>
 
-                <h3 className="mt-2.5 sm:mt-3 font-display text-xl sm:text-2xl lg:text-3xl font-semibold leading-snug text-foreground transition-colors group-hover:text-[#5ABCFF] break-words [overflow-wrap:anywhere]">
+                <h3 className="mt-2.5 sm:mt-3 font-display text-xl sm:text-2xl lg:text-3xl font-semibold leading-snug text-foreground transition-colors group-hover:text-[#FF7A00] break-words [overflow-wrap:anywhere]">
                   {getPostTitle(primaryPost)}
                 </h3>
 
@@ -120,7 +120,7 @@ export function TrendingStories({
               </div>
 
               <div className="mt-4 sm:mt-5 pt-3.5 sm:pt-4 border-t border-border/60">
-                <span className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-[#5ABCFF]">
+                <span className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-[#FF7A00]">
                   {t("Read full story")}
                   <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 transition-transform duration-300 group-hover:translate-x-1 rtl:rotate-180" />
                 </span>
@@ -164,14 +164,14 @@ export function TrendingStories({
               <div className="flex flex-1 flex-col justify-between py-0.5 min-w-0">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-[10px] sm:text-[11px] text-muted-foreground">
-                    <span className="font-medium uppercase tracking-wider text-[#5ABCFF]">
+                    <span className="font-medium uppercase tracking-wider text-[#FF7A00]">
                       {t(post.category || "Story")}
                     </span>
                     <span aria-hidden className="text-muted-foreground/50">·</span>
                     <span className="truncate">{formatDate(post.published_at || post.created_at)}</span>
                   </div>
 
-                  <h4 className="mt-1 text-sm sm:text-base font-semibold leading-snug text-foreground transition-colors group-hover:text-[#5ABCFF] line-clamp-2 break-words [overflow-wrap:anywhere]">
+                  <h4 className="mt-1 text-sm sm:text-base font-semibold leading-snug text-foreground transition-colors group-hover:text-[#FF7A00] line-clamp-2 break-words [overflow-wrap:anywhere]">
                     {getPostTitle(post)}
                   </h4>
                 </div>
@@ -194,7 +194,7 @@ export function TrendingStories({
           </h3>
           <Link
             to="/blog"
-            className="text-xs font-medium text-muted-foreground hover:text-[#5ABCFF] transition-colors"
+            className="text-xs font-medium text-muted-foreground hover:text-[#FF7A00] transition-colors"
           >
             {t("View all")} →
           </Link>
@@ -218,7 +218,7 @@ export function TrendingStories({
                 ) : null;
               })()}
               <div className="relative z-10 flex items-center gap-2.5 min-w-0">
-                <span className="text-xs sm:text-sm font-medium text-foreground group-hover:text-[#5ABCFF] transition-colors truncate">
+                <span className="text-xs sm:text-sm font-medium text-foreground group-hover:text-[#FF7A00] transition-colors truncate">
                   {t(cat.name)}
                 </span>
               </div>

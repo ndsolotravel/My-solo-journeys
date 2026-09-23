@@ -102,7 +102,7 @@ function DisclaimerPage() {
 
       {/* Main Body */}
       <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
-        <article className="prose prose-gray dark:prose-invert max-w-none text-base leading-relaxed text-muted-foreground prose-headings:font-bold prose-headings:text-foreground prose-a:text-[#5ABCFF] hover:prose-a:underline prose-strong:text-foreground prose-ul:list-disc prose-ol:list-decimal space-y-6">
+        <article className="prose prose-gray dark:prose-invert max-w-none text-base leading-relaxed text-muted-foreground prose-headings:font-bold prose-headings:text-foreground prose-a:text-brand hover:prose-a:underline prose-strong:text-foreground prose-ul:list-disc prose-ol:list-decimal space-y-6">
           <TranslatedMarkdown content={localizedPage.content} />
         </article>
       </div>

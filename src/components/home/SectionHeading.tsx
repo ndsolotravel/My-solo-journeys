@@ -36,7 +36,7 @@ export function SectionHeading({
             {t(title)}
           </h2>
           {badge && (
-            <span className="hidden sm:inline-flex items-center rounded-full bg-[#FF7A00]/10 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-[#5ABCFF]">
+            <span className="hidden sm:inline-flex items-center rounded-full bg-[#FF7A00]/10 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-[#FF7A00]">
               {t(badge)}
             </span>
           )}
@@ -52,7 +52,7 @@ export function SectionHeading({
             <Link
               to={linkTo as any}
               hash={linkHash}
-              className="inline-flex items-center gap-1 font-medium text-muted-foreground transition-colors hover:text-[#5ABCFF]"
+              className="inline-flex items-center gap-1 font-medium text-muted-foreground transition-colors hover:text-[#FF7A00]"
             >
               <span>{t(linkText)}</span>
               <span className="transition-transform duration-200 group-hover:translate-x-0.5 rtl:rotate-180">
