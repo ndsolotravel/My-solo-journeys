@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState, useEffect, useRef } from "react";
@@ -18,6 +18,9 @@ import {
   KeyRound,
   ShieldCheck,
   RotateCcw,
+  Palette,
+  Type,
+  ArrowRight,
 } from "lucide-react";
 import { toast } from "sonner";
 import { adminGetSettings, adminUpdateSetting } from "@/lib/settings.functions";
@@ -552,8 +555,51 @@ function AdminSettingsPage() {
           </div>
         </div>
 
-        {/* Sidebar Info & Architecture Card */}
+        {/* Sidebar Info & Appearance Cards */}
         <aside className="space-y-6">
+          {/* Appearance & Design Settings Card */}
+          <div className="rounded-2xl border border-border bg-card p-5 shadow-xs space-y-4">
+            <h3 className="text-sm font-semibold flex items-center gap-2">
+              <Palette className="h-4 w-4 text-accent" /> Appearance & Design
+            </h3>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Manage website visual branding, color palettes, and global typography without editing code.
+            </p>
+            <div className="space-y-2 pt-1">
+              <Link
+                to="/admin/colors"
+                className="flex items-center justify-between rounded-xl border border-border/80 bg-background/80 p-3 text-xs font-medium text-foreground hover:border-accent hover:bg-accent/5 transition-all group"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#4085FF]/10 text-[#4085FF]">
+                    <Palette className="h-3.5 w-3.5" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-foreground">Color Management</p>
+                    <p className="text-[10px] text-muted-foreground">Palette, buttons, surfaces</p>
+                  </div>
+                </div>
+                <ArrowRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-accent group-hover:translate-x-0.5 transition-all" />
+              </Link>
+
+              <Link
+                to="/admin/typography"
+                className="flex items-center justify-between rounded-xl border border-border/80 bg-background/80 p-3 text-xs font-medium text-foreground hover:border-accent hover:bg-accent/5 transition-all group"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent/10 text-accent">
+                    <Type className="h-3.5 w-3.5" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-foreground">Typography Management</p>
+                    <p className="text-[10px] text-muted-foreground">Fonts, weights, headings</p>
+                  </div>
+                </div>
+                <ArrowRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-accent group-hover:translate-x-0.5 transition-all" />
+              </Link>
+            </div>
+          </div>
+
           <div className="rounded-2xl border border-border bg-card p-5 shadow-xs space-y-4">
             <h3 className="text-sm font-semibold flex items-center gap-2">
               <Shield className="h-4 w-4 text-accent" /> Security & Architecture

@@ -125,11 +125,11 @@ export function TypographyManager() {
       {previewConfig && (
         <aside
           aria-label="Typography Preview Notification"
-          className="fixed bottom-6 left-1/2 z-[9999] -translate-x-1/2 flex items-center gap-3 rounded-full border border-amber-500/40 bg-neutral-900/95 px-4 py-2.5 text-xs text-white shadow-2xl backdrop-blur-md animate-in fade-in slide-in-from-bottom-4 duration-300"
+          className="fixed bottom-6 left-1/2 z-[9999] -translate-x-1/2 flex items-center gap-3 rounded-full border border-accent/40 bg-neutral-900/95 px-4 py-2.5 text-xs text-white shadow-2xl backdrop-blur-md animate-in fade-in slide-in-from-bottom-4 duration-300"
         >
           <div className="flex items-center gap-2 font-medium">
-            <span className="flex h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
-            <Eye className="h-3.5 w-3.5 text-amber-400" />
+            <span className="flex h-2 w-2 rounded-full bg-accent animate-pulse" />
+            <Eye className="h-3.5 w-3.5 text-accent" />
             <span>Typography Preview Mode</span>
           </div>
 

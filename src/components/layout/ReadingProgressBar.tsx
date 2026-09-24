@@ -110,7 +110,7 @@ export function ReadingProgressBar() {
     >
       <div
         ref={barRef}
-        className="h-full w-full bg-gradient-to-r from-accent via-accent to-[#FFA040] shadow-[0_0_8px_rgba(255,122,0,0.6)] origin-left will-change-transform"
+        className="h-full w-full bg-gradient-to-r from-accent via-accent to-accent/80 shadow-[0_0_8px_var(--accent,#4085ff)] origin-left will-change-transform"
         style={{
           transform: "scaleX(0)",
           opacity: 0,

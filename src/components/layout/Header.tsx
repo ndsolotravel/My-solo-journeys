@@ -136,10 +136,10 @@ export function Header() {
                     overHero
                       ? active
                         ? "text-white font-medium"
-                        : "text-white/75 hover:text-[#4085FF]"
+                        : "text-white/75 hover:text-accent"
                       : active
                         ? "text-accent font-medium"
-                        : "text-muted-foreground hover:text-[#4085FF]"
+                        : "text-muted-foreground hover:text-accent"
                   }`}
                 >
                   {t(l.label)}
@@ -269,7 +269,7 @@ export function Header() {
                 className={`rounded-lg px-4 py-3 text-base font-medium transition-colors duration-200 ease-in-out ${
                   active
                     ? "bg-muted text-accent font-medium"
-                    : "text-foreground hover:bg-muted hover:text-[#4085FF]"
+                    : "text-foreground hover:bg-muted hover:text-accent"
                 }`}
               >
                 {t(l.label)}

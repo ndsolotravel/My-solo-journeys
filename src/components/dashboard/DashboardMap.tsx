@@ -81,8 +81,8 @@ export function DashboardMap({ destinations }: { destinations: Destination[] }) 
         className: "custom-dashboard-pin",
         html: `
           <div style="position:relative;display:flex;align-items:center;justify-content:center;">
-            <div style="position:absolute;width:22px;height:22px;border-radius:9999px;background:rgba(255,122,0,0.25);animation:ping 2s cubic-bezier(0,0,0.2,1) infinite;"></div>
-            <div style="width:14px;height:14px;border-radius:9999px;background:#4085FF;border:2px solid #ffffff;box-shadow:0 2px 6px rgba(0,0,0,0.4);position:relative;z-index:2;"></div>
+            <div style="position:absolute;width:22px;height:22px;border-radius:9999px;background:color-mix(in srgb, var(--accent, #4085FF) 30%, transparent);animation:ping 2s cubic-bezier(0,0,0.2,1) infinite;"></div>
+            <div style="width:14px;height:14px;border-radius:9999px;background:var(--accent, #4085FF);border:2px solid #ffffff;box-shadow:0 2px 6px rgba(0,0,0,0.4);position:relative;z-index:2;"></div>
           </div>
         `,
         iconSize: [22, 22],

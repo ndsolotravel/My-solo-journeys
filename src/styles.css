@@ -73,6 +73,15 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-ring-offset-background: var(--background);
+  --color-nav-text: var(--nav-text);
+  --color-nav-hover: var(--nav-hover);
+  --color-btn-bg: var(--btn-bg);
+  --color-btn-text: var(--btn-text);
+  --color-btn-hover: var(--btn-hover);
+  --color-card-bg: var(--card-bg);
+  --color-section-bg: var(--section-bg);
+  --color-footer-bg: var(--footer-bg);
+  --color-footer-text: var(--footer-text);
   --font-display: "Roboto Numbers", "Playfair Display", Georgia, Cambria, "Times New Roman", Times, serif;
   --font-sans: "Roboto", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --shadow-elegant: 0 30px 80px -40px color-mix(in oklab, var(--primary) 40%, transparent);
@@ -109,6 +118,23 @@
    --border: oklch(0.92 0.011 256);
    --input: oklch(0.92 0.011 256);
    --ring: #4085ff;
+
+  /* Centralized Color Management Default Tokens */
+  --nav-text: #E2E8F0;
+  --nav-hover: #4085FF;
+  --btn-bg: #4085FF;
+  --btn-text: #FFFFFF;
+  --btn-hover: #2563EB;
+  --card-bg: #FFFFFF;
+  --section-bg: #0B0F17;
+  --footer-bg: #0B0F17;
+  --footer-text: #94A3B8;
+  --hero-overlay: rgba(0, 0, 0, 0.65);
+  --color-link: #4085FF;
+  --color-link-hover: #2563EB;
+  --color-heading: #0F172A;
+  --color-body-text: #334155;
+  --color-muted-text: #64748B;
 
   /* Centralized Typography Configuration Variables */
   --font-nav: var(--font-sans);
@@ -907,8 +933,8 @@ html[dir="rtl"] .flex-row {
   font-weight: 500;
   padding: 0.25rem 0.75rem;
   border-radius: 9999px;
-  background-color: rgba(255, 122, 0, 0.15);
-  color: var(--brand);
+  background-color: color-mix(in srgb, var(--brand, #4085ff) 15%, transparent);
+  color: var(--brand, #4085ff);
 }
 
 /* Section divider */

@@ -45,6 +45,7 @@ import { Route as AuthenticatedAdminGalleryRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminDestinationsRouteImport } from './routes/_authenticated/admin.destinations'
 import { Route as AuthenticatedAdminContactRouteImport } from './routes/_authenticated/admin.contact'
 import { Route as AuthenticatedAdminCommentsRouteImport } from './routes/_authenticated/admin.comments'
+import { Route as AuthenticatedAdminColorsRouteImport } from './routes/_authenticated/admin.colors'
 import { Route as AuthenticatedAdminCategoriesRouteImport } from './routes/_authenticated/admin.categories'
 import { Route as AuthenticatedAdminAnalyticsRouteImport } from './routes/_authenticated/admin.analytics'
 import { Route as AuthenticatedAdminAboutRouteImport } from './routes/_authenticated/admin.about'
@@ -241,6 +242,12 @@ const AuthenticatedAdminCommentsRoute =
     path: '/comments',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminColorsRoute =
+  AuthenticatedAdminColorsRouteImport.update({
+    id: '/colors',
+    path: '/colors',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminCategoriesRoute =
   AuthenticatedAdminCategoriesRouteImport.update({
     id: '/categories',
@@ -303,6 +310,7 @@ export interface FileRoutesByFullPath {
   '/admin/about': typeof AuthenticatedAdminAboutRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
+  '/admin/colors': typeof AuthenticatedAdminColorsRoute
   '/admin/comments': typeof AuthenticatedAdminCommentsRoute
   '/admin/contact': typeof AuthenticatedAdminContactRoute
   '/admin/destinations': typeof AuthenticatedAdminDestinationsRoute
@@ -343,6 +351,7 @@ export interface FileRoutesByTo {
   '/admin/about': typeof AuthenticatedAdminAboutRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
+  '/admin/colors': typeof AuthenticatedAdminColorsRoute
   '/admin/comments': typeof AuthenticatedAdminCommentsRoute
   '/admin/contact': typeof AuthenticatedAdminContactRoute
   '/admin/destinations': typeof AuthenticatedAdminDestinationsRoute
@@ -388,6 +397,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/about': typeof AuthenticatedAdminAboutRoute
   '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/_authenticated/admin/categories': typeof AuthenticatedAdminCategoriesRoute
+  '/_authenticated/admin/colors': typeof AuthenticatedAdminColorsRoute
   '/_authenticated/admin/comments': typeof AuthenticatedAdminCommentsRoute
   '/_authenticated/admin/contact': typeof AuthenticatedAdminContactRoute
   '/_authenticated/admin/destinations': typeof AuthenticatedAdminDestinationsRoute
@@ -433,6 +443,7 @@ export interface FileRouteTypes {
     | '/admin/about'
     | '/admin/analytics'
     | '/admin/categories'
+    | '/admin/colors'
     | '/admin/comments'
     | '/admin/contact'
     | '/admin/destinations'
@@ -473,6 +484,7 @@ export interface FileRouteTypes {
     | '/admin/about'
     | '/admin/analytics'
     | '/admin/categories'
+    | '/admin/colors'
     | '/admin/comments'
     | '/admin/contact'
     | '/admin/destinations'
@@ -517,6 +529,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/about'
     | '/_authenticated/admin/analytics'
     | '/_authenticated/admin/categories'
+    | '/_authenticated/admin/colors'
     | '/_authenticated/admin/comments'
     | '/_authenticated/admin/contact'
     | '/_authenticated/admin/destinations'
@@ -808,6 +821,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCommentsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/colors': {
+      id: '/_authenticated/admin/colors'
+      path: '/colors'
+      fullPath: '/admin/colors'
+      preLoaderRoute: typeof AuthenticatedAdminColorsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/categories': {
       id: '/_authenticated/admin/categories'
       path: '/categories'
@@ -857,6 +877,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminAboutRoute: typeof AuthenticatedAdminAboutRoute
   AuthenticatedAdminAnalyticsRoute: typeof AuthenticatedAdminAnalyticsRoute
   AuthenticatedAdminCategoriesRoute: typeof AuthenticatedAdminCategoriesRoute
+  AuthenticatedAdminColorsRoute: typeof AuthenticatedAdminColorsRoute
   AuthenticatedAdminCommentsRoute: typeof AuthenticatedAdminCommentsRoute
   AuthenticatedAdminContactRoute: typeof AuthenticatedAdminContactRoute
   AuthenticatedAdminDestinationsRoute: typeof AuthenticatedAdminDestinationsRoute
@@ -879,6 +900,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminAboutRoute: AuthenticatedAdminAboutRoute,
   AuthenticatedAdminAnalyticsRoute: AuthenticatedAdminAnalyticsRoute,
   AuthenticatedAdminCategoriesRoute: AuthenticatedAdminCategoriesRoute,
+  AuthenticatedAdminColorsRoute: AuthenticatedAdminColorsRoute,
   AuthenticatedAdminCommentsRoute: AuthenticatedAdminCommentsRoute,
   AuthenticatedAdminContactRoute: AuthenticatedAdminContactRoute,
   AuthenticatedAdminDestinationsRoute: AuthenticatedAdminDestinationsRoute,

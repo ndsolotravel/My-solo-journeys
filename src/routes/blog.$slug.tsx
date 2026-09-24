@@ -378,7 +378,7 @@ function PostPage() {
             {formattedTravelDate && (
               <>
                 <span aria-hidden>·</span>
-                <span className="inline-flex items-center gap-1 text-amber-200">
+                <span className="inline-flex items-center gap-1 text-accent">
                   <Calendar className="h-3 w-3" /> {t("Traveled on")} {formattedTravelDate}
                 </span>
               </>

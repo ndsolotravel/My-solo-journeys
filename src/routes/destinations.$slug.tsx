@@ -197,7 +197,7 @@ function DestinationPage() {
             ]}
           />
           <div className="mt-4 flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1 rounded-full bg-accent/20 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-amber-300 backdrop-blur-md">
+            <span className="inline-flex items-center gap-1 rounded-full bg-accent/20 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent backdrop-blur-md">
               <Globe className="h-3 w-3" /> {localizedDest.country}
             </span>
             {localizedDest.region && (
@@ -376,7 +376,7 @@ function DestinationPage() {
                   <p className="text-xs uppercase tracking-wider text-white/70">
                     {t(item.country)}
                   </p>
-                  <h3 className="mt-1 font-display text-xl font-semibold group-hover:text-amber-300 transition-colors flex items-center justify-between">
+                  <h3 className="mt-1 font-display text-xl font-semibold group-hover:text-accent transition-colors flex items-center justify-between">
                     {t(item.title)}{" "}
                     <ArrowRight className="h-4 w-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all rtl:rotate-180" />
                   </h3>

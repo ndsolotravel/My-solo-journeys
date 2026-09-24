@@ -68,8 +68,8 @@ export function BlogPostMap({ locationName, latitude, longitude, title }: BlogPo
         className: "custom-blog-pin",
         html: `
           <div style="position:relative;display:flex;align-items:center;justify-content:center;">
-            <div style="position:absolute;width:24px;height:24px;border-radius:9999px;background:rgba(255,122,0,0.3);animation:ping 2s cubic-bezier(0,0,0.2,1) infinite;"></div>
-            <div style="width:16px;height:16px;border-radius:9999px;background:#4085FF;border:2.5px solid #ffffff;box-shadow:0 2px 6px rgba(0,0,0,0.4);position:relative;z-index:2;"></div>
+            <div style="position:absolute;width:24px;height:24px;border-radius:9999px;background:color-mix(in srgb, var(--accent, #4085FF) 35%, transparent);animation:ping 2s cubic-bezier(0,0,0.2,1) infinite;"></div>
+            <div style="width:16px;height:16px;border-radius:9999px;background:var(--accent, #4085FF);border:2.5px solid #ffffff;box-shadow:0 2px 6px rgba(0,0,0,0.4);position:relative;z-index:2;"></div>
           </div>
         `,
         iconSize: [24, 24],
