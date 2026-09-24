@@ -382,14 +382,14 @@ export function HeroBannerManager({
                   <div className="relative z-10 max-w-lg">
                     {draftBadge && (
                       <span className="inline-flex items-center gap-1 rounded-full border border-white/30 bg-white/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white backdrop-blur-md mb-2">
-                        <Sparkles className="h-2.5 w-2.5 text-[#4085FF]" />
+                        <Sparkles className="h-2.5 w-2.5 text-accent" />
                         {draftBadge}
                       </span>
                     )}
                     <h3 className="text-base sm:text-xl md:text-2xl font-bold leading-tight text-white tracking-tight">
                       <span>{draftTitle || "Moments Frozen in the Wild"}</span>{" "}
                       {draftTitleHighlight && (
-                        <span className="text-[#4085FF]">{draftTitleHighlight}</span>
+                        <span className="text-heading">{draftTitleHighlight}</span>
                       )}
                     </h3>
                     {draftDescription && (
@@ -399,7 +399,7 @@ export function HeroBannerManager({
                     )}
                     {draftButtonText && (
                       <div className="mt-2.5">
-                        <span className="inline-flex items-center gap-1.5 rounded-full bg-[#4085FF] px-3 py-1 text-[11px] font-semibold text-white shadow-sm">
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-btn-bg px-3 py-1 text-[11px] font-semibold text-btn-text shadow-sm">
                           {draftButtonText}
                           <ArrowDown className="h-3 w-3" />
                         </span>
