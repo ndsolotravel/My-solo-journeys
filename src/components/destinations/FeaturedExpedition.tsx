@@ -83,9 +83,9 @@ export function FeaturedExpedition({ destination: d }: FeaturedExpeditionProps) 
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.4 }}
                 transition={{ duration: 0.7, ease: EASE }}
-                className="flex items-center gap-2.5 text-[11px] font-bold uppercase tracking-[0.3em] text-[#FF7A00] sm:text-xs"
+                className="flex items-center gap-2.5 text-[11px] font-bold uppercase tracking-[0.3em] text-[#4085FF] sm:text-xs"
               >
-                <span className="h-px w-10 bg-[#FF7A00]/70" />
+                <span className="h-px w-10 bg-[#4085FF]/70" />
                 {t("Featured Expedition")}
               </motion.p>
 
@@ -122,7 +122,7 @@ export function FeaturedExpedition({ destination: d }: FeaturedExpeditionProps) 
                 <Link
                   to="/destinations/$slug"
                   params={{ slug: d.slug }}
-                  className="group inline-flex items-center gap-3 rounded-full bg-[#FF7A00] px-7 py-3.5 text-sm font-medium text-white shadow-lg shadow-[#FF7A00]/25 transition-colors hover:bg-[#ff8a21]"
+                  className="group inline-flex items-center gap-3 rounded-full bg-[#4085FF] px-7 py-3.5 text-sm font-medium text-white shadow-lg shadow-[#4085FF]/25 transition-colors hover:bg-[#5095ff]"
                 >
                   {t("Read the field report")}
                   <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
@@ -139,7 +139,7 @@ export function FeaturedExpedition({ destination: d }: FeaturedExpeditionProps) 
               className="rounded-2xl border border-white/12 bg-white/[0.07] p-6 backdrop-blur-md sm:p-7"
             >
               <div className="flex items-center gap-2.5 border-b border-white/15 pb-4">
-                <MapPin className="h-4 w-4 text-[#FF7A00]" />
+                <MapPin className="h-4 w-4 text-[#4085FF]" />
                 <span className="text-[11px] font-bold uppercase tracking-[0.26em] text-white/70">
                   {t("Field reference")}
                 </span>

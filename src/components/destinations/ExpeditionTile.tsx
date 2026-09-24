@@ -42,7 +42,7 @@ export function ExpeditionTile({
       <Link
         to="/destinations/$slug"
         params={{ slug: d.slug }}
-        className="block h-full outline-none focus-visible:ring-2 focus-visible:ring-[#FF7A00] focus-visible:ring-offset-2"
+        className="block h-full outline-none focus-visible:ring-2 focus-visible:ring-[#4085FF] focus-visible:ring-offset-2"
       >
         <div
           className={`atlas-tile flex h-full w-full flex-col justify-end ${tall ? "min-h-[380px] lg:min-h-[560px]" : "min-h-[340px] lg:min-h-[460px]"}`}
@@ -74,7 +74,7 @@ export function ExpeditionTile({
 
           {/* Featured ribbon */}
           {d.featured && (
-            <span className="absolute right-4 top-4 rounded-full bg-[#FF7A00] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white shadow-lg shadow-black/20 sm:right-5 sm:top-5">
+            <span className="absolute right-4 top-4 rounded-full bg-[#4085FF] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white shadow-lg shadow-black/20 sm:right-5 sm:top-5">
               {t("Featured")}
             </span>
           )}
@@ -83,7 +83,7 @@ export function ExpeditionTile({
           <div className="relative z-10 p-6 sm:p-8">
             <div className="flex flex-wrap items-center gap-2.5">
               {d.category && (
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-black/35 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#FF7A00] backdrop-blur-sm">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-black/35 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#4085FF] backdrop-blur-sm">
                   <Compass className="h-2.5 w-2.5" />
                   {t(d.category)}
                 </span>

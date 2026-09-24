@@ -1805,7 +1805,7 @@ export function PostEditor({
                 >
                   {/* Google site info line */}
                   <div className="flex items-center gap-2.5 mb-1.5">
-                    <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-100 dark:bg-[#303134] border border-border/50 text-[10px] font-bold text-[#FF7A00]">
+                    <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-100 dark:bg-[#303134] border border-border/50 text-[10px] font-bold text-[#4085FF]">
                       ND
                     </div>
                     <div className="min-w-0 flex-1 leading-tight">
@@ -2133,7 +2133,7 @@ export function PostEditor({
                 type="button"
                 disabled={updatePostCoordsMutation.isPending || !latitude.trim() || !longitude.trim()}
                 onClick={handleUpdatePostCoordinates}
-                className="inline-flex items-center gap-2 rounded-xl bg-[#FF7A00] px-4 py-2 text-xs sm:text-sm font-semibold text-white shadow-md shadow-[#FF7A00]/25 hover:bg-[#FF7A00]/90 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center gap-2 rounded-xl bg-[#4085FF] px-4 py-2 text-xs sm:text-sm font-semibold text-white shadow-md shadow-[#4085FF]/25 hover:bg-[#4085FF]/90 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {updatePostCoordsMutation.isPending ? (
                   <>
@@ -2480,9 +2480,9 @@ export function PostEditor({
             href={`/blog/${initial.slug}`}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1 rounded-xl border border-border bg-card px-3 py-1.5 text-xs text-foreground hover:border-[#FF7A00] transition-colors"
+            className="inline-flex items-center gap-1 rounded-xl border border-border bg-card px-3 py-1.5 text-xs text-foreground hover:border-[#4085FF] transition-colors"
           >
-            <ExternalLink className="h-3 w-3 text-[#FF7A00]" />
+            <ExternalLink className="h-3 w-3 text-[#4085FF]" />
             <span>View live</span>
           </a>
         )}
@@ -2510,7 +2510,7 @@ export function PostEditor({
               setPublished(e.target.checked);
               if (saveStatus !== "idle") setSaveStatus("idle");
             }}
-            className="h-3.5 w-3.5 rounded border-border text-[#FF7A00] focus:ring-[#FF7A00]"
+            className="h-3.5 w-3.5 rounded border-border text-[#4085FF] focus:ring-[#4085FF]"
           />
           <span>Publish</span>
         </label>
@@ -2527,8 +2527,8 @@ export function PostEditor({
           disabled={!isDirty || save.isPending}
           className={`inline-flex items-center gap-2 rounded-xl px-5 py-2 text-xs sm:text-sm font-semibold transition-all ${
             !isDirty || save.isPending
-              ? "opacity-50 cursor-not-allowed bg-[#FF7A00]/70 text-white"
-              : "bg-[#FF7A00] text-white shadow-md shadow-[#FF7A00]/25 hover:bg-[#FF7A00]/90 cursor-pointer"
+              ? "opacity-50 cursor-not-allowed bg-[#4085FF]/70 text-white"
+              : "bg-[#4085FF] text-white shadow-md shadow-[#4085FF]/25 hover:bg-[#4085FF]/90 cursor-pointer"
           }`}
         >
           {save.isPending ? (
@@ -2563,7 +2563,7 @@ export function PostEditor({
       {/* Top Header Bar matching Homepage Visual Hierarchy */}
       <div className="sticky top-16 z-20 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border bg-background/95 backdrop-blur-md pb-4 pt-3 shadow-2xs">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-2xl bg-[#FF7A00]/10 text-[#FF7A00]">
+          <div className="p-2.5 rounded-2xl bg-[#4085FF]/10 text-[#4085FF]">
             <BookOpen className="h-6 w-6" />
           </div>
           <div>
@@ -2597,8 +2597,8 @@ export function PostEditor({
             disabled={!isDirty || save.isPending}
             className={`inline-flex items-center gap-2 rounded-xl px-5 py-2 text-xs sm:text-sm font-semibold transition-all ${
               !isDirty || save.isPending
-                ? "opacity-50 cursor-not-allowed bg-[#FF7A00]/70 text-white"
-                : "bg-[#FF7A00] text-white shadow-md shadow-[#FF7A00]/25 hover:bg-[#FF7A00]/90 cursor-pointer"
+                ? "opacity-50 cursor-not-allowed bg-[#4085FF]/70 text-white"
+                : "bg-[#4085FF] text-white shadow-md shadow-[#4085FF]/25 hover:bg-[#4085FF]/90 cursor-pointer"
             }`}
           >
             {save.isPending ? (
@@ -2629,9 +2629,9 @@ export function PostEditor({
                 href={`/blog/${initial.slug}`}
                 target="_blank"
                 rel="noreferrer"
-                className="hidden md:inline-flex items-center gap-1.5 rounded-xl border border-border bg-background px-3 py-1.5 text-xs text-foreground hover:border-[#FF7A00] transition-colors shrink-0"
+                className="hidden md:inline-flex items-center gap-1.5 rounded-xl border border-border bg-background px-3 py-1.5 text-xs text-foreground hover:border-[#4085FF] transition-colors shrink-0"
               >
-                <ExternalLink className="h-3 w-3 text-[#FF7A00]" />
+                <ExternalLink className="h-3 w-3 text-[#4085FF]" />
                 <span>View live</span>
               </a>
             )}
@@ -2659,7 +2659,7 @@ export function PostEditor({
               </div>
             )}
             {saveStatus === "idle" && isDirty && (
-              <div className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-[#FF7A00]/10 border border-[#FF7A00]/25 px-3 py-1 text-xs font-semibold text-[#FF7A00] animate-fade-in">
+              <div className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-[#4085FF]/10 border border-[#4085FF]/25 px-3 py-1 text-xs font-semibold text-[#4085FF] animate-fade-in">
                 <Sparkles className="h-3 w-3 shrink-0" />
                 <span>Unsaved changes</span>
               </div>
@@ -2676,7 +2676,7 @@ export function PostEditor({
                   setPublished(e.target.checked);
                   if (saveStatus !== "idle") setSaveStatus("idle");
                 }}
-                className="h-3.5 w-3.5 rounded border-border text-[#FF7A00] focus:ring-[#FF7A00]"
+                className="h-3.5 w-3.5 rounded border-border text-[#4085FF] focus:ring-[#4085FF]"
               />
               <span>Published</span>
             </label>
@@ -2695,8 +2695,8 @@ export function PostEditor({
               disabled={!isDirty || save.isPending}
               className={`inline-flex items-center gap-2 rounded-xl px-5 py-2 text-xs sm:text-sm font-semibold transition-all ${
                 !isDirty || save.isPending
-                  ? "opacity-50 cursor-not-allowed bg-[#FF7A00]/70 text-white"
-                  : "bg-[#FF7A00] text-white shadow-md shadow-[#FF7A00]/25 hover:bg-[#FF7A00]/90 cursor-pointer"
+                  ? "opacity-50 cursor-not-allowed bg-[#4085FF]/70 text-white"
+                  : "bg-[#4085FF] text-white shadow-md shadow-[#4085FF]/25 hover:bg-[#4085FF]/90 cursor-pointer"
               }`}
             >
               {save.isPending ? (
@@ -2719,7 +2719,7 @@ export function PostEditor({
 }
 
 const input =
-  "w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-xs sm:text-sm text-foreground outline-none focus:border-[#FF7A00] focus:ring-1 focus:ring-[#FF7A00] transition-colors shadow-2xs";
+  "w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-xs sm:text-sm text-foreground outline-none focus:border-[#4085FF] focus:ring-1 focus:ring-[#4085FF] transition-colors shadow-2xs";
 
 function Field({
   label,

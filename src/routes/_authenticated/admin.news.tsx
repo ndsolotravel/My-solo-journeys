@@ -168,7 +168,7 @@ function NewsImagePreviewBox({ imageUrl, onRemove }: { imageUrl: string; onRemov
     <div className="relative w-full overflow-hidden rounded-2xl border border-border bg-black/5 dark:bg-black/40 p-2 min-h-[160px] max-h-56 flex items-center justify-center group animate-in fade-in duration-200">
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-background/60 backdrop-blur-xs z-10">
-          <Loader2 className="h-6 w-6 animate-spin text-[#FF7A00]" />
+          <Loader2 className="h-6 w-6 animate-spin text-[#4085FF]" />
         </div>
       )}
       <img
@@ -1167,7 +1167,7 @@ function AdminNewsPage() {
                               : "Just now"}
                           </span>
                           <span className="mx-5 inline-flex items-center gap-1 text-red-500/80 font-bold select-none opacity-80">
-                            <span className="h-1.5 w-1.5 rounded-full bg-[#FF7A00] animate-pulse"></span>
+                            <span className="h-1.5 w-1.5 rounded-full bg-[#4085FF] animate-pulse"></span>
                             <span className="text-xs text-red-400/90 font-mono">//</span>
                           </span>
                         </div>
@@ -1180,7 +1180,7 @@ function AdminNewsPage() {
               {/* Full News Card Preview */}
               <div className="rounded-2xl border border-border bg-background p-6 shadow-sm space-y-4">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <span className="inline-flex items-center gap-1 rounded-full bg-[#FF7A00]/10 px-2.5 py-0.5 font-bold text-[#FF7A00]">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-[#4085FF]/10 px-2.5 py-0.5 font-bold text-[#4085FF]">
                     <Flame className="h-3 w-3" /> OFFICIAL DISPATCH
                   </span>
                   <span>·</span>
@@ -1196,7 +1196,7 @@ function AdminNewsPage() {
                 </h2>
 
                 {formData.summary && (
-                  <p className="text-base text-muted-foreground leading-relaxed italic border-l-2 border-[#FF7A00] pl-3">
+                  <p className="text-base text-muted-foreground leading-relaxed italic border-l-2 border-[#4085FF] pl-3">
                     {formData.summary}
                   </p>
                 )}

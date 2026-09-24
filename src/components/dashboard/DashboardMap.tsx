@@ -82,7 +82,7 @@ export function DashboardMap({ destinations }: { destinations: Destination[] }) 
         html: `
           <div style="position:relative;display:flex;align-items:center;justify-content:center;">
             <div style="position:absolute;width:22px;height:22px;border-radius:9999px;background:rgba(255,122,0,0.25);animation:ping 2s cubic-bezier(0,0,0.2,1) infinite;"></div>
-            <div style="width:14px;height:14px;border-radius:9999px;background:#FF7A00;border:2px solid #ffffff;box-shadow:0 2px 6px rgba(0,0,0,0.4);position:relative;z-index:2;"></div>
+            <div style="width:14px;height:14px;border-radius:9999px;background:#4085FF;border:2px solid #ffffff;box-shadow:0 2px 6px rgba(0,0,0,0.4);position:relative;z-index:2;"></div>
           </div>
         `,
         iconSize: [22, 22],
@@ -112,13 +112,13 @@ export function DashboardMap({ destinations }: { destinations: Destination[] }) 
             ${d.featured_image ? `<img src="${d.featured_image}" alt="${d.title}" style="width:100%;height:85px;object-fit:cover;border-radius:6px;margin-bottom:6px" onerror="this.style.display='none'"/>` : ""}
             <strong style="font-family:Roboto,system-ui,-apple-system,sans-serif;font-size:14px;font-weight:600;color:#111;display:block;margin-bottom:2px;line-height:1.25;">${d.title}</strong>
             <span style="font-size:11px;color:#666;display:block;margin-bottom:6px;">📍 ${d.country}${d.region ? ` · ${d.region}` : ""}</span>
-            <a href="/destinations/${d.slug}" style="color:#FF7A00;font-size:12px;font-weight:500;text-decoration:none;">View destination →</a>
+            <a href="/destinations/${d.slug}" style="color:#4085FF;font-size:12px;font-weight:500;text-decoration:none;">View destination →</a>
           </div>`;
         L.marker(c, { icon: pinIcon, title: d.title }).addTo(map).bindPopup(popup);
       });
 
       if (pts.length > 1) {
-        L.polyline(pts as any, { color: "#FF7A00", weight: 2.5, opacity: 0.8, dashArray: "6 6" }).addTo(map);
+        L.polyline(pts as any, { color: "#4085FF", weight: 2.5, opacity: 0.8, dashArray: "6 6" }).addTo(map);
         map.fitBounds(pts as any, { padding: [50, 50] });
       } else if (pts.length === 1) {
         map.setView(pts[0], 6);

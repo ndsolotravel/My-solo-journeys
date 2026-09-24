@@ -110,7 +110,7 @@ export function DestinationsMap({ destinations }: { destinations: Destination[] 
         html: `
           <div style="position:relative;display:flex;align-items:center;justify-content:center;">
             <div style="position:absolute;width:24px;height:24px;border-radius:9999px;background:rgba(255,122,0,0.25);animation:ping 2s cubic-bezier(0,0,0.2,1) infinite;"></div>
-            <div style="width:14px;height:14px;border-radius:9999px;background:#FF7A00;border:2.5px solid #ffffff;box-shadow:0 2px 6px rgba(0,0,0,0.4);position:relative;z-index:2;"></div>
+            <div style="width:14px;height:14px;border-radius:9999px;background:#4085FF;border:2.5px solid #ffffff;box-shadow:0 2px 6px rgba(0,0,0,0.4);position:relative;z-index:2;"></div>
           </div>
         `,
         iconSize: [24, 24],
@@ -132,7 +132,7 @@ export function DestinationsMap({ destinations }: { destinations: Destination[] 
             <strong style="font-family:Roboto,system-ui,-apple-system,sans-serif;font-size:14px;font-weight:600;color:#111;display:block;margin-bottom:2px;line-height:1.25;">${d.title}</strong>
             <span style="font-size:11px;color:#666;display:block;margin-bottom:4px;">📍 ${d.country}${d.region ? ` · ${d.region}` : ""}</span>
             ${descHtml}
-            <a href="/destinations/${d.slug}" style="color:#FF7A00;font-size:12px;font-weight:500;text-decoration:none;display:inline-flex;align-items:center;gap:3px;">View Story →</a>
+            <a href="/destinations/${d.slug}" style="color:#4085FF;font-size:12px;font-weight:500;text-decoration:none;display:inline-flex;align-items:center;gap:3px;">View Story →</a>
           </div>`;
         L.marker(c, { icon: pinIcon, title: d.title }).addTo(map).bindPopup(popup);
       });

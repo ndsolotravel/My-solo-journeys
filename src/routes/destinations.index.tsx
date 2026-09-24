@@ -143,7 +143,7 @@ function DestinationsPage() {
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {stats.map((stat) => (
               <div key={stat.label} className="flex items-center gap-4">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#FF7A00]/10 text-[#FF7A00] ring-1 ring-[#FF7A00]/20">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#4085FF]/10 text-[#4085FF] ring-1 ring-[#4085FF]/20">
                   <stat.icon className="h-5 w-5" />
                 </span>
                 <div>
@@ -177,7 +177,7 @@ function DestinationsPage() {
             className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between"
           >
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.26em] text-[#FF7A00]">
+              <p className="text-[11px] font-bold uppercase tracking-[0.26em] text-[#4085FF]">
                 {t("The Route Atlas")}
               </p>
               <h2
@@ -193,7 +193,7 @@ function DestinationsPage() {
               </p>
             </div>
             <span className="inline-flex w-fit items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-[11px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
-              <span className="h-2 w-2 rounded-full bg-[#FF7A00]" />
+              <span className="h-2 w-2 rounded-full bg-[#4085FF]" />
               {destinations.length} {t("marked")}
             </span>
           </motion.div>
@@ -242,7 +242,7 @@ function DestinationsPage() {
                         {String(i + 1).padStart(2, "0")}
                       </span>
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-semibold transition-colors group-hover:text-[#FF7A00]">
+                        <span className="block truncate text-sm font-semibold transition-colors group-hover:text-[#4085FF]">
                           {t(d.title)}
                         </span>
                         <span className="block truncate text-xs text-muted-foreground">
@@ -255,7 +255,7 @@ function DestinationsPage() {
                           {Number(d.latitude).toFixed(2)}, {Number(d.longitude).toFixed(2)}
                         </span>
                       )}
-                      <ArrowUpRight className="h-4 w-4 shrink-0 text-muted-foreground transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[#FF7A00]" />
+                      <ArrowUpRight className="h-4 w-4 shrink-0 text-muted-foreground transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[#4085FF]" />
                     </Link>
                   </li>
                 ))}
@@ -279,7 +279,7 @@ function DestinationsPage() {
             viewport={{ once: true, amount: 0.4 }}
             transition={{ duration: 0.8, ease: EASE }}
           >
-            <p className="text-[11px] font-bold uppercase tracking-[0.26em] text-[#FF7A00]">
+            <p className="text-[11px] font-bold uppercase tracking-[0.26em] text-[#4085FF]">
               {t("The Chapters")}
             </p>
             <h2

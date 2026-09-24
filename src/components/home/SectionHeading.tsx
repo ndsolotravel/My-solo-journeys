@@ -22,7 +22,7 @@ export function SectionHeading({
   linkTo,
   linkHash,
   rightElement,
-  accentColor = "#FF7A00",
+  accentColor = "#4085FF",
   className = "",
 }: SectionHeadingProps) {
   const t = useTranslations();
@@ -36,14 +36,14 @@ export function SectionHeading({
             {t(title)}
           </h2>
           {badge && (
-            <span className="hidden sm:inline-flex items-center rounded-full bg-[#FF7A00]/10 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-[#FF7A00]">
+            <span className="hidden sm:inline-flex items-center rounded-full bg-[#4085FF]/10 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-[#4085FF]">
               {t(badge)}
             </span>
           )}
         </div>
 
         {/* Divider bar */}
-        <div className="hidden md:flex flex-1 mx-4 h-[2px] rounded-full bg-gradient-to-r from-[#FF7A00] via-border to-transparent" />
+        <div className="hidden md:flex flex-1 mx-4 h-[2px] rounded-full bg-gradient-to-r from-[#4085FF] via-border to-transparent" />
 
         {/* Right: Custom elements, filter tabs, or Action Link */}
         <div className="flex items-center gap-3 text-sm">
@@ -52,7 +52,7 @@ export function SectionHeading({
             <Link
               to={linkTo as any}
               hash={linkHash}
-              className="inline-flex items-center gap-1 font-medium text-muted-foreground transition-colors hover:text-[#FF7A00]"
+              className="inline-flex items-center gap-1 font-medium text-muted-foreground transition-colors hover:text-[#4085FF]"
             >
               <span>{t(linkText)}</span>
               <span className="transition-transform duration-200 group-hover:translate-x-0.5 rtl:rotate-180">

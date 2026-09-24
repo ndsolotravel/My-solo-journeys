@@ -140,7 +140,7 @@ function AdminPostsList() {
       {/* Header Bar matching Homepage Visual Hierarchy */}
       <div className="sticky top-16 z-20 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border bg-background/95 backdrop-blur-md pb-4 pt-3 shadow-2xs">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-2xl bg-[#FF7A00]/10 text-[#FF7A00]">
+          <div className="p-2.5 rounded-2xl bg-[#4085FF]/10 text-[#4085FF]">
             <BookOpen className="h-6 w-6" />
           </div>
           <div>
@@ -148,7 +148,7 @@ function AdminPostsList() {
               <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
                 Stories Management
               </h1>
-              <span className="hidden sm:inline-flex items-center rounded-full bg-[#FF7A00]/10 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-[#FF7A00]">
+              <span className="hidden sm:inline-flex items-center rounded-full bg-[#4085FF]/10 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-[#4085FF]">
                 {data ? `${data.length} Total` : "Posts"}
               </span>
             </div>
@@ -167,19 +167,19 @@ function AdminPostsList() {
           >
             {batchGeocoding ? (
               <>
-                <Loader2 className="h-4 w-4 animate-spin text-[#FF7A00]" />
+                <Loader2 className="h-4 w-4 animate-spin text-[#4085FF]" />
                 <span>Geocoding...</span>
               </>
             ) : (
               <>
-                <Navigation className="h-4 w-4 text-[#FF7A00]" />
+                <Navigation className="h-4 w-4 text-[#4085FF]" />
                 <span>Auto-geocode All</span>
               </>
             )}
           </button>
           <Link
             to="/admin/posts/new"
-            className="inline-flex items-center gap-2 rounded-xl bg-[#FF7A00] px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold text-white shadow-md shadow-[#FF7A00]/25 hover:bg-[#FF7A00]/90 transition-all cursor-pointer"
+            className="inline-flex items-center gap-2 rounded-xl bg-[#4085FF] px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold text-white shadow-md shadow-[#4085FF]/25 hover:bg-[#4085FF]/90 transition-all cursor-pointer"
           >
             <Plus className="h-4 w-4" /> New Story
           </Link>
@@ -196,7 +196,7 @@ function AdminPostsList() {
               onClick={() => setStatusFilter(tab)}
               className={`rounded-lg px-3 py-1.5 text-xs font-semibold capitalize transition-all cursor-pointer ${
                 statusFilter === tab
-                  ? "bg-[#FF7A00] text-white shadow-xs"
+                  ? "bg-[#4085FF] text-white shadow-xs"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -211,7 +211,7 @@ function AdminPostsList() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search stories, category, slug…"
-            className="w-full rounded-xl border border-border bg-background pl-10 pr-4 py-2 text-xs sm:text-sm text-foreground focus:border-[#FF7A00] focus:ring-1 focus:ring-[#FF7A00] focus:outline-none transition-colors shadow-2xs"
+            className="w-full rounded-xl border border-border bg-background pl-10 pr-4 py-2 text-xs sm:text-sm text-foreground focus:border-[#4085FF] focus:ring-1 focus:ring-[#4085FF] focus:outline-none transition-colors shadow-2xs"
           />
         </div>
       </div>
@@ -236,7 +236,7 @@ function AdminPostsList() {
                 <tr>
                   <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center gap-2">
-                      <Loader2 className="h-6 w-6 animate-spin text-[#FF7A00]" />
+                      <Loader2 className="h-6 w-6 animate-spin text-[#4085FF]" />
                       <p className="text-xs">Loading solo stories…</p>
                     </div>
                   </td>
@@ -261,7 +261,7 @@ function AdminPostsList() {
                       <Link
                         to="/admin/posts/$id"
                         params={{ id: p.id }}
-                        className="font-bold hover:text-[#FF7A00] transition-colors line-clamp-1 text-foreground"
+                        className="font-bold hover:text-[#4085FF] transition-colors line-clamp-1 text-foreground"
                       >
                         {p.title}
                       </Link>
@@ -290,7 +290,7 @@ function AdminPostsList() {
                           className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium truncate"
                           title={`${p.location_name} (${Number(p.latitude).toFixed(4)}, ${Number(p.longitude).toFixed(4)})`}
                         >
-                          <MapPin className="h-3.5 w-3.5 shrink-0 text-[#FF7A00]" />
+                          <MapPin className="h-3.5 w-3.5 shrink-0 text-[#4085FF]" />
                           <span className="truncate">{p.location_name}</span>
                         </div>
                       ) : (
@@ -320,7 +320,7 @@ function AdminPostsList() {
                         <Link
                           to="/admin/gallery"
                           title="Manage gallery photos"
-                          className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-[#FF7A00] transition-colors"
+                          className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-[#4085FF] transition-colors"
                         >
                           <ImageIcon className="h-4 w-4" />
                         </Link>
@@ -328,7 +328,7 @@ function AdminPostsList() {
                           type="button"
                           title={p.published ? "Unpublish story" : "Publish now"}
                           onClick={() => toggle.mutate({ id: p.id, published: !p.published })}
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-[#FF7A00] transition-colors cursor-pointer"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-[#4085FF] transition-colors cursor-pointer"
                         >
                           {p.published ? (
                             <EyeOff className="h-4 w-4" />

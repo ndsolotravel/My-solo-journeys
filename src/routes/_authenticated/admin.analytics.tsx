@@ -225,8 +225,8 @@ function AdminAnalyticsPage() {
               >
                 <defs>
                   <linearGradient id="visitorsGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#FF7A00" stopOpacity={0.4} />
-                    <stop offset="95%" stopColor="#FF7A00" stopOpacity={0.0} />
+                    <stop offset="5%" stopColor="#4085FF" stopOpacity={0.4} />
+                    <stop offset="95%" stopColor="#4085FF" stopOpacity={0.0} />
                   </linearGradient>
                   <linearGradient id="pageViewsGrad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#6366F1" stopOpacity={0.3} />
@@ -255,7 +255,7 @@ function AdminAnalyticsPage() {
                   type="monotone"
                   dataKey="visitors"
                   name="Unique Visitors"
-                  stroke="#FF7A00"
+                  stroke="#4085FF"
                   strokeWidth={2.5}
                   fillOpacity={1}
                   fill="url(#visitorsGrad)"

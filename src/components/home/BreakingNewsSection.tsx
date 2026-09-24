@@ -79,7 +79,7 @@ export function BreakingNewsSection({ items, className }: BreakingNewsSectionPro
         >
           {/* Subtle background ambient pulse glow */}
           <div className="pointer-events-none absolute -left-12 -top-12 h-28 w-28 rounded-full bg-red-600/25 blur-2xl opacity-70 transition-opacity group-hover:opacity-100" />
-          <div className="pointer-events-none absolute -right-12 -bottom-12 h-28 w-28 rounded-full bg-[#FF7A00]/20 blur-2xl opacity-50" />
+          <div className="pointer-events-none absolute -right-12 -bottom-12 h-28 w-28 rounded-full bg-[#4085FF]/20 blur-2xl opacity-50" />
 
           {/* Left Pinned BREAKING NEWS Badge */}
           <div className="relative z-20 flex shrink-0 items-center gap-2 bg-gradient-to-r from-red-600 via-red-600 to-red-700 px-3 sm:px-4 py-1.5 sm:py-2 text-[11px] sm:text-xs font-bold tracking-wider text-white uppercase shadow-md shadow-red-950/60 select-none rounded-l-[11px]">
@@ -111,7 +111,7 @@ export function BreakingNewsSection({ items, className }: BreakingNewsSectionPro
                     onClick={() => setActiveModalItem(item)}
                     className="group/item inline-flex items-center gap-2 text-left cursor-pointer transition-colors focus:outline-none"
                   >
-                    <span className="text-xs sm:text-sm font-medium text-neutral-100 group-hover/item:text-[#FF7A00] transition-colors tracking-normal">
+                    <span className="text-xs sm:text-sm font-medium text-neutral-100 group-hover/item:text-[#4085FF] transition-colors tracking-normal">
                       {item.title}
                     </span>
                     <span className="inline-flex items-center gap-1 text-[11px] font-sans text-neutral-400 group-hover/item:text-neutral-300">
@@ -122,7 +122,7 @@ export function BreakingNewsSection({ items, className }: BreakingNewsSectionPro
 
                   {/* Visually Distinct Separator */}
                   <span className="mx-4 sm:mx-6 inline-flex items-center gap-1 text-red-500/80 font-bold select-none opacity-80" aria-hidden="true">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#FF7A00] animate-pulse"></span>
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#4085FF] animate-pulse"></span>
                     <span className="text-xs text-red-400/90 font-mono">//</span>
                   </span>
                 </div>
@@ -139,7 +139,7 @@ export function BreakingNewsSection({ items, className }: BreakingNewsSectionPro
                     tabIndex={-1}
                     className="group/item inline-flex items-center gap-2 text-left cursor-pointer transition-colors focus:outline-none"
                   >
-                    <span className="text-xs sm:text-sm font-medium text-neutral-100 group-hover/item:text-[#FF7A00] transition-colors tracking-normal">
+                    <span className="text-xs sm:text-sm font-medium text-neutral-100 group-hover/item:text-[#4085FF] transition-colors tracking-normal">
                       {item.title}
                     </span>
                     <span className="inline-flex items-center gap-1 text-[11px] font-sans text-neutral-400 group-hover/item:text-neutral-300">
@@ -150,7 +150,7 @@ export function BreakingNewsSection({ items, className }: BreakingNewsSectionPro
 
                   {/* Visually Distinct Separator */}
                   <span className="mx-4 sm:mx-6 inline-flex items-center gap-1 text-red-500/80 font-bold select-none opacity-80" aria-hidden="true">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#FF7A00] animate-pulse"></span>
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#4085FF] animate-pulse"></span>
                     <span className="text-xs text-red-400/90 font-mono">//</span>
                   </span>
                 </div>
@@ -200,7 +200,7 @@ export function BreakingNewsSection({ items, className }: BreakingNewsSectionPro
 
               {/* Short Summary (if provided) */}
               {activeModalItem.summary && (
-                <div className="rounded-2xl border-l-4 border-[#FF7A00] bg-[#FF7A00]/5 p-4 text-sm sm:text-base font-medium text-foreground/90 leading-relaxed">
+                <div className="rounded-2xl border-l-4 border-[#4085FF] bg-[#4085FF]/5 p-4 text-sm sm:text-base font-medium text-foreground/90 leading-relaxed">
                   {activeModalItem.summary}
                 </div>
               )}

@@ -67,11 +67,11 @@ export function AtlasHero({ image }: AtlasHeroProps) {
             transition={{ duration: 0.9, ease: EASE }}
             className="mb-5 flex items-center gap-2.5"
           >
-            <Compass className="h-3.5 w-3.5 text-[#FF7A00]" />
+            <Compass className="h-3.5 w-3.5 text-[#4085FF]" />
             <span className="text-[11px] font-semibold uppercase tracking-[0.32em] text-white/85 sm:text-xs">
               {t("The Expedition Atlas")}
             </span>
-            <span className="hidden h-px w-14 bg-gradient-to-r from-[#FF7A00]/70 to-transparent sm:block" />
+            <span className="hidden h-px w-14 bg-gradient-to-r from-[#4085FF]/70 to-transparent sm:block" />
           </motion.p>
 
           <motion.h1
@@ -100,7 +100,7 @@ export function AtlasHero({ image }: AtlasHeroProps) {
           >
             <a
               href="#interactive-map"
-              className="group inline-flex items-center gap-2.5 rounded-full bg-[#FF7A00] px-7 py-3.5 text-sm font-medium text-white shadow-lg shadow-[#FF7A00]/25 transition-all hover:bg-[#ff8a21] hover:shadow-[#FF7A00]/40"
+              className="group inline-flex items-center gap-2.5 rounded-full bg-[#4085FF] px-7 py-3.5 text-sm font-medium text-white shadow-lg shadow-[#4085FF]/25 transition-all hover:bg-[#5095ff] hover:shadow-[#4085FF]/40"
             >
               {t("Explore the Journey")}
               <ChevronDown className="h-4 w-4 transition-transform duration-300 group-hover:translate-y-0.5" />
@@ -121,7 +121,7 @@ export function AtlasHero({ image }: AtlasHeroProps) {
           >
             {[t("Solo"), t("Slow"), t("Mapped")].map((label, i) => (
               <span key={i} className="flex items-center gap-3">
-                {i > 0 && <span className="h-1 w-1 rounded-full bg-[#FF7A00]/70" />}
+                {i > 0 && <span className="h-1 w-1 rounded-full bg-[#4085FF]/70" />}
                 <span className="text-[10px] font-semibold uppercase tracking-[0.28em] text-white/60">
                   {label}
                 </span>
