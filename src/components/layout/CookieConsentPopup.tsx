@@ -98,7 +98,7 @@ export function CookieConsentPopup() {
             className="relative overflow-hidden rounded-2xl border border-border/80 bg-background/95 dark:bg-card/95 p-4 sm:p-5 shadow-2xl backdrop-blur-md transition-colors"
           >
             {/* Top signature brand accent ribbon */}
-            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-brand via-[#4085FF] to-brand/40" />
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-brand via-amber-500 to-brand/40" />
 
             {/* Quick close 'X' button (dismisses for session) */}
             <button

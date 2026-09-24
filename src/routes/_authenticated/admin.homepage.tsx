@@ -1466,7 +1466,7 @@ function AdminHomepagePage() {
                   className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm font-medium outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
                 />
                 <p className="text-xs text-muted-foreground">
-                  The second phrase of the title, highlighted in accent color (#4085FF).
+                  The second phrase of the title, highlighted in orange (#4085FF).
                 </p>
               </div>
               <div className="space-y-1.5 sm:col-span-2">

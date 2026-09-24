@@ -907,7 +907,7 @@ html[dir="rtl"] .flex-row {
   font-weight: 500;
   padding: 0.25rem 0.75rem;
   border-radius: 9999px;
-  background-color: rgba(64, 133, 255, 0.15);
+  background-color: rgba(255, 122, 0, 0.15);
   color: var(--brand);
 }
 
