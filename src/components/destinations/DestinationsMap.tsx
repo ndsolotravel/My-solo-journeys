@@ -109,7 +109,7 @@ export function DestinationsMap({ destinations }: { destinations: Destination[] 
         className: "custom-map-pin",
         html: `
           <div style="position:relative;display:flex;align-items:center;justify-content:center;">
-            <div style="position:absolute;width:24px;height:24px;border-radius:9999px;background:rgba(255,122,0,0.25);animation:ping 2s cubic-bezier(0,0,0.2,1) infinite;"></div>
+            <div style="position:absolute;width:24px;height:24px;border-radius:9999px;background:rgba(64,133,255,0.3);animation:ping 2s cubic-bezier(0,0,0.2,1) infinite;"></div>
             <div style="width:14px;height:14px;border-radius:9999px;background:#4085FF;border:2.5px solid #ffffff;box-shadow:0 2px 6px rgba(0,0,0,0.4);position:relative;z-index:2;"></div>
           </div>
         `,

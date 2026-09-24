@@ -235,6 +235,10 @@ function AdminTypographyPage() {
       "--font-size-hero-script": `${activeScriptSize}px`,
       "--line-height-hero-script": `${activeScriptLineHeight}`,
       "--letter-spacing-hero-script": `${activeScriptLetterSpacing}em`,
+
+      // Theme Accent & Brand Tokens
+      "--accent": "#4085FF",
+      "--brand": "#4085FF",
     } as React.CSSProperties;
   }, [draftConfig, activeDevice]);
 
@@ -330,26 +334,26 @@ function AdminTypographyPage() {
           {/* ========================================================= */}
           {/* DEDICATED SCRIPT FONTS SECTION (Completely Independent) */}
           {/* ========================================================= */}
-          <div className="rounded-2xl border-2 border-amber-500/30 bg-card p-5 sm:p-6 shadow-sm space-y-5 relative overflow-hidden">
-            <div className="absolute top-0 right-0 h-28 w-28 bg-amber-500/5 rounded-bl-full pointer-events-none" />
+          <div className="rounded-2xl border-2 border-[#4085FF]/30 bg-card p-5 sm:p-6 shadow-sm space-y-5 relative overflow-hidden">
+            <div className="absolute top-0 right-0 h-28 w-28 bg-[#4085FF]/5 rounded-bl-full pointer-events-none" />
 
             <div className="flex flex-col gap-2 border-b border-border/60 pb-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/15 text-amber-500">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#4085FF]/15 text-[#4085FF]">
                     <PenTool className="h-4 w-4" />
                   </div>
                   <h2 className="text-base font-bold text-foreground">
                     Script Fonts
                   </h2>
                 </div>
-                <span className="inline-flex items-center rounded-full bg-amber-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-amber-500 border border-amber-500/20">
+                <span className="inline-flex items-center rounded-full bg-[#4085FF]/10 px-2.5 py-0.5 text-[11px] font-semibold text-[#4085FF] border border-[#4085FF]/20">
                   Independent System
                 </span>
               </div>
               <p className="text-xs text-muted-foreground">
                 Configures the elegant cursive typeface specifically used for the Home Hero headline:{" "}
-                <em className="text-amber-500 font-medium">“Stories from the high places. Most people only fly over.”</em>{" "}
+                <em className="text-[#4085FF] font-medium">“Stories from the high places. Most people only fly over.”</em>{" "}
                 Completely isolated from standard Heading and Body settings.
               </p>
             </div>
@@ -360,7 +364,7 @@ function AdminTypographyPage() {
                 <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   Script Font Family
                 </label>
-                <span className="text-xs font-bold text-amber-500">
+                <span className="text-xs font-bold text-[#4085FF]">
                   {draftConfig.scriptFont || "Yuyu Short"}
                 </span>
               </div>
@@ -368,7 +372,7 @@ function AdminTypographyPage() {
               <select
                 value={draftConfig.scriptFont || "Yuyu Short"}
                 onChange={(e) => handleScriptFontChange(e.target.value)}
-                className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm font-medium text-foreground focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm font-medium text-foreground focus:border-[#4085FF] focus:outline-none focus:ring-1 focus:ring-[#4085FF]"
               >
                 {CURATED_SCRIPT_FONTS.map((font) => (
                   <option key={`script-opt-${font.name}`} value={font.name}>
@@ -377,7 +381,7 @@ function AdminTypographyPage() {
                 ))}
               </select>
 
-              <div className="rounded-xl bg-amber-500/5 border border-amber-500/20 p-3 text-xs flex flex-col gap-1">
+              <div className="rounded-xl bg-[#4085FF]/5 border border-[#4085FF]/20 p-3 text-xs flex flex-col gap-1">
                 <div className="flex items-center justify-between text-muted-foreground">
                   <span className="font-semibold text-foreground">{currentScriptFontObj.name}</span>
                   <span className="text-[11px] opacity-75">
@@ -394,7 +398,7 @@ function AdminTypographyPage() {
             <div className="space-y-2 pt-2 border-t border-border/40">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                  <Eye className="h-3 w-3 text-amber-500" />
+                  <Eye className="h-3 w-3 text-[#4085FF]" />
                   Live Hero Headline Preview
                 </label>
                 <span className="text-[11px] text-muted-foreground capitalize">
@@ -412,7 +416,7 @@ function AdminTypographyPage() {
                     fontWeight: draftConfig.scriptWeight || "400",
                     lineHeight: activeScriptLineHeight,
                     letterSpacing: `${activeScriptLetterSpacing}em`,
-                    color: "var(--accent, #e5a93c)",
+                    color: "var(--accent, #4085FF)",
                   }}
                   className="transition-all duration-200 select-none break-words"
                 >
@@ -456,7 +460,7 @@ function AdminTypographyPage() {
                       }
                       className={`flex flex-col items-center justify-center rounded-xl border px-3.5 py-2 text-xs transition-all ${
                         isSelected
-                          ? "border-amber-500 bg-amber-500/15 font-bold text-amber-500 shadow-sm"
+                          ? "border-[#4085FF] bg-[#4085FF]/15 font-bold text-[#4085FF] shadow-sm"
                           : "border-border bg-background text-muted-foreground hover:bg-muted"
                       }`}
                     >
@@ -479,7 +483,7 @@ function AdminTypographyPage() {
             <div className="space-y-4 pt-3 border-t border-border/40">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                  <Layers className="h-3.5 w-3.5 text-amber-500" />
+                  <Layers className="h-3.5 w-3.5 text-[#4085FF]" />
                   Responsive Headline Typography
                 </label>
 
@@ -544,7 +548,7 @@ function AdminTypographyPage() {
                     onChange={(e) =>
                       updateScriptResponsive("scriptSize", parseFloat(e.target.value))
                     }
-                    className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-muted accent-amber-500"
+                    className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-muted accent-[#4085FF]"
                   />
                   <input
                     type="number"
@@ -558,7 +562,7 @@ function AdminTypographyPage() {
                         parseFloat(e.target.value) || activeScriptSize,
                       )
                     }
-                    className="w-16 rounded-lg border border-border bg-background px-2 py-1 text-center font-mono text-xs text-foreground focus:border-amber-500 focus:outline-none"
+                    className="w-16 rounded-lg border border-border bg-background px-2 py-1 text-center font-mono text-xs text-foreground focus:border-[#4085FF] focus:outline-none"
                   />
                 </div>
               </div>
@@ -583,7 +587,7 @@ function AdminTypographyPage() {
                     onChange={(e) =>
                       updateScriptResponsive("scriptLineHeight", parseFloat(e.target.value))
                     }
-                    className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-muted accent-amber-500"
+                    className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-muted accent-[#4085FF]"
                   />
                   <input
                     type="number"
@@ -597,7 +601,7 @@ function AdminTypographyPage() {
                         parseFloat(e.target.value) || activeScriptLineHeight,
                       )
                     }
-                    className="w-16 rounded-lg border border-border bg-background px-2 py-1 text-center font-mono text-xs text-foreground focus:border-amber-500 focus:outline-none"
+                    className="w-16 rounded-lg border border-border bg-background px-2 py-1 text-center font-mono text-xs text-foreground focus:border-[#4085FF] focus:outline-none"
                   />
                 </div>
               </div>
@@ -622,7 +626,7 @@ function AdminTypographyPage() {
                     onChange={(e) =>
                       updateScriptResponsive("scriptLetterSpacing", parseFloat(e.target.value))
                     }
-                    className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-muted accent-amber-500"
+                    className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-muted accent-[#4085FF]"
                   />
                   <input
                     type="number"
@@ -636,7 +640,7 @@ function AdminTypographyPage() {
                         parseFloat(e.target.value) || activeScriptLetterSpacing,
                       )
                     }
-                    className="w-16 rounded-lg border border-border bg-background px-2 py-1 text-center font-mono text-xs text-foreground focus:border-amber-500 focus:outline-none"
+                    className="w-16 rounded-lg border border-border bg-background px-2 py-1 text-center font-mono text-xs text-foreground focus:border-[#4085FF] focus:outline-none"
                   />
                 </div>
               </div>
@@ -657,7 +661,7 @@ function AdminTypographyPage() {
                 <button
                   type="button"
                   onClick={handlePreviewOnSite}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-xs font-medium text-amber-500 hover:bg-amber-500/20 transition"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-[#4085FF]/30 bg-[#4085FF]/10 px-3 py-1.5 text-xs font-medium text-[#4085FF] hover:bg-[#4085FF]/20 transition"
                 >
                   <Eye className="h-3 w-3" />
                   Preview Changes
@@ -666,7 +670,7 @@ function AdminTypographyPage() {
                   type="button"
                   onClick={() => saveMutation.mutate(draftConfig)}
                   disabled={saveMutation.isPending}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-amber-500 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-amber-600 transition disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#4085FF] px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-[#3570D0] transition disabled:opacity-50"
                 >
                   <Save className="h-3 w-3" />
                   Save & Publish
@@ -1329,7 +1333,7 @@ function AdminTypographyPage() {
                     fontWeight: 'var(--font-weight-script)',
                     lineHeight: 'var(--line-height-hero-script)',
                     letterSpacing: 'var(--letter-spacing-hero-script)',
-                    color: 'var(--accent, #e5a93c)',
+                    color: 'var(--accent, #4085FF)',
                   }}
                   className="mt-2 mb-4 font-medium break-words"
                 >
@@ -1464,7 +1468,7 @@ function AdminTypographyPage() {
           {/* Quick Font Summary Card */}
           <div className="rounded-2xl border border-border bg-card p-4 text-xs text-muted-foreground flex flex-col gap-2.5">
             <div className="flex flex-wrap items-center gap-3">
-              <span className="text-amber-500 font-semibold">
+              <span className="text-[#4085FF] font-semibold">
                 <strong>Hero Script:</strong> {draftConfig.scriptFont || "Yuyu Short"} ({draftConfig.scriptWeight || "400"} / {activeScriptSize}px)
               </span>
               <span>•</span>

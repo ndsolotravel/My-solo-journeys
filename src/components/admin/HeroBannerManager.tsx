@@ -199,7 +199,7 @@ export function HeroBannerManager({
           data: {
             key: "gallery_hero_title_highlight",
             value: draftTitleHighlight,
-            description: "Highlighted title text (accent orange) for the gallery hero banner",
+            description: "Highlighted title text (accent #4085FF) for the gallery hero banner",
           },
         });
         await updateSettingFn({
@@ -552,7 +552,7 @@ export function HeroBannerManager({
 
                 <div className="space-y-1.5">
                   <label className="block text-xs font-medium text-foreground">
-                    Title Highlight (Orange Accent)
+                    Title Highlight (#4085FF Accent)
                   </label>
                   <input
                     value={draftTitleHighlight}
