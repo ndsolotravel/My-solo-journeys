@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Type,
   Save,
@@ -13,13 +13,11 @@ import {
   Tablet,
   Smartphone,
   Sparkles,
-  ExternalLink,
   Layers,
   ArrowRight,
   Info,
-  Check,
   Compass,
-  Search,
+  PenTool,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -28,11 +26,14 @@ import {
 } from "@/lib/typography.functions";
 import {
   CURATED_GOOGLE_FONTS,
+  CURATED_SCRIPT_FONTS,
   DEFAULT_TYPOGRAPHY_CONFIG,
   generateGoogleFontsUrl,
   parseTypographyConfig,
+  resolveGoogleFamily,
   type TypographyConfig,
   type GoogleFontOption,
+  type ScriptFontOption,
 } from "@/lib/typography";
 import { PREVIEW_STORAGE_KEY } from "@/components/layout/TypographyManager";
 
@@ -60,9 +61,6 @@ function AdminTypographyPage() {
 
   const [draftConfig, setDraftConfig] = useState<TypographyConfig>(DEFAULT_TYPOGRAPHY_CONFIG);
   const [activeDevice, setActiveDevice] = useState<DeviceMode>("desktop");
-  const [fontSearch, setFontSearch] = useState("");
-  const [fontCategoryFilter, setFontCategoryFilter] = useState<string>("all");
-  const [previewModalOpen, setPreviewModalOpen] = useState(false);
   const [previewTheme, setPreviewTheme] = useState<"light" | "dark">("dark");
 
   // Sync loaded configuration into draft state
@@ -122,6 +120,19 @@ function AdminTypographyPage() {
     toast.info("Reset to default typography. Click 'Save & Publish' to push live.");
   };
 
+  // Reset only script font to default Yuyu Short
+  const handleResetScript = () => {
+    setDraftConfig((prev) => ({
+      ...prev,
+      scriptFont: DEFAULT_TYPOGRAPHY_CONFIG.scriptFont,
+      scriptWeight: DEFAULT_TYPOGRAPHY_CONFIG.scriptWeight,
+      scriptSize: { ...DEFAULT_TYPOGRAPHY_CONFIG.scriptSize },
+      scriptLineHeight: { ...DEFAULT_TYPOGRAPHY_CONFIG.scriptLineHeight },
+      scriptLetterSpacing: { ...DEFAULT_TYPOGRAPHY_CONFIG.scriptLetterSpacing },
+    }));
+    toast.info("Reset Script font to Yuyu Short default settings.");
+  };
+
   // Preview Changes across live website
   const handlePreviewOnSite = () => {
     try {
@@ -136,19 +147,7 @@ function AdminTypographyPage() {
     }
   };
 
-  // Filtered fonts list for select dialog/picker
-  const filteredFonts = useMemo(() => {
-    return CURATED_GOOGLE_FONTS.filter((f) => {
-      const matchesSearch =
-        f.name.toLowerCase().includes(fontSearch.toLowerCase()) ||
-        f.vibe.toLowerCase().includes(fontSearch.toLowerCase());
-      const matchesCategory =
-        fontCategoryFilter === "all" || f.category === fontCategoryFilter;
-      return matchesSearch && matchesCategory;
-    });
-  }, [fontSearch, fontCategoryFilter]);
-
-  // Helper updater for responsive values
+  // Helper updater for standard responsive values
   const updateResponsive = (
     field: "bodySize" | "lineHeight" | "letterSpacing",
     val: number,
@@ -162,11 +161,61 @@ function AdminTypographyPage() {
     }));
   };
 
+  // Helper updater for script font responsive values
+  const updateScriptResponsive = (
+    field: "scriptSize" | "scriptLineHeight" | "scriptLetterSpacing",
+    val: number,
+  ) => {
+    setDraftConfig((prev) => ({
+      ...prev,
+      [field]: {
+        ...(prev[field] || DEFAULT_TYPOGRAPHY_CONFIG[field]),
+        [activeDevice]: val,
+      },
+    }));
+  };
+
+  // Lookup active script font metadata and supported weights
+  const currentScriptFontObj: ScriptFontOption = useMemo(() => {
+    return (
+      CURATED_SCRIPT_FONTS.find(
+        (f) =>
+          f.name.toLowerCase() === (draftConfig.scriptFont || "").toLowerCase() ||
+          f.googleFamily.toLowerCase() === (draftConfig.scriptFont || "").toLowerCase(),
+      ) || CURATED_SCRIPT_FONTS[0]
+    );
+  }, [draftConfig.scriptFont]);
+
+  // Handle script font change with auto weight compatibility
+  const handleScriptFontChange = (fontName: string) => {
+    const fontObj = CURATED_SCRIPT_FONTS.find(
+      (f) =>
+        f.name.toLowerCase() === fontName.toLowerCase() ||
+        f.googleFamily.toLowerCase() === fontName.toLowerCase(),
+    );
+    const availableWeights = fontObj?.weights || [400];
+    let newWeight = draftConfig.scriptWeight || "400";
+    const currentWeightNum = parseInt(newWeight, 10);
+    if (!availableWeights.includes(currentWeightNum)) {
+      newWeight = availableWeights.includes(400) ? "400" : String(availableWeights[0]);
+    }
+    setDraftConfig((prev) => ({
+      ...prev,
+      scriptFont: fontName,
+      scriptWeight: newWeight,
+    }));
+  };
+
   // Scoped CSS styles for the preview canvas
   const previewCanvasStyles = useMemo(() => {
     const activeSize = draftConfig.bodySize[activeDevice];
     const activeLineHeight = draftConfig.lineHeight[activeDevice];
     const activeLetterSpacing = draftConfig.letterSpacing[activeDevice];
+
+    const scriptInfo = resolveGoogleFamily(draftConfig.scriptFont || "Yuyu Short");
+    const activeScriptSize = (draftConfig.scriptSize || DEFAULT_TYPOGRAPHY_CONFIG.scriptSize)[activeDevice];
+    const activeScriptLineHeight = (draftConfig.scriptLineHeight || DEFAULT_TYPOGRAPHY_CONFIG.scriptLineHeight)[activeDevice];
+    const activeScriptLetterSpacing = (draftConfig.scriptLetterSpacing || DEFAULT_TYPOGRAPHY_CONFIG.scriptLetterSpacing)[activeDevice];
 
     return {
       "--font-display": `"${draftConfig.headingFont}", serif`,
@@ -179,6 +228,13 @@ function AdminTypographyPage() {
       "--line-height-body": `${activeLineHeight}`,
       "--letter-spacing-body": `${activeLetterSpacing}em`,
       "--letter-spacing-heading": `${draftConfig.headingLetterSpacing}em`,
+
+      // Independent Script Font Variables (Home Hero Headline & Accents)
+      "--font-hero-script": `"${scriptInfo.family}", ${scriptInfo.fallback}`,
+      "--font-weight-script": draftConfig.scriptWeight || "400",
+      "--font-size-hero-script": `${activeScriptSize}px`,
+      "--line-height-hero-script": `${activeScriptLineHeight}`,
+      "--letter-spacing-hero-script": `${activeScriptLetterSpacing}em`,
     } as React.CSSProperties;
   }, [draftConfig, activeDevice]);
 
@@ -192,6 +248,10 @@ function AdminTypographyPage() {
       </div>
     );
   }
+
+  const activeScriptSize = (draftConfig.scriptSize || DEFAULT_TYPOGRAPHY_CONFIG.scriptSize)[activeDevice];
+  const activeScriptLineHeight = (draftConfig.scriptLineHeight || DEFAULT_TYPOGRAPHY_CONFIG.scriptLineHeight)[activeDevice];
+  const activeScriptLetterSpacing = (draftConfig.scriptLetterSpacing || DEFAULT_TYPOGRAPHY_CONFIG.scriptLetterSpacing)[activeDevice];
 
   return (
     <div className="space-y-8 pb-16">
@@ -267,11 +327,359 @@ function AdminTypographyPage() {
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 items-start">
         {/* LEFT COLUMN: Controls */}
         <div className="space-y-6 lg:col-span-6 xl:col-span-5">
-          {/* Section 1: Font Families */}
+          {/* ========================================================= */}
+          {/* DEDICATED SCRIPT FONTS SECTION (Completely Independent) */}
+          {/* ========================================================= */}
+          <div className="rounded-2xl border-2 border-amber-500/30 bg-card p-5 sm:p-6 shadow-sm space-y-5 relative overflow-hidden">
+            <div className="absolute top-0 right-0 h-28 w-28 bg-amber-500/5 rounded-bl-full pointer-events-none" />
+
+            <div className="flex flex-col gap-2 border-b border-border/60 pb-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/15 text-amber-500">
+                    <PenTool className="h-4 w-4" />
+                  </div>
+                  <h2 className="text-base font-bold text-foreground">
+                    Script Fonts
+                  </h2>
+                </div>
+                <span className="inline-flex items-center rounded-full bg-amber-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-amber-500 border border-amber-500/20">
+                  Independent System
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Configures the elegant cursive typeface specifically used for the Home Hero headline:{" "}
+                <em className="text-amber-500 font-medium">“Stories from the high places. Most people only fly over.”</em>{" "}
+                Completely isolated from standard Heading and Body settings.
+              </p>
+            </div>
+
+            {/* Script Font Selection Dropdown */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Script Font Family
+                </label>
+                <span className="text-xs font-bold text-amber-500">
+                  {draftConfig.scriptFont || "Yuyu Short"}
+                </span>
+              </div>
+
+              <select
+                value={draftConfig.scriptFont || "Yuyu Short"}
+                onChange={(e) => handleScriptFontChange(e.target.value)}
+                className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm font-medium text-foreground focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+              >
+                {CURATED_SCRIPT_FONTS.map((font) => (
+                  <option key={`script-opt-${font.name}`} value={font.name}>
+                    {font.name} {font.name === "Yuyu Short" ? "(Default Hero Headline)" : ""} — {font.description}
+                  </option>
+                ))}
+              </select>
+
+              <div className="rounded-xl bg-amber-500/5 border border-amber-500/20 p-3 text-xs flex flex-col gap-1">
+                <div className="flex items-center justify-between text-muted-foreground">
+                  <span className="font-semibold text-foreground">{currentScriptFontObj.name}</span>
+                  <span className="text-[11px] opacity-75">
+                    Google Fonts API: <code>{currentScriptFontObj.googleFamily}</code>
+                  </span>
+                </div>
+                <p className="text-muted-foreground text-[11px] leading-relaxed">
+                  {currentScriptFontObj.description}
+                </p>
+              </div>
+            </div>
+
+            {/* Dedicated Live Preview of Selected Script Font */}
+            <div className="space-y-2 pt-2 border-t border-border/40">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                  <Eye className="h-3 w-3 text-amber-500" />
+                  Live Hero Headline Preview
+                </label>
+                <span className="text-[11px] text-muted-foreground capitalize">
+                  {activeDevice} view ({activeScriptSize}px)
+                </span>
+              </div>
+
+              <div
+                className="rounded-xl border border-border bg-black/85 p-5 text-center relative overflow-hidden transition-all shadow-inner"
+              >
+                <p
+                  style={{
+                    fontFamily: `"${resolveGoogleFamily(draftConfig.scriptFont || "Yuyu Short").family}", ${currentScriptFontObj.fallback}`,
+                    fontSize: `${activeScriptSize}px`,
+                    fontWeight: draftConfig.scriptWeight || "400",
+                    lineHeight: activeScriptLineHeight,
+                    letterSpacing: `${activeScriptLetterSpacing}em`,
+                    color: "var(--accent, #e5a93c)",
+                  }}
+                  className="transition-all duration-200 select-none break-words"
+                >
+                  Stories from the high places. Most people only fly over.
+                </p>
+              </div>
+            </div>
+
+            {/* Script Font Weight Control (Where supported by font) */}
+            <div className="space-y-2.5 pt-2 border-t border-border/40">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Script Font Weight
+                </label>
+                <span className="rounded-md bg-muted px-2 py-0.5 text-xs font-semibold">
+                  {draftConfig.scriptWeight || "400"}
+                </span>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {currentScriptFontObj.weights.map((weightNum) => {
+                  const weightStr = String(weightNum);
+                  const isSelected = (draftConfig.scriptWeight || "400") === weightStr;
+                  const labelMap: Record<number, string> = {
+                    100: "Thin",
+                    200: "Extra Light",
+                    300: "Light",
+                    400: "Regular",
+                    500: "Medium",
+                    600: "Semi-Bold",
+                    700: "Bold",
+                    800: "Extra Bold",
+                    900: "Black",
+                  };
+                  return (
+                    <button
+                      key={`sw-${weightStr}`}
+                      type="button"
+                      onClick={() =>
+                        setDraftConfig({ ...draftConfig, scriptWeight: weightStr })
+                      }
+                      className={`flex flex-col items-center justify-center rounded-xl border px-3.5 py-2 text-xs transition-all ${
+                        isSelected
+                          ? "border-amber-500 bg-amber-500/15 font-bold text-amber-500 shadow-sm"
+                          : "border-border bg-background text-muted-foreground hover:bg-muted"
+                      }`}
+                    >
+                      <span className="font-mono">{weightStr}</span>
+                      <span className="text-[10px] text-muted-foreground font-normal">
+                        {labelMap[weightNum] || "Normal"}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+              {currentScriptFontObj.weights.length === 1 && (
+                <p className="text-[11px] text-muted-foreground">
+                  {currentScriptFontObj.name} is designed with a single signature weight ({currentScriptFontObj.weights[0]}).
+                </p>
+              )}
+            </div>
+
+            {/* Script Responsive Controls (Desktop, Tablet, Mobile) */}
+            <div className="space-y-4 pt-3 border-t border-border/40">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                  <Layers className="h-3.5 w-3.5 text-amber-500" />
+                  Responsive Headline Typography
+                </label>
+
+                {/* Device Selector */}
+                <div className="flex items-center rounded-xl bg-muted p-1 gap-1">
+                  <button
+                    type="button"
+                    onClick={() => setActiveDevice("desktop")}
+                    className={`flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-medium transition-all ${
+                      activeDevice === "desktop"
+                        ? "bg-background text-foreground shadow-xs font-semibold"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <Monitor className="h-3 w-3" />
+                    Desktop
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveDevice("tablet")}
+                    className={`flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-medium transition-all ${
+                      activeDevice === "tablet"
+                        ? "bg-background text-foreground shadow-xs font-semibold"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <Tablet className="h-3 w-3" />
+                    Tablet
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveDevice("mobile")}
+                    className={`flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-medium transition-all ${
+                      activeDevice === "mobile"
+                        ? "bg-background text-foreground shadow-xs font-semibold"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <Smartphone className="h-3 w-3" />
+                    Mobile
+                  </button>
+                </div>
+              </div>
+
+              {/* Script Font Size */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">
+                    Headline Font Size ({activeDevice})
+                  </span>
+                  <span className="font-mono text-xs font-bold text-foreground">
+                    {activeScriptSize}px ({(activeScriptSize / 16).toFixed(3)}rem)
+                  </span>
+                </div>
+                <div className="flex items-center gap-4">
+                  <input
+                    type="range"
+                    min="14"
+                    max="46"
+                    step="1"
+                    value={activeScriptSize}
+                    onChange={(e) =>
+                      updateScriptResponsive("scriptSize", parseFloat(e.target.value))
+                    }
+                    className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-muted accent-amber-500"
+                  />
+                  <input
+                    type="number"
+                    min="14"
+                    max="46"
+                    step="1"
+                    value={activeScriptSize}
+                    onChange={(e) =>
+                      updateScriptResponsive(
+                        "scriptSize",
+                        parseFloat(e.target.value) || activeScriptSize,
+                      )
+                    }
+                    className="w-16 rounded-lg border border-border bg-background px-2 py-1 text-center font-mono text-xs text-foreground focus:border-amber-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Script Line Height */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">
+                    Headline Line Height ({activeDevice})
+                  </span>
+                  <span className="font-mono text-xs font-bold text-foreground">
+                    {activeScriptLineHeight}
+                  </span>
+                </div>
+                <div className="flex items-center gap-4">
+                  <input
+                    type="range"
+                    min="1.0"
+                    max="2.0"
+                    step="0.05"
+                    value={activeScriptLineHeight}
+                    onChange={(e) =>
+                      updateScriptResponsive("scriptLineHeight", parseFloat(e.target.value))
+                    }
+                    className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-muted accent-amber-500"
+                  />
+                  <input
+                    type="number"
+                    min="1.0"
+                    max="2.0"
+                    step="0.05"
+                    value={activeScriptLineHeight}
+                    onChange={(e) =>
+                      updateScriptResponsive(
+                        "scriptLineHeight",
+                        parseFloat(e.target.value) || activeScriptLineHeight,
+                      )
+                    }
+                    className="w-16 rounded-lg border border-border bg-background px-2 py-1 text-center font-mono text-xs text-foreground focus:border-amber-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Script Letter Spacing */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">
+                    Headline Letter Spacing ({activeDevice})
+                  </span>
+                  <span className="font-mono text-xs font-bold text-foreground">
+                    {activeScriptLetterSpacing}em
+                  </span>
+                </div>
+                <div className="flex items-center gap-4">
+                  <input
+                    type="range"
+                    min="-0.05"
+                    max="0.15"
+                    step="0.005"
+                    value={activeScriptLetterSpacing}
+                    onChange={(e) =>
+                      updateScriptResponsive("scriptLetterSpacing", parseFloat(e.target.value))
+                    }
+                    className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-muted accent-amber-500"
+                  />
+                  <input
+                    type="number"
+                    min="-0.05"
+                    max="0.15"
+                    step="0.005"
+                    value={activeScriptLetterSpacing}
+                    onChange={(e) =>
+                      updateScriptResponsive(
+                        "scriptLetterSpacing",
+                        parseFloat(e.target.value) || activeScriptLetterSpacing,
+                      )
+                    }
+                    className="w-16 rounded-lg border border-border bg-background px-2 py-1 text-center font-mono text-xs text-foreground focus:border-amber-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Script Section Actions */}
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-border/40">
+              <button
+                type="button"
+                onClick={handleResetScript}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition"
+              >
+                <RotateCcw className="h-3 w-3" />
+                Reset Script to Yuyu Short
+              </button>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handlePreviewOnSite}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-xs font-medium text-amber-500 hover:bg-amber-500/20 transition"
+                >
+                  <Eye className="h-3 w-3" />
+                  Preview Changes
+                </button>
+                <button
+                  type="button"
+                  onClick={() => saveMutation.mutate(draftConfig)}
+                  disabled={saveMutation.isPending}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-amber-500 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-amber-600 transition disabled:opacity-50"
+                >
+                  <Save className="h-3 w-3" />
+                  Save & Publish
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 1: Standard Website Font Families */}
           <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-sm space-y-5">
             <div className="flex items-center gap-2 border-b border-border/60 pb-3">
               <Sparkles className="h-4 w-4 text-brand" />
-              <h2 className="text-base font-bold text-foreground">Font Families</h2>
+              <h2 className="text-base font-bold text-foreground">Standard Font Families</h2>
             </div>
 
             {/* 1. Heading Font */}
@@ -468,7 +876,7 @@ function AdminTypographyPage() {
           <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-sm space-y-5">
             <div className="flex items-center gap-2 border-b border-border/60 pb-3">
               <Sliders className="h-4 w-4 text-brand" />
-              <h2 className="text-base font-bold text-foreground">Font Weights</h2>
+              <h2 className="text-base font-bold text-foreground">Standard Font Weights</h2>
             </div>
 
             {/* 5. Heading Font Weight */}
@@ -481,14 +889,12 @@ function AdminTypographyPage() {
                   {draftConfig.headingWeight}
                 </span>
               </div>
-              <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5">
+              <div className="grid grid-cols-4 gap-1.5">
                 {[
-                  { label: "400", sub: "Regular", val: "400" },
                   { label: "500", sub: "Medium", val: "500" },
                   { label: "600", sub: "Semi", val: "600" },
                   { label: "700", sub: "Bold", val: "700" },
-                  { label: "800", sub: "X-Bold", val: "800" },
-                  { label: "900", sub: "Black", val: "900" },
+                  { label: "800", sub: "Heavy", val: "800" },
                 ].map((item) => (
                   <button
                     key={`hw-${item.val}`}
@@ -556,7 +962,7 @@ function AdminTypographyPage() {
               <div className="flex items-center gap-2">
                 <Layers className="h-4 w-4 text-brand" />
                 <h2 className="text-base font-bold text-foreground">
-                  Responsive Sizing & Spacing
+                  Standard Sizing & Spacing
                 </h2>
               </div>
 
@@ -912,8 +1318,23 @@ function AdminTypographyPage() {
                   }}
                   className="text-2xl sm:text-3xl lg:text-4xl leading-[1.18] font-bold text-inherit"
                 >
-                  Traversing the Roof of the World: Karakoram & Beyond
+                  Solo journeys, motorcycle adventures, and trekking across the world
                 </h1>
+
+                {/* Home Hero Subtitle / Script Headline (Independent Yuyu Short / Script Font) */}
+                <p
+                  style={{
+                    fontFamily: 'var(--font-hero-script)',
+                    fontSize: 'var(--font-size-hero-script)',
+                    fontWeight: 'var(--font-weight-script)',
+                    lineHeight: 'var(--line-height-hero-script)',
+                    letterSpacing: 'var(--letter-spacing-hero-script)',
+                    color: 'var(--accent, #e5a93c)',
+                  }}
+                  className="mt-2 mb-4 font-medium break-words"
+                >
+                  Stories from the high places. Most people only fly over.
+                </p>
               </div>
 
               {/* Blog Heading Preview */}
@@ -1041,8 +1462,12 @@ function AdminTypographyPage() {
           </div>
 
           {/* Quick Font Summary Card */}
-          <div className="rounded-2xl border border-border bg-card p-4 text-xs text-muted-foreground flex flex-wrap items-center justify-between gap-3">
+          <div className="rounded-2xl border border-border bg-card p-4 text-xs text-muted-foreground flex flex-col gap-2.5">
             <div className="flex flex-wrap items-center gap-3">
+              <span className="text-amber-500 font-semibold">
+                <strong>Hero Script:</strong> {draftConfig.scriptFont || "Yuyu Short"} ({draftConfig.scriptWeight || "400"} / {activeScriptSize}px)
+              </span>
+              <span>•</span>
               <span>
                 <strong>Headings:</strong> {draftConfig.headingFont} ({draftConfig.headingWeight})
               </span>
@@ -1061,9 +1486,9 @@ function AdminTypographyPage() {
               </span>
             </div>
 
-            <div className="flex items-center gap-1.5 text-emerald-600 font-medium">
+            <div className="flex items-center gap-1.5 text-emerald-600 font-medium border-t border-border/40 pt-2 text-[11px]">
               <CheckCircle2 className="h-3.5 w-3.5" />
-              <span>Optimized (loads only selected families)</span>
+              <span>Optimized performance (loads only required and selected font families)</span>
             </div>
           </div>
         </div>

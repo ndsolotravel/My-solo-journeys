@@ -763,25 +763,25 @@ html[dir="rtl"] .flex-row {
 }
 
 .hero-subtitle {
-  font-family: var(--font-sans);
-  font-size: clamp(0.875rem, 2vw, 1.25rem);
-  font-weight: 500;
-  line-height: 1.25;
-  letter-spacing: -0.005em;
+  font-family: var(--font-hero-script, "Yuyu Short", cursive, sans-serif);
+  font-size: var(--font-size-hero-script, clamp(1.125rem, 2.5vw, 1.625rem));
+  font-weight: var(--font-weight-script, 400);
+  line-height: var(--line-height-hero-script, 1.3);
+  letter-spacing: var(--letter-spacing-hero-script, 0.01em);
   color: var(--accent);
 }
 
 /* Extra tight on very small screens */
 @media (max-width: 400px) {
   .hero-subtitle {
-    line-height: 1.2;
+    line-height: var(--line-height-hero-script, 1.2);
   }
 }
 
 /* Slightly more breathing room on desktop */
 @media (min-width: 1440px) {
   .hero-subtitle {
-    line-height: 1.3;
+    line-height: var(--line-height-hero-script, 1.3);
   }
 }
 

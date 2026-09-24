@@ -17,16 +17,90 @@ export interface TypographyConfig {
   lineHeight: ResponsiveValues<number>;
   letterSpacing: ResponsiveValues<number>;
   headingLetterSpacing: number;
+
+  // Independent Script Font Settings (for Home Hero headline & editorial accents)
+  scriptFont: string;
+  scriptWeight: string;
+  scriptSize: ResponsiveValues<number>;
+  scriptLineHeight: ResponsiveValues<number>;
+  scriptLetterSpacing: ResponsiveValues<number>;
 }
 
 export interface GoogleFontOption {
   name: string;
-  category: "Serif (Editorial)" | "Sans-Serif (Modern)" | "Adventure & Display";
+  category: "Serif (Editorial)" | "Sans-Serif (Modern)" | "Adventure & Display" | "Script & Handwritten";
   weights: number[];
   fallback: string;
   vibe: string;
-  recommendedFor: ("heading" | "body" | "navigation" | "button")[];
+  recommendedFor: ("heading" | "body" | "navigation" | "button" | "script")[];
 }
+
+export interface ScriptFontOption {
+  name: string;
+  googleFamily: string;
+  weights: number[];
+  fallback: string;
+  description: string;
+}
+
+export const CURATED_SCRIPT_FONTS: ScriptFontOption[] = [
+  {
+    name: "Yuyu Short",
+    googleFamily: "Yuyu Short",
+    weights: [400],
+    fallback: "cursive, sans-serif",
+    description: "Slender, stylized handwritten display typeface (Default Hero Headline)",
+  },
+  {
+    name: "Indie Flower",
+    googleFamily: "Indie Flower",
+    weights: [400],
+    fallback: "cursive, sans-serif",
+    description: "Carefree, bubbly handwriting with open curves and relaxed charm",
+  },
+  {
+    name: "Gluten",
+    googleFamily: "Gluten",
+    weights: [100, 200, 300, 400, 500, 600, 700, 800, 900],
+    fallback: "cursive, sans-serif",
+    description: "Expressive variable typeface with fluid organic rhythm",
+  },
+  {
+    name: "Playwrite Australia QLD",
+    googleFamily: "Playwrite AU QLD",
+    weights: [100, 200, 300, 400],
+    fallback: "cursive",
+    description: "Refined cursive script reflecting Queensland school handwriting tradition",
+  },
+  {
+    name: "Playwrite France Moderne",
+    googleFamily: "Playwrite FR Moderne",
+    weights: [100, 200, 300, 400],
+    fallback: "cursive",
+    description: "Modern French cursive style with fluid elegance and poise",
+  },
+  {
+    name: "Edu Australia VIC WA NT Hand",
+    googleFamily: "Edu AU VIC WA NT Hand",
+    weights: [400, 500, 600, 700],
+    fallback: "cursive, sans-serif",
+    description: "Authentic Australian handwriting standard with crisp legibility",
+  },
+  {
+    name: "Yellowtail",
+    googleFamily: "Yellowtail",
+    weights: [400],
+    fallback: "cursive",
+    description: "Medium-weight retro flat brush script with connected letterforms",
+  },
+  {
+    name: "Sue Ellen Francisco",
+    googleFamily: "Sue Ellen Francisco",
+    weights: [400],
+    fallback: "cursive",
+    description: "Tall, slender, whimsical handwriting with great personal warmth",
+  },
+];
 
 export const CURATED_GOOGLE_FONTS: GoogleFontOption[] = [
   // Editorial Serifs
@@ -232,6 +306,16 @@ export const CURATED_GOOGLE_FONTS: GoogleFontOption[] = [
     vibe: "Condensed bold headline style, great for rugged adventure banners",
     recommendedFor: ["heading", "button"],
   },
+
+  // Script & Display Fonts
+  {
+    name: "Yuyu Short",
+    category: "Script & Handwritten",
+    weights: [400],
+    fallback: "cursive, sans-serif",
+    vibe: "Slender, stylized handwritten display font for cinematic hero headlines",
+    recommendedFor: ["script", "heading"],
+  },
 ];
 
 export const DEFAULT_TYPOGRAPHY_CONFIG: TypographyConfig = {
@@ -257,6 +341,25 @@ export const DEFAULT_TYPOGRAPHY_CONFIG: TypographyConfig = {
     mobile: 0,
   },
   headingLetterSpacing: -0.02,
+
+  // Independent Script Font defaults (Yuyu Short Hero headline)
+  scriptFont: "Yuyu Short",
+  scriptWeight: "400",
+  scriptSize: {
+    desktop: 26,
+    tablet: 22,
+    mobile: 19,
+  },
+  scriptLineHeight: {
+    desktop: 1.3,
+    tablet: 1.25,
+    mobile: 1.2,
+  },
+  scriptLetterSpacing: {
+    desktop: 0.01,
+    tablet: 0.005,
+    mobile: 0,
+  },
 };
 
 export const typographySchema = z.object({
@@ -282,6 +385,31 @@ export const typographySchema = z.object({
     mobile: z.number().min(-0.1).max(0.2),
   }),
   headingLetterSpacing: z.number().min(-0.1).max(0.2).default(-0.02),
+
+  // Independent Script Font validation
+  scriptFont: z.string().min(1).default("Yuyu Short"),
+  scriptWeight: z.string().min(1).default("400"),
+  scriptSize: z
+    .object({
+      desktop: z.number().min(12).max(48),
+      tablet: z.number().min(12).max(42),
+      mobile: z.number().min(11).max(36),
+    })
+    .default({ desktop: 26, tablet: 22, mobile: 19 }),
+  scriptLineHeight: z
+    .object({
+      desktop: z.number().min(0.9).max(2.4),
+      tablet: z.number().min(0.9).max(2.4),
+      mobile: z.number().min(0.9).max(2.4),
+    })
+    .default({ desktop: 1.3, tablet: 1.25, mobile: 1.2 }),
+  scriptLetterSpacing: z
+    .object({
+      desktop: z.number().min(-0.1).max(0.2),
+      tablet: z.number().min(-0.1).max(0.2),
+      mobile: z.number().min(-0.1).max(0.2),
+    })
+    .default({ desktop: 0.01, tablet: 0.005, mobile: 0 }),
 });
 
 export function parseTypographyConfig(raw: unknown): TypographyConfig {
@@ -295,7 +423,7 @@ export function parseTypographyConfig(raw: unknown): TypographyConfig {
     if (result.success) {
       return result.data;
     }
-    // Partial merge with default
+    // Partial merge with defaults
     if (typeof parsed === "object" && parsed !== null) {
       const obj = parsed as Record<string, any>;
       return {
@@ -324,6 +452,37 @@ export function parseTypographyConfig(raw: unknown): TypographyConfig {
           Number(obj.headingLetterSpacing) !== undefined && !isNaN(Number(obj.headingLetterSpacing))
             ? Number(obj.headingLetterSpacing)
             : DEFAULT_TYPOGRAPHY_CONFIG.headingLetterSpacing,
+
+        // Script font merge
+        scriptFont: obj.scriptFont || DEFAULT_TYPOGRAPHY_CONFIG.scriptFont,
+        scriptWeight: obj.scriptWeight || DEFAULT_TYPOGRAPHY_CONFIG.scriptWeight,
+        scriptSize: {
+          desktop: Number(obj.scriptSize?.desktop) || DEFAULT_TYPOGRAPHY_CONFIG.scriptSize.desktop,
+          tablet: Number(obj.scriptSize?.tablet) || DEFAULT_TYPOGRAPHY_CONFIG.scriptSize.tablet,
+          mobile: Number(obj.scriptSize?.mobile) || DEFAULT_TYPOGRAPHY_CONFIG.scriptSize.mobile,
+        },
+        scriptLineHeight: {
+          desktop: Number(obj.scriptLineHeight?.desktop) || DEFAULT_TYPOGRAPHY_CONFIG.scriptLineHeight.desktop,
+          tablet: Number(obj.scriptLineHeight?.tablet) || DEFAULT_TYPOGRAPHY_CONFIG.scriptLineHeight.tablet,
+          mobile: Number(obj.scriptLineHeight?.mobile) || DEFAULT_TYPOGRAPHY_CONFIG.scriptLineHeight.mobile,
+        },
+        scriptLetterSpacing: {
+          desktop:
+            Number(obj.scriptLetterSpacing?.desktop) !== undefined &&
+            !isNaN(Number(obj.scriptLetterSpacing?.desktop))
+              ? Number(obj.scriptLetterSpacing?.desktop)
+              : DEFAULT_TYPOGRAPHY_CONFIG.scriptLetterSpacing.desktop,
+          tablet:
+            Number(obj.scriptLetterSpacing?.tablet) !== undefined &&
+            !isNaN(Number(obj.scriptLetterSpacing?.tablet))
+              ? Number(obj.scriptLetterSpacing?.tablet)
+              : DEFAULT_TYPOGRAPHY_CONFIG.scriptLetterSpacing.tablet,
+          mobile:
+            Number(obj.scriptLetterSpacing?.mobile) !== undefined &&
+            !isNaN(Number(obj.scriptLetterSpacing?.mobile))
+              ? Number(obj.scriptLetterSpacing?.mobile)
+              : DEFAULT_TYPOGRAPHY_CONFIG.scriptLetterSpacing.mobile,
+        },
       };
     }
     return DEFAULT_TYPOGRAPHY_CONFIG;
@@ -333,9 +492,42 @@ export function parseTypographyConfig(raw: unknown): TypographyConfig {
 }
 
 export function getFontFallback(fontName: string): string {
+  const foundScript = CURATED_SCRIPT_FONTS.find(
+    (f) => f.name.toLowerCase() === fontName.toLowerCase() || f.googleFamily.toLowerCase() === fontName.toLowerCase(),
+  );
+  if (foundScript) return foundScript.fallback;
+
   const found = CURATED_GOOGLE_FONTS.find((f) => f.name.toLowerCase() === fontName.toLowerCase());
   if (found) return found.fallback;
   return 'ui-sans-serif, system-ui, -apple-system, sans-serif';
+}
+
+export function resolveGoogleFamily(fontName: string): { family: string; weights: number[]; fallback: string } {
+  const foundScript = CURATED_SCRIPT_FONTS.find(
+    (f) => f.name.toLowerCase() === fontName.toLowerCase() || f.googleFamily.toLowerCase() === fontName.toLowerCase(),
+  );
+  if (foundScript) {
+    return {
+      family: foundScript.googleFamily,
+      weights: foundScript.weights,
+      fallback: foundScript.fallback,
+    };
+  }
+
+  const found = CURATED_GOOGLE_FONTS.find((f) => f.name.toLowerCase() === fontName.toLowerCase());
+  if (found) {
+    return {
+      family: found.name,
+      weights: found.weights,
+      fallback: found.fallback,
+    };
+  }
+
+  return {
+    family: fontName,
+    weights: [400],
+    fallback: "cursive, sans-serif",
+  };
 }
 
 /**
@@ -343,62 +535,54 @@ export function getFontFallback(fontName: string): string {
  * and required weights to eliminate unnecessary network payload.
  */
 export function generateGoogleFontsUrl(config: TypographyConfig): string | null {
-  const selectedFonts = new Set([
-    config.headingFont,
-    config.bodyFont,
-    config.navigationFont,
-    config.buttonFont,
-  ]);
+  // Collect all unique font names
+  const fontSlotMap = new Map<string, Set<number>>();
+
+  const addFont = (name: string, requestedWeights: number[]) => {
+    if (!name) return;
+    const resolved = resolveGoogleFamily(name);
+    const existing = fontSlotMap.get(resolved.family) || new Set<number>();
+
+    for (const w of requestedWeights) {
+      if (resolved.weights.includes(w)) {
+        existing.add(w);
+      } else if (resolved.weights.length > 0) {
+        existing.add(resolved.weights[0]);
+      }
+    }
+    if (existing.size === 0 && resolved.weights.length > 0) {
+      existing.add(resolved.weights[0]);
+    }
+    fontSlotMap.set(resolved.family, existing);
+  };
+
+  // Heading Font
+  const hw = parseInt(config.headingWeight, 10);
+  addFont(config.headingFont, [!isNaN(hw) ? hw : 700, 600, 700]);
+
+  // Body Font
+  const bw = parseInt(config.bodyWeight, 10);
+  addFont(config.bodyFont, [!isNaN(bw) ? bw : 400, 400, 500]);
+
+  // Navigation Font
+  addFont(config.navigationFont, [400, 500, 600]);
+
+  // Button Font
+  addFont(config.buttonFont, [400, 500, 600, 700]);
+
+  // Script Font (specifically for Hero headline & accents)
+  const sw = parseInt(config.scriptWeight, 10);
+  addFont(config.scriptFont || "Yuyu Short", [!isNaN(sw) ? sw : 400]);
 
   const familyParams: string[] = [];
 
-  for (const fontName of selectedFonts) {
-    if (!fontName) continue;
-    const fontMeta = CURATED_GOOGLE_FONTS.find(
-      (f) => f.name.toLowerCase() === fontName.toLowerCase(),
-    );
+  for (const [family, weightsSet] of fontSlotMap.entries()) {
+    const weights = Array.from(weightsSet).sort((a, b) => a - b);
+    const encodedName = family.trim().replace(/\s+/g, "+");
 
-    const weights = new Set<number>();
-
-    // If used as heading
-    if (config.headingFont.toLowerCase() === fontName.toLowerCase()) {
-      const hw = parseInt(config.headingWeight, 10);
-      if (!isNaN(hw)) weights.add(hw);
-      weights.add(600);
-      weights.add(700);
-    }
-
-    // If used as body
-    if (config.bodyFont.toLowerCase() === fontName.toLowerCase()) {
-      const bw = parseInt(config.bodyWeight, 10);
-      if (!isNaN(bw)) weights.add(bw);
-      weights.add(400);
-      weights.add(500);
-      weights.add(600);
-    }
-
-    // If used as nav or button
-    if (
-      config.navigationFont.toLowerCase() === fontName.toLowerCase() ||
-      config.buttonFont.toLowerCase() === fontName.toLowerCase()
-    ) {
-      weights.add(400);
-      weights.add(500);
-      weights.add(600);
-      weights.add(700);
-    }
-
-    // Filter available weights according to font definition if known
-    let finalWeights = Array.from(weights).sort((a, b) => a - b);
-    if (fontMeta && fontMeta.weights.length > 0) {
-      const availableSet = new Set(fontMeta.weights);
-      const filtered = finalWeights.filter((w) => availableSet.has(w));
-      finalWeights = filtered.length > 0 ? filtered : [fontMeta.weights[0]];
-    }
-
-    const encodedName = fontName.trim().replace(/\s+/g, "+");
-    if (finalWeights.length > 0) {
-      familyParams.push(`family=${encodedName}:wght@${finalWeights.join(";")}`);
+    // Check if the font has fixed single 400 weight or multiple
+    if (weights.length > 0 && !(weights.length === 1 && weights[0] === 400)) {
+      familyParams.push(`family=${encodedName}:wght@${weights.join(";")}`);
     } else {
       familyParams.push(`family=${encodedName}`);
     }
@@ -417,6 +601,12 @@ export function generateTypographyCss(config: TypographyConfig, selector = ":roo
   const navFallback = getFontFallback(config.navigationFont);
   const buttonFallback = getFontFallback(config.buttonFont);
 
+  const scriptInfo = resolveGoogleFamily(config.scriptFont || "Yuyu Short");
+
+  const sSize = config.scriptSize || DEFAULT_TYPOGRAPHY_CONFIG.scriptSize;
+  const sLineHeight = config.scriptLineHeight || DEFAULT_TYPOGRAPHY_CONFIG.scriptLineHeight;
+  const sLetterSpacing = config.scriptLetterSpacing || DEFAULT_TYPOGRAPHY_CONFIG.scriptLetterSpacing;
+
   return `
 ${selector} {
   --font-display: "Roboto Numbers", "${config.headingFont}", ${headingFallback};
@@ -429,6 +619,14 @@ ${selector} {
   --line-height-body: ${config.lineHeight.desktop};
   --letter-spacing-body: ${config.letterSpacing.desktop}em;
   --letter-spacing-heading: ${config.headingLetterSpacing}em;
+
+  /* Independent Script Font Variables (Home Hero Headline & Accents) */
+  --font-hero-script: "${scriptInfo.family}", ${scriptInfo.fallback};
+  --font-script: var(--font-hero-script);
+  --font-weight-script: ${config.scriptWeight || "400"};
+  --font-size-hero-script: ${sSize.desktop}px;
+  --line-height-hero-script: ${sLineHeight.desktop};
+  --letter-spacing-hero-script: ${sLetterSpacing.desktop}em;
 }
 
 @media (max-width: 1024px) {
@@ -436,6 +634,9 @@ ${selector} {
     --font-size-body: ${config.bodySize.tablet}px;
     --line-height-body: ${config.lineHeight.tablet};
     --letter-spacing-body: ${config.letterSpacing.tablet}em;
+    --font-size-hero-script: ${sSize.tablet}px;
+    --line-height-hero-script: ${sLineHeight.tablet};
+    --letter-spacing-hero-script: ${sLetterSpacing.tablet}em;
   }
 }
 
@@ -444,6 +645,9 @@ ${selector} {
     --font-size-body: ${config.bodySize.mobile}px;
     --line-height-body: ${config.lineHeight.mobile};
     --letter-spacing-body: ${config.letterSpacing.mobile}em;
+    --font-size-hero-script: ${sSize.mobile}px;
+    --line-height-hero-script: ${sLineHeight.mobile};
+    --letter-spacing-hero-script: ${sLetterSpacing.mobile}em;
   }
 }
 `;
