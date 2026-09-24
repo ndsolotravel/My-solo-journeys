@@ -60,11 +60,12 @@ export function TypographyManager() {
   useEffect(() => {
     if (typeof document === "undefined") return;
 
-    // 1. Google Fonts URL - loads ONLY the selected fonts!
+    // 1. Google Fonts URL - loads ONLY when custom fonts are selected (avoids duplicate default font request)
     const fontsUrl = generateGoogleFontsUrl(activeConfig);
+    const defaultFontsUrl = "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Roboto:wght@400;500;600;700&family=Yuyu+Short&display=swap";
     let linkEl = document.getElementById("nd-dynamic-google-fonts") as HTMLLinkElement | null;
 
-    if (fontsUrl) {
+    if (fontsUrl && fontsUrl !== defaultFontsUrl) {
       if (!linkEl) {
         linkEl = document.createElement("link");
         linkEl.id = "nd-dynamic-google-fonts";

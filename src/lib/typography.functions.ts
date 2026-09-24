@@ -8,28 +8,32 @@ import {
   type TypographyConfig,
 } from "./typography";
 
+import { fetchWithCache, invalidateServerCache } from "./server-cache";
+
 /**
  * Public server function to get active published typography configuration.
  * Safe for all visitors, cached and fast.
  */
 export const getPublicTypographySettings = createServerFn({ method: "GET" }).handler(
   async (): Promise<TypographyConfig> => {
-    try {
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      const { data, error } = await supabaseAdmin
-        .from("site_settings")
-        .select("value")
-        .eq("key", "typography_settings")
-        .maybeSingle();
+    return fetchWithCache("public_typography_settings", 60_000, async () => {
+      try {
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const { data, error } = await supabaseAdmin
+          .from("site_settings")
+          .select("value")
+          .eq("key", "typography_settings")
+          .maybeSingle();
 
-      if (error || !data?.value) {
+        if (error || !data?.value) {
+          return DEFAULT_TYPOGRAPHY_CONFIG;
+        }
+
+        return parseTypographyConfig(data.value);
+      } catch {
         return DEFAULT_TYPOGRAPHY_CONFIG;
       }
-
-      return parseTypographyConfig(data.value);
-    } catch {
-      return DEFAULT_TYPOGRAPHY_CONFIG;
-    }
+    });
   },
 );
 
@@ -79,5 +83,6 @@ export const adminSaveTypographySettings = createServerFn({ method: "POST" })
       .single();
 
     if (error) throw new Error(error.message);
+    invalidateServerCache("public_typography_settings");
     return parseTypographyConfig(updated?.value);
   });

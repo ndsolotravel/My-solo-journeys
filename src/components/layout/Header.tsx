@@ -115,6 +115,8 @@ export function Header() {
             <img
               src={logoPath}
               alt="ndsolotravel"
+              width={140}
+              height={32}
               className={`h-8 w-auto ${overHero ? "brightness-0 invert" : ""}`}
             />
           </Link>

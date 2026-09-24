@@ -68,6 +68,8 @@ async function assertEditor(userId: string, client?: unknown) {
   return roles;
 }
 
+import { fetchWithCache, invalidateServerCache } from "./server-cache";
+
 // ---------------- Public Endpoints ----------------
 
 /**
@@ -76,9 +78,10 @@ async function assertEditor(userId: string, client?: unknown) {
  */
 export const getActivePublicMessage = createServerFn({ method: "GET" }).handler(
   async (): Promise<PublicPopupMessage | null> => {
-    try {
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      const now = Date.now();
+    return fetchWithCache("active_public_message", 60_000, async () => {
+      try {
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const now = Date.now();
 
       // 1. Try querying public_popup_messages table
       try {
@@ -156,8 +159,8 @@ export const getActivePublicMessage = createServerFn({ method: "GET" }).handler(
       console.warn("[getActivePublicMessage] Error evaluating active message:", err);
       return null;
     }
-  },
-);
+  });
+});
 
 // ---------------- Admin Endpoints ----------------
 
@@ -326,5 +329,6 @@ export const adminUpdatePublicMessage = createServerFn({ method: "POST" })
       { onConflict: "key" },
     );
 
+    invalidateServerCache("active_public_message");
     return payload;
   });

@@ -35,7 +35,7 @@ import { BreakingNewsSection } from "../components/home/BreakingNewsSection";
 import { AdSlot } from "../components/ads/AdSlot";
 import { CATEGORIES } from "../lib/site";
 import { useTranslations, useLanguage } from "@/lib/translate/store";
-import { resolveMediaUrl } from "@/lib/media";
+import { resolveMediaUrl, getOptimizedImageUrl, getImageSrcSet } from "@/lib/media";
 
 const DestinationsMap = lazy(() =>
   import("@/components/destinations/DestinationsMap").then((m) => ({
@@ -88,23 +88,40 @@ const breakingNewsQO = queryOptions({
 });
 
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "Solo Travel in Pakistan, Karakoram Treks & Motorcycle Adventures | NDSOLOTRAVEL" },
-      {
-        name: "description",
-        content:
-          "Independent solo travel guide and dispatches across Pakistan and the Karakoram. Expedition itineraries, motorcycle tours, K2 Base Camp, Concordia, and high-altitude trekking.",
-      },
-      { property: "og:title", content: "Solo Travel in Pakistan, Karakoram Treks & Motorcycle Adventures | NDSOLOTRAVEL" },
-      { property: "og:description", content: "Independent solo travel guide, motorcycle expeditions, and trekking diaries from Pakistan and the Karakoram." },
-      { property: "og:url", content: "https://ndsolotravel.com/" },
-      { property: "og:type", content: "website" },
-    ],
-    links: [{ rel: "canonical", href: "https://ndsolotravel.com/" }],
-  }),
+  head: ({ loaderData }: any) => {
+    const heroLcp = loaderData?.heroLcpImage;
+    return {
+      meta: [
+        { title: "Solo Travel in Pakistan, Karakoram Treks & Motorcycle Adventures | NDSOLOTRAVEL" },
+        {
+          name: "description",
+          content:
+            "Independent solo travel guide and dispatches across Pakistan and the Karakoram. Expedition itineraries, motorcycle tours, K2 Base Camp, Concordia, and high-altitude trekking.",
+        },
+        { property: "og:title", content: "Solo Travel in Pakistan, Karakoram Treks & Motorcycle Adventures | NDSOLOTRAVEL" },
+        { property: "og:description", content: "Independent solo travel guide, motorcycle expeditions, and trekking diaries from Pakistan and the Karakoram." },
+        { property: "og:url", content: "https://ndsolotravel.com/" },
+        { property: "og:type", content: "website" },
+      ],
+      links: [
+        { rel: "canonical", href: "https://ndsolotravel.com/" },
+        ...(heroLcp
+          ? [
+              {
+                rel: "preload" as const,
+                as: "image" as const,
+                href: getOptimizedImageUrl(heroLcp, 1600),
+                imageSrcSet: getImageSrcSet(heroLcp, [640, 1024, 1600, 2048]) || undefined,
+                imageSizes: "100vw",
+                fetchPriority: "high" as const,
+              },
+            ]
+          : []),
+      ],
+    };
+  },
   loader: async ({ context }) => {
-    await Promise.all([
+    const [, , , , hpConfig] = await Promise.all([
       context.queryClient.ensureQueryData(postsQO),
       context.queryClient.ensureQueryData(featuredQO),
       context.queryClient.ensureQueryData(destQO),
@@ -113,6 +130,19 @@ export const Route = createFileRoute("/")({
       context.queryClient.ensureQueryData(topicsQO),
       context.queryClient.ensureQueryData(breakingNewsQO),
     ]);
+
+    const s = hpConfig?.settings ?? {};
+    const mode = s.homepage_hero_images_mode === "manual" ? "manual" : "auto";
+    let lcpSrc = "";
+    if (mode === "manual") {
+      lcpSrc = s.homepage_hero_image?.trim() || "";
+    } else {
+      lcpSrc = hpConfig?.heroImagePosts?.[0]?.cover_image || "";
+    }
+
+    return {
+      heroLcpImage: lcpSrc ? resolveMediaUrl(lcpSrc) : "",
+    };
   },
   component: HomePage,
 });
@@ -459,8 +489,11 @@ function HomePage() {
                   <div className="relative h-14 w-18 shrink-0 overflow-hidden rounded-xl bg-muted">
                     {hp.cover_image ? (
                       <img
-                        src={resolveMediaUrl(hp.cover_image)}
+                        src={getOptimizedImageUrl(hp.cover_image, 200)}
                         alt={getPostTitle(hp)}
+                        loading="lazy"
+                        width={72}
+                        height={56}
                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                     ) : (
@@ -565,12 +598,15 @@ function HomePage() {
                     className="group relative flex h-full min-h-[320px] sm:min-h-[380px] lg:min-h-[460px] flex-col justify-end overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:border-[#4085FF]/40 hover:shadow-lg w-full min-w-0"
                   >
                     {(() => {
-                      const img = activeTopics[0].previewImage || activeTopics[0].heroImage;
+                      const rawImg = activeTopics[0].previewImage || activeTopics[0].heroImage;
+                      const img = getOptimizedImageUrl(rawImg, 800);
                       return img ? (
                         <img
                           src={img}
                           alt={activeTopics[0].title}
                           loading="lazy"
+                          width={600}
+                          height={460}
                           className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                         />
                       ) : (
@@ -622,12 +658,15 @@ function HomePage() {
                       className="group relative flex h-full min-h-[190px] sm:min-h-[210px] flex-col justify-end overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:border-[#4085FF]/40 hover:shadow-md w-full min-w-0"
                     >
                       {(() => {
-                        const img = topic.previewImage || topic.heroImage;
+                        const rawImg = topic.previewImage || topic.heroImage;
+                        const img = getOptimizedImageUrl(rawImg, 500);
                         return img ? (
                           <img
                             src={img}
                             alt={topic.title}
                             loading="lazy"
+                            width={400}
+                            height={210}
                             className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                           />
                         ) : (
@@ -810,9 +849,11 @@ function HomePage() {
                       <div className="relative aspect-[4/3] overflow-hidden bg-muted">
                         {d.featured_image ? (
                           <img
-                            src={d.featured_image}
+                            src={getOptimizedImageUrl(d.featured_image, 600)}
                             alt={d.title}
                             loading="lazy"
+                            width={400}
+                            height={300}
                             className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                           />
                         ) : (
@@ -874,9 +915,11 @@ function HomePage() {
                     className="group relative block aspect-[16/10] sm:aspect-auto sm:h-full min-h-[240px] sm:min-h-[260px] lg:min-h-[360px] overflow-hidden rounded-2xl border border-border bg-muted shadow-sm w-full min-w-0"
                   >
                     <img
-                      src={gallery[0].image_url}
+                      src={getOptimizedImageUrl(gallery[0].image_url, 900)}
                       alt={gallery[0].caption || "Expedition photograph"}
                       loading="lazy"
+                      width={600}
+                      height={400}
                       className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent flex items-end p-4 sm:p-5">
@@ -910,9 +953,11 @@ function HomePage() {
                     className="group relative block aspect-[4/3] overflow-hidden rounded-2xl border border-border bg-muted shadow-sm w-full min-w-0"
                   >
                     <img
-                      src={item.image_url}
+                      src={getOptimizedImageUrl(item.image_url, 500)}
                       alt={item.caption || "Expedition photograph"}
                       loading="lazy"
+                      width={400}
+                      height={300}
                       className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 flex items-end p-3.5">

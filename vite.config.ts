@@ -31,6 +31,14 @@ export default defineConfig(({ mode }) => {
       }),
       nitro({
         preset: "node-server",
+        compressPublicAssets: true,
+        routeRules: {
+          "/_build/assets/**": { headers: { "cache-control": "public, max-age=31536000, immutable" } },
+          "/assets/**": { headers: { "cache-control": "public, max-age=31536000, immutable" } },
+          "/fonts/**": { headers: { "cache-control": "public, max-age=31536000, immutable" } },
+          "/images/**": { headers: { "cache-control": "public, max-age=2592000" } },
+          "/favicon.ico": { headers: { "cache-control": "public, max-age=86400" } },
+        },
       }),
       react(),
     ],

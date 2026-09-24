@@ -3,6 +3,8 @@ import { z } from "zod";
 import { TOPIC_CLUSTERS, getTopicBySlug, type TopicCluster } from "@/lib/topics";
 import { extractCountryFromLocation, type Post } from "@/lib/posts.functions";
 
+import { fetchWithCache } from "./server-cache";
+
 export type ActiveTopic = TopicCluster & {
   postCount: number;
   destinationCount: number;
@@ -13,9 +15,10 @@ export type TopicWithPosts = TopicCluster & { posts: Post[] };
 
 export const listActiveTopics = createServerFn({ method: "GET" })
   .handler(async (): Promise<ActiveTopic[]> => {
-    try {
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      const { resolveMediaUrl } = await import("@/lib/admin.functions");
+    return fetchWithCache("active_topics_list", 60_000, async () => {
+      try {
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const { resolveMediaUrl } = await import("@/lib/admin.functions");
 
       // Fetch all published posts with destination relationships
       const { data: postsData, error: postErr } = await (supabaseAdmin.from("posts") as any)
@@ -159,11 +162,12 @@ export const listActiveTopics = createServerFn({ method: "GET" })
         }
       }
 
-      return activeTopics;
-    } catch (err) {
-      console.error("[listActiveTopics] Error:", err);
-      return [];
-    }
+        return activeTopics;
+      } catch (err) {
+        console.error("[listActiveTopics] Error:", err);
+        return [];
+      }
+    });
   });
 
 export const getTopicCluster = createServerFn({ method: "GET" })

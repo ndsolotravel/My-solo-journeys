@@ -120,7 +120,10 @@ export function usePageAnalytics(pathname: string) {
     const isNew = lastPathRef.current !== pathname;
     lastPathRef.current = pathname;
 
-    void track(isNew);
+    // Defer initial track slightly so page render and critical assets complete unhindered
+    const initialTrackTimer = window.setTimeout(() => {
+      void track(isNew);
+    }, 1200);
 
     const heartbeatTimer = window.setInterval(() => void track(false), HEARTBEAT_INTERVAL_MS);
 
@@ -140,6 +143,7 @@ export function usePageAnalytics(pathname: string) {
     window.addEventListener("pagehide", onPageHide);
 
     return () => {
+      window.clearTimeout(initialTrackTimer);
       window.clearInterval(heartbeatTimer);
       document.removeEventListener("visibilitychange", onVisible);
       window.removeEventListener("focus", onFocus);

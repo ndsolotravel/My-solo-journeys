@@ -32,6 +32,8 @@ export const slugifyNews = (s: string): string =>
 const NEWS_SELECT_COLS =
   "id,title,slug,summary,content,image_url,status,is_breaking,is_active,display_order,published_at,expires_at,created_at,updated_at";
 
+import { fetchWithCache, invalidateServerCache } from "./server-cache";
+
 // ============================================================================
 // Public Functions
 // ============================================================================
@@ -41,31 +43,33 @@ const NEWS_SELECT_COLS =
  * has arrived and whose expiry date (if set) has not passed.
  */
 export const listActiveBreakingNews = createServerFn({ method: "GET" }).handler(async () => {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const now = new Date().toISOString();
+  return fetchWithCache("active_breaking_news", 60_000, async () => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const now = new Date().toISOString();
 
-  const { data, error } = await supabaseAdmin
-    .from("news")
-    .select(NEWS_SELECT_COLS)
-    .eq("status", "published")
-    .eq("is_active", true)
-    .eq("is_breaking", true)
-    .lte("published_at", now)
-    .or(`expires_at.is.null,expires_at.gte.${now}`)
-    .order("display_order", { ascending: true })
-    .order("published_at", { ascending: false });
+    const { data, error } = await supabaseAdmin
+      .from("news")
+      .select(NEWS_SELECT_COLS)
+      .eq("status", "published")
+      .eq("is_active", true)
+      .eq("is_breaking", true)
+      .lte("published_at", now)
+      .or(`expires_at.is.null,expires_at.gte.${now}`)
+      .order("display_order", { ascending: true })
+      .order("published_at", { ascending: false });
 
-  if (error) {
-    console.error("[listActiveBreakingNews] Error fetching breaking news:", error);
-    return [] as NewsItem[];
-  }
+    if (error) {
+      console.error("[listActiveBreakingNews] Error fetching breaking news:", error);
+      return [] as NewsItem[];
+    }
 
-  const items = (data ?? []).map((row: any) => ({
-    ...row,
-    image_url: row.image_url ? resolveMediaUrl(row.image_url, supabaseAdmin) : null,
-  })) as NewsItem[];
+    const items = (data ?? []).map((row: any) => ({
+      ...row,
+      image_url: row.image_url ? resolveMediaUrl(row.image_url, supabaseAdmin) : null,
+    })) as NewsItem[];
 
-  return items;
+    return items;
+  });
 });
 
 /**
@@ -228,6 +232,7 @@ export const adminUpsertNews = createServerFn({ method: "POST" })
         }
         throw new Error(error.message);
       }
+      invalidateServerCache("active_breaking_news");
       return updated as NewsItem;
     } else {
       payload.created_at = new Date().toISOString();
@@ -243,6 +248,7 @@ export const adminUpsertNews = createServerFn({ method: "POST" })
         }
         throw new Error(error.message);
       }
+      invalidateServerCache("active_breaking_news");
       return created as NewsItem;
     }
   });
@@ -262,6 +268,7 @@ export const adminDeleteNews = createServerFn({ method: "POST" })
     if (error) {
       throw new Error(error.message);
     }
+    invalidateServerCache("active_breaking_news");
     return { ok: true, id: input.id };
   });
 
@@ -297,5 +304,6 @@ export const adminToggleNewsField = createServerFn({ method: "POST" })
     if (error) {
       throw new Error(error.message);
     }
+    invalidateServerCache("active_breaking_news");
     return updated as NewsItem;
   });

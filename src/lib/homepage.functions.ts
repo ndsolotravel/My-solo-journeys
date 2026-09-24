@@ -226,22 +226,25 @@ async function resolveLatestFeatured(client: any): Promise<HomepagePost | null> 
   };
 }
 
+import { fetchWithCache, invalidateServerCache } from "./server-cache";
+
 // ------------------------- Public function -------------------------
 
 export const getHomepageConfig = createServerFn({ method: "GET" }).handler(async () => {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const rows = await fetchHomepageRows(supabaseAdmin);
-  const settings = mergeDefaults(rows);
+  return fetchWithCache("homepage_config", 60_000, async () => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const rows = await fetchHomepageRows(supabaseAdmin);
+    const settings = mergeDefaults(rows);
 
-  // Resolve hero post based on mode
-  const heroMode = settings.homepage_hero_mode === "manual" ? "manual" : "auto";
-  let heroPost: HomepagePost | null = null;
-  if (heroMode === "manual") {
-    heroPost = await resolvePostById(settings.homepage_hero_post_id, supabaseAdmin);
-    if (!heroPost) heroPost = await resolveLatestPost(supabaseAdmin);
-  } else {
-    heroPost = await resolveLatestPost(supabaseAdmin);
-  }
+    // Resolve hero post based on mode
+    const heroMode = settings.homepage_hero_mode === "manual" ? "manual" : "auto";
+    let heroPost: HomepagePost | null = null;
+    if (heroMode === "manual") {
+      heroPost = await resolvePostById(settings.homepage_hero_post_id, supabaseAdmin);
+      if (!heroPost) heroPost = await resolveLatestPost(supabaseAdmin);
+    } else {
+      heroPost = await resolveLatestPost(supabaseAdmin);
+    }
 
   // Resolve hero slideshow images based on hero images mode
   // Auto => the 3 latest published posts' covers; Manual => 3 URL fields (no posts needed)
@@ -283,7 +286,8 @@ export const getHomepageConfig = createServerFn({ method: "GET" }).handler(async
     daysSuffix: settings.homepage_stat_days_suffix || "+",
   };
 
-  return { settings, heroPost, heroImagePosts, featuredPost, stats } satisfies HomepageConfig;
+    return { settings, heroPost, heroImagePosts, featuredPost, stats } satisfies HomepageConfig;
+  });
 });
 
 // ------------------------- Admin functions -------------------------
@@ -356,5 +360,6 @@ export const adminSaveHomepageSettings = createServerFn({ method: "POST" })
     const { error } = await client.from("site_settings").upsert(rows, { onConflict: "key" });
     if (error) throw new Error(error.message);
 
+    invalidateServerCache("homepage_config");
     return { ok: true };
   });

@@ -46,11 +46,19 @@ export type Post = {
   }[];
 };
 
+import { fetchWithCache } from "./server-cache";
+
 const BASE_POST_COLUMNS =
   "id,title,slug,excerpt,content,cover_image,category,tags,featured,views,reading_minutes,published_at,created_at,author_name,author_image_url,location_name,latitude,longitude";
 
+const LIST_BASE_COLUMNS =
+  "id,title,slug,excerpt,cover_image,category,tags,featured,views,reading_minutes,published_at,created_at,author_name,author_image_url,location_name,latitude,longitude";
+
 const FULL_POST_COLUMNS =
   "id,title,slug,excerpt,content,cover_image,category,tags,featured,views,reading_minutes,published_at,created_at,destination_id,travel_date,location_name,latitude,longitude,seo_title,seo_description,og_image_url,author_name,author_image_url,primary_keyword,secondary_keywords";
+
+const LIST_POST_COLUMNS =
+  "id,title,slug,excerpt,cover_image,category,tags,featured,views,reading_minutes,published_at,created_at,destination_id,travel_date,location_name,latitude,longitude,seo_title,seo_description,og_image_url,author_name,author_image_url,primary_keyword,secondary_keywords";
 
 export const listPosts = createServerFn({ method: "GET" })
   .validator((input) =>
@@ -70,172 +78,184 @@ export const listPosts = createServerFn({ method: "GET" })
       .parse(input ?? {}),
   )
   .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const cacheKey = `posts_list_${JSON.stringify(data)}`;
+    return fetchWithCache(cacheKey, 60_000, async () => {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    // Resolve destination filter ID if destination slug was provided
-    let filterDestId: string | null = null;
-    if (data.destination) {
-      const destInput = data.destination.trim();
-      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(destInput);
-      if (isUuid) {
-        filterDestId = destInput;
-      } else {
-        const { data: dRow } = await supabaseAdmin
-          .from("destinations")
-          .select("id")
-          .eq("slug", destInput)
-          .maybeSingle();
-        if (dRow?.id) {
-          filterDestId = dRow.id;
+      // Resolve destination filter ID if destination slug was provided
+      let filterDestId: string | null = null;
+      if (data.destination) {
+        const destInput = data.destination.trim();
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(destInput);
+        if (isUuid) {
+          filterDestId = destInput;
+        } else {
+          const { data: dRow } = await supabaseAdmin
+            .from("destinations")
+            .select("id")
+            .eq("slug", destInput)
+            .maybeSingle();
+          if (dRow?.id) {
+            filterDestId = dRow.id;
+          }
         }
       }
-    }
 
-    const buildQuery = (selectCols: string) => {
-      let q = (supabaseAdmin
-        .from("posts") as any)
-        .select(selectCols, { count: "exact" })
-        .eq("published", true);
-      if (data.sort === "popular") q = q.order("views", { ascending: false });
-      else q = q.order("published_at", { ascending: false });
+      const buildQuery = (selectCols: string) => {
+        let q = (supabaseAdmin
+          .from("posts") as any)
+          .select(selectCols, { count: "exact" })
+          .eq("published", true);
+        if (data.sort === "popular") q = q.order("views", { ascending: false });
+        else q = q.order("published_at", { ascending: false });
 
-      if (filterDestId) {
-        q = q.eq("destination_id", filterDestId);
+        if (filterDestId) {
+          q = q.eq("destination_id", filterDestId);
+        }
+
+        if (data.category) {
+          const cat = data.category;
+          const catLower = cat.toLowerCase();
+          const catCap = cat.charAt(0).toUpperCase() + cat.slice(1);
+          q = q.or(`category.ilike.${cat},tags.cs.{${cat}},tags.cs.{${catLower}},tags.cs.{${catCap}}`);
+        }
+        if (data.categories && data.categories.length) {
+          const catFilters = data.categories.flatMap((c) => [
+            `category.ilike.${c}`,
+            `tags.cs.{${c}}`,
+            `tags.cs.{${c.toLowerCase()}}`,
+          ]);
+          const uniqueCatFilters = Array.from(new Set(catFilters));
+          q = q.or(uniqueCatFilters.join(","));
+        }
+        if (data.tag) {
+          const tag = data.tag;
+          const tagLower = tag.toLowerCase();
+          const tagCap = tag.charAt(0).toUpperCase() + tag.slice(1);
+          q = q.or(`tags.cs.{${tag}},tags.cs.{${tagLower}},tags.cs.{${tagCap}}`);
+        }
+        if (data.search) q = q.ilike("title", `%${data.search}%`);
+        if (data.featuredOnly) q = q.eq("featured", true);
+        if (data.sinceDays) {
+          const since = new Date(Date.now() - data.sinceDays * 86400000).toISOString();
+          q = q.gte("published_at", since);
+        }
+        return q.range(data.offset, data.offset + data.limit - 1);
+      };
+
+      const { resolveMediaUrl } = await import("@/lib/admin.functions");
+      const mapPostMedia = (postsList: any[]): Post[] =>
+        postsList.map((p) => ({
+          ...p,
+          content: p.content ?? "",
+          cover_image: p.cover_image ? resolveMediaUrl(p.cover_image, supabaseAdmin) : p.cover_image,
+          og_image_url: p.og_image_url ? resolveMediaUrl(p.og_image_url, supabaseAdmin) : p.og_image_url,
+          author_image_url: p.author_image_url ? resolveMediaUrl(p.author_image_url, supabaseAdmin) : p.author_image_url,
+        }));
+
+      // Try lightweight query without raw article content for listings
+      const fullRes = await buildQuery(`${LIST_POST_COLUMNS},destinations(id,title,slug),post_translations(language_code,title,excerpt)`);
+      if (!fullRes.error && fullRes.data) {
+        return { posts: mapPostMedia(fullRes.data), total: fullRes.count ?? 0 };
       }
 
-      if (data.category) {
-        const cat = data.category;
-        const catLower = cat.toLowerCase();
-        const catCap = cat.charAt(0).toUpperCase() + cat.slice(1);
-        q = q.or(`category.ilike.${cat},tags.cs.{${cat}},tags.cs.{${catLower}},tags.cs.{${catCap}}`);
-      }
-      if (data.categories && data.categories.length) {
-        const catFilters = data.categories.flatMap((c) => [
-          `category.ilike.${c}`,
-          `tags.cs.{${c}}`,
-          `tags.cs.{${c.toLowerCase()}}`,
-        ]);
-        const uniqueCatFilters = Array.from(new Set(catFilters));
-        q = q.or(uniqueCatFilters.join(","));
-      }
-      if (data.tag) {
-        const tag = data.tag;
-        const tagLower = tag.toLowerCase();
-        const tagCap = tag.charAt(0).toUpperCase() + tag.slice(1);
-        q = q.or(`tags.cs.{${tag}},tags.cs.{${tagLower}},tags.cs.{${tagCap}}`);
-      }
-      if (data.search) q = q.ilike("title", `%${data.search}%`);
-      if (data.featuredOnly) q = q.eq("featured", true);
-      if (data.sinceDays) {
-        const since = new Date(Date.now() - data.sinceDays * 86400000).toISOString();
-        q = q.gte("published_at", since);
-      }
-      return q.range(data.offset, data.offset + data.limit - 1);
-    };
-
-    const { resolveMediaUrl } = await import("@/lib/admin.functions");
-    const mapPostMedia = (postsList: any[]): Post[] =>
-      postsList.map((p) => ({
-        ...p,
-        cover_image: p.cover_image ? resolveMediaUrl(p.cover_image, supabaseAdmin) : p.cover_image,
-        og_image_url: p.og_image_url ? resolveMediaUrl(p.og_image_url, supabaseAdmin) : p.og_image_url,
-        author_image_url: p.author_image_url ? resolveMediaUrl(p.author_image_url, supabaseAdmin) : p.author_image_url,
-      }));
-
-    // Try full query first with destination relation, fallback to basic columns if schema not migrated yet
-    const fullRes = await buildQuery(`${FULL_POST_COLUMNS},destinations(id,title,slug),post_translations(language_code,title,excerpt)`);
-    if (!fullRes.error && fullRes.data) {
-      return { posts: mapPostMedia(fullRes.data), total: fullRes.count ?? 0 };
-    }
-
-    const baseRes = await buildQuery(BASE_POST_COLUMNS);
-    if (baseRes.error) throw new Error(baseRes.error.message);
-    return { posts: mapPostMedia(baseRes.data ?? []), total: baseRes.count ?? 0 };
+      const baseRes = await buildQuery(LIST_BASE_COLUMNS);
+      if (baseRes.error) throw new Error(baseRes.error.message);
+      return { posts: mapPostMedia(baseRes.data ?? []), total: baseRes.count ?? 0 };
+    });
   });
 
 export const getPostBySlug = createServerFn({ method: "GET" })
   .validator((input) => z.object({ slug: z.string().min(1) }).parse(input))
   .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const cacheKey = `post_${data.slug.trim().toLowerCase()}`;
+    return fetchWithCache(cacheKey, 60_000, async () => {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    let postRes = await (supabaseAdmin
-      .from("posts") as any)
-      .select(`${FULL_POST_COLUMNS},destinations(id,title,slug),post_gallery(id,image_url,alt_text,sort_order),post_translations(language_code,title,excerpt,content,seo_title,seo_description)`)
-      .eq("slug", data.slug)
-      .eq("published", true)
-      .maybeSingle();
-
-    if (postRes.error) {
-      postRes = await (supabaseAdmin
+      let postRes = await (supabaseAdmin
         .from("posts") as any)
-        .select(BASE_POST_COLUMNS)
+        .select(`${FULL_POST_COLUMNS},destinations(id,title,slug),post_gallery(id,image_url,alt_text,sort_order),post_translations(language_code,title,excerpt,content,seo_title,seo_description)`)
         .eq("slug", data.slug)
         .eq("published", true)
         .maybeSingle();
-    }
 
-    if (postRes.error) throw new Error(postRes.error.message);
-    const post = postRes.data;
-    if (!post) return { post: null, related: [] as Post[] };
-
-    let gallery = ((post as Record<string, unknown>).post_gallery ?? []) as PostGalleryItem[];
-    if (!Array.isArray(gallery) || gallery.length === 0) {
-      // Direct query fallback for post_gallery if nested relation was empty
-      const { data: directGal } = await (supabaseAdmin
-        .from("post_gallery") as any)
-        .select("id, image_url, alt_text, sort_order")
-        .eq("post_id", (post as any).id)
-        .order("sort_order", { ascending: true });
-      if (Array.isArray(directGal) && directGal.length > 0) {
-        gallery = directGal as PostGalleryItem[];
+      if (postRes.error) {
+        postRes = await (supabaseAdmin
+          .from("posts") as any)
+          .select(BASE_POST_COLUMNS)
+          .eq("slug", data.slug)
+          .eq("published", true)
+          .maybeSingle();
       }
-    }
 
-    const { resolveMediaUrl } = await import("@/lib/admin.functions");
+      if (postRes.error) throw new Error(postRes.error.message);
+      const post = postRes.data;
+      if (!post) return { post: null, related: [] as Post[] };
 
-    if (Array.isArray(gallery)) {
-      gallery = gallery.map((g, idx) => ({
-        id: g.id,
-        image_url: resolveMediaUrl(g.image_url, supabaseAdmin),
-        alt_text: g.alt_text ?? "",
-        sort_order: g.sort_order ?? idx,
+      let gallery = ((post as Record<string, unknown>).post_gallery ?? []) as PostGalleryItem[];
+      if (!Array.isArray(gallery) || gallery.length === 0) {
+        // Direct query fallback for post_gallery if nested relation was empty
+        const { data: directGal } = await (supabaseAdmin
+          .from("post_gallery") as any)
+          .select("id, image_url, alt_text, sort_order")
+          .eq("post_id", (post as any).id)
+          .order("sort_order", { ascending: true });
+        if (Array.isArray(directGal) && directGal.length > 0) {
+          gallery = directGal as PostGalleryItem[];
+        }
+      }
+
+      const { resolveMediaUrl } = await import("@/lib/admin.functions");
+
+      if (Array.isArray(gallery)) {
+        gallery = gallery.map((g, idx) => ({
+          id: g.id,
+          image_url: resolveMediaUrl(g.image_url, supabaseAdmin),
+          alt_text: g.alt_text ?? "",
+          sort_order: g.sort_order ?? idx,
+        }));
+        gallery.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+      }
+
+      const { data: rawRelated } = await (supabaseAdmin
+        .from("posts") as any)
+        .select(`${LIST_POST_COLUMNS},destinations(id,title,slug)`)
+        .eq("published", true)
+        .eq("category", (post as unknown as Post).category)
+        .neq("slug", data.slug)
+        .order("published_at", { ascending: false })
+        .limit(3);
+
+      const related = (rawRelated ?? []).map((p: any) => ({
+        ...p,
+        content: p.content ?? "",
+        cover_image: p.cover_image ? resolveMediaUrl(p.cover_image, supabaseAdmin) : p.cover_image,
+        og_image_url: p.og_image_url ? resolveMediaUrl(p.og_image_url, supabaseAdmin) : p.og_image_url,
+        author_image_url: p.author_image_url ? resolveMediaUrl(p.author_image_url, supabaseAdmin) : p.author_image_url,
       }));
-      gallery.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
-    }
 
-    const { data: rawRelated } = await (supabaseAdmin
-      .from("posts") as any)
-      .select(`${FULL_POST_COLUMNS},destinations(id,title,slug)`)
-      .eq("published", true)
-      .eq("category", (post as unknown as Post).category)
-      .neq("slug", data.slug)
-      .order("published_at", { ascending: false })
-      .limit(3);
+      // Non-blocking fire-and-forget views increment
+      try {
+        void (supabaseAdmin
+          .from("posts") as any)
+          .update({ views: ((post as unknown as Post).views ?? 0) + 1 })
+          .eq("id", (post as unknown as Post).id);
+      } catch {
+        // ignore background analytics error
+      }
 
-    const related = (rawRelated ?? []).map((p: any) => ({
-      ...p,
-      cover_image: p.cover_image ? resolveMediaUrl(p.cover_image, supabaseAdmin) : p.cover_image,
-      og_image_url: p.og_image_url ? resolveMediaUrl(p.og_image_url, supabaseAdmin) : p.og_image_url,
-      author_image_url: p.author_image_url ? resolveMediaUrl(p.author_image_url, supabaseAdmin) : p.author_image_url,
-    }));
+      const fullPost: Post = {
+        ...(post as unknown as Post),
+        cover_image: resolveMediaUrl((post as any).cover_image, supabaseAdmin),
+        og_image_url: resolveMediaUrl((post as any).og_image_url, supabaseAdmin),
+        author_image_url: (post as any).author_image_url
+          ? resolveMediaUrl((post as any).author_image_url, supabaseAdmin)
+          : (post as any).author_image_url,
+        gallery,
+      };
 
-    // fire-and-forget views increment
-    await (supabaseAdmin
-      .from("posts") as any)
-      .update({ views: ((post as unknown as Post).views ?? 0) + 1 })
-      .eq("id", (post as unknown as Post).id);
-
-    const fullPost: Post = {
-      ...(post as unknown as Post),
-      cover_image: resolveMediaUrl((post as any).cover_image, supabaseAdmin),
-      og_image_url: resolveMediaUrl((post as any).og_image_url, supabaseAdmin),
-      author_image_url: (post as any).author_image_url
-        ? resolveMediaUrl((post as any).author_image_url, supabaseAdmin)
-        : (post as any).author_image_url,
-      gallery,
-    };
-
-    return { post: fullPost, related: related as Post[] };
+      return { post: fullPost, related: related as Post[] };
+    });
   });
 
 export const listAllPostSlugs = createServerFn({ method: "GET" }).handler(async () => {
@@ -423,35 +443,37 @@ export function extractCountryFromLocation(locationName?: string | null): string
 export async function computeJourneyCountries(
   client: any,
 ): Promise<{ countriesCount: number; countriesList: string[] }> {
-  // Fetch all published posts' location_name and destinations
-  const { data: posts } = await (client
-    .from("posts") as any)
-    .select("id, title, location_name, destination_id, destinations(country)")
-    .eq("published", true);
+  return fetchWithCache("journey_countries", 60_000, async () => {
+    // Fetch all published posts' location_name and destinations
+    const { data: posts } = await (client
+      .from("posts") as any)
+      .select("id, title, location_name, destination_id, destinations(country)")
+      .eq("published", true);
 
-  const countrySet = new Set<string>();
+    const countrySet = new Set<string>();
 
-  if (posts && Array.isArray(posts)) {
-    for (const p of posts) {
-      // 1. Extract from Map Location
-      const country = extractCountryFromLocation(p.location_name);
-      if (country) {
-        countrySet.add(country.toLowerCase());
-        continue;
-      }
+    if (posts && Array.isArray(posts)) {
+      for (const p of posts) {
+        // 1. Extract from Map Location
+        const country = extractCountryFromLocation(p.location_name);
+        if (country) {
+          countrySet.add(country.toLowerCase());
+          continue;
+        }
 
-      // 2. Fallback to linked destination country
-      const destCountry = (p as any).destinations?.country;
-      if (destCountry && typeof destCountry === "string" && destCountry.trim()) {
-        countrySet.add(destCountry.trim().toLowerCase());
+        // 2. Fallback to linked destination country
+        const destCountry = (p as any).destinations?.country;
+        if (destCountry && typeof destCountry === "string" && destCountry.trim()) {
+          countrySet.add(destCountry.trim().toLowerCase());
+        }
       }
     }
-  }
 
-  return {
-    countriesCount: Math.max(countrySet.size, 1),
-    countriesList: Array.from(countrySet),
-  };
+    return {
+      countriesCount: Math.max(countrySet.size, 1),
+      countriesList: Array.from(countrySet),
+    };
+  });
 }
 
 /**

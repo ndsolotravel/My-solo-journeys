@@ -16,7 +16,7 @@ import {
 import type { Post } from "@/lib/posts.functions";
 import { SITE } from "@/lib/site";
 import { useTranslations, useLanguage } from "@/lib/translate/store";
-import { resolveMediaUrl } from "@/lib/admin.functions";
+import { resolveMediaUrl, getOptimizedImageUrl, getImageSrcSet } from "@/lib/media";
 
 interface FeaturedGridProps {
   mainFeatured: Post | null;
@@ -79,9 +79,13 @@ export function FeaturedGrid({
             <div className="relative aspect-[16/10] w-full overflow-hidden bg-muted">
               {mainFeatured.cover_image ? (
                 <img
-                  src={resolveMediaUrl(mainFeatured.cover_image)}
+                  src={getOptimizedImageUrl(mainFeatured.cover_image, 800)}
+                  srcSet={getImageSrcSet(mainFeatured.cover_image, [400, 800, 1200]) || undefined}
+                  sizes="(max-width: 1024px) 100vw, 50vw"
                   alt={getPostTitle(mainFeatured)}
                   loading="lazy"
+                  width={600}
+                  height={375}
                   className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
               ) : (
@@ -146,9 +150,11 @@ export function FeaturedGrid({
             <Link to="/blog/$slug" params={{ slug: post.slug }} className="block h-full w-full">
               {post.cover_image ? (
                 <img
-                  src={resolveMediaUrl(post.cover_image)}
+                  src={getOptimizedImageUrl(post.cover_image, 600)}
                   alt={getPostTitle(post)}
                   loading="lazy"
+                  width={500}
+                  height={200}
                   className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
               ) : (

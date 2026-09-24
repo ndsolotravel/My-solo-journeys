@@ -8,28 +8,32 @@ import {
   type ColorConfig,
 } from "./colors";
 
+import { fetchWithCache, invalidateServerCache } from "./server-cache";
+
 /**
  * Public server function to get active published color palette configuration.
- * Safe for all visitors, cached and fast.
+ * Safe for all visitors, cached in memory (60s) for instant response.
  */
 export const getPublicColorSettings = createServerFn({ method: "GET" }).handler(
   async (): Promise<ColorConfig> => {
-    try {
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      const { data, error } = await supabaseAdmin
-        .from("site_settings")
-        .select("value")
-        .eq("key", "color_settings")
-        .maybeSingle();
+    return fetchWithCache("public_color_settings", 60_000, async () => {
+      try {
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const { data, error } = await supabaseAdmin
+          .from("site_settings")
+          .select("value")
+          .eq("key", "color_settings")
+          .maybeSingle();
 
-      if (error || !data?.value) {
+        if (error || !data?.value) {
+          return DEFAULT_COLOR_CONFIG;
+        }
+
+        return parseColorConfig(data.value);
+      } catch {
         return DEFAULT_COLOR_CONFIG;
       }
-
-      return parseColorConfig(data.value);
-    } catch {
-      return DEFAULT_COLOR_CONFIG;
-    }
+    });
   },
 );
 
@@ -79,5 +83,6 @@ export const adminSaveColorSettings = createServerFn({ method: "POST" })
       .single();
 
     if (error) throw new Error(error.message);
+    invalidateServerCache("public_color_settings");
     return parseColorConfig(updated?.value);
   });

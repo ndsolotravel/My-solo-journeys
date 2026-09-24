@@ -63,6 +63,46 @@ export function resolveMediaUrl(urlOrPath: string | null | undefined, client?: a
   return `${baseUrl.replace(/\/+$/, "")}/storage/v1/object/public/blog-media/${cleanPath}`;
 }
 
+/**
+ * Transforms an image URL into a responsive, modern WebP asset.
+ * Automatically resizes Google CDN images to the requested max width
+ * and adds `-rw` for WebP compression, reducing payloads by 60% to 90%.
+ */
+export function getOptimizedImageUrl(
+  urlOrPath: string | null | undefined,
+  width?: number,
+  client?: any,
+): string {
+  const resolved = resolveMediaUrl(urlOrPath, client);
+  if (!resolved) return "";
+
+  // Optimize Google user content images
+  if (resolved.includes("lh3.googleusercontent.com/d/")) {
+    const base = resolved.split("=")[0];
+    const targetWidth = width && width > 0 ? Math.round(width) : 1600;
+    return `${base}=w${targetWidth}-rw`;
+  }
+
+  return resolved;
+}
+
+/**
+ * Generates standard responsive srcSet candidates with WebP compression.
+ */
+export function getImageSrcSet(
+  urlOrPath: string | null | undefined,
+  widths: number[] = [640, 1024, 1600],
+  client?: any,
+): string {
+  const resolved = resolveMediaUrl(urlOrPath, client);
+  if (!resolved || !resolved.includes("lh3.googleusercontent.com/d/")) {
+    return "";
+  }
+  return widths
+    .map((w) => `${getOptimizedImageUrl(resolved, w, client)} ${w}w`)
+    .join(", ");
+}
+
 export function extractBlogMediaPath(url: string | null | undefined): string | null {
   if (!url || typeof url !== "string") return null;
   try {

@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { getOptimizedImageUrl, getImageSrcSet } from "@/lib/media";
 
 export type HeroSlide = {
   src: string;
@@ -37,20 +38,27 @@ export function HeroSlider({ slides, intervalMs = 10000, className = "" }: Props
     return () => clearInterval(id);
   }, [count, intervalMs, index]);
 
+  const currentSlide = slides[index];
+  const isLcpSlide = index === 0;
+  const optimizedSrc = getOptimizedImageUrl(currentSlide.src, 1600);
+  const srcSet = getImageSrcSet(currentSlide.src, [640, 1024, 1600, 2048]);
+
   return (
     <div className={`absolute inset-0 overflow-hidden ${className}`}>
       <AnimatePresence initial={false} mode="sync">
-        {slides[index].src ? (
+        {currentSlide.src ? (
           <motion.img
             key={index}
-            src={slides[index].src}
-            alt={slides[index].alt}
-            initial={{ opacity: 0 }}
+            src={optimizedSrc}
+            srcSet={srcSet || undefined}
+            sizes="100vw"
+            alt={currentSlide.alt}
+            initial={isLcpSlide ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 1.1, ease: "easeInOut" }}
-            loading={index === 0 ? "eager" : "lazy"}
-            fetchPriority={index === 0 ? "high" : "auto"}
+            loading={isLcpSlide ? "eager" : "lazy"}
+            fetchPriority={isLcpSlide ? "high" : "auto"}
             className="absolute inset-0 h-full w-full object-cover animate-ken-burns"
           />
         ) : (

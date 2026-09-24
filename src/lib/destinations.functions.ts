@@ -18,8 +18,11 @@ export type Destination = {
   posts?: Post[];
 };
 
+import { fetchWithCache } from "./server-cache";
+
 export const listDestinations = createServerFn({ method: "GET" }).handler(async () => {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  return fetchWithCache("destinations_list", 60_000, async () => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
   let { data, error } = await supabaseAdmin
     .from("destinations")
@@ -112,69 +115,72 @@ export const listDestinations = createServerFn({ method: "GET" }).handler(async 
     } as Destination;
   });
 
-  return resolved;
+    return resolved;
+  });
 });
 
 export const getDestinationBySlug = createServerFn({ method: "GET" })
   .validator((input) => z.object({ slug: z.string() }).parse(input))
   .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const rawSlug = data.slug.trim();
-    let decodedSlug = rawSlug;
-    try {
-      decodedSlug = decodeURIComponent(rawSlug);
-    } catch {
-      // fallback to raw
-    }
+    return fetchWithCache(`destination_${data.slug.trim().toLowerCase()}`, 60_000, async () => {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const rawSlug = data.slug.trim();
+      let decodedSlug = rawSlug;
+      try {
+        decodedSlug = decodeURIComponent(rawSlug);
+      } catch {
+        // fallback to raw
+      }
 
-    let { data: row, error } = await supabaseAdmin
-      .from("destinations")
-      .select("*")
-      .eq("slug", rawSlug)
-      .maybeSingle();
-
-    if (!row && decodedSlug !== rawSlug) {
-      const fallbackRes = await supabaseAdmin
+      let { data: row, error } = await supabaseAdmin
         .from("destinations")
         .select("*")
-        .eq("slug", decodedSlug)
+        .eq("slug", rawSlug)
         .maybeSingle();
-      if (!error && fallbackRes.data) {
-        row = fallbackRes.data;
+
+      if (!row && decodedSlug !== rawSlug) {
+        const fallbackRes = await supabaseAdmin
+          .from("destinations")
+          .select("*")
+          .eq("slug", decodedSlug)
+          .maybeSingle();
+        if (!error && fallbackRes.data) {
+          row = fallbackRes.data;
+        }
       }
-    }
 
-    if (error) throw new Error(error.message);
-    if (!row) return null;
+      if (error) throw new Error(error.message);
+      if (!row) return null;
 
-    // Query posts belonging strictly to this destination by destination_id
-    const { data: posts, error: postsError } = await supabaseAdmin
-      .from("posts")
-      .select(
-        "id, title, slug, excerpt, content, cover_image, category, tags, featured, views, reading_minutes, published_at, created_at, destination_id, travel_date, location_name, latitude, longitude, seo_title, seo_description, og_image_url, author_name, destinations(id,title,slug)",
-      )
-      .eq("destination_id", row.id)
-      .eq("published", true)
-      .order("published_at", { ascending: false, nullsFirst: false });
+      // Query posts belonging strictly to this destination by destination_id (without heavy raw content)
+      const { data: posts, error: postsError } = await supabaseAdmin
+        .from("posts")
+        .select(
+          "id, title, slug, excerpt, cover_image, category, tags, featured, views, reading_minutes, published_at, created_at, destination_id, travel_date, location_name, latitude, longitude, seo_title, seo_description, og_image_url, author_name, destinations(id,title,slug)",
+        )
+        .eq("destination_id", row.id)
+        .eq("published", true)
+        .order("published_at", { ascending: false, nullsFirst: false });
 
-    if (postsError) throw new Error(postsError.message);
+      if (postsError) throw new Error(postsError.message);
 
-    const linkedPosts = (posts ?? []).filter((p: any) => p.cover_image);
-    let coverPhoto = linkedPosts[0]?.cover_image;
-    if (!coverPhoto && row.featured_image) {
-      coverPhoto = row.featured_image;
-    }
+      const linkedPosts = (posts ?? []).filter((p: any) => p.cover_image);
+      let coverPhoto = linkedPosts[0]?.cover_image;
+      if (!coverPhoto && row.featured_image) {
+        coverPhoto = row.featured_image;
+      }
 
-    const resolvedImage = coverPhoto ? resolveMediaUrl(coverPhoto, supabaseAdmin) : "";
+      const resolvedImage = coverPhoto ? resolveMediaUrl(coverPhoto, supabaseAdmin) : "";
 
-    const resolvedPosts = (posts ?? []).map((p: any) => ({
-      ...p,
-      cover_image: resolveMediaUrl(p.cover_image, supabaseAdmin) || resolvedImage,
-    }));
+      const resolvedPosts = (posts ?? []).map((p: any) => ({
+        ...p,
+        cover_image: resolveMediaUrl(p.cover_image, supabaseAdmin) || resolvedImage,
+      }));
 
-    return {
-      ...row,
-      featured_image: resolvedImage,
-      posts: resolvedPosts as Post[],
-    } as Destination & { posts: Post[] };
+      return {
+        ...row,
+        featured_image: resolvedImage,
+        posts: resolvedPosts as Post[],
+      } as Destination & { posts: Post[] };
+    });
   });

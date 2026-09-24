@@ -4,7 +4,7 @@ import { Calendar, Clock, MapPin, ArrowRight, ArrowUpRight } from "lucide-react"
 import type { Post } from "@/lib/posts.functions";
 import type { ActiveTopic } from "@/lib/topics.functions";
 import { useTranslations, useLanguage } from "@/lib/translate/store";
-import { resolveMediaUrl } from "@/lib/admin.functions";
+import { resolveMediaUrl, getOptimizedImageUrl, getImageSrcSet } from "@/lib/media";
 
 interface TrendingStoriesProps {
   primaryPost: Post | null;
@@ -60,9 +60,13 @@ export function TrendingStories({
             <div className="relative aspect-[16/10] w-full overflow-hidden bg-muted">
               {primaryPost.cover_image ? (
                 <img
-                  src={resolveMediaUrl(primaryPost.cover_image)}
+                  src={getOptimizedImageUrl(primaryPost.cover_image, 800)}
+                  srcSet={getImageSrcSet(primaryPost.cover_image, [400, 800, 1200]) || undefined}
+                  sizes="(max-width: 1024px) 100vw, 50vw"
                   alt={getPostTitle(primaryPost)}
                   loading="lazy"
+                  width={600}
+                  height={375}
                   className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
               ) : (
@@ -149,9 +153,11 @@ export function TrendingStories({
               <div className="relative h-20 w-22 sm:h-28 sm:w-32 shrink-0 overflow-hidden rounded-xl bg-muted">
                 {post.cover_image ? (
                   <img
-                    src={resolveMediaUrl(post.cover_image)}
+                    src={getOptimizedImageUrl(post.cover_image, 300)}
                     alt={getPostTitle(post)}
                     loading="lazy"
+                    width={128}
+                    height={112}
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 ) : (
@@ -208,11 +214,14 @@ export function TrendingStories({
               className="group relative flex items-center justify-between overflow-hidden rounded-xl border border-border/60 bg-muted/30 p-2.5 transition-all duration-200 hover:border-[#4085FF]/40 hover:bg-muted min-w-0"
             >
               {cat.image && (() => {
-                const catImg = resolveMediaUrl(cat.image);
+                const catImg = getOptimizedImageUrl(cat.image, 300);
                 return catImg ? (
                   <img
                     src={catImg}
                     alt={cat.name}
+                    loading="lazy"
+                    width={240}
+                    height={48}
                     className="absolute inset-0 h-full w-full object-cover opacity-20 transition-opacity duration-300 group-hover:opacity-30"
                   />
                 ) : null;

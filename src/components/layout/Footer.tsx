@@ -40,6 +40,9 @@ export function Footer() {
               <img
                 src={logoPath}
                 alt="ndsolotravel"
+                loading="lazy"
+                width={140}
+                height={32}
                 className="h-8 w-auto brightness-0 invert transition-[filter] duration-300 ease-in-out group-hover:[filter:none]"
               />
             </Link>
