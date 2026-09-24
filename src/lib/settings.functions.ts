@@ -29,6 +29,8 @@ async function assertEditor(userId: string, client?: any) {
   return roles;
 }
 
+import { fetchWithCache, invalidateServerCache } from "./server-cache";
+
 // ---------------- Public Functions ----------------
 
 export const getBlogAuthorName = createServerFn({ method: "GET" }).handler(async () => {
@@ -50,24 +52,26 @@ export const getBlogAuthorName = createServerFn({ method: "GET" }).handler(async
 });
 
 export const getPublicSiteSettings = createServerFn({ method: "GET" }).handler(async () => {
-  try {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data, error } = await supabaseAdmin
-      .from("site_settings")
-      .select("key, value, description");
+  return fetchWithCache("public_site_settings", 60_000, async () => {
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data, error } = await supabaseAdmin
+        .from("site_settings")
+        .select("key, value, description");
 
-    if (error || !data) {
+      if (error || !data) {
+        return { blog_author_name: DEFAULT_BLOG_AUTHOR };
+      }
+
+      const settingsMap: Record<string, string> = { blog_author_name: DEFAULT_BLOG_AUTHOR };
+      for (const item of data) {
+        settingsMap[item.key] = item.value;
+      }
+      return settingsMap;
+    } catch {
       return { blog_author_name: DEFAULT_BLOG_AUTHOR };
     }
-
-    const settingsMap: Record<string, string> = { blog_author_name: DEFAULT_BLOG_AUTHOR };
-    for (const item of data) {
-      settingsMap[item.key] = item.value;
-    }
-    return settingsMap;
-  } catch {
-    return { blog_author_name: DEFAULT_BLOG_AUTHOR };
-  }
+  });
 });
 
 // ---------------- Admin Functions ----------------
@@ -119,5 +123,6 @@ export const adminUpdateSetting = createServerFn({ method: "POST" })
       .single();
 
     if (error) throw new Error(error.message);
+    invalidateServerCache("public_site_settings");
     return updated;
   });

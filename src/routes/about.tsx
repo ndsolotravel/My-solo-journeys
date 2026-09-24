@@ -21,6 +21,23 @@ import {
   Layers,
   Send,
   Flag,
+  User,
+  Search,
+  BookOpen,
+  Tent,
+  Zap,
+  Activity,
+  Award,
+  Sun,
+  Flame,
+  Target,
+  Coffee,
+  FileText,
+  Eye,
+  Share2,
+  Users,
+  Settings as SettingsIcon,
+  type LucideIcon,
 } from "lucide-react";
 import aboutPortrait from "@/assets/nd-about.jpg";
 import { useTranslations } from "@/lib/translate/store";
@@ -102,17 +119,60 @@ export const Route = createFileRoute("/about")({
   component: AboutPage,
 });
 
-// Helper component for dynamic Lucide icons
+// Explicit dictionary of supported Lucide adventure/travel icons for dynamic CMS cards
+const ICON_MAP: Record<string, LucideIcon | React.ComponentType<{ className?: string }>> = {
+  Compass,
+  Mountain,
+  Bike,
+  Camera,
+  MapPin,
+  Globe,
+  Quote,
+  Shield,
+  Heart,
+  Wrench,
+  Navigation,
+  ArrowRight,
+  Sparkles,
+  Route: RouteIcon,
+  RouteIcon,
+  CheckCircle2,
+  Calendar,
+  Layers,
+  Send,
+  Flag,
+  User,
+  Search,
+  BookOpen,
+  Tent,
+  Zap,
+  Activity,
+  Award,
+  Sun,
+  Flame,
+  Target,
+  Coffee,
+  FileText,
+  Eye,
+  Share2,
+  Users,
+  Settings: SettingsIcon,
+};
+
+// Safe helper component for dynamic Lucide icons with resilient fallback
 function DynamicIcon({
   name,
   className,
   fallback: FallbackIcon,
 }: {
-  name: string;
+  name?: string | null;
   className?: string;
   fallback?: any;
 }) {
-  const IconComponent = (LucideIcons as any)[name] || FallbackIcon || Compass;
+  const Fallback = FallbackIcon || Compass;
+  if (!name || typeof name !== "string") return <Fallback className={className} />;
+  const cleanName = name.trim();
+  const IconComponent = ICON_MAP[cleanName] || Fallback;
   return <IconComponent className={className} />;
 }
 
@@ -129,10 +189,9 @@ function AboutPage() {
   const heroLabel = settings?.about_hero_label || ABOUT_DEFAULTS.about_hero_label;
   const heroHeadline = settings?.about_hero_headline || ABOUT_DEFAULTS.about_hero_headline;
   const heroSubtitle = settings?.about_hero_subtitle || ABOUT_DEFAULTS.about_hero_subtitle;
-  const heroBadges = parseJson<AboutHeroBadge[]>(
-    settings?.about_hero_badges,
-    DEFAULT_HERO_BADGES,
-  ).filter((b) => b.enabled);
+  const heroBadges = (
+    parseJson<AboutHeroBadge[]>(settings?.about_hero_badges, DEFAULT_HERO_BADGES) || DEFAULT_HERO_BADGES
+  ).filter((b) => Boolean(b && b.enabled));
 
   // -------------------------------------------------------------------------
   // SECTION 2: INTRODUCTION / PROFILE
@@ -151,20 +210,21 @@ function AboutPage() {
   const profileEyebrow = settings?.about_profile_eyebrow || ABOUT_DEFAULTS.about_profile_eyebrow;
   const biographyTitle = settings?.about_biography_title || ABOUT_DEFAULTS.about_biography_title;
   const biographyIntro = settings?.about_biography_intro || ABOUT_DEFAULTS.about_biography_intro;
-  const biographyParagraphs = (
-    settings?.about_biography_paragraphs || ABOUT_DEFAULTS.about_biography_paragraphs
-  )
+  const rawBiography =
+    settings?.about_biography_paragraphs?.trim() || ABOUT_DEFAULTS.about_biography_paragraphs || "";
+  const biographyParagraphs = rawBiography
     .split("\n\n")
+    .map((p) => p.trim())
     .filter(Boolean);
 
   const profileHighlightTitle =
     settings?.about_profile_highlight_title || ABOUT_DEFAULTS.about_profile_highlight_title;
   const profileHighlightText =
     settings?.about_profile_highlight_text || ABOUT_DEFAULTS.about_profile_highlight_text;
-  const dossierItems = parseJson<AboutDossierItem[]>(
-    settings?.about_profile_dossier,
-    DEFAULT_DOSSIER_ITEMS,
-  ).filter((d) => d.enabled);
+  const dossierItems = (
+    parseJson<AboutDossierItem[]>(settings?.about_profile_dossier, DEFAULT_DOSSIER_ITEMS) ||
+    DEFAULT_DOSSIER_ITEMS
+  ).filter((d) => Boolean(d && d.enabled));
 
   const profileCtaPrimaryText =
     settings?.about_profile_cta_primary_text || ABOUT_DEFAULTS.about_profile_cta_primary_text;
@@ -184,12 +244,12 @@ function AboutPage() {
   const whyTravelTitle = settings?.about_why_travel_title || ABOUT_DEFAULTS.about_why_travel_title;
   const whyTravelDescription =
     settings?.about_why_travel_description || ABOUT_DEFAULTS.about_why_travel_description;
-  const whyTravelCards = parseJson<AboutWhyTravelCard[]>(
-    settings?.about_why_travel_cards,
-    DEFAULT_WHY_TRAVEL_CARDS,
+  const whyTravelCards = (
+    parseJson<AboutWhyTravelCard[]>(settings?.about_why_travel_cards, DEFAULT_WHY_TRAVEL_CARDS) ||
+    DEFAULT_WHY_TRAVEL_CARDS
   )
-    .filter((c) => c.enabled)
-    .sort((a, b) => a.order - b.order);
+    .filter((c) => Boolean(c && c.enabled))
+    .sort((a, b) => (Number(a?.order) || 0) - (Number(b?.order) || 0));
 
   // -------------------------------------------------------------------------
   // SECTION 4: SOLO MOTORCYCLE ADVENTURES
@@ -206,12 +266,14 @@ function AboutPage() {
     : ABOUT_DEFAULTS.about_motorcycle_image;
   const motorcycleImageAlt =
     settings?.about_motorcycle_image_alt || ABOUT_DEFAULTS.about_motorcycle_image_alt;
-  const motorcycleFeatures = parseJson<AboutMotorcycleFeature[]>(
-    settings?.about_motorcycle_features,
-    DEFAULT_MOTORCYCLE_FEATURES,
+  const motorcycleFeatures = (
+    parseJson<AboutMotorcycleFeature[]>(
+      settings?.about_motorcycle_features,
+      DEFAULT_MOTORCYCLE_FEATURES,
+    ) || DEFAULT_MOTORCYCLE_FEATURES
   )
-    .filter((f) => f.enabled)
-    .sort((a, b) => a.order - b.order);
+    .filter((f) => Boolean(f && f.enabled))
+    .sort((a, b) => (Number(a?.order) || 0) - (Number(b?.order) || 0));
   const motorcycleCtaText =
     settings?.about_motorcycle_cta_text || ABOUT_DEFAULTS.about_motorcycle_cta_text;
   const motorcycleCtaUrl =
@@ -234,12 +296,12 @@ function AboutPage() {
     settings?.about_trekking_location_label || ABOUT_DEFAULTS.about_trekking_location_label;
   const trekkingLocationQuote =
     settings?.about_trekking_location_quote || ABOUT_DEFAULTS.about_trekking_location_quote;
-  const trekkingCards = parseJson<AboutTrekkingCard[]>(
-    settings?.about_trekking_cards,
-    DEFAULT_TREKKING_CARDS,
+  const trekkingCards = (
+    parseJson<AboutTrekkingCard[]>(settings?.about_trekking_cards, DEFAULT_TREKKING_CARDS) ||
+    DEFAULT_TREKKING_CARDS
   )
-    .filter((c) => c.enabled)
-    .sort((a, b) => a.order - b.order);
+    .filter((c) => Boolean(c && c.enabled))
+    .sort((a, b) => (Number(a?.order) || 0) - (Number(b?.order) || 0));
 
   // -------------------------------------------------------------------------
   // SECTION 6: TRAVEL PHILOSOPHY / QUOTE
@@ -255,12 +317,14 @@ function AboutPage() {
   // SECTION 7: TRAVEL PHILOSOPHY CARDS
   // -------------------------------------------------------------------------
   const philosophyCardsEnabled = settings?.about_philosophy_cards_enabled !== "false";
-  const philosophyCards = parseJson<AboutPhilosophyCard[]>(
-    settings?.about_philosophy_cards,
-    DEFAULT_PHILOSOPHY_CARDS,
+  const philosophyCards = (
+    parseJson<AboutPhilosophyCard[]>(
+      settings?.about_philosophy_cards,
+      DEFAULT_PHILOSOPHY_CARDS,
+    ) || DEFAULT_PHILOSOPHY_CARDS
   )
-    .filter((c) => c.enabled)
-    .sort((a, b) => a.order - b.order);
+    .filter((c) => Boolean(c && c.enabled))
+    .sort((a, b) => (Number(a?.order) || 0) - (Number(b?.order) || 0));
 
   // -------------------------------------------------------------------------
   // SECTION 8: JOURNEY IN NUMBERS
@@ -270,20 +334,20 @@ function AboutPage() {
   const numbersTitle = settings?.about_numbers_title || ABOUT_DEFAULTS.about_numbers_title;
   const numbersDescription =
     settings?.about_numbers_description || ABOUT_DEFAULTS.about_numbers_description;
-  const numbersStats = parseJson<AboutNumberStat[]>(
-    settings?.about_numbers_stats,
-    DEFAULT_NUMBER_STATS,
+  const numbersStats = (
+    parseJson<AboutNumberStat[]>(settings?.about_numbers_stats, DEFAULT_NUMBER_STATS) ||
+    DEFAULT_NUMBER_STATS
   )
-    .filter((s) => s.enabled)
-    .sort((a, b) => a.order - b.order);
+    .filter((s) => Boolean(s && s.enabled))
+    .sort((a, b) => (Number(a?.order) || 0) - (Number(b?.order) || 0));
   const numbersTagsLabel =
     settings?.about_numbers_tags_label || ABOUT_DEFAULTS.about_numbers_tags_label;
-  const numbersTags = parseJson<AboutTerrainTag[]>(
-    settings?.about_numbers_tags,
-    DEFAULT_TERRAIN_TAGS,
+  const numbersTags = (
+    parseJson<AboutTerrainTag[]>(settings?.about_numbers_tags, DEFAULT_TERRAIN_TAGS) ||
+    DEFAULT_TERRAIN_TAGS
   )
-    .filter((tItem) => tItem.enabled)
-    .sort((a, b) => a.order - b.order);
+    .filter((tItem) => Boolean(tItem && tItem.enabled))
+    .sort((a, b) => (Number(a?.order) || 0) - (Number(b?.order) || 0));
 
   // -------------------------------------------------------------------------
   // SECTION 9: WHAT YOU WILL FIND ON NDSOLOTRAVEL
@@ -293,12 +357,12 @@ function AboutPage() {
   const contentTitle = settings?.about_content_title || ABOUT_DEFAULTS.about_content_title;
   const contentDescription =
     settings?.about_content_description || ABOUT_DEFAULTS.about_content_description;
-  const contentCards = parseJson<AboutContentCard[]>(
-    settings?.about_content_cards,
-    DEFAULT_CONTENT_CARDS,
+  const contentCards = (
+    parseJson<AboutContentCard[]>(settings?.about_content_cards, DEFAULT_CONTENT_CARDS) ||
+    DEFAULT_CONTENT_CARDS
   )
-    .filter((c) => c.enabled)
-    .sort((a, b) => a.order - b.order);
+    .filter((c) => Boolean(c && c.enabled))
+    .sort((a, b) => (Number(a?.order) || 0) - (Number(b?.order) || 0));
 
   // -------------------------------------------------------------------------
   // SECTION 10: FINAL CTA

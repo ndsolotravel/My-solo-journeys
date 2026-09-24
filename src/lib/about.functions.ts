@@ -458,11 +458,13 @@ export const ABOUT_DEFAULTS: Record<string, string> = {
 
 export const ABOUT_KEYS = Object.keys(ABOUT_DEFAULTS);
 
-export function parseJson<T>(value: string | undefined, fallback: T): T {
+export function parseJson<T>(value: string | undefined | null, fallback: T): T {
   if (!value) return fallback;
   try {
     const parsed = JSON.parse(value);
-    return parsed !== undefined && parsed !== null ? parsed : fallback;
+    if (parsed === undefined || parsed === null) return fallback;
+    if (Array.isArray(fallback) && !Array.isArray(parsed)) return fallback;
+    return parsed;
   } catch {
     return fallback;
   }
@@ -537,6 +539,9 @@ export const adminSaveAboutSettings = createServerFn({ method: "POST" })
       console.error("Error saving about settings:", error);
       throw new Error(`Failed to save about settings: ${error.message}`);
     }
+
+    const { invalidateServerCache } = await import("./server-cache");
+    invalidateServerCache("public_site_settings");
 
     return { success: true, count: upserts.length };
   });
