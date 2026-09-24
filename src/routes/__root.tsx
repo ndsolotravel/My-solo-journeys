@@ -20,6 +20,7 @@ import { NewsletterPopup } from "@/components/layout/NewsletterPopup";
 import { PublicMessagePopup } from "@/components/layout/PublicMessagePopup";
 import { CookieConsentPopup } from "@/components/layout/CookieConsentPopup";
 import { ReadingProgressBar } from "@/components/layout/ReadingProgressBar";
+import { TypographyManager } from "@/components/layout/TypographyManager";
 import { supabase } from "@/integrations/supabase/client";
 import { TranslationProvider, useT, LANGUAGES } from "@/lib/translate/store";
 import { ContentTranslationProvider } from "@/lib/translate/contentTranslation";
@@ -184,6 +185,7 @@ function RootComponent() {
       <ContentTranslationProvider>
         <QueryClientProvider client={queryClient}>
           <ReadingProgressBar />
+          <TypographyManager />
           <div className={shellClass}>
             <Header />
             <main className={mainClass}>

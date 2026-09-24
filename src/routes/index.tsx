@@ -380,7 +380,7 @@ function HomePage() {
                    Solo journeys, motorcycle adventures, and trekking across the world
                  </span>
                </motion.h1>
-               <motion.p
+                 <motion.p
                  initial={{ opacity: 0 }}
                  animate={{ opacity: 1 }}
                  transition={{ duration: 0.8, delay: 0.2 }}
@@ -389,12 +389,12 @@ function HomePage() {
                  {t(heroSettings.homepage_hero_title_highlight || "Stories from the high places. Most people only fly over.")}
                </motion.p>
 
-              <motion.p
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.2 }}
-                className="mt-3 sm:mt-4 max-w-2xl text-xs sm:text-base lg:text-lg text-white/85 leading-relaxed"
-              >
+               <motion.p
+                 initial={{ opacity: 0, y: 30 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 transition={{ duration: 0.8, delay: 0.2 }}
+                 className="mt-3 sm:mt-4 max-w-2xl text-sm sm:text-base lg:text-lg text-white/85 leading-relaxed"
+               >
                 {t(
                   heroSettings.homepage_hero_description ||
                     "Welcome to NDSOLOTRAVEL, a personal travel journal covering solo travel, motorcycle adventures, and mountain treks across Pakistan, the Karakoram, and around the world.",
@@ -712,9 +712,9 @@ function HomePage() {
                 <div className="mt-2.5 sm:mt-3 font-sans text-lg min-[360px]:text-xl sm:text-2xl lg:text-3xl font-bold text-foreground tabular-nums whitespace-nowrap">
                   <CountUp end={s.value} suffix={s.suffix} />
                 </div>
-                <div className="mt-0.5 sm:mt-1 text-[11px] sm:text-xs text-muted-foreground leading-snug min-w-0">
-                  {s.label}
-                </div>
+<div className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-muted-foreground leading-snug min-w-0">
+                   {s.label}
+                 </div>
               </div>
             ))}
           </div>

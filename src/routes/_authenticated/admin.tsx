@@ -19,6 +19,7 @@ import {
   Megaphone,
   Scale,
   Contact,
+  Type,
 } from "lucide-react";
 import { getMyRoles } from "@/lib/admin.functions";
 import { adminGetUnreadCount } from "@/lib/contact.functions";
@@ -68,6 +69,7 @@ const NAV: { to: string; label: string; icon: typeof LayoutDashboard; exact?: bo
   { to: "/admin/subscribers", label: "Subscribers", icon: Users },
   { to: "/admin/messages", label: "Messages", icon: Mail },
   { to: "/admin/public-message", label: "Public Message", icon: Megaphone },
+  { to: "/admin/typography", label: "Typography", icon: Type },
   { to: "/admin/settings", label: "Settings", icon: Settings },
 ];
 

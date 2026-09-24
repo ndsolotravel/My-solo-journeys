@@ -394,9 +394,9 @@ function PostPage() {
       {/* Body */}
       <div className="mx-auto mt-12 max-w-3xl px-4 sm:px-6">
         {localizedPost.excerpt && (
-          <p className="text-xl leading-relaxed text-muted-foreground border-l-2 border-accent pl-4 py-1 italic">
-            {localizedPost.excerpt}
-          </p>
+                           <p className="text-body-lg leading-relaxed text-muted-foreground border-l-2 border-accent pl-4 py-1 italic">
+                             {localizedPost.excerpt}
+                           </p>
         )}
 
         {/* Table of Contents sidebar/box for long articles */}
@@ -490,17 +490,17 @@ function PostPage() {
                 );
               },
               p: ({ children }) => (
-                <p className="leading-relaxed mb-5 text-foreground">
+                <p className="text-body leading-relaxed mb-5 text-foreground">
                   {translateMarkdownChildren(children, t, isDbTranslated)}
                 </p>
               ),
               li: ({ children }) => (
-                <li className="mb-2 leading-relaxed text-foreground">
+                <li className="text-body mb-2 leading-relaxed text-foreground">
                   {translateMarkdownChildren(children, t, isDbTranslated)}
                 </li>
               ),
               blockquote: ({ children }) => (
-                <blockquote className="my-6 border-l-4 border-accent bg-muted/40 py-3.5 px-5 italic rounded-r-xl text-base text-foreground shadow-sm">
+                <blockquote className="my-6 border-l-4 border-accent bg-muted/40 py-3.5 px-5 italic rounded-r-xl text-[1.1875rem] text-foreground shadow-sm">
                   {translateMarkdownChildren(children, t, isDbTranslated)}
                 </blockquote>
               ),
@@ -509,11 +509,11 @@ function PostPage() {
                   {children}
                 </figure>
               ),
-              figcaption: ({ children, node, ...props }) => (
-                <figcaption className="mt-2.5 text-center text-sm text-muted-foreground italic font-sans" {...props}>
-                  {translateMarkdownChildren(children, t, isDbTranslated)}
-                </figcaption>
-              ),
+                              figcaption: ({ children, node, ...props }) => (
+                                <figcaption className="mt-2.5 text-center text-sm text-muted-foreground italic font-sans leading-relaxed">
+                                  {translateMarkdownChildren(children, t, isDbTranslated)}
+                                </figcaption>
+                              ),
               img: ({ src, alt, node, ...props }) => (
                 <img
                   src={resolveMediaUrl(src)}
@@ -934,20 +934,20 @@ function CommentsSection({ postId }: { postId: string }) {
                   <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted text-xs font-semibold uppercase">
                     {displayName.slice(0, 1)}
                   </div>
-                  <div className="text-sm">
-                    <p className="font-medium">{displayName}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(c.created_at).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      })}
-                    </p>
-                  </div>
+                               <div className="text-sm">
+                                 <p className="text-[0.9375rem] font-medium">{displayName}</p>
+                                 <p className="text-xs text-muted-foreground">
+                                   {new Date(c.created_at).toLocaleDateString("en-US", {
+                                     month: "short",
+                                     day: "numeric",
+                                     year: "numeric",
+                                   })}
+                                 </p>
+                               </div>
                 </div>
                 {c.rating ? <StarDisplay value={c.rating} /> : null}
               </div>
-              <p className="mt-3 text-sm leading-relaxed whitespace-pre-wrap">{c.comment}</p>
+                              <p className="mt-3 text-[0.9375rem] leading-relaxed whitespace-pre-wrap">{c.comment}</p>
             </motion.div>
           );
         })}
