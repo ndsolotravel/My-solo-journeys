@@ -32,18 +32,18 @@ export function SectionHeading({
       <div className="flex flex-wrap items-center justify-between gap-3">
         {/* Left: Title + Badge */}
         <div className="flex items-center gap-3">
-          <h2 className="font-display text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+          <h2 className="font-display text-2xl font-semibold tracking-tight text-heading sm:text-3xl">
             {t(title)}
           </h2>
           {badge && (
-            <span className="hidden sm:inline-flex items-center rounded-full bg-[#4085FF]/10 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-[#4085FF]">
+            <span className="hidden sm:inline-flex items-center rounded-full bg-accent/10 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-accent">
               {t(badge)}
             </span>
           )}
         </div>
 
         {/* Divider bar */}
-        <div className="hidden md:flex flex-1 mx-4 h-[2px] rounded-full bg-gradient-to-r from-[#4085FF] via-border to-transparent" />
+        <div className="hidden md:flex flex-1 mx-4 h-[2px] rounded-full bg-gradient-to-r from-accent via-border to-transparent" />
 
         {/* Right: Custom elements, filter tabs, or Action Link */}
         <div className="flex items-center gap-3 text-sm">
@@ -52,7 +52,7 @@ export function SectionHeading({
             <Link
               to={linkTo as any}
               hash={linkHash}
-              className="inline-flex items-center gap-1 font-medium text-muted-foreground transition-colors hover:text-[#4085FF]"
+              className="inline-flex items-center gap-1 font-medium text-link transition-colors hover:text-link-hover group"
             >
               <span>{t(linkText)}</span>
               <span className="transition-transform duration-200 group-hover:translate-x-0.5 rtl:rotate-180">

@@ -304,7 +304,7 @@ export function parseColorConfig(raw: unknown): ColorConfig {
 /**
  * Generates centralized CSS variables dynamically for injection into DOM.
  */
-export function generateColorCss(config: ColorConfig, selector: string = ":root"): string {
+export function generateColorCss(config: ColorConfig, selector: string = ":root, .dark"): string {
   return `
 ${selector} {
   --primary: ${config.primaryColor};
@@ -314,27 +314,45 @@ ${selector} {
   --ring: ${config.accentColor};
 
   --color-heading: ${config.headingColor};
+  --heading-color: ${config.headingColor};
+
   --color-body-text: ${config.bodyTextColor};
+  --body-text-color: ${config.bodyTextColor};
+
   --color-muted-text: ${config.mutedTextColor};
+  --muted-text-color: ${config.mutedTextColor};
 
   --color-link: ${config.linkColor};
+  --link-color: ${config.linkColor};
+
   --color-link-hover: ${config.linkHoverColor};
+  --link-hover-color: ${config.linkHoverColor};
 
   --btn-bg: ${config.buttonBgColor};
+  --color-btn-bg: ${config.buttonBgColor};
   --btn-text: ${config.buttonTextColor};
+  --color-btn-text: ${config.buttonTextColor};
   --btn-hover: ${config.buttonHoverColor};
+  --color-btn-hover: ${config.buttonHoverColor};
 
   --card-bg: ${config.cardBgColor};
+  --color-card-bg: ${config.cardBgColor};
   --section-bg: ${config.sectionBgColor};
+  --color-section-bg: ${config.sectionBgColor};
   --border-color: ${config.borderColor};
+  --border: ${config.borderColor};
 
   --nav-text: ${config.navTextColor};
+  --color-nav-text: ${config.navTextColor};
   --nav-hover: ${config.navHoverColor};
+  --color-nav-hover: ${config.navHoverColor};
 
   --hero-overlay: ${config.heroOverlayColor};
 
   --footer-bg: ${config.footerBgColor};
+  --color-footer-bg: ${config.footerBgColor};
   --footer-text: ${config.footerTextColor};
+  --color-footer-text: ${config.footerTextColor};
 }
 `;
 }

@@ -129,7 +129,7 @@ function NewsDetailPage() {
             Breaking News Dispatch
           </span>
         ) : (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#4085FF]/10 border border-[#4085FF]/20 px-3 py-1 font-bold text-[#4085FF] uppercase tracking-wider">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-accent/10 border border-accent/20 px-3 py-1 font-bold text-accent uppercase tracking-wider">
             <Radio className="h-3.5 w-3.5" />
             Official Bulletin
           </span>
@@ -159,13 +159,13 @@ function NewsDetailPage() {
       </div>
 
       {/* Headline */}
-      <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-foreground leading-[1.15]">
+      <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-heading leading-[1.15]">
         {newsItem.title}
       </h1>
 
       {/* Short Summary Lead */}
       {newsItem.summary && (
-        <div className="mt-6 rounded-2xl border-l-4 border-[#4085FF] bg-[#4085FF]/5 p-5 text-base sm:text-lg font-medium text-foreground/90 leading-relaxed italic">
+        <div className="mt-6 rounded-2xl border-l-4 border-accent bg-accent/5 p-5 text-base sm:text-lg font-medium text-foreground/90 leading-relaxed italic">
           {newsItem.summary}
         </div>
       )}
@@ -192,7 +192,7 @@ function NewsDetailPage() {
       <div className="mt-16 pt-8 border-t border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted text-muted-foreground">
-            <Globe2 className="h-5 w-5 text-[#4085FF]" />
+            <Globe2 className="h-5 w-5 text-accent" />
           </div>
           <div>
             <p className="text-xs font-semibold text-foreground uppercase tracking-wider">
@@ -213,7 +213,7 @@ function NewsDetailPage() {
           </Link>
           <Link
             to="/"
-            className="inline-flex items-center gap-2 rounded-full bg-[#4085FF] px-5 py-2 text-xs font-semibold text-white hover:bg-[#4085FF]/90 transition-colors shadow-sm"
+            className="inline-flex items-center gap-2 rounded-full bg-btn-bg px-5 py-2 text-xs font-semibold text-btn-text hover:bg-btn-hover transition-colors shadow-sm"
           >
             Home
           </Link>

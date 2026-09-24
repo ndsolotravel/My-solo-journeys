@@ -534,7 +534,7 @@ function AboutPage() {
                   <div className="rounded-2xl border border-border/60 bg-card p-6 shadow-sm space-y-4">
                     <div className="flex items-center gap-2 pb-3 border-b border-border/60">
                       <Shield className="w-4 h-4 text-accent" />
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-foreground">
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-heading">
                         {t("Expedition Dossier")}
                       </h4>
                     </div>
@@ -567,7 +567,7 @@ function AboutPage() {
                     <span className="h-px w-6 bg-accent" />
                     <span>{t(profileEyebrow)}</span>
                   </div>
-                   <h2 className="font-display text-3xl sm:text-4xl font-bold text-foreground tracking-tight leading-tight">
+                   <h2 className="font-display text-3xl sm:text-4xl font-bold text-heading tracking-tight leading-tight">
                      {t(biographyTitle)}
                    </h2>
                 </div>
@@ -640,7 +640,7 @@ function AboutPage() {
                 <Compass className="w-3.5 h-3.5 text-accent" />
                 <span>{t(whyTravelEyebrow)}</span>
               </div>
-               <h2 className="font-display text-3xl sm:text-4xl font-bold text-foreground tracking-tight">
+               <h2 className="font-display text-3xl sm:text-4xl font-bold text-heading tracking-tight">
                  {t(whyTravelTitle)}
                </h2>
               {whyTravelDescription && (
@@ -664,7 +664,7 @@ function AboutPage() {
                         fallback={Compass}
                       />
                     </div>
-                    <h3 className="font-display text-xl font-bold text-foreground">
+                    <h3 className="font-display text-xl font-bold text-heading">
                       {t(card.title)}
                     </h3>
                     <p className="text-sm text-muted-foreground leading-relaxed">
@@ -768,7 +768,7 @@ function AboutPage() {
                   <Mountain className="w-3.5 h-3.5" />
                   <span>{t(trekkingEyebrow)}</span>
                 </div>
-                 <h2 className="font-display text-3xl sm:text-4xl font-bold text-foreground tracking-tight leading-tight">
+                 <h2 className="font-display text-3xl sm:text-4xl font-bold text-heading tracking-tight leading-tight">
                    {t(trekkingTitle)}
                  </h2>
               </div>
@@ -786,7 +786,7 @@ function AboutPage() {
                       key={card.id}
                       className="p-5 rounded-2xl border border-border/80 bg-card space-y-2"
                     >
-                      <h4 className="font-semibold text-foreground text-sm flex items-center gap-2">
+                      <h4 className="font-semibold text-heading text-sm flex items-center gap-2">
                         <DynamicIcon
                           name={card.icon}
                           className="w-4 h-4 text-accent"
@@ -847,7 +847,7 @@ function AboutPage() {
                   <Quote className="w-8 h-8 text-accent" />
                 </div>
 
-                 <blockquote className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground leading-tight tracking-tight">
+                 <blockquote className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-heading leading-tight tracking-tight">
                   &ldquo;{t(philosophyQuote)}&rdquo;
                 </blockquote>
 
@@ -870,7 +870,7 @@ function AboutPage() {
                     <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center font-bold text-accent">
                       {card.number}
                     </div>
-                    <h3 className="font-bold text-base text-foreground">
+                    <h3 className="font-bold text-base text-heading">
                       {t(card.title)}
                     </h3>
                     <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
@@ -894,7 +894,7 @@ function AboutPage() {
                   <Globe className="w-3.5 h-3.5 text-accent" />
                   <span>{t(numbersEyebrow)}</span>
                 </div>
-                 <h2 className="font-display text-2xl sm:text-4xl font-bold text-foreground tracking-tight">
+                 <h2 className="font-display text-2xl sm:text-4xl font-bold text-heading tracking-tight">
                    {t(numbersTitle)}
                  </h2>
               </div>
@@ -914,7 +914,7 @@ function AboutPage() {
                      <p className="font-sans tabular-nums text-[1.35rem] min-[360px]:text-[1.65rem] min-[400px]:text-3xl sm:text-5xl font-bold text-brand tracking-tight whitespace-nowrap leading-none">
                       {stat.value}
                     </p>
-                    <h4 className="text-xs sm:text-sm font-bold text-foreground leading-snug break-words">
+                    <h4 className="text-xs sm:text-sm font-bold text-heading leading-snug break-words">
                       {t(stat.label)}
                     </h4>
                     {stat.description && (
@@ -958,7 +958,7 @@ function AboutPage() {
                 <Layers className="w-3.5 h-3.5 text-accent" />
                 <span>{t(contentEyebrow)}</span>
               </div>
-               <h2 className="font-display text-3xl sm:text-4xl font-bold text-foreground tracking-tight">
+               <h2 className="font-display text-3xl sm:text-4xl font-bold text-heading tracking-tight">
                  {t(contentTitle)}
                </h2>
               {contentDescription && (
@@ -974,7 +974,7 @@ function AboutPage() {
                   <Link
                     key={card.id}
                     to={card.ctaUrl}
-                    className="group p-6 rounded-3xl border border-border/80 bg-card hover:border-brand/40 hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
+                    className="group p-6 rounded-3xl border border-border/80 bg-card hover:border-accent/40 hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
                   >
                     <div className="space-y-4">
                       <div className="w-12 h-12 rounded-2xl bg-brand/10 text-brand flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -984,14 +984,14 @@ function AboutPage() {
                           fallback={Compass}
                         />
                       </div>
-                      <h3 className="text-lg font-bold text-foreground group-hover:text-brand transition-colors">
+                      <h3 className="text-lg font-bold text-heading group-hover:text-link-hover transition-colors">
                         {t(card.title)}
                       </h3>
                       <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                         {t(card.description)}
                       </p>
                     </div>
-                    <div className="pt-6 flex items-center text-xs font-semibold text-accent gap-1 group-hover:translate-x-1 transition-transform">
+                    <div className="pt-6 flex items-center text-xs font-semibold text-link group-hover:text-link-hover gap-1 group-hover:translate-x-1 transition-transform">
                       <span>{t(card.ctaText)}</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </div>

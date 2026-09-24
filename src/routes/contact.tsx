@@ -423,7 +423,7 @@ function ContactPage() {
             <span className="inline-flex items-center gap-1.5 rounded-full bg-brand/10 border border-brand/20 px-3.5 py-1 text-xs font-bold uppercase tracking-[0.2em] text-brand">
               {t("Get In Touch")}
             </span>
-            <h2 className="mt-3 font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-foreground">
+            <h2 className="mt-3 font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-heading">
               {mergedConfig.title || t("Send a Message")}
             </h2>
             <p className="mt-3 max-w-2xl text-sm sm:text-base leading-relaxed text-muted-foreground">
@@ -441,7 +441,7 @@ function ContactPage() {
               <div>
                 <div className="flex items-center justify-between border-b border-border pb-5 mb-8">
                   <div>
-                    <h3 className="font-display text-xl sm:text-2xl font-bold text-foreground">
+                    <h3 className="font-display text-xl sm:text-2xl font-bold text-heading">
                       {mergedConfig.title || t("Send Us A Message")}
                     </h3>
                     <p className="text-xs sm:text-sm text-muted-foreground mt-1">
@@ -462,7 +462,7 @@ function ContactPage() {
                     <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400">
                       <CheckCircle2 className="h-8 w-8" />
                     </div>
-                    <h4 className="text-xl font-bold text-foreground">
+                    <h4 className="text-xl font-bold text-heading">
                       {t("Message Sent Successfully!")}
                     </h4>
                     <p className="text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">

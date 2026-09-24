@@ -243,7 +243,7 @@ function BlogIndex() {
                       </span>
                     )}
                   </div>
-                  <h2 className="mt-4 font-display text-2xl font-bold leading-tight text-foreground transition-colors group-hover:text-accent sm:text-3xl">
+                  <h2 className="mt-4 font-display text-2xl font-bold leading-tight text-heading transition-colors group-hover:text-link-hover sm:text-3xl">
                     {t(featuredPost.title)}
                   </h2>
                   {featuredPost.excerpt && (
@@ -262,7 +262,7 @@ function BlogIndex() {
                         year: "numeric",
                       })}
                     </span>
-                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-accent group-hover:translate-x-1 transition-transform">
+                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-link transition-colors group-hover:text-link-hover group-hover:translate-x-1">
                       {t("Read story")} <ArrowRight className="h-3.5 w-3.5 rtl:rotate-180" />
                     </span>
                   </div>
@@ -410,7 +410,7 @@ function BlogIndex() {
               <Link
                 to="/blog"
                 search={{}}
-                className="ml-auto text-xs text-accent hover:underline font-medium"
+                className="ml-auto text-xs text-link hover:text-link-hover hover:underline font-medium transition-colors"
               >
                 {t("Clear all filters")}
               </Link>
@@ -421,7 +421,7 @@ function BlogIndex() {
         {/* Stories Grid */}
         {gridPosts.length === 0 ? (
           <div className="rounded-3xl border border-border bg-card p-16 text-center shadow-sm">
-            <p className="text-xl font-semibold text-foreground">
+            <p className="text-xl font-semibold text-heading">
               {t("No expedition stories found")}
             </p>
             <p className="mt-2 text-sm text-muted-foreground">

@@ -37,6 +37,8 @@ dist-ssr
 
 # Supabase temp files
 supabase/.temp/
+.claude/
+scratch/
 
 # Scratch directory
 scratch/

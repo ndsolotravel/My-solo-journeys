@@ -169,7 +169,7 @@ function PhotoDetailPage() {
 
         <Link
           to="/gallery"
-          className="mb-6 inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-accent"
+          className="mb-6 inline-flex items-center gap-1.5 text-xs font-medium text-link transition-colors hover:text-link-hover"
         >
           <ChevronLeft className="h-4 w-4 rtl:rotate-180" /> {t("Back to the archive")}
         </Link>
@@ -205,7 +205,7 @@ function PhotoDetailPage() {
                       key={cat.id}
                       to="/gallery"
                       search={{ category: cat.slug }}
-                      className="rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-[11px] font-medium text-accent transition-colors hover:bg-accent hover:text-white"
+                      className="rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-[11px] font-medium text-accent transition-colors hover:bg-accent hover:text-accent-foreground"
                     >
                       {t(cat.name)}
                     </Link>
@@ -213,7 +213,7 @@ function PhotoDetailPage() {
                 </div>
               )}
 
-              <h1 className="font-display text-2xl font-bold leading-tight text-foreground sm:text-3xl">
+              <h1 className="font-display text-2xl font-bold leading-tight text-heading sm:text-3xl">
                 {localizedPhoto.title}
               </h1>
 
@@ -273,7 +273,7 @@ function PhotoDetailPage() {
                           className="h-10 w-10 shrink-0 rounded-lg object-cover"
                           loading="lazy"
                         />
-                        <span className="line-clamp-2 text-xs font-medium text-foreground group-hover:text-accent">
+                        <span className="line-clamp-2 text-xs font-medium text-heading transition-colors group-hover:text-link-hover">
                           {t(prev.title)}
                         </span>
                       </div>
@@ -291,7 +291,7 @@ function PhotoDetailPage() {
                         {t("Next")} <ChevronRight className="h-3 w-3 rtl:rotate-180" />
                       </span>
                       <div className="mt-1.5 flex items-center justify-end gap-2">
-                        <span className="line-clamp-2 text-xs font-medium text-foreground group-hover:text-accent">
+                        <span className="line-clamp-2 text-xs font-medium text-heading transition-colors group-hover:text-link-hover">
                           {t(next.title)}
                         </span>
                         <img
@@ -317,7 +317,7 @@ function PhotoDetailPage() {
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">
               {t("More photographs")}
             </p>
-            <h2 className="mt-1 mb-5 font-display text-xl font-bold text-foreground">
+            <h2 className="mt-1 mb-5 font-display text-xl font-bold text-heading">
               {t("In")} {t(primaryCategory.name)}
             </h2>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

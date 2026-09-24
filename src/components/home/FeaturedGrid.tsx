@@ -73,7 +73,7 @@ export function FeaturedGrid({
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:border-[#4085FF]/40 hover:shadow-md lg:col-span-5 w-full min-w-0"
+          className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-md lg:col-span-5 w-full min-w-0"
         >
           <Link to="/blog/$slug" params={{ slug: mainFeatured.slug }} className="flex h-full flex-col w-full min-w-0">
             <div className="relative aspect-[16/10] w-full overflow-hidden bg-muted">
@@ -94,7 +94,7 @@ export function FeaturedGrid({
                 </div>
               )}
               <div className="absolute left-3 top-3 rtl:left-auto rtl:right-3">
-                <span className="rounded-full bg-[#4085FF] px-2.5 py-1 text-[11px] sm:px-3 sm:py-1 sm:text-xs font-medium uppercase tracking-wider text-white shadow-sm">
+                <span className="rounded-full bg-accent px-2.5 py-1 text-[11px] sm:px-3 sm:py-1 sm:text-xs font-medium uppercase tracking-wider text-accent-foreground shadow-sm">
                   {t(mainFeatured.category || "Featured")}
                 </span>
               </div>
@@ -104,17 +104,17 @@ export function FeaturedGrid({
               <div className="w-full min-w-0">
                 <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 text-xs text-muted-foreground">
                   <span className="inline-flex items-center gap-1 shrink-0">
-                    <Calendar className="h-3 w-3 text-[#4085FF]/80" />
+                    <Calendar className="h-3 w-3 text-accent/80" />
                     {formatDate(mainFeatured.published_at || mainFeatured.created_at)}
                   </span>
                   <span aria-hidden className="text-muted-foreground/50">·</span>
                   <span className="inline-flex items-center gap-1 shrink-0">
-                    <Clock className="h-3 w-3 text-[#4085FF]/80" />
+                    <Clock className="h-3 w-3 text-accent/80" />
                     {mainFeatured.reading_minutes} {t("min read")}
                   </span>
                 </div>
 
-                <h3 className="mt-2.5 sm:mt-3 font-display text-xl sm:text-2xl lg:text-3xl font-semibold leading-snug text-foreground transition-colors group-hover:text-[#4085FF] break-words [overflow-wrap:anywhere]">
+                <h3 className="mt-2.5 sm:mt-3 font-display text-xl sm:text-2xl lg:text-3xl font-semibold leading-snug text-heading transition-colors group-hover:text-link-hover break-words [overflow-wrap:anywhere]">
                   {getPostTitle(mainFeatured)}
                 </h3>
 
@@ -126,7 +126,7 @@ export function FeaturedGrid({
               </div>
 
               <div className="mt-4 sm:mt-5 pt-3.5 sm:pt-4 border-t border-border/60">
-                <span className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-[#4085FF]">
+                <span className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-link transition-colors group-hover:text-link-hover">
                   {t("Read full story")}
                   <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 transition-transform duration-300 group-hover:translate-x-1 rtl:rotate-180" />
                 </span>
@@ -145,7 +145,7 @@ export function FeaturedGrid({
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.4, delay: idx * 0.1 }}
-            className="group relative flex-1 overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:border-[#4085FF]/40 hover:shadow-md min-h-[160px] sm:min-h-[170px] w-full min-w-0"
+            className="group relative flex-1 overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-md min-h-[160px] sm:min-h-[170px] w-full min-w-0"
           >
             <Link to="/blog/$slug" params={{ slug: post.slug }} className="block h-full w-full">
               {post.cover_image ? (
@@ -173,10 +173,10 @@ export function FeaturedGrid({
                 </div>
 
                 <div className="mt-3 min-w-0">
-                  <h4 className="font-display text-base sm:text-lg font-semibold leading-snug text-white transition-colors group-hover:text-[#4085FF] line-clamp-2 break-words [overflow-wrap:anywhere]">
+                  <h4 className="font-display text-base sm:text-lg font-semibold leading-snug text-white transition-colors group-hover:text-link-hover line-clamp-2 break-words [overflow-wrap:anywhere]">
                     {getPostTitle(post)}
                   </h4>
-                  <div className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-[#4085FF]">
+                  <div className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-white/90 transition-colors group-hover:text-link-hover">
                     <span>{t("Read story")}</span>
                     <ArrowUpRight className="h-3 w-3 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 rtl:scale-x-[-1]" />
                   </div>
@@ -196,10 +196,10 @@ export function FeaturedGrid({
       {/* 3. Right: Social Feed & Quick Connect Card - Span 3 */}
       <div className="flex flex-col rounded-2xl border border-border bg-card p-3.5 sm:p-4 shadow-sm lg:col-span-3 w-full min-w-0">
         <div className="mb-3 border-b border-border pb-2.5">
-          <span className="rounded-md bg-[#4085FF]/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-[#4085FF]">
+          <span className="rounded-md bg-accent/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-accent">
             {t("Connect")}
           </span>
-          <h3 className="mt-1 text-base sm:text-lg font-semibold text-foreground">
+          <h3 className="mt-1 text-base sm:text-lg font-semibold text-heading">
             {t("Follow the Journey")}
           </h3>
         </div>
@@ -254,17 +254,17 @@ export function FeaturedGrid({
 
         {/* Travel Highlights mini widget */}
         <div className="mt-4 rounded-xl border border-border/80 bg-muted/40 p-3 w-full min-w-0">
-          <div className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-[#4085FF]">
+          <div className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-accent">
             <Globe2 className="h-3.5 w-3.5 shrink-0" />
             <span className="truncate">{t("Expedition Stats")}</span>
           </div>
           <div className="mt-2.5 grid grid-cols-2 gap-2 text-center">
             <div className="rounded-lg bg-background p-2 border border-border/50 min-w-0">
-              <div className="text-base sm:text-lg font-semibold text-foreground truncate">{stats.countries}</div>
+              <div className="text-base sm:text-lg font-semibold text-heading truncate">{stats.countries}</div>
               <div className="text-[10px] text-muted-foreground truncate">{t("Countries")}</div>
             </div>
             <div className="rounded-lg bg-background p-2 border border-border/50 min-w-0">
-              <div className="text-base sm:text-lg font-semibold text-[#4085FF] truncate">{stats.trips}</div>
+              <div className="text-base sm:text-lg font-semibold text-accent truncate">{stats.trips}</div>
               <div className="text-[10px] text-muted-foreground truncate">{t("Trips")}</div>
             </div>
           </div>

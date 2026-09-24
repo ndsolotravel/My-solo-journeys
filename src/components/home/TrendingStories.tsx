@@ -54,7 +54,7 @@ export function TrendingStories({
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:border-[#4085FF]/40 hover:shadow-md lg:col-span-5 w-full min-w-0"
+          className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-md lg:col-span-5 w-full min-w-0"
         >
           <Link to="/blog/$slug" params={{ slug: primaryPost.slug }} className="flex h-full flex-col w-full min-w-0">
             <div className="relative aspect-[16/10] w-full overflow-hidden bg-muted">
@@ -75,7 +75,7 @@ export function TrendingStories({
                 </div>
               )}
               <div className="absolute left-3 top-3 rtl:left-auto rtl:right-3">
-                <span className="rounded-full bg-[#4085FF] px-2.5 py-1 text-[11px] sm:px-3 sm:py-1 sm:text-xs font-medium uppercase tracking-wider text-white shadow-sm">
+                <span className="rounded-full bg-accent px-2.5 py-1 text-[11px] sm:px-3 sm:py-1 sm:text-xs font-medium uppercase tracking-wider text-white shadow-sm">
                   {t(primaryPost.category || "Story")}
                 </span>
               </div>
@@ -85,18 +85,18 @@ export function TrendingStories({
               <div className="w-full min-w-0">
                 <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 text-xs text-muted-foreground">
                   <span className="inline-flex items-center gap-1 shrink-0">
-                    <Calendar className="h-3 w-3 text-[#4085FF]/80" />
+                    <Calendar className="h-3 w-3 text-accent/80" />
                     {formatDate(primaryPost.published_at || primaryPost.created_at)}
                   </span>
                   <span aria-hidden className="text-muted-foreground/50">·</span>
                   <span className="inline-flex items-center gap-1 shrink-0">
-                    <Clock className="h-3 w-3 text-[#4085FF]/80" />
+                    <Clock className="h-3 w-3 text-accent/80" />
                     {primaryPost.reading_minutes} {t("min read")}
                   </span>
                   {primaryPost.destinations ? (
                     <>
                       <span aria-hidden className="text-muted-foreground/50">·</span>
-                      <span className="inline-flex items-center gap-1 text-[#4085FF] font-medium min-w-0">
+                      <span className="inline-flex items-center gap-1 text-accent font-medium min-w-0">
                         <MapPin className="h-3 w-3 shrink-0" />
                         <span className="truncate">{t(primaryPost.destinations.title)}</span>
                       </span>
@@ -105,14 +105,14 @@ export function TrendingStories({
                     <>
                       <span aria-hidden className="text-muted-foreground/50">·</span>
                       <span className="inline-flex items-center gap-1 text-muted-foreground min-w-0">
-                        <MapPin className="h-3 w-3 text-[#4085FF] shrink-0" />
+                        <MapPin className="h-3 w-3 text-accent shrink-0" />
                         <span className="truncate">{primaryPost.location_name}</span>
                       </span>
                     </>
                   ) : null}
                 </div>
 
-                <h3 className="mt-2.5 sm:mt-3 font-display text-xl sm:text-2xl lg:text-3xl font-semibold leading-snug text-foreground transition-colors group-hover:text-[#4085FF] break-words [overflow-wrap:anywhere]">
+                <h3 className="mt-2.5 sm:mt-3 font-display text-xl sm:text-2xl lg:text-3xl font-semibold leading-snug text-heading transition-colors group-hover:text-link-hover break-words [overflow-wrap:anywhere]">
                   {getPostTitle(primaryPost)}
                 </h3>
 
@@ -124,7 +124,7 @@ export function TrendingStories({
               </div>
 
               <div className="mt-4 sm:mt-5 pt-3.5 sm:pt-4 border-t border-border/60">
-                <span className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-[#4085FF]">
+                <span className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-link group-hover:text-link-hover transition-colors">
                   {t("Read full story")}
                   <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 transition-transform duration-300 group-hover:translate-x-1 rtl:rotate-180" />
                 </span>
@@ -147,7 +147,7 @@ export function TrendingStories({
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.4, delay: idx * 0.08 }}
-            className="group flex flex-1 flex-col justify-center rounded-2xl border border-border bg-card p-3 sm:p-4 shadow-sm transition-all duration-300 hover:border-[#4085FF]/40 hover:shadow-md w-full min-w-0"
+            className="group flex flex-1 flex-col justify-center rounded-2xl border border-border bg-card p-3 sm:p-4 shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-md w-full min-w-0"
           >
             <Link to="/blog/$slug" params={{ slug: post.slug }} className="flex items-center gap-3 sm:gap-4 w-full min-w-0">
               <div className="relative h-20 w-22 sm:h-28 sm:w-32 shrink-0 overflow-hidden rounded-xl bg-muted">
@@ -170,19 +170,19 @@ export function TrendingStories({
               <div className="flex flex-1 flex-col justify-between py-0.5 min-w-0">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-[10px] sm:text-[11px] text-muted-foreground">
-                    <span className="font-medium uppercase tracking-wider text-[#4085FF]">
+                    <span className="font-medium uppercase tracking-wider text-accent">
                       {t(post.category || "Story")}
                     </span>
                     <span aria-hidden className="text-muted-foreground/50">·</span>
                     <span className="truncate">{formatDate(post.published_at || post.created_at)}</span>
                   </div>
 
-                  <h4 className="mt-1 font-display text-sm sm:text-base font-semibold leading-snug text-foreground transition-colors group-hover:text-[#4085FF] line-clamp-2 break-words [overflow-wrap:anywhere]">
+                  <h4 className="mt-1 font-display text-sm sm:text-base font-semibold leading-snug text-heading transition-colors group-hover:text-link-hover line-clamp-2 break-words [overflow-wrap:anywhere]">
                     {getPostTitle(post)}
                   </h4>
                 </div>
 
-                <div className="mt-1.5 sm:mt-2 flex items-center gap-1 text-[11px] sm:text-xs font-medium text-muted-foreground group-hover:text-foreground">
+                <div className="mt-1.5 sm:mt-2 flex items-center gap-1 text-[11px] sm:text-xs font-medium text-link group-hover:text-link-hover transition-colors">
                   <span>{t("Read story")}</span>
                   <ArrowUpRight className="h-3 w-3 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 rtl:scale-x-[-1]" />
                 </div>
@@ -195,12 +195,12 @@ export function TrendingStories({
       {/* 3. Right Column: Categories Sidebar List - Span 3 */}
       <div className="flex flex-col rounded-2xl border border-border bg-card p-3.5 sm:p-4 shadow-sm lg:col-span-3 w-full min-w-0">
         <div className="mb-3 flex items-center justify-between border-b border-border pb-3">
-          <h3 className="text-base sm:text-lg font-semibold tracking-tight text-foreground">
+          <h3 className="text-base sm:text-lg font-semibold tracking-tight text-heading">
             {t("Categories")}
           </h3>
           <Link
             to="/blog"
-            className="text-xs font-medium text-muted-foreground hover:text-[#4085FF] transition-colors"
+            className="text-xs font-medium text-link hover:text-link-hover transition-colors"
           >
             {t("View all")} →
           </Link>
@@ -211,7 +211,7 @@ export function TrendingStories({
             <Link
               key={cat.name}
               to={cat.linkTo as any}
-              className="group relative flex items-center justify-between overflow-hidden rounded-xl border border-border/60 bg-muted/30 p-2.5 transition-all duration-200 hover:border-[#4085FF]/40 hover:bg-muted min-w-0"
+              className="group relative flex items-center justify-between overflow-hidden rounded-xl border border-border/60 bg-muted/30 p-2.5 transition-all duration-200 hover:border-accent/40 hover:bg-muted min-w-0"
             >
               {cat.image && (() => {
                 const catImg = getOptimizedImageUrl(cat.image, 300);
@@ -227,11 +227,11 @@ export function TrendingStories({
                 ) : null;
               })()}
               <div className="relative z-10 flex items-center gap-2.5 min-w-0">
-                <span className="text-xs sm:text-sm font-medium text-foreground group-hover:text-[#4085FF] transition-colors truncate">
+                <span className="text-xs sm:text-sm font-medium text-heading group-hover:text-link-hover transition-colors truncate">
                   {t(cat.name)}
                 </span>
               </div>
-              <span className="relative z-10 inline-flex h-5 min-w-[20px] shrink-0 items-center justify-center rounded-full bg-background/80 px-1.5 text-[10px] font-medium text-muted-foreground shadow-xs group-hover:bg-[#4085FF] group-hover:text-white transition-colors">
+              <span className="relative z-10 inline-flex h-5 min-w-[20px] shrink-0 items-center justify-center rounded-full bg-background/80 px-1.5 text-[10px] font-medium text-muted-foreground shadow-xs group-hover:bg-accent group-hover:text-white transition-colors">
                 {cat.count}
               </span>
             </Link>

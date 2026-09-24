@@ -130,14 +130,14 @@ function GalleryPage() {
         </p>
 
         {/* Strong Main Title */}
-        <h1 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-foreground leading-tight">
+        <h1 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-heading leading-tight">
           {t("My Visual Diary")}
         </h1>
 
         {/* Short Subtitle */}
         <p className="mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-lg mx-auto">
           {t("See the world through my lens:")}{" "}
-          <span className="text-foreground/80">
+          <span className="text-body-text">
             {t("adventures in photographs and high-altitude journeys")}
           </span>
         </p>
@@ -152,7 +152,7 @@ function GalleryPage() {
               className={`inline-flex shrink-0 items-center justify-center rounded-full px-5 py-2 text-xs sm:text-sm font-medium transition-all duration-200 cursor-pointer ${
                 !activeCategory
                   ? "bg-primary text-primary-foreground shadow-sm ring-1 ring-primary/20 scale-[1.02]"
-                  : "bg-card text-foreground/80 hover:bg-muted/50 hover:text-foreground border border-border/80"
+                  : "bg-card text-foreground/80 hover:bg-muted/50 hover:text-heading border border-border/80"
               }`}
             >
               {t("All")}
@@ -169,7 +169,7 @@ function GalleryPage() {
                   className={`inline-flex shrink-0 items-center justify-center rounded-full px-5 py-2 text-xs sm:text-sm font-medium transition-all duration-200 cursor-pointer ${
                     active
                       ? "bg-primary text-primary-foreground shadow-sm ring-1 ring-primary/20 scale-[1.02]"
-                      : "bg-card text-foreground/80 hover:bg-muted/50 hover:text-foreground border border-border/80"
+                      : "bg-card text-foreground/80 hover:bg-muted/50 hover:text-heading border border-border/80"
                   }`}
                 >
                   {t(cat.name)}
@@ -188,7 +188,7 @@ function GalleryPage() {
               <div className="mx-auto mb-4 w-fit rounded-2xl bg-brand/10 p-3.5 text-brand">
                 <ImagePlus className="h-8 w-8 text-accent" />
               </div>
-              <h3 className="text-xl font-bold text-foreground">
+              <h3 className="text-xl font-bold text-heading">
                 {t("No photographs in this category yet")}
               </h3>
               <p className="mt-2 text-sm text-muted-foreground leading-relaxed">

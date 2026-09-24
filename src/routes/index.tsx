@@ -443,7 +443,7 @@ function HomePage() {
                     href={heroPrimaryTo}
                     target={heroPrimaryTo.startsWith("http") ? "_blank" : undefined}
                     rel={heroPrimaryTo.startsWith("http") ? "noopener noreferrer" : undefined}
-                    className="inline-flex items-center justify-center gap-2 rounded-full bg-[#4085FF] px-6 py-3 text-sm font-semibold text-white hover:bg-[#4085FF]/90 transition-colors shadow-md text-center"
+                    className="inline-flex items-center justify-center gap-2 rounded-full bg-btn-bg px-6 py-3 text-sm font-semibold text-btn-text hover:bg-btn-hover transition-colors shadow-md text-center"
                   >
                     {t(heroSettings.homepage_hero_button_text || "Read the stories")}
                     <ArrowRight className="h-4 w-4 rtl:rotate-180" />
@@ -451,7 +451,7 @@ function HomePage() {
                 ) : (
                   <Link
                     to={heroPrimaryTo as any}
-                    className="inline-flex items-center justify-center gap-2 rounded-full bg-[#4085FF] px-6 py-3 text-sm font-semibold text-white hover:bg-[#4085FF]/90 transition-colors shadow-md text-center"
+                    className="inline-flex items-center justify-center gap-2 rounded-full bg-btn-bg px-6 py-3 text-sm font-semibold text-btn-text hover:bg-btn-hover transition-colors shadow-md text-center"
                   >
                     {t(heroSettings.homepage_hero_button_text || "Read the stories")}
                     <ArrowRight className="h-4 w-4 rtl:rotate-180" />
@@ -484,7 +484,7 @@ function HomePage() {
                   key={hp.id}
                   to="/blog/$slug"
                   params={{ slug: hp.slug }}
-                  className="group flex items-center gap-3 rounded-2xl border border-white/20 bg-black/50 p-2.5 backdrop-blur-md transition-all duration-300 hover:border-[#4085FF]/60 hover:bg-black/70 shadow-lg"
+                  className="group flex items-center gap-3 rounded-2xl border border-white/20 bg-black/50 p-2.5 backdrop-blur-md transition-all duration-300 hover:border-accent/60 hover:bg-black/70 shadow-lg"
                 >
                   <div className="relative h-14 w-18 shrink-0 overflow-hidden rounded-xl bg-muted">
                     {hp.cover_image ? (
@@ -502,10 +502,10 @@ function HomePage() {
                   </div>
                   <div className="flex-1 overflow-hidden">
                     <div className="flex items-center gap-1.5 text-[10px] text-white/70">
-                      <Calendar className="h-2.5 w-2.5 text-[#4085FF]" />
+                      <Calendar className="h-2.5 w-2.5 text-accent" />
                       <span>{formatDate(hp.published_at || hp.created_at)}</span>
                     </div>
-                    <h4 className="mt-0.5 line-clamp-2 text-xs font-medium leading-snug text-white transition-colors group-hover:text-[#4085FF]">
+                    <h4 className="mt-0.5 line-clamp-2 text-xs font-medium leading-snug text-white transition-colors group-hover:text-link-hover">
                       {getPostTitle(hp)}
                     </h4>
                   </div>
@@ -595,7 +595,7 @@ function HomePage() {
                   <Link
                     to="/topics/$slug"
                     params={{ slug: activeTopics[0].slug }}
-                    className="group relative flex h-full min-h-[320px] sm:min-h-[380px] lg:min-h-[460px] flex-col justify-end overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:border-[#4085FF]/40 hover:shadow-lg w-full min-w-0"
+                    className="group relative flex h-full min-h-[320px] sm:min-h-[380px] lg:min-h-[460px] flex-col justify-end overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-lg w-full min-w-0"
                   >
                     {(() => {
                       const rawImg = activeTopics[0].previewImage || activeTopics[0].heroImage;
@@ -615,7 +615,7 @@ function HomePage() {
                     })()}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
                     <div className="relative p-4 sm:p-6 text-white min-w-0">
-                      <div className="inline-flex items-center gap-1.5 rounded-full bg-[#4085FF] px-3 py-1 text-[11px] font-medium uppercase tracking-wider text-white shadow-sm mb-3">
+                      <div className="inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1 text-[11px] font-medium uppercase tracking-wider text-accent-foreground shadow-sm mb-3">
                         {(() => {
                           const Icon = getTopicIcon(activeTopics[0]);
                           return <Icon className="h-3 w-3" />;
@@ -625,13 +625,13 @@ function HomePage() {
                           {activeTopics[0].postCount === 1 ? t("story") : t("stories")}
                         </span>
                       </div>
-                      <h3 className="font-display text-xl sm:text-2xl lg:text-3xl font-semibold leading-tight text-white transition-colors group-hover:text-[#4085FF] break-words [overflow-wrap:anywhere]">
+                      <h3 className="font-display text-xl sm:text-2xl lg:text-3xl font-semibold leading-tight text-white transition-colors group-hover:text-link-hover break-words [overflow-wrap:anywhere]">
                         {t(activeTopics[0].title)}
                       </h3>
                       <p className="mt-2 text-xs sm:text-sm text-white/80 line-clamp-3">
                         {t(activeTopics[0].subtitle || activeTopics[0].description)}
                       </p>
-                      <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-[#4085FF]">
+                      <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-accent transition-colors group-hover:text-link-hover">
                         {t("Explore Topic")}
                         <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1 rtl:rotate-180" />
                       </span>
@@ -655,7 +655,7 @@ function HomePage() {
                     <Link
                       to="/topics/$slug"
                       params={{ slug: topic.slug }}
-                      className="group relative flex h-full min-h-[190px] sm:min-h-[210px] flex-col justify-end overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:border-[#4085FF]/40 hover:shadow-md w-full min-w-0"
+                      className="group relative flex h-full min-h-[190px] sm:min-h-[210px] flex-col justify-end overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-md w-full min-w-0"
                     >
                       {(() => {
                         const rawImg = topic.previewImage || topic.heroImage;
@@ -675,13 +675,13 @@ function HomePage() {
                       })()}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
                       <div className="relative p-4 sm:p-5 text-white min-w-0">
-                        <div className="inline-flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-[#4085FF] backdrop-blur-md border border-white/10 mb-2">
+                        <div className="inline-flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-accent backdrop-blur-md border border-white/10 mb-2">
                           <Icon className="h-3 w-3" />
                           <span>
                             {topic.postCount} {topic.postCount === 1 ? t("story") : t("stories")}
                           </span>
                         </div>
-                        <h3 className="font-display text-base sm:text-lg font-semibold leading-tight text-white transition-colors group-hover:text-[#4085FF] line-clamp-2 break-words [overflow-wrap:anywhere]">
+                        <h3 className="font-display text-base sm:text-lg font-semibold leading-tight text-white transition-colors group-hover:text-link-hover line-clamp-2 break-words [overflow-wrap:anywhere]">
                           {t(topic.title)}
                         </h3>
                         <p className="mt-1 text-xs text-white/75 line-clamp-1">
@@ -717,14 +717,14 @@ function HomePage() {
             <div>
               <p
                 data-reveal="heading"
-                className="text-xs font-semibold uppercase tracking-[0.2em] text-[#4085FF]"
+                className="text-xs font-semibold uppercase tracking-[0.2em] text-accent"
               >
                 {t("By the numbers")}
               </p>
               <h2
                 data-reveal="heading"
                 id="journey-numbers-heading"
-                className="mt-1 font-display text-2xl font-semibold tracking-tight text-foreground sm:text-3xl"
+                className="mt-1 font-display text-2xl font-semibold tracking-tight text-heading sm:text-3xl"
               >
                 {t("Journey in numbers")}
               </h2>
@@ -741,14 +741,14 @@ function HomePage() {
               <div
                 key={s.label}
                 data-reveal={s.featured ? "featured" : "card"}
-                className={`jin-card rounded-2xl border border-border bg-card p-3 sm:p-4.5 transition-all duration-300 hover:border-[#4085FF]/40 w-full min-w-0 overflow-hidden ${
+                className={`jin-card rounded-2xl border border-border bg-card p-3 sm:p-4.5 transition-all duration-300 hover:border-accent/40 w-full min-w-0 overflow-hidden ${
                   idx === 4 ? "col-span-2 sm:col-span-1" : ""
                 } ${s.featured ? "jin-featured" : ""}`}
               >
-                <div className="inline-flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-xl bg-[#4085FF]/10 text-[#4085FF]">
+                <div className="inline-flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-xl bg-accent/10 text-accent">
                   <s.icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 </div>
-                <div className="mt-2.5 sm:mt-3 font-sans text-lg min-[360px]:text-xl sm:text-2xl lg:text-3xl font-bold text-foreground tabular-nums whitespace-nowrap">
+                <div className="mt-2.5 sm:mt-3 font-sans text-lg min-[360px]:text-xl sm:text-2xl lg:text-3xl font-bold text-heading tabular-nums whitespace-nowrap">
                   <CountUp end={s.value} suffix={s.suffix} />
                 </div>
 <div className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-muted-foreground leading-snug min-w-0">
@@ -801,7 +801,7 @@ function HomePage() {
                   onClick={() => setDestView("map")}
                   className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 transition-colors ${
                     destView === "map"
-                      ? "bg-[#4085FF] text-white font-medium shadow-xs"
+                      ? "bg-accent text-accent-foreground font-medium shadow-xs"
                       : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
@@ -824,7 +824,7 @@ function HomePage() {
             <div className="grid grid-cols-1 gap-4 sm:gap-5 sm:grid-cols-2 lg:grid-cols-4 w-full min-w-0">
               {featuredDestinations.length === 0 ? (
                 <div className="col-span-full py-12 text-center rounded-2xl border border-border bg-card/40">
-                  <p className="text-sm font-medium text-foreground">
+                  <p className="text-sm font-medium text-heading">
                     {t("No featured destinations at the moment.")}
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">
@@ -839,7 +839,7 @@ function HomePage() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.4, delay: i * 0.05 }}
-                    className="group relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:border-[#4085FF]/40 hover:shadow-md w-full min-w-0"
+                    className="group relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-md w-full min-w-0"
                   >
                     <Link
                       to="/destinations/$slug"
@@ -863,11 +863,11 @@ function HomePage() {
                         )}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
                         <div className="absolute inset-x-0 bottom-0 p-4 text-white min-w-0">
-                          <p className="text-[11px] font-semibold uppercase tracking-wider text-[#4085FF] truncate">
+                          <p className="text-[11px] font-semibold uppercase tracking-wider text-accent truncate">
                             {t(d.country)}
                             {d.region ? ` · ${t(d.region)}` : ""}
                           </p>
-                          <h3 className="mt-0.5 text-base sm:text-lg font-semibold leading-tight group-hover:text-[#4085FF] transition-colors break-words">
+                          <h3 className="mt-0.5 text-base sm:text-lg font-semibold leading-tight text-white group-hover:text-link-hover transition-colors break-words">
                             {t(d.title)}
                           </h3>
                         </div>
@@ -924,7 +924,7 @@ function HomePage() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent flex items-end p-4 sm:p-5">
                       <div className="min-w-0">
-                        <span className="rounded-full bg-[#4085FF] px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-white">
+                        <span className="rounded-full bg-accent px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-accent-foreground">
                           {t("Spotlight")}
                         </span>
                         {gallery[0].caption && (
@@ -991,12 +991,12 @@ function HomePage() {
         <section aria-labelledby="newsletter-heading" className="pb-6 sm:pb-8 w-full min-w-0">
           <div className="rounded-2xl sm:rounded-3xl border border-border bg-gradient-to-br from-card to-muted/50 p-6 sm:p-12 text-center shadow-sm w-full min-w-0">
             <div className="mx-auto max-w-2xl min-w-0">
-              <span className="rounded-full bg-[#4085FF]/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.2em] text-[#4085FF]">
+              <span className="rounded-full bg-accent/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.2em] text-accent">
                 {t("Join the Journey")}
               </span>
               <h2
                 id="newsletter-heading"
-                className="mt-3 font-display text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-foreground break-words"
+                className="mt-3 font-display text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-heading break-words"
               >
                 {t("Get the next dispatch")}
               </h2>

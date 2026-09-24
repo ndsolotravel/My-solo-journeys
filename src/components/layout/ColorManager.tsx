@@ -27,9 +27,17 @@ export function ColorManager() {
     staleTime: 1000 * 60 * 5, // 5 minutes cache
   });
 
-  const [previewConfig, setPreviewConfig] = useState<ColorConfig | null>(null);
+  const [previewConfig, setPreviewConfig] = useState<ColorConfig | null>(() => {
+    if (typeof window === "undefined") return null;
+    try {
+      const raw = sessionStorage.getItem(COLOR_PREVIEW_STORAGE_KEY);
+      return raw ? parseColorConfig(raw) : null;
+    } catch {
+      return null;
+    }
+  });
 
-  // Check for local preview in sessionStorage
+  // Check for local preview in sessionStorage and listen for changes
   useEffect(() => {
     const readPreview = () => {
       try {
@@ -59,7 +67,7 @@ export function ColorManager() {
   useEffect(() => {
     if (typeof document === "undefined") return;
 
-    const css = generateColorCss(activeConfig, ":root");
+    const css = generateColorCss(activeConfig, ":root, .dark");
     let styleEl = document.getElementById("nd-dynamic-colors-css") as HTMLStyleElement | null;
     if (!styleEl) {
       styleEl = document.createElement("style");

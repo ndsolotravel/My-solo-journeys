@@ -138,10 +138,10 @@ export function Header() {
                     overHero
                       ? active
                         ? "text-white font-medium"
-                        : "text-white/75 hover:text-accent"
+                        : "text-white/75 hover:text-white"
                       : active
-                        ? "text-accent font-medium"
-                        : "text-muted-foreground hover:text-accent"
+                        ? "text-nav-hover font-medium"
+                        : "text-nav-text hover:text-nav-hover"
                   }`}
                 >
                   {t(l.label)}
@@ -149,7 +149,7 @@ export function Header() {
                     <span
                       aria-hidden
                       className={`absolute left-0 right-0 -bottom-1 mx-auto h-px w-6 ${
-                        overHero ? "bg-white" : "bg-accent"
+                        overHero ? "bg-white" : "bg-nav-hover"
                       }`}
                     />
                   )}
@@ -270,8 +270,8 @@ export function Header() {
                 onClick={() => setOpen(false)}
                 className={`rounded-lg px-4 py-3 text-base font-medium transition-colors duration-200 ease-in-out ${
                   active
-                    ? "bg-muted text-accent font-medium"
-                    : "text-foreground hover:bg-muted hover:text-accent"
+                    ? "bg-muted text-nav-hover font-medium"
+                    : "text-nav-text hover:bg-muted hover:text-nav-hover"
                 }`}
               >
                 {t(l.label)}

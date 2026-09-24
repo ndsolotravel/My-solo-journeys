@@ -28,7 +28,7 @@ export function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="relative mt-24 border-t border-border bg-secondary text-secondary-foreground">
+    <footer className="relative mt-24 border-t border-border bg-footer-bg text-footer-text">
       <div
         aria-hidden="true"
         className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/70 to-transparent"
@@ -46,7 +46,7 @@ export function Footer() {
                 className="h-8 w-auto brightness-0 invert transition-[filter] duration-300 ease-in-out group-hover:[filter:none]"
               />
             </Link>
-            <p className="mt-3 max-w-sm text-sm text-secondary-foreground/70">
+            <p className="mt-3 max-w-sm text-sm text-footer-text/70">
               {t(SITE.description)}
             </p>
             <div className="mt-5 flex flex-wrap gap-2.5 sm:gap-3">
@@ -123,38 +123,38 @@ export function Footer() {
             </div>
           </div>
           <div>
-            <h4 className="text-sm font-semibold uppercase tracking-wider font-sans">{t("Explore")}</h4>
-            <ul className="mt-4 space-y-2 text-sm text-secondary-foreground/70">
+            <h4 className="text-sm font-semibold uppercase tracking-wider font-sans text-footer-text">{t("Explore")}</h4>
+            <ul className="mt-4 space-y-2 text-sm text-footer-text/70">
               <li>
-                <Link to="/blog" className="transition-colors duration-200 hover:text-accent">
+                <Link to="/blog" className="transition-colors duration-200 hover:text-link-hover">
                   {t("Stories")}
                 </Link>
               </li>
               <li>
-                <Link to="/destinations" className="transition-colors duration-200 hover:text-accent">
+                <Link to="/destinations" className="transition-colors duration-200 hover:text-link-hover">
                   {t("Destinations")}
                 </Link>
               </li>
               <li>
-                <Link to="/gallery" className="transition-colors duration-200 hover:text-accent">
+                <Link to="/gallery" className="transition-colors duration-200 hover:text-link-hover">
                   {t("Gallery")}
                 </Link>
               </li>
               <li>
-                <Link to="/about" className="transition-colors duration-200 hover:text-accent">
+                <Link to="/about" className="transition-colors duration-200 hover:text-link-hover">
                   {t("About")}
                 </Link>
               </li>
               <li>
-                <Link to="/contact" className="transition-colors duration-200 hover:text-accent">
+                <Link to="/contact" className="transition-colors duration-200 hover:text-link-hover">
                   {t("Contact")}
                 </Link>
               </li>
             </ul>
           </div>
           <div>
-            <h4 className="text-sm font-semibold uppercase tracking-wider font-sans">{t("Newsletter")}</h4>
-            <p className="mt-3 text-sm text-secondary-foreground/70">
+            <h4 className="text-sm font-semibold uppercase tracking-wider font-sans text-footer-text">{t("Newsletter")}</h4>
+            <p className="mt-3 text-sm text-footer-text/70">
               {t("Stories from the road. No spam, ever.")}
             </p>
             <div className="mt-4">
@@ -162,21 +162,21 @@ export function Footer() {
             </div>
           </div>
         </div>
-        <div className="mt-12 flex flex-col gap-3 border-t border-white/10 pt-6 text-xs text-secondary-foreground/60 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-12 flex flex-col gap-3 border-t border-white/10 pt-6 text-xs text-footer-text/60 sm:flex-row sm:items-center sm:justify-between">
           <p>© {year} {SITE.name}. {t("All stories made on the move.")}</p>
           <div className="flex flex-wrap items-center gap-3">
-            <Link to="/privacy-policy" className="hover:text-accent transition-colors">
+            <Link to="/privacy-policy" className="hover:text-link-hover transition-colors">
               {t("Privacy Policy")}
             </Link>
             <span aria-hidden="true">·</span>
-            <Link to="/disclaimer" className="hover:text-accent transition-colors">
+            <Link to="/disclaimer" className="hover:text-link-hover transition-colors">
               {t("Disclaimer")}
             </Link>
             <span aria-hidden="true">·</span>
             <button
               type="button"
               onClick={openCookieConsentModal}
-              className="hover:text-accent transition-colors cursor-pointer"
+              className="hover:text-link-hover transition-colors cursor-pointer"
             >
               {t("Cookie Preferences")}
             </button>
