@@ -381,7 +381,7 @@ function LiveHeroSimulator({
         <div className="absolute inset-x-4 bottom-14 sm:bottom-16 max-w-2xl text-white space-y-2 pointer-events-none z-10">
           <h3 className="text-lg sm:text-2xl lg:text-3xl font-bold leading-tight drop-shadow-md">
             <span>{draft.homepage_hero_title || "Stories from the high places"}</span>{" "}
-            <span className="text-[#4085FF]">
+            <span className="text-accent">
               {draft.homepage_hero_title_highlight || "Most people only fly over."}
             </span>
           </h3>
@@ -392,7 +392,7 @@ function LiveHeroSimulator({
           </p>
 
           <div className="flex flex-wrap items-center gap-2 pt-1">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#4085FF] px-3.5 py-1.5 text-xs font-semibold text-white shadow-md">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-btn-bg px-3.5 py-1.5 text-xs font-semibold text-btn-text shadow-md">
               {draft.homepage_hero_button_text || "Read the stories"}
               <ArrowRight className="h-3 w-3" />
             </span>
@@ -1951,7 +1951,7 @@ function AdminHomepagePage() {
                 </span>
                 <h4 className="text-xs sm:text-sm font-bold leading-tight mt-0.5 line-clamp-2">
                   {draft.homepage_hero_title || "Stories from the high places"}{" "}
-                  <span className="text-[#4085FF]">
+                  <span className="text-accent">
                     {draft.homepage_hero_title_highlight || "Most people only fly over."}
                   </span>
                 </h4>

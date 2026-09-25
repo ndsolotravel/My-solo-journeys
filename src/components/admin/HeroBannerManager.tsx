@@ -389,7 +389,7 @@ export function HeroBannerManager({
                     <h3 className="text-base sm:text-xl md:text-2xl font-bold leading-tight text-white tracking-tight">
                       <span>{draftTitle || "Moments Frozen in the Wild"}</span>{" "}
                       {draftTitleHighlight && (
-                        <span className="text-heading">{draftTitleHighlight}</span>
+                        <span className="text-accent">{draftTitleHighlight}</span>
                       )}
                     </h3>
                     {draftDescription && (
