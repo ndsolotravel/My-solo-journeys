@@ -1,6 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery, useQuery } from "@tanstack/react-query";
-import { motion } from "framer-motion";
+import { lazy, Suspense, useMemo, useState } from "react";
+const motion = lazy(() => import("framer-motion").then((m) => ({ default: m.motion })));
+import { useEffect } from "react";
 import {
   ArrowRight,
   Compass,
@@ -15,7 +17,6 @@ import {
   ArrowUpRight,
   LayoutGrid,
 } from "lucide-react";
-import { useEffect, useState, useMemo, lazy, Suspense } from "react";
 import { listPosts, type Post } from "../lib/posts.functions";
 import { listDestinations } from "../lib/destinations.functions";
 import { listGallery } from "../lib/gallery.functions";

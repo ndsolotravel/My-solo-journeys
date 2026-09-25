@@ -9,7 +9,7 @@ import {
   Scripts,
   ScriptOnce,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, type ReactNode, useState, Suspense } from "react";
 import { Toaster } from "sonner";
 
 import appCss from "../styles.css?url";
@@ -22,7 +22,6 @@ import { CookieConsentPopup } from "@/components/layout/CookieConsentPopup";
 import { ReadingProgressBar } from "@/components/layout/ReadingProgressBar";
 import { TypographyManager } from "@/components/layout/TypographyManager";
 import { ColorManager } from "@/components/layout/ColorManager";
-import { supabase } from "@/integrations/supabase/client";
 import { TranslationProvider, useT, LANGUAGES } from "@/lib/translate/store";
 import { ContentTranslationProvider } from "@/lib/translate/contentTranslation";
 import { LanguageAlternates } from "@/components/seo/LanguageAlternates";
@@ -162,13 +161,17 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
+  const [supabaseReady, setSupabaseReady] = useState(false);
   useEffect(() => {
-    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
-      if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
-      router.invalidate();
-      if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
+    import("@/integrations/supabase/client").then(({ supabase: sb }) => {
+      const { data: sub } = sb.auth.onAuthStateChange((event) => {
+        if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
+        router.invalidate();
+        if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
+      });
+      return () => sub.subscription.unsubscribe();
     });
-    return () => sub.subscription.unsubscribe();
+    setSupabaseReady(true);
   }, [router, queryClient]);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isHome = pathname === "/";
@@ -190,8 +193,10 @@ function RootComponent() {
           <ColorManager />
           <div className={shellClass}>
             <Header />
-            <main className={mainClass}>
-              <Outlet />
+<main className={mainClass}>
+              <Suspense fallback={<div className="h-8 w-full animate-pulse bg-muted rounded" />}>
+                <Outlet />
+              </Suspense>
             </main>
             {!isAdmin && <Footer />}
           </div>

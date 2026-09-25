@@ -53,8 +53,6 @@ export function Header() {
     }
   }
 
-  // Only the home page has the big cinematic hero; on other pages keep the
-  // bar solid blurred from the very top.
   const overHero = pathname === "/" && !scrolled;
 
   useEffect(() => {
@@ -64,12 +62,10 @@ export function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Close mobile sheet on route change
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
 
-  // Keyboard shortcut for search (Cmd/Ctrl + K)
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
@@ -226,7 +222,6 @@ export function Header() {
         </div>
       </header>
 
-      {/* Mobile slide-out */}
       {open && (
         <div
           className="md:hidden fixed inset-0 z-[60] bg-black/50"
@@ -235,7 +230,7 @@ export function Header() {
         />
       )}
       <aside
-        className={`md:hidden fixed top-0 right-0 z-[70] h-dvh w-[82%] max-w-sm bg-background border-l border-border shadow-2xl transition-transform duration-300 rtl:right-auto rtl:left-0 rtl:border-l-0 rtl:border-r ${
+        className={`md:hidden fixed top-0 right-0 z-[70] h-dvh w-[82%] max-w-sm bg-background border-l border-border shadow-2xl transition-transform duration-300 rtl:right-auto rtl:left-0 rtl:border-left-0 rtl:border-right ${
           open
             ? "translate-x-0"
             : "translate-x-full rtl:-translate-x-full"
@@ -322,7 +317,6 @@ export function Header() {
           )}
         </div>
       </aside>
-
 
       <SearchDialog open={searchOpen} onClose={() => setSearchOpen(false)} />
     </>

@@ -4,9 +4,11 @@ import React, {
   isValidElement,
   useMemo,
   type ReactNode,
+  Suspense,
+  lazy,
 } from "react";
-import ReactMarkdown, { type Components } from "react-markdown";
-import rehypeRaw from "rehype-raw";
+const ReactMarkdown = lazy(() => import("react-markdown").then((m) => ({ default: m.default })));
+const rehypeRaw = lazy(() => import("rehype-raw").then((m) => ({ default: m.default })));
 import { useLanguage, useTranslations } from "@/lib/translate/store";
 import { resolveMediaUrl } from "@/lib/media";
 
@@ -174,9 +176,11 @@ export function TranslatedMarkdown({
 
   return (
     <div className={className}>
-      <ReactMarkdown rehypePlugins={[rehypeRaw]} components={components}>
-        {content}
-      </ReactMarkdown>
+      <Suspense fallback={<div className="prose-blog text-sm" />}>
+        <ReactMarkdown rehypePlugins={[rehypeRaw]} components={components}>
+          {content}
+        </ReactMarkdown>
+      </Suspense>
     </div>
   );
 }

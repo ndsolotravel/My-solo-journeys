@@ -9,23 +9,13 @@ import {
   isValidElement,
   cloneElement,
   type ReactNode,
+  Suspense,
+  lazy,
 } from "react";
-import ReactMarkdown from "react-markdown";
-import rehypeRaw from "rehype-raw";
-import {
-  Clock,
-  ArrowLeft,
-  Star,
-  Calendar,
-  Image as ImageIcon,
-  X,
-  ChevronLeft,
-  ChevronRight,
-  User,
-  List,
-  ArrowRight as ArrowRightIcon,
-} from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+const ReactMarkdown = lazy(() => import("react-markdown").then((m) => ({ default: m.default })));
+const rehypeRaw = lazy(() => import("rehype-raw").then((m) => ({ default: m.default })));
+const motion = lazy(() => import("framer-motion").then((m) => ({ default: m.motion })));
+const AnimatePresence = lazy(() => import("framer-motion").then((m) => ({ default: m.AnimatePresence })));
 import { getPostBySlug, type Post } from "@/lib/posts.functions";
 import { getBlogAuthorName } from "@/lib/settings.functions";
 import { listComments, postComment, getPostRatingStats } from "@/lib/comments.functions";

@@ -1,9 +1,13 @@
 import { useEffect, useRef } from "react";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
+let gsapModule: any = null;
+async function getGsap() {
+  if (!gsapModule) {
+    gsapModule = await import("gsap");
+    const { ScrollTrigger } = await import("gsap/ScrollTrigger");
+    gsapModule.default.registerPlugin(ScrollTrigger);
+  }
+  return gsapModule;
 }
 
 /**
@@ -25,65 +29,74 @@ export function useGsapReveal<T extends HTMLElement = HTMLElement>() {
     const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     if (reduced) return;
 
-    const ctx = gsap.context(() => {
-      const headings = root.querySelectorAll<HTMLElement>('[data-reveal="heading"]');
-      const cards = root.querySelectorAll<HTMLElement>('[data-reveal="card"]');
-      const featured = root.querySelectorAll<HTMLElement>('[data-reveal="featured"]');
-      const info = root.querySelectorAll<HTMLElement>('[data-reveal="info"]');
+    let cancelled = false;
+    getGsap().then((gsap) => {
+      if (cancelled || !root) return;
+      const G = gsap.default || gsap;
+      const ctx = G.context(() => {
+        const headings = root.querySelectorAll<HTMLElement>('[data-reveal="heading"]');
+        const cards = root.querySelectorAll<HTMLElement>('[data-reveal="card"]');
+        const featured = root.querySelectorAll<HTMLElement>('[data-reveal="featured"]');
+        const info = root.querySelectorAll<HTMLElement>('[data-reveal="info"]');
 
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: root,
-          start: "top 80%",
-          once: true,
-        },
-      });
-
-      tl.from(headings, {
-        opacity: 0,
-        y: 24,
-        duration: 0.8,
-        ease: "power3.out",
-        stagger: 0.08,
-      })
-        .from(
-          cards,
-          {
-            opacity: 0,
-            y: 24,
-            duration: 0.8,
-            ease: "power3.out",
-            stagger: 0.08,
+        const tl = G.timeline({
+          scrollTrigger: {
+            trigger: root,
+            start: "top 80%",
+            once: true,
           },
-          "-=0.3",
-        )
-        .from(
-          featured,
-          {
-            opacity: 0,
-            y: 24,
-            duration: 0.8,
-            ease: "power3.out",
-            onStart: () => {
-              featured.forEach((el) => el.classList.add("is-glowing"));
+        });
+
+        tl.from(headings, {
+          opacity: 0,
+          y: 24,
+          duration: 0.8,
+          ease: "power3.out",
+          stagger: 0.08,
+        })
+          .from(
+            cards,
+            {
+              opacity: 0,
+              y: 24,
+              duration: 0.8,
+              ease: "power3.out",
+              stagger: 0.08,
             },
-          },
-          "-=0.3",
-        )
-        .from(
-          info,
-          {
-            opacity: 0,
-            y: 20,
-            duration: 0.7,
-            ease: "power3.out",
-            stagger: 0.08,
-          },
-          "-=0.4",
-        );
-    }, root);
+            "-=0.3",
+          )
+          .from(
+            featured,
+            {
+              opacity: 0,
+              y: 24,
+              duration: 0.8,
+              ease: "power3.out",
+              onStart: () => {
+                featured.forEach((el) => el.classList.add("is-glowing"));
+              },
+            },
+            "-=0.3",
+          )
+          .from(
+            info,
+            {
+              opacity: 0,
+              y: 20,
+              duration: 0.7,
+              ease: "power3.out",
+              stagger: 0.08,
+            },
+            "-=0.4",
+          );
+      }, root);
 
-    return () => ctx.revert();
+      return () => ctx.revert();
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return ref;

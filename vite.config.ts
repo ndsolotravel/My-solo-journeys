@@ -42,9 +42,41 @@ export default defineConfig(({ mode }) => {
       }),
       react(),
     ],
-    resolve: {
-      alias: {
-        "@": "/src",
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: (id) => {
+            if (id.includes("node_modules")) {
+              if (id.includes("@supabase/supabase-js") || id.includes("supabase-js")) {
+                return "supabase";
+              }
+              if (id.includes("framer-motion")) {
+                return "framer-motion";
+              }
+              if (id.includes("gsap") || id.includes("scrolltrigger")) {
+                return "gsap";
+              }
+              if (id.includes("leaflet")) {
+                return "leaflet";
+              }
+              if (id.includes("recharts") || id.includes("d3") || id.includes("echarts")) {
+                return "recharts";
+              }
+              if (id.includes("react-markdown") || id.includes("remark") || id.includes("rehype")) {
+                return "react-markdown";
+              }
+              if (id.includes("lucide-react")) {
+                return "lucide-react";
+              }
+              if (id.includes("@tanstack/react-query")) {
+                return "tanstack-query";
+              }
+              if (id.includes("@tanstack/react-router")) {
+                return "tanstack-router";
+              }
+            }
+          },
+        },
       },
     },
   };
