@@ -88,6 +88,19 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
 function getCanonicalRedirect(request: Request): Response | null {
   try {
     const url = new URL(request.url);
+
+    // Bypass API, server functions, static assets, and internal healthchecks
+    if (
+      url.pathname.startsWith("/_serverFn") ||
+      url.pathname.startsWith("/api/") ||
+      url.pathname.startsWith("/assets/") ||
+      url.pathname.startsWith("/_build/") ||
+      url.pathname.startsWith("/fonts/") ||
+      url.pathname.startsWith("/images/")
+    ) {
+      return null;
+    }
+
     const rawHost = (
       request.headers.get("x-forwarded-host") ||
       request.headers.get("host") ||
@@ -98,7 +111,7 @@ function getCanonicalRedirect(request: Request): Response | null {
     // Isolate hostname without port
     const hostname = rawHost.split(":")[0];
 
-    // Local / development bypass - never redirect local dev or health checks
+    // Local / development / internal bypass - never redirect local dev or health checks
     if (
       !hostname ||
       hostname === "localhost" ||
@@ -112,20 +125,38 @@ function getCanonicalRedirect(request: Request): Response | null {
 
     const isWww =
       hostname === "www.ndsolotravel.com" ||
+      hostname.startsWith("www.") ||
       hostname === "www.ndsolotravel.com.cdn.hstgr.net";
     const isApex = hostname === "ndsolotravel.com";
 
-    // Protocol check: x-forwarded-proto or request url protocol
-    const rawProto = (
+    // Detect if external connection is HTTPS
+    // Check all standard proxy SSL headers
+    const forwardedProtoHeader = (
       request.headers.get("x-forwarded-proto") ||
       request.headers.get("x-forwarded-protocol") ||
-      url.protocol.replace(":", "") ||
-      "https"
-    ).toLowerCase().trim();
-    const isHttp = rawProto === "http";
+      request.headers.get("x-url-scheme") ||
+      ""
+    ).toLowerCase();
+
+    // In case of multiple proxies (e.g. "https, http"), the first one is the client-facing protocol
+    const clientProto = forwardedProtoHeader.split(",")[0].trim();
+    const forwardedSsl = (request.headers.get("x-forwarded-ssl") || "").toLowerCase().trim();
+    const frontEndHttps = (request.headers.get("front-end-https") || "").toLowerCase().trim();
+    const forwardedPort = (request.headers.get("x-forwarded-port") || "").trim();
+    const cfVisitor = request.headers.get("cf-visitor") || "";
+
+    const isExplicitlyHttps =
+      clientProto === "https" ||
+      forwardedSsl === "on" ||
+      frontEndHttps === "on" ||
+      forwardedPort === "443" ||
+      cfVisitor.includes('"scheme":"https"');
+
+    const isExplicitlyHttp =
+      !isExplicitlyHttps && clientProto === "http";
 
     if (isWww) {
-      // Always redirect www to canonical apex with HTTPS
+      // Always redirect www to canonical apex with HTTPS in a single direct hop
       const targetUrl = `https://ndsolotravel.com${url.pathname}${url.search}`;
       return new Response(null, {
         status: 301,
@@ -136,16 +167,19 @@ function getCanonicalRedirect(request: Request): Response | null {
       });
     }
 
-    if (isApex && isHttp) {
-      // Force HTTPS on apex if forwarded as HTTP
+    if (isApex && isExplicitlyHttp) {
+      // Force HTTPS on apex only when verified to originate from insecure HTTP
       const targetUrl = `https://ndsolotravel.com${url.pathname}${url.search}`;
-      return new Response(null, {
-        status: 301,
-        headers: {
-          Location: targetUrl,
-          "Cache-Control": "public, max-age=31536000, immutable",
-        },
-      });
+      // Safety guard: NEVER redirect the canonical URL back to itself
+      if (request.url !== targetUrl && url.href !== targetUrl) {
+        return new Response(null, {
+          status: 301,
+          headers: {
+            Location: targetUrl,
+            "Cache-Control": "public, max-age=31536000, immutable",
+          },
+        });
+      }
     }
   } catch {
     // Non-blocking fallback

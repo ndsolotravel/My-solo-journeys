@@ -202,8 +202,8 @@ function useMutation(options, queryClient) {
 export {
   QueryClientProvider as Q,
   useQuery as a,
-  useSuspenseQuery as b,
-  useMutation as c,
+  useMutation as b,
+  useSuspenseQuery as c,
   queryOptions as q,
   useQueryClient as u
 };

@@ -1,15 +1,15 @@
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
-  # 1. Canonical Redirect: www.ndsolotravel.com -> https://ndsolotravel.com (HTTP or HTTPS)
-  RewriteCond %{HTTP_HOST} ^www\.ndsolotravel\.com$ [NC]
-  RewriteRule ^(.*)$ https://ndsolotravel.com/$1 [L,R=301]
+  # 1. Canonical Redirect: Any www request (HTTP or HTTPS) -> https://ndsolotravel.com (Single direct hop)
+  RewriteCond %{HTTP_HOST} ^www\. [NC]
+  RewriteRule ^ https://ndsolotravel.com%{REQUEST_URI} [L,R=301]
 
-  # 2. Canonical Redirect: Force HTTPS for ndsolotravel.com
-  RewriteCond %{HTTPS} off
+  # 2. Canonical Redirect: Force HTTPS for apex domain ndsolotravel.com
+  RewriteCond %{HTTPS} !on
   RewriteCond %{HTTP:X-Forwarded-Proto} !https [NC]
-  RewriteCond %{HTTP_HOST} ^ndsolotravel\.com$ [NC]
-  RewriteRule ^(.*)$ https://ndsolotravel.com/$1 [L,R=301]
+  RewriteCond %{HTTP:X-Forwarded-SSL} !on [NC]
+  RewriteRule ^ https://ndsolotravel.com%{REQUEST_URI} [L,R=301]
 </IfModule>
 
 # ----------------------------------------------------------------------

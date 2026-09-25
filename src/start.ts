@@ -40,6 +40,19 @@ const canonicalRedirectMiddleware = createMiddleware().server(async ({ next, req
   try {
     if (request?.url) {
       const url = new URL(request.url);
+
+      // Bypass API, server functions, static assets, and internal healthchecks
+      if (
+        url.pathname.startsWith("/_serverFn") ||
+        url.pathname.startsWith("/api/") ||
+        url.pathname.startsWith("/assets/") ||
+        url.pathname.startsWith("/_build/") ||
+        url.pathname.startsWith("/fonts/") ||
+        url.pathname.startsWith("/images/")
+      ) {
+        return await next();
+      }
+
       const rawHost = (
         request.headers?.get("x-forwarded-host") ||
         request.headers?.get("host") ||
@@ -59,16 +72,32 @@ const canonicalRedirectMiddleware = createMiddleware().server(async ({ next, req
       ) {
         const isWww =
           hostname === "www.ndsolotravel.com" ||
+          hostname.startsWith("www.") ||
           hostname === "www.ndsolotravel.com.cdn.hstgr.net";
         const isApex = hostname === "ndsolotravel.com";
 
-        const rawProto = (
+        const forwardedProtoHeader = (
           request.headers?.get("x-forwarded-proto") ||
           request.headers?.get("x-forwarded-protocol") ||
-          url.protocol.replace(":", "") ||
-          "https"
-        ).toLowerCase().trim();
-        const isHttp = rawProto === "http";
+          request.headers?.get("x-url-scheme") ||
+          ""
+        ).toLowerCase();
+
+        const clientProto = forwardedProtoHeader.split(",")[0].trim();
+        const forwardedSsl = (request.headers?.get("x-forwarded-ssl") || "").toLowerCase().trim();
+        const frontEndHttps = (request.headers?.get("front-end-https") || "").toLowerCase().trim();
+        const forwardedPort = (request.headers?.get("x-forwarded-port") || "").trim();
+        const cfVisitor = request.headers?.get("cf-visitor") || "";
+
+        const isExplicitlyHttps =
+          clientProto === "https" ||
+          forwardedSsl === "on" ||
+          frontEndHttps === "on" ||
+          forwardedPort === "443" ||
+          cfVisitor.includes('"scheme":"https"');
+
+        const isExplicitlyHttp =
+          !isExplicitlyHttps && clientProto === "http";
 
         if (isWww) {
           const targetUrl = `https://ndsolotravel.com${url.pathname}${url.search}`;
@@ -81,15 +110,18 @@ const canonicalRedirectMiddleware = createMiddleware().server(async ({ next, req
           });
         }
 
-        if (isApex && isHttp) {
+        if (isApex && isExplicitlyHttp) {
           const targetUrl = `https://ndsolotravel.com${url.pathname}${url.search}`;
-          return new Response(null, {
-            status: 301,
-            headers: {
-              Location: targetUrl,
-              "Cache-Control": "public, max-age=31536000, immutable",
-            },
-          });
+          // Safety guard: NEVER redirect the canonical URL back to itself
+          if (request.url !== targetUrl && url.href !== targetUrl) {
+            return new Response(null, {
+              status: 301,
+              headers: {
+                Location: targetUrl,
+                "Cache-Control": "public, max-age=31536000, immutable",
+              },
+            });
+          }
         }
       }
     }
