@@ -72,7 +72,6 @@ const canonicalRedirectMiddleware = createMiddleware().server(async ({ next, req
       ) {
         const isWww =
           hostname === "www.ndsolotravel.com" ||
-          hostname.startsWith("www.") ||
           hostname === "www.ndsolotravel.com.cdn.hstgr.net";
         const isApex = hostname === "ndsolotravel.com";
 

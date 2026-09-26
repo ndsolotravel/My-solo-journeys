@@ -125,7 +125,6 @@ function getCanonicalRedirect(request: Request): Response | null {
 
     const isWww =
       hostname === "www.ndsolotravel.com" ||
-      hostname.startsWith("www.") ||
       hostname === "www.ndsolotravel.com.cdn.hstgr.net";
     const isApex = hostname === "ndsolotravel.com";
 
