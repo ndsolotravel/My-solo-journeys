@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { lazy, Suspense, useMemo } from "react";
-const motion = lazy(() => import("framer-motion").then((m) => ({ default: m.motion })));
+import { motion } from "framer-motion";
 import {
   Compass,
   Mountain,

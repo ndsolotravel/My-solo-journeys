@@ -12,10 +12,8 @@ import {
   Suspense,
   lazy,
 } from "react";
-const ReactMarkdown = lazy(() => import("react-markdown").then((m) => ({ default: m.default })));
-const rehypeRaw = lazy(() => import("rehype-raw").then((m) => ({ default: m.default })));
-const motion = lazy(() => import("framer-motion").then((m) => ({ default: m.motion })));
-const AnimatePresence = lazy(() => import("framer-motion").then((m) => ({ default: m.AnimatePresence })));
+import { AnimatePresence, motion } from "framer-motion";
+const LazyMarkdown = lazy(() => import("@/components/common/LazyMarkdown"));
 import { getPostBySlug, type Post } from "@/lib/posts.functions";
 import { getBlogAuthorName } from "@/lib/settings.functions";
 import { listComments, postComment, getPostRatingStats } from "@/lib/comments.functions";
@@ -29,6 +27,19 @@ import { toast } from "sonner";
 import { useTranslations, useLanguage } from "@/lib/translate/store";
 import { useContentTranslation } from "@/lib/translate/contentTranslation";
 import { resolveMediaUrl } from "@/lib/media";
+import {
+  ArrowLeft,
+  ArrowRightIcon,
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  ImageIcon,
+  List,
+  Star,
+  User,
+  X,
+} from "lucide-react";
 
 const postQO = (slug: string) =>
   queryOptions({
@@ -416,9 +427,17 @@ function PostPage() {
         )}
 
         <div className="prose-blog mt-8">
-          <ReactMarkdown
-            rehypePlugins={[rehypeRaw]}
-            components={{
+          <Suspense
+            fallback={
+              <div className="space-y-3" aria-busy="true" aria-label="Loading post">
+                <div className="h-4 w-3/4 animate-pulse rounded bg-muted" />
+                <div className="h-4 w-full animate-pulse rounded bg-muted" />
+                <div className="h-4 w-5/6 animate-pulse rounded bg-muted" />
+              </div>
+            }
+          >
+            <LazyMarkdown
+              components={{
               h1: ({ children }) => {
                 const raw = extractText(children);
                 const id = raw
@@ -517,7 +536,8 @@ function PostPage() {
             }}
           >
             {localizedPost.content}
-          </ReactMarkdown>
+            </LazyMarkdown>
+          </Suspense>
 
           {/* Interactive Map Location */}
           {post.latitude != null && post.longitude != null && (

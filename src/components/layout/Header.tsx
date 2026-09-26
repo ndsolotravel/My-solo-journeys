@@ -1,15 +1,18 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { lazy, useEffect, useState } from "react";
 import { Menu, X, Search, User, LogOut } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
-import { SearchDialog } from "./SearchDialog";
 import { LanguageSelector } from "./LanguageSelector";
-import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { useTranslations } from "@/lib/translate/store";
+import { onIdle } from "@/lib/idle";
 import logoPath from "@/assets/ndsolo-travel-logo.png";
+
+const SearchDialog = lazy(() =>
+  import("./SearchDialog").then((m) => ({ default: m.SearchDialog })),
+);
 
 const LINKS = [
   { to: "/", label: "Home" },
@@ -32,6 +35,7 @@ export function Header() {
   const queryClient = useQueryClient();
 
   async function handleSignOut() {
+    const { supabase } = await import("@/integrations/supabase/client");
     try {
       await queryClient.cancelQueries();
       queryClient.clear();
@@ -78,23 +82,32 @@ export function Header() {
   }, []);
 
   useEffect(() => {
-    const checkRoles = async (uid: string | undefined) => {
-      if (!uid) return setIsStaff(false);
-      const { data } = await supabase.from("user_roles").select("role").eq("user_id", uid);
-      const roles = (data ?? []).map((r) => r.role);
-      setIsStaff(roles.includes("admin") || roles.includes("editor"));
+    const loadAuth = async () => {
+      const { supabase } = await import("@/integrations/supabase/client");
+      const checkRoles = async (uid: string | undefined) => {
+        if (!uid) return setIsStaff(false);
+        const { data } = await supabase.from("user_roles").select("role").eq("user_id", uid);
+        const roles = (data ?? []).map((r) => r.role);
+        setIsStaff(roles.includes("admin") || roles.includes("editor"));
+      };
+      supabase.auth.getSession().then(({ data }) => {
+        setSignedIn(!!data.session);
+        checkRoles(data.session?.user.id);
+      });
+      const { data: sub } = supabase.auth.onAuthStateChange((e, session) => {
+        if (e === "SIGNED_IN" || e === "SIGNED_OUT" || e === "USER_UPDATED") {
+          setSignedIn(!!session);
+          checkRoles(session?.user.id);
+        }
+      });
+      return () => sub.subscription.unsubscribe();
     };
-    supabase.auth.getSession().then(({ data }) => {
-      setSignedIn(!!data.session);
-      checkRoles(data.session?.user.id);
-    });
-    const { data: sub } = supabase.auth.onAuthStateChange((e, session) => {
-      if (e === "SIGNED_IN" || e === "SIGNED_OUT" || e === "USER_UPDATED") {
-        setSignedIn(!!session);
-        checkRoles(session?.user.id);
-      }
-    });
-    return () => sub.subscription.unsubscribe();
+
+    const cancel = onIdle(() => {
+      void loadAuth();
+    }, 3000);
+
+    return cancel;
   }, []);
 
   const headerClass = overHero

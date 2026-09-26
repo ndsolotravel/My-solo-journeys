@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState, useEffect } from "react";
+import { lazy, Suspense, useState, useEffect } from "react";
 import {
   Activity,
   Users,
@@ -21,15 +21,11 @@ import {
   CheckCircle2,
   MailCheck,
 } from "lucide-react";
-import {
-  ResponsiveContainer,
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-} from "recharts";
+// recharts (~380 kB) is only needed to draw the traffic chart, so it is kept
+// out of the route module and loaded on demand. The route file is part of the
+// app-wide client graph, so a static import here would ship recharts to every
+// visitor on every page.
+const AnalyticsTrafficChart = lazy(() => import("@/components/admin/AnalyticsTrafficChart"));
 import { getAdminAnalyticsDetails, PeriodOption } from "@/lib/analytics.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/analytics")({
@@ -218,50 +214,15 @@ function AdminAnalyticsPage() {
               No traffic recorded for this period yet.
             </div>
           ) : (
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart
-                data={data?.trafficOverTime}
-                margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
-              >
-                <defs>
-                  <linearGradient id="visitorsGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#4085FF" stopOpacity={0.4} />
-                    <stop offset="95%" stopColor="#4085FF" stopOpacity={0.0} />
-                  </linearGradient>
-                  <linearGradient id="pageViewsGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#6366F1" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#6366F1" stopOpacity={0.0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" opacity={0.15} vertical={false} />
-                <XAxis dataKey="date" tickLine={false} axisLine={false} tick={{ fontSize: 11 }} />
-                <YAxis
-                  tickLine={false}
-                  axisLine={false}
-                  tick={{ fontSize: 11 }}
-                  allowDecimals={false}
-                />
-                <Tooltip content={<CustomTooltip />} />
-                <Area
-                  type="monotone"
-                  dataKey="pageViews"
-                  name="Page Views"
-                  stroke="#6366F1"
-                  strokeWidth={2}
-                  fillOpacity={1}
-                  fill="url(#pageViewsGrad)"
-                />
-                <Area
-                  type="monotone"
-                  dataKey="visitors"
-                  name="Unique Visitors"
-                  stroke="#4085FF"
-                  strokeWidth={2.5}
-                  fillOpacity={1}
-                  fill="url(#visitorsGrad)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+            <Suspense
+              fallback={
+                <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+                  Loading chart...
+                </div>
+              }
+            >
+              <AnalyticsTrafficChart data={data?.trafficOverTime} />
+            </Suspense>
           )}
         </div>
       </div>
@@ -606,22 +567,6 @@ function DeviceCard({
       <p className="text-[10px] text-muted-foreground">{count.toLocaleString()} sessions</p>
     </div>
   );
-}
-
-function CustomTooltip({ active, payload, label }: any) {
-  if (active && payload && payload.length) {
-    return (
-      <div className="rounded-xl border border-border bg-background/95 backdrop-blur p-3 shadow-lg text-xs space-y-1">
-        <p className="font-semibold text-foreground">{label}</p>
-        {payload.map((entry: any) => (
-          <p key={entry.name} style={{ color: entry.color }} className="font-medium">
-            {entry.name}: {entry.value.toLocaleString()}
-          </p>
-        ))}
-      </div>
-    );
-  }
-  return null;
 }
 
 function formatRelativeTime(iso: string): string {

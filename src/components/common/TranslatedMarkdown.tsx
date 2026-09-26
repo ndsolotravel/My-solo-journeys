@@ -7,8 +7,8 @@ import React, {
   Suspense,
   lazy,
 } from "react";
-const ReactMarkdown = lazy(() => import("react-markdown").then((m) => ({ default: m.default })));
-const rehypeRaw = lazy(() => import("rehype-raw").then((m) => ({ default: m.default })));
+import type { Components } from "react-markdown";
+const LazyMarkdown = lazy(() => import("@/components/common/LazyMarkdown"));
 import { useLanguage, useTranslations } from "@/lib/translate/store";
 import { resolveMediaUrl } from "@/lib/media";
 
@@ -177,9 +177,7 @@ export function TranslatedMarkdown({
   return (
     <div className={className}>
       <Suspense fallback={<div className="prose-blog text-sm" />}>
-        <ReactMarkdown rehypePlugins={[rehypeRaw]} components={components}>
-          {content}
-        </ReactMarkdown>
+        <LazyMarkdown components={components}>{content}</LazyMarkdown>
       </Suspense>
     </div>
   );

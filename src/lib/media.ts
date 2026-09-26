@@ -1,5 +1,29 @@
 const DEFAULT_SUPABASE_URL = "https://mqoybarqgzzvillignbr.supabase.co";
 
+function getSupabaseRenderUrl(url: string, width?: number, quality = 80): string {
+  try {
+    const parsed = new URL(url);
+    const pathname = parsed.pathname;
+    const isRender = pathname.includes("/storage/v1/render/image/public/");
+    const isObject = pathname.includes("/storage/v1/object/public/");
+
+    if (!isRender && !isObject) return url;
+
+    const publicPath = isRender
+      ? pathname.replace(/^\/storage\/v1\/render\/image\/public\//, "")
+      : pathname.replace(/^\/storage\/v1\/object\/public\//, "");
+
+    const params = new URLSearchParams(parsed.search);
+    if (width && width > 0) params.set("width", String(Math.round(width)));
+    params.set("quality", String(quality));
+    if (!params.has("resize")) params.set("resize", "cover");
+
+    return `${parsed.origin}/storage/v1/render/image/public/${publicPath}?${params.toString()}`;
+  } catch {
+    return url;
+  }
+}
+
 /**
  * Pure client-safe utility to resolve Supabase storage and CDN media URLs.
  * Can be safely imported in both client-side and server-side components.
@@ -83,6 +107,15 @@ export function getOptimizedImageUrl(
     return `${base}=w${targetWidth}-rw`;
   }
 
+  // Optimize Supabase-hosted media via the render API to reduce payloads and improve LCP.
+  if (
+    resolved.includes("/storage/v1/object/public/") ||
+    resolved.includes("/storage/v1/render/image/public/")
+  ) {
+    const targetWidth = width && width > 0 ? Math.round(width) : 1600;
+    return getSupabaseRenderUrl(resolved, targetWidth, 80);
+  }
+
   return resolved;
 }
 
@@ -95,12 +128,24 @@ export function getImageSrcSet(
   client?: any,
 ): string {
   const resolved = resolveMediaUrl(urlOrPath, client);
-  if (!resolved || !resolved.includes("lh3.googleusercontent.com/d/")) {
-    return "";
+  if (!resolved) return "";
+
+  if (resolved.includes("lh3.googleusercontent.com/d/")) {
+    return widths
+      .map((w) => `${getOptimizedImageUrl(resolved, w, client)} ${w}w`)
+      .join(", ");
   }
-  return widths
-    .map((w) => `${getOptimizedImageUrl(resolved, w, client)} ${w}w`)
-    .join(", ");
+
+  if (
+    resolved.includes("/storage/v1/object/public/") ||
+    resolved.includes("/storage/v1/render/image/public/")
+  ) {
+    return widths
+      .map((w) => `${getOptimizedImageUrl(resolved, w, client)} ${w}w`)
+      .join(", ");
+  }
+
+  return "";
 }
 
 export function extractBlogMediaPath(url: string | null | undefined): string | null {

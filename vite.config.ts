@@ -43,39 +43,22 @@ export default defineConfig(({ mode }) => {
       react(),
     ],
     build: {
+      // NOTE: an explicit `manualChunks` map was previously used here to name
+      // vendor chunks. It was removed because it does not control what ends up
+      // on the critical path (only static imports do), and it actively made
+      // things worse: Rollup hoisted `clsx` — a leaf dependency of recharts
+      // that is also used by the eagerly-loaded `cn()` helper — into the
+      // recharts chunk, which pulled the whole 380 kB recharts chunk into the
+      // initial page load on every route.
+      //
+      // Heavy libraries are now kept out of the initial graph by making their
+      // importers dynamic (React.lazy / import()) at the source, which is the
+      // only reliable way to control the critical path. Rollup then emits them
+      // as async chunks automatically.
       rollupOptions: {
         output: {
-          manualChunks: (id) => {
-            if (id.includes("node_modules")) {
-              if (id.includes("@supabase/supabase-js") || id.includes("supabase-js")) {
-                return "supabase";
-              }
-              if (id.includes("framer-motion")) {
-                return "framer-motion";
-              }
-              if (id.includes("gsap") || id.includes("scrolltrigger")) {
-                return "gsap";
-              }
-              if (id.includes("leaflet")) {
-                return "leaflet";
-              }
-              if (id.includes("recharts") || id.includes("d3") || id.includes("echarts")) {
-                return "recharts";
-              }
-              if (id.includes("react-markdown") || id.includes("remark") || id.includes("rehype")) {
-                return "react-markdown";
-              }
-              if (id.includes("lucide-react")) {
-                return "lucide-react";
-              }
-              if (id.includes("@tanstack/react-query")) {
-                return "tanstack-query";
-              }
-              if (id.includes("@tanstack/react-router")) {
-                return "tanstack-router";
-              }
-            }
-          },
+          chunkFileNames: "assets/[name]-[hash].js",
+          entryFileNames: "assets/[name]-[hash].js",
         },
       },
     },

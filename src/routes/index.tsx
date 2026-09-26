@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery, useQuery } from "@tanstack/react-query";
 import { lazy, Suspense, useMemo, useState } from "react";
-const motion = lazy(() => import("framer-motion").then((m) => ({ default: m.motion })));
+import { motion } from "framer-motion";
 import { useEffect } from "react";
 import {
   ArrowRight,

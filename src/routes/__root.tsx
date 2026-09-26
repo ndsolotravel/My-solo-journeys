@@ -9,23 +9,39 @@ import {
   Scripts,
   ScriptOnce,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode, useState, Suspense } from "react";
+import { useEffect, type ReactNode, useState, Suspense, lazy } from "react";
 import { Toaster } from "sonner";
 
 import appCss from "../styles.css?url";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ScrollToTop } from "@/components/layout/ScrollToTop";
-import { NewsletterPopup } from "@/components/layout/NewsletterPopup";
-import { PublicMessagePopup } from "@/components/layout/PublicMessagePopup";
-import { CookieConsentPopup } from "@/components/layout/CookieConsentPopup";
-import { ReadingProgressBar } from "@/components/layout/ReadingProgressBar";
-import { TypographyManager } from "@/components/layout/TypographyManager";
-import { ColorManager } from "@/components/layout/ColorManager";
 import { TranslationProvider, useT, LANGUAGES } from "@/lib/translate/store";
 import { ContentTranslationProvider } from "@/lib/translate/contentTranslation";
-import { LanguageAlternates } from "@/components/seo/LanguageAlternates";
 import { usePageAnalytics } from "@/hooks/use-page-analytics";
+import { onIdle } from "@/lib/idle";
+
+const NewsletterPopup = lazy(() =>
+  import("@/components/layout/NewsletterPopup").then((m) => ({ default: m.NewsletterPopup })),
+);
+const PublicMessagePopup = lazy(() =>
+  import("@/components/layout/PublicMessagePopup").then((m) => ({ default: m.PublicMessagePopup })),
+);
+const CookieConsentPopup = lazy(() =>
+  import("@/components/layout/CookieConsentPopup").then((m) => ({ default: m.CookieConsentPopup })),
+);
+const ReadingProgressBar = lazy(() =>
+  import("@/components/layout/ReadingProgressBar").then((m) => ({ default: m.ReadingProgressBar })),
+);
+const TypographyManager = lazy(() =>
+  import("@/components/layout/TypographyManager").then((m) => ({ default: m.TypographyManager })),
+);
+const ColorManager = lazy(() =>
+  import("@/components/layout/ColorManager").then((m) => ({ default: m.ColorManager })),
+);
+const LanguageAlternates = lazy(() =>
+  import("@/components/seo/LanguageAlternates").then((m) => ({ default: m.LanguageAlternates })),
+);
 
 function NotFoundComponent() {
   return (
@@ -161,21 +177,30 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
-  const [supabaseReady, setSupabaseReady] = useState(false);
-  useEffect(() => {
-    import("@/integrations/supabase/client").then(({ supabase: sb }) => {
-      const { data: sub } = sb.auth.onAuthStateChange((event) => {
-        if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
-        router.invalidate();
-        if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
-      });
-      return () => sub.subscription.unsubscribe();
-    });
-    setSupabaseReady(true);
-  }, [router, queryClient]);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isHome = pathname === "/";
   const isAdmin = pathname.startsWith("/admin");
+
+  useEffect(() => {
+    const trigger = () => {
+      import("@/integrations/supabase/client").then(({ supabase: sb }) => {
+        const { data: sub } = sb.auth.onAuthStateChange((event) => {
+          if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
+          router.invalidate();
+          if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
+        });
+        return () => sub.subscription.unsubscribe();
+      });
+    };
+
+    if (isAdmin) {
+      trigger();
+      return;
+    }
+
+    const cancel = onIdle(trigger, 2500);
+    return cancel;
+  }, [isAdmin, queryClient, router]);
 
   const shellClass = isAdmin
     ? "flex min-h-screen flex-col md:h-dvh md:overflow-hidden"
@@ -188,12 +213,10 @@ function RootComponent() {
     <TranslationProvider>
       <ContentTranslationProvider>
         <QueryClientProvider client={queryClient}>
-          <ReadingProgressBar />
-          <TypographyManager />
-          <ColorManager />
+          <DeferredPublicUI />
           <div className={shellClass}>
             <Header />
-<main className={mainClass}>
+            <main className={mainClass}>
               <Suspense fallback={<div className="h-8 w-full animate-pulse bg-muted rounded" />}>
                 <Outlet />
               </Suspense>
@@ -202,15 +225,34 @@ function RootComponent() {
           </div>
           <Toaster position="top-center" richColors />
           <ScrollToTop />
-          <NewsletterPopup />
-          <PublicMessagePopup />
-          <CookieConsentPopup />
           <TitleTranslator />
-          <LanguageAlternates />
           <PageAnalyticsTracker pathname={pathname} />
         </QueryClientProvider>
       </ContentTranslationProvider>
     </TranslationProvider>
+  );
+}
+
+function DeferredPublicUI() {
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    const cancel = onIdle(() => setReady(true), 2500);
+    return cancel;
+  }, []);
+
+  if (!ready) return null;
+
+  return (
+    <>
+      <ReadingProgressBar />
+      <TypographyManager />
+      <ColorManager />
+      <NewsletterPopup />
+      <PublicMessagePopup />
+      <CookieConsentPopup />
+      <LanguageAlternates />
+    </>
   );
 }
 

@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState, useEffect, useRef } from "react";
+import { lazy, Suspense, useState, useEffect, useRef } from "react";
 import {
   Scale,
   Save,
@@ -25,8 +25,7 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { toast } from "sonner";
-import ReactMarkdown from "react-markdown";
-import rehypeRaw from "rehype-raw";
+const LazyMarkdown = lazy(() => import("@/components/common/LazyMarkdown"));
 import {
   adminListLegalPages,
   adminUpsertLegalPage,
@@ -479,9 +478,13 @@ function AdminLegalPage() {
             ) : (
               <div className="min-h-[460px] rounded-xl border border-border/80 bg-background/50 p-6">
                 <div className="prose prose-gray dark:prose-invert max-w-none space-y-4 text-sm leading-relaxed">
-                  <ReactMarkdown rehypePlugins={[rehypeRaw]}>
-                    {content || "*No content provided yet.*"}
-                  </ReactMarkdown>
+                  <Suspense
+                    fallback={
+                      <p className="text-sm text-muted-foreground">Loading preview…</p>
+                    }
+                  >
+                    <LazyMarkdown>{content || "*No content provided yet.*"}</LazyMarkdown>
+                  </Suspense>
                 </div>
               </div>
             )}
