@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react";
 import tsconfigPaths from "vite-tsconfig-paths";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
+import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
 import { nitro } from "nitro/vite";
 
 export default defineConfig(({ mode }) => {
@@ -25,6 +26,7 @@ export default defineConfig(({ mode }) => {
     plugins: [
       tailwindcss(),
       tsconfigPaths({ projects: ["./tsconfig.json"] }),
+      TanStackRouterVite({ autoCodeSplitting: true }),
       tanstackStart({
         server: { entry: "./src/server.ts" },
         serverFns: { disableCsrfMiddlewareWarning: true },
@@ -59,6 +61,19 @@ export default defineConfig(({ mode }) => {
         output: {
           chunkFileNames: "assets/[name]-[hash].js",
           entryFileNames: "assets/[name]-[hash].js",
+          manualChunks(id) {
+            if (id.includes("node_modules")) {
+              if (id.includes("framer-motion") || id.includes("motion-dom")) {
+                return "vendor-motion";
+              }
+              if (id.includes("@supabase")) {
+                return "vendor-supabase";
+              }
+              if (id.includes("recharts") || id.includes("d3-")) {
+                return "vendor-recharts";
+              }
+            }
+          },
         },
       },
     },

@@ -109,7 +109,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "referrer", content: "strict-origin-when-cross-origin" },
     ],
     links: [
-      { rel: "stylesheet", href: appCss },
       {
         rel: "preconnect",
         href: "https://fonts.googleapis.com",
@@ -119,6 +118,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: "https://fonts.gstatic.com",
         crossOrigin: "anonymous",
       },
+      { rel: "stylesheet", href: appCss },
       {
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Roboto:wght@400;500;600;700&family=Yuyu+Short&display=swap",
