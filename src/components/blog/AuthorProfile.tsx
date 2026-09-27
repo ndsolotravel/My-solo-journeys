@@ -106,7 +106,7 @@ export function AuthorProfile({
     (isHussain
       ? "Solo traveler, motorcyclist, and explorer capturing the wild landscapes and hidden roads of the Himalayas, Karakoram, and beyond."
       : null);
-  const avatar = authorImage?.trim() || (isHussain ? "/images/author-hussain.jpg" : profile?.avatar_url);
+  const avatar = authorImage?.trim() || (isHussain ? "/images/author-hussain.webp" : profile?.avatar_url);
   const initials = getInitials(name);
 
   return (

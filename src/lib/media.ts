@@ -17,6 +17,7 @@ function getSupabaseRenderUrl(url: string, width?: number, quality = 80): string
     if (width && width > 0) params.set("width", String(Math.round(width)));
     params.set("quality", String(quality));
     if (!params.has("resize")) params.set("resize", "cover");
+    params.set("format", "webp");
 
     return `${parsed.origin}/storage/v1/render/image/public/${publicPath}?${params.toString()}`;
   } catch {

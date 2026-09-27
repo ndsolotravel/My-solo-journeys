@@ -20,6 +20,7 @@ import { PostCardSkeleton } from "@/components/blog/Skeletons";
 import { CATEGORIES } from "@/lib/site";
 import { useTranslations } from "@/lib/translate/store";
 import { PageBreadcrumbs, BreadcrumbJsonLd } from "@/components/layout/PageBreadcrumbs";
+import { getOptimizedImageUrl, getImageSrcSet } from "@/lib/media";
 
 const searchSchema = z.object({
   category: z.string().optional(),
@@ -175,8 +176,15 @@ function BlogIndex() {
       <section className="banner-hover relative h-[45vh] min-h-[320px] w-full overflow-hidden">
         {featuredPost?.cover_image ? (
           <img
-            src={featuredPost.cover_image}
+            src={getOptimizedImageUrl(featuredPost.cover_image, 1600)}
+            srcSet={getImageSrcSet(featuredPost.cover_image, [640, 1024, 1600]) || undefined}
+            sizes="100vw"
             alt={featuredPost.title || "Expedition trail at sunrise"}
+            loading="eager"
+            fetchPriority="high"
+            decoding="sync"
+            width={1600}
+            height={720}
             className="h-full w-full object-cover object-center"
           />
         ) : (
@@ -214,8 +222,14 @@ function BlogIndex() {
               <div className="relative aspect-[16/10] md:aspect-auto overflow-hidden bg-muted">
                 {featuredPost.cover_image && (
                   <img
-                    src={featuredPost.cover_image}
+                    src={getOptimizedImageUrl(featuredPost.cover_image, 800)}
+                    srcSet={getImageSrcSet(featuredPost.cover_image, [400, 800, 1200]) || undefined}
+                    sizes="(max-width: 768px) 100vw, 50vw"
                     alt={featuredPost.title}
+                    loading="lazy"
+                    decoding="async"
+                    width={800}
+                    height={500}
                     className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                 )}

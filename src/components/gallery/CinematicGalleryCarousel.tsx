@@ -13,6 +13,7 @@ import {
 import { Link } from "@tanstack/react-router";
 import type { ArchivePhoto } from "@/lib/photo-archive.functions";
 import { useTranslations } from "@/lib/translate/store";
+import { getOptimizedImageUrl, getImageSrcSet } from "@/lib/media";
 
 interface CinematicGalleryCarouselProps {
   photos: ArchivePhoto[];
@@ -230,9 +231,15 @@ export function CinematicGalleryCarousel({
                   }`}
                 >
                   <img
-                    src={photo.image_url}
+                    src={getOptimizedImageUrl(photo.image_url, 800)}
+                    srcSet={getImageSrcSet(photo.image_url, [400, 800, 1200]) || undefined}
+                    sizes="(max-width: 640px) 75vw, (max-width: 1024px) 40vw, 500px"
                     alt={photo.alt_text || photo.title}
                     loading={isCenter ? "eager" : "lazy"}
+                    fetchPriority={isCenter ? "high" : "auto"}
+                    decoding={isCenter ? "sync" : "async"}
+                    width={500}
+                    height={660}
                     draggable={false}
                     className="w-full h-full object-cover object-center select-none pointer-events-none transition-transform duration-700 group-hover:scale-[1.02]"
                   />

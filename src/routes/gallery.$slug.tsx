@@ -15,6 +15,7 @@ import { useTranslations } from "@/lib/translate/store";
 import { PageBreadcrumbs, BreadcrumbJsonLd } from "@/components/layout/PageBreadcrumbs";
 import { useContentTranslation } from "@/lib/translate/contentTranslation";
 import { useLanguage } from "@/lib/translate/store";
+import { getOptimizedImageUrl, getImageSrcSet } from "@/lib/media";
 
 const photoQO = (slug: string) =>
   queryOptions({
@@ -55,6 +56,18 @@ export const Route = createFileRoute("/gallery/$slug")({
       ],
       links: [
         { rel: "canonical", href: `https://ndsolotravel.com/gallery/${params.slug}` },
+        ...(image
+          ? [
+              {
+                rel: "preload" as const,
+                as: "image" as const,
+                href: getOptimizedImageUrl(image, 1600),
+                imageSrcSet: getImageSrcSet(image, [640, 1024, 1600, 2048]) || undefined,
+                imageSizes: "100vw",
+                fetchPriority: "high" as const,
+              },
+            ]
+          : []),
         ...["id", "ms"].map((l) => ({
           rel: "alternate",
           hrefLang: l,
@@ -179,8 +192,15 @@ function PhotoDetailPage() {
           <div className="lg:col-span-3">
             <div className="group relative overflow-hidden rounded-3xl border border-border bg-zinc-950 shadow-lg">
               <img
-                src={photo.image_url}
+                src={getOptimizedImageUrl(photo.image_url, 1600)}
+                srcSet={getImageSrcSet(photo.image_url, [640, 1024, 1600, 2048]) || undefined}
+                sizes="100vw"
                 alt={localizedPhoto.alt_text || localizedPhoto.title}
+                loading="eager"
+                fetchPriority="high"
+                decoding="sync"
+                width={1600}
+                height={1000}
                 className="h-auto max-h-[82vh] w-full object-contain"
               />
             </div>

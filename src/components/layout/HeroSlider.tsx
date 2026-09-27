@@ -59,6 +59,9 @@ export function HeroSlider({ slides, intervalMs = 10000, className = "" }: Props
             transition={{ duration: 1.1, ease: "easeInOut" }}
             loading={isLcpSlide ? "eager" : "lazy"}
             fetchPriority={isLcpSlide ? "high" : "auto"}
+            decoding={isLcpSlide ? "sync" : "async"}
+            width={1920}
+            height={1080}
             className="absolute inset-0 h-full w-full object-cover animate-ken-burns"
           />
         ) : (

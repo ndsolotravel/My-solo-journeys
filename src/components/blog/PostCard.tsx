@@ -5,7 +5,7 @@ import { useMemo } from "react";
 import type { Post } from "@/lib/posts.functions";
 import { useTranslations, useLanguage } from "@/lib/translate/store";
 
-import { resolveMediaUrl } from "@/lib/admin.functions";
+import { resolveMediaUrl, getOptimizedImageUrl, getImageSrcSet } from "@/lib/media";
 
 function formatDate(d: string | null) {
   if (!d) return "";
@@ -37,10 +37,14 @@ export function PostCard({ post, index = 0 }: { post: Post; index?: number }) {
     };
   }, [post, lang, t]);
 
+  const rawCover = localizedPost.cover_image || post.cover_image;
   const coverUrl = useMemo(() => {
-    const raw = localizedPost.cover_image || post.cover_image;
-    return raw ? resolveMediaUrl(raw) : "";
-  }, [localizedPost.cover_image, post.cover_image]);
+    return rawCover ? getOptimizedImageUrl(rawCover, 640) : "";
+  }, [rawCover]);
+
+  const coverSrcSet = useMemo(() => {
+    return rawCover ? getImageSrcSet(rawCover, [380, 640, 900]) : "";
+  }, [rawCover]);
 
   const destination = post.destinations as { id?: string; title: string; slug: string } | null;
 
@@ -58,8 +62,13 @@ export function PostCard({ post, index = 0 }: { post: Post; index?: number }) {
             {coverUrl ? (
               <img
                 src={coverUrl}
+                srcSet={coverSrcSet || undefined}
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 alt={localizedPost.title}
                 loading="lazy"
+                decoding="async"
+                width={640}
+                height={360}
                 referrerPolicy="no-referrer"
                 className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
               />

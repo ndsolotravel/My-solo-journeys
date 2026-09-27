@@ -26,7 +26,7 @@ import { PageBreadcrumbs, BreadcrumbJsonLd } from "@/components/layout/PageBread
 import { toast } from "sonner";
 import { useTranslations, useLanguage } from "@/lib/translate/store";
 import { useContentTranslation } from "@/lib/translate/contentTranslation";
-import { resolveMediaUrl } from "@/lib/media";
+import { resolveMediaUrl, getOptimizedImageUrl, getImageSrcSet } from "@/lib/media";
 import {
   ArrowLeft,
   ArrowRightIcon,
@@ -88,6 +88,18 @@ export const Route = createFileRoute("/blog/$slug")({
       ],
       links: [
         { rel: "canonical", href: `https://ndsolotravel.com/blog/${params.slug}` },
+        ...(image
+          ? [
+              {
+                rel: "preload" as const,
+                as: "image" as const,
+                href: getOptimizedImageUrl(image, 1600),
+                imageSrcSet: getImageSrcSet(image, [640, 1024, 1600, 2048]) || undefined,
+                imageSizes: "100vw",
+                fetchPriority: "high" as const,
+              },
+            ]
+          : []),
         ...["id", "ms"].map((l) => ({
           rel: "alternate",
           hrefLang: l,
@@ -341,8 +353,15 @@ function PostPage() {
       <div className="banner-hover relative h-[60vh] min-h-[420px] w-full overflow-hidden">
         {post.cover_image && (
           <img
-            src={post.cover_image}
+            src={getOptimizedImageUrl(post.cover_image, 1600)}
+            srcSet={getImageSrcSet(post.cover_image, [640, 1024, 1600, 2048]) || undefined}
+            sizes="100vw"
             alt={localizedPost.title}
+            loading="eager"
+            fetchPriority="high"
+            decoding="sync"
+            width={1920}
+            height={1080}
             referrerPolicy="no-referrer"
             className="h-full w-full object-cover"
           />

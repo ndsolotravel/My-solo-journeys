@@ -10,7 +10,7 @@ import {
 import type { Post } from "@/lib/posts.functions";
 import { PostCard } from "@/components/blog/PostCard";
 import { useTranslations } from "@/lib/translate/store";
-import { resolveMediaUrl } from "@/lib/media";
+import { resolveMediaUrl, getOptimizedImageUrl, getImageSrcSet } from "@/lib/media";
 import { PageBreadcrumbs, BreadcrumbJsonLd } from "@/components/layout/PageBreadcrumbs";
 import { useContentTranslation } from "@/lib/translate/contentTranslation";
 import { useLanguage } from "@/lib/translate/store";
@@ -73,6 +73,18 @@ export const Route = createFileRoute("/destinations/$slug")({
       ],
       links: [
         { rel: "canonical", href: canonical },
+        ...(d?.featured_image
+          ? [
+              {
+                rel: "preload" as const,
+                as: "image" as const,
+                href: getOptimizedImageUrl(d.featured_image, 1600),
+                imageSrcSet: getImageSrcSet(d.featured_image, [640, 1024, 1600, 2048]) || undefined,
+                imageSizes: "100vw",
+                fetchPriority: "high" as const,
+              },
+            ]
+          : []),
         ...["id", "ms"].map((l) => ({
           rel: "alternate",
           hrefLang: l,
@@ -181,8 +193,15 @@ function DestinationPage() {
       <div className="banner-hover relative h-[65vh] min-h-[440px] w-full overflow-hidden">
         {d.featured_image ? (
           <img
-            src={resolveMediaUrl(d.featured_image)}
+            src={getOptimizedImageUrl(d.featured_image, 1600)}
+            srcSet={getImageSrcSet(d.featured_image, [640, 1024, 1600, 2048]) || undefined}
+            sizes="100vw"
             alt={localizedDest.title}
+            loading="eager"
+            fetchPriority="high"
+            decoding="sync"
+            width={1920}
+            height={1080}
             className="h-full w-full object-cover object-center"
           />
         ) : (

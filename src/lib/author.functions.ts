@@ -9,7 +9,7 @@ export type AuthorProfile = {
 
 export const HUSSAIN_PROFILE: AuthorProfile = {
   username: "Hussain",
-  avatar_url: "/images/author-hussain.jpg",
+  avatar_url: "/images/author-hussain.webp",
   bio: "Solo traveler, motorcyclist, and explorer capturing the wild landscapes and hidden roads of the Himalayas, Karakoram, and beyond.",
 };
 
@@ -42,7 +42,7 @@ export const getAuthorProfile = createServerFn({ method: "GET" })
       if (isHussain) {
         return {
           username: profile?.username || "Hussain",
-          avatar_url: "/images/author-hussain.jpg",
+          avatar_url: "/images/author-hussain.webp",
           bio: profile?.bio || HUSSAIN_PROFILE.bio,
         };
       }
