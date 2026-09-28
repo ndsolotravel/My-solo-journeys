@@ -16,16 +16,16 @@ export const SITE = {
 
 export const CATEGORIES = [
   "Solo Travel",
-  "Motorcycle Adventure Travel",
-  "Adventure Travel",
+  "Motorcycle Journeys",
   "Trekking",
-  "Hiking",
-  "Mountains",
-  "Nanga Parbat",
-  "Pakistan Tourism",
+  "Travel Guides",
+  "Destinations",
+  "Adventure",
   "Photography",
-  "Travel Tips",
-  "Travel Gear",
+  "Field Notes",
   "Budget Travel",
+  "Nanga Parbat",
+  "Motorcycle Adventure Travel",
   "Travel Stories",
 ] as const;
+
