@@ -61,7 +61,7 @@ const DEFAULT_HERO_SLIDES = [
 
 const postsQO = queryOptions({
   queryKey: ["home", "posts"],
-  queryFn: () => listPosts({ data: { limit: 24 } }),
+  queryFn: () => listPosts({ data: { limit: 12 } }),
 });
 const featuredQO = queryOptions({
   queryKey: ["home", "featured"],
@@ -170,64 +170,39 @@ function formatDate(d: string | null) {
   });
 }
 
-function CategorySection({ title, posts, linkTo, t, getPostTitle }: any) {
-  if (!posts || posts.length === 0) return null;
-  return (
-    <section className="py-20 border-t border-border">
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-12 flex flex-wrap items-baseline justify-between gap-4">
-          <h2 className="font-display text-3xl font-bold">{t(title)}</h2>
-          <Link
-            to={linkTo}
-            className="text-xs font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors"
-          >
-            {t("Explore")} <ArrowRight className="inline-block ml-1 h-3.5 w-3.5" />
-          </Link>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {posts.map((post: any) => (
-            <Link key={post.id} to="/blog/$slug" params={{ slug: post.slug }} className="group block">
-              <div className="aspect-[4/3] overflow-hidden rounded-sm mb-5 bg-muted">
-                {post.cover_image ? (
-                  <img
-                    src={getOptimizedImageUrl(post.cover_image, 600)}
-                    alt={post.title}
-                    className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-zinc-100 dark:bg-zinc-900" />
-                )}
-              </div>
-              <h3 className="font-display text-xl font-bold leading-tight group-hover:text-accent transition-colors line-clamp-2">
-                {getPostTitle(post)}
-              </h3>
-            </Link>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function HomePage() {
   const t = useTranslations();
   const { lang } = useLanguage();
   const { data: postsData } = useSuspenseQuery(postsQO);
+  const { data: featuredData } = useSuspenseQuery(featuredQO);
   const { data: destinationsData } = useSuspenseQuery(destQO);
+  const { data: activeTopicsData } = useSuspenseQuery(topicsQO);
   const { data: galleryData } = useSuspenseQuery(galleryQO);
   const { data: homepageConfig } = useSuspenseQuery(homepageQO);
   const { data: breakingNews } = useSuspenseQuery(breakingNewsQO);
 
+  const activeTopics = activeTopicsData ?? [];
   const allPosts = postsData.posts ?? [];
+  const featuredPosts = featuredData.posts ?? [];
   const destinations = destinationsData ?? [];
   const featuredDestinations = useMemo(
     () => destinations.filter((d) => Boolean(d.featured)),
     [destinations],
   );
   const gallery = galleryData ?? [];
-  const heroSettings = homepageConfig?.settings ?? {};
 
-  // Hero slideshow images
+  const heroSettings = homepageConfig?.settings ?? {};
+  const heroMode = heroSettings.homepage_hero_mode === "manual" ? "manual" : "auto";
+  const heroSource = homepageConfig?.heroPost ?? null;
+
+  // Primary Hero story
+  const heroPost = heroMode === "manual" && heroSource ? heroSource : (allPosts[0] ?? null);
+
+  // Floating preview cards in hero (2nd and 3rd latest stories)
+  const heroFloatingPosts = allPosts.slice(1, 3);
+
+  // Hero slideshow images: Auto => 3 latest published posts' covers, Manual => 3 URL fields.
+  // Slides with no resolvable image are omitted (no third-party fallback).
   const heroImagesMode = heroSettings.homepage_hero_images_mode === "manual" ? "manual" : "auto";
   const heroImagePosts = homepageConfig?.heroImagePosts ?? [];
   const manualHeroImageUrls = [
@@ -250,24 +225,149 @@ function HomePage() {
     return resolved ? { src: resolved, alt } : null;
   }).filter((s): s is { src: string; alt: string } => Boolean(s));
 
-  // Extract sections from all posts
-  const latestExpedition = allPosts[0] || null;
-  const latestStories = allPosts.slice(1, 7);
+  // Trending / Latest Stories section data:
+  // Left: primary story (allPosts[0] or next in line)
+  // Middle: 3 secondary stories
+  const trendingPrimary = allPosts[0] ?? null;
+  const trendingSecondary = allPosts.slice(1, 4);
 
-  // Group by categories
-  const motorcyclePosts = allPosts
-    .filter((p) => p.category === "Motorcycle Journeys" || p.category === "Motorcycle Adventure Travel")
-    .slice(0, 3);
-  const trekkingPosts = allPosts
-    .filter((p) => p.category === "Trekking" || p.category === "Adventure")
-    .slice(0, 3);
-  const guidePosts = allPosts
-    .filter((p) => p.category === "Travel Guides" || p.category === "Budget Travel")
-    .slice(0, 3);
+  // Category list with counts for sidebar
+  const categoryMap = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const p of allPosts) {
+      if (p.category) {
+        counts[p.category] = (counts[p.category] || 0) + 1;
+      }
+    }
+    // Also include active topics
+    const cats = Object.entries(counts).map(([name, count]) => {
+      const matchedTopic = activeTopics.find((t) =>
+        t.categories.some((c) => c.toLowerCase() === name.toLowerCase()),
+      );
+      return {
+        name,
+        count,
+        image: matchedTopic?.previewImage || undefined,
+        linkTo: `/category/${slugify(name)}`,
+      };
+    });
 
+    if (cats.length === 0) {
+      return CATEGORIES.slice(0, 5).map((name) => ({
+        name,
+        count: 1,
+        linkTo: `/category/${slugify(name)}`,
+      }));
+    }
+    return cats.slice(0, 5);
+  }, [allPosts, activeTopics]);
+
+  // Featured Section data:
+  // Left: main featured
+  // Middle: secondary featured (2 cards)
+  const featuredMode = heroSettings.homepage_featured_mode === "manual" ? "manual" : "auto";
+  const mainFeatured: Post | null =
+    (featuredMode === "manual" ? (homepageConfig?.featuredPost as any) : featuredPosts[0]) ||
+    featuredPosts[0] ||
+    allPosts[0] ||
+    null;
+
+  const secondaryFeatured = featuredPosts.filter((p) => p.id !== mainFeatured?.id).slice(0, 2);
+  if (secondaryFeatured.length < 2) {
+    const fillers = allPosts.filter(
+      (p) => p.id !== mainFeatured?.id && !secondaryFeatured.some((sf) => sf.id === p.id),
+    );
+    secondaryFeatured.push(...fillers.slice(0, 2 - secondaryFeatured.length));
+  }
+
+  const [destView, setDestView] = useState<"grid" | "map">("grid");
+  const navigate = useNavigate();
+
+  // Smooth-scroll to hash targets when arriving via redirect or direct link.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const hash = window.location.hash.replace("#", "");
+    if (hash === "interactive-map" || hash === "map") {
+      setDestView("map");
+      requestAnimationFrame(() =>
+        document
+          .getElementById("interactive-map")
+          ?.scrollIntoView({ behavior: "smooth", block: "start" }),
+      );
+    } else if (hash === "journey-in-numbers") {
+      requestAnimationFrame(() =>
+        document
+          .getElementById("journey-in-numbers")
+          ?.scrollIntoView({ behavior: "smooth", block: "start" }),
+      );
+    }
+  }, []);
+
+  // Resolved "Journey in Numbers" stats — single source of truth (site_settings)
+  const jinStats = homepageConfig?.stats ?? {
+    countries: 27,
+    countriesCalculated: 2,
+    countriesMode: "manual",
+    trips: 102,
+    tripsSuffix: "+",
+    photos: 200,
+    photosSuffix: "K+",
+    kilometres: 18420,
+    kilometresSuffix: "km",
+    days: 142,
+    daysSuffix: "+",
+  };
+
+  const stats = [
+    {
+      icon: Globe2,
+      label: t("Countries Covered in Blogs"),
+      value: jinStats.countries,
+      suffix: "",
+      featured: false,
+    },
+    {
+      icon: Bike,
+      label: t("Solo Motorcycle Trips"),
+      value: jinStats.trips,
+      suffix: jinStats.tripsSuffix,
+      featured: false,
+    },
+    {
+      icon: Camera,
+      label: t("Photos Captured"),
+      value: jinStats.photos,
+      suffix: jinStats.photosSuffix,
+      featured: false,
+    },
+    {
+      icon: RouteIcon,
+      label: t("Kilometres Travelled"),
+      value: jinStats.kilometres,
+      suffix: jinStats.kilometresSuffix,
+      featured: true,
+    },
+    {
+      icon: Calendar,
+      label: t("Days on the Road"),
+      value: jinStats.days,
+      suffix: jinStats.daysSuffix,
+      featured: false,
+    },
+  ];
+  const journeyRef = useGsapReveal<HTMLDivElement>();
+
+  const isExternal = (link?: string) => {
+    const target = (link || "").trim().toLowerCase();
+    return (
+      target.startsWith("http://") || target.startsWith("https://") || target.startsWith("mailto:")
+    );
+  };
   const heroPrimaryTo = heroSettings.homepage_hero_button_link?.trim() || "/blog";
+  const heroSecondaryTo =
+    heroSettings.homepage_hero_secondary_button_link?.trim() || "/destinations";
 
-  const getPostTitle = (p: any) => {
+  const getPostTitle = (p: Post | { title: string; post_translations?: any[] }) => {
     if (lang !== "en" && "post_translations" in p && p.post_translations) {
       const trans = p.post_translations.find((x: any) => x.language_code === lang);
       if (trans?.title) return trans.title;
@@ -275,316 +375,642 @@ function HomePage() {
     return t(p.title);
   };
 
-  const isExternal = (link?: string) => {
-    const target = (link || "").trim().toLowerCase();
-    return target.startsWith("http://") || target.startsWith("https://") || target.startsWith("mailto:");
-  };
-
   return (
-    <div className="w-full bg-background min-w-0 flex flex-col selection:bg-accent/30 selection:text-foreground">
-      {/* 1. Cinematic Hero */}
-      <section className="relative h-[85vh] sm:h-[95vh] min-h-[600px] w-full flex flex-col justify-center overflow-hidden bg-zinc-950">
+    <div className="space-y-14 sm:space-y-20 lg:space-y-24 w-full min-w-0 overflow-x-hidden">
+      {/* ========================================================================= */}
+      {/* 1. HERO BANNER (Cinematic + 2 Floating Story Preview Cards)               */}
+      {/* ========================================================================= */}
+      <section className="relative min-h-[max(100svh,600px)] overflow-hidden flex flex-col justify-between w-full">
         <HeroSlider slides={heroSlides} />
-        {/* Elegant overlay for better text contrast */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black/80 z-10" />
 
-        <div className="absolute top-0 left-0 right-0 z-30 pt-24 px-4 sm:px-6 pointer-events-auto">
+        {/* Breaking News Ticker: Top of Hero picture right under navigation */}
+        <div className="pointer-events-auto relative z-20 w-full pt-20 sm:pt-22 lg:pt-24">
           <BreakingNewsSection items={breakingNews ?? []} />
         </div>
 
-        <div className="relative z-20 flex flex-col items-center text-center px-4 sm:px-6 lg:px-8 mt-16 sm:mt-24 w-full max-w-5xl mx-auto">
-          <motion.p
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, ease: "easeOut" }}
-            className="text-xs font-medium uppercase tracking-[0.25em] text-white/80 mb-6"
-          >
-            {t(heroSettings.homepage_hero_badge || "Solo · Slow · Cinematic")}
-          </motion.p>
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.1, ease: "easeOut" }}
-            className="font-display text-4xl sm:text-6xl md:text-7xl lg:text-[5.5rem] leading-[1.05] font-bold tracking-tight text-white max-w-4xl balance-text drop-shadow-sm"
-          >
-            {t(heroSettings.homepage_hero_title_highlight || "Stories from the high places.")}
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.25, ease: "easeOut" }}
-            className="mt-6 sm:mt-8 text-base sm:text-xl text-white/80 max-w-2xl font-light leading-relaxed balance-text"
-          >
-            {t(
-              heroSettings.homepage_hero_description ||
-                "Welcome to NDSOLOTRAVEL, a personal travel journal covering solo travel, motorcycle adventures, and mountain treks across Pakistan, the Karakoram, and around the world."
-            )}
-          </motion.p>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.4, ease: "easeOut" }}
-            className="mt-10 sm:mt-12 pointer-events-auto"
-          >
-            {isExternal(heroPrimaryTo) ? (
-              <a
-                href={heroPrimaryTo}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group inline-flex items-center gap-3 border-b border-white/40 pb-1.5 text-xs sm:text-sm font-medium uppercase tracking-[0.15em] text-white hover:text-white/70 hover:border-white/70 transition-all duration-300"
+        <div className="pointer-events-none relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col justify-end px-4 pb-12 pt-6 sm:px-6 sm:pb-20 sm:pt-8 lg:px-8">
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:items-end w-full min-w-0">
+            {/* Left: Main Hero Content */}
+            <div className="lg:col-span-8 w-full min-w-0">
+              <motion.span
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="inline-flex w-fit items-center rounded-full border border-white/30 bg-white/10 px-3.5 py-1 sm:px-4 sm:py-1.5 text-[11px] sm:text-xs font-medium uppercase tracking-[0.2em] text-white backdrop-blur-md"
               >
-                {t(heroSettings.homepage_hero_button_text || "Read the stories")}
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </a>
-            ) : (
-              <Link
-                to={heroPrimaryTo as any}
-                className="group inline-flex items-center gap-3 border-b border-white/40 pb-1.5 text-xs sm:text-sm font-medium uppercase tracking-[0.15em] text-white hover:text-white/70 hover:border-white/70 transition-all duration-300"
-              >
-                {t(heroSettings.homepage_hero_button_text || "Read the stories")}
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </Link>
-            )}
-          </motion.div>
-        </div>
-      </section>
+                {t(heroSettings.homepage_hero_badge || "Solo · Slow · Cinematic")}
+              </motion.span>
 
-      {/* 2. Latest Expedition Spotlight */}
-      {latestExpedition && (
-        <section className="py-20 sm:py-32 px-4 sm:px-6 lg:px-8 max-w-[1400px] mx-auto w-full">
-          <div className="flex flex-col md:flex-row gap-10 lg:gap-16 items-center">
-            <div className="w-full md:w-7/12 lg:w-3/5">
-              <Link
-                to="/blog/$slug"
-                params={{ slug: latestExpedition.slug }}
-                className="group block overflow-hidden rounded-sm bg-muted relative aspect-[4/3] sm:aspect-[16/10] md:aspect-[4/3] shadow-md"
-              >
-                {latestExpedition.cover_image && (
-                  <img
-                    src={getOptimizedImageUrl(latestExpedition.cover_image, 1200)}
-                    alt={latestExpedition.title}
-                    className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-[1.03]"
-                  />
+<motion.h1
+                 initial={{ opacity: 0, y: 30 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 transition={{ duration: 0.8, delay: 0.1 }}
+                 className="mt-4 sm:mt-5 max-w-4xl font-display text-4xl sm:text-5xl lg:text-6xl leading-[1.15] sm:leading-[1.12] text-white break-words [overflow-wrap:anywhere]"
+               >
+                 <span className="block">
+                   Solo journeys, motorcycle adventures, and trekking across the world
+                 </span>
+               </motion.h1>
+                 <motion.p
+                 initial={{ opacity: 0 }}
+                 animate={{ opacity: 1 }}
+                 transition={{ duration: 0.8, delay: 0.2 }}
+                 className="hero-subtitle"
+               >
+                 {t(heroSettings.homepage_hero_title_highlight || "Stories from the high places. Most people only fly over.")}
+               </motion.p>
+
+               <motion.p
+                 initial={{ opacity: 0, y: 30 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 transition={{ duration: 0.8, delay: 0.2 }}
+                 className="mt-3 sm:mt-4 max-w-2xl text-sm sm:text-base lg:text-lg text-white/85 leading-relaxed"
+               >
+                {t(
+                  heroSettings.homepage_hero_description ||
+                    "Welcome to NDSOLOTRAVEL, a personal travel journal covering solo travel, motorcycle adventures, and mountain treks across Pakistan, the Karakoram, and around the world.",
                 )}
-              </Link>
-            </div>
-            <div className="w-full md:w-5/12 lg:w-2/5 space-y-5 sm:space-y-6">
-              <p className="text-xs font-semibold uppercase tracking-[0.15em] text-accent">
-                {t("Latest Expedition")}
-              </p>
-              <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold leading-[1.1] hover:text-accent transition-colors">
-                <Link to="/blog/$slug" params={{ slug: latestExpedition.slug }}>
-                  {getPostTitle(latestExpedition)}
-                </Link>
-              </h2>
-              <p className="text-muted-foreground leading-relaxed text-base sm:text-lg line-clamp-4">
-                {latestExpedition.excerpt}
-              </p>
-              <Link
-                to="/blog/$slug"
-                params={{ slug: latestExpedition.slug }}
-                className="group inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-foreground hover:text-accent transition-colors border-b border-foreground/20 pb-1 hover:border-accent mt-2"
+              </motion.p>
+
+              {/* CTA Buttons */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.35 }}
+                className="pointer-events-auto mt-6 sm:mt-8 flex flex-col sm:flex-row flex-wrap gap-3 w-full sm:w-auto"
               >
-                {t("Read the full story")}
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </Link>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* 3. Featured Destinations */}
-      <section className="py-24 sm:py-32 bg-muted/20 border-y border-border">
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 w-full">
-          <div className="mb-14 sm:mb-20 text-center max-w-2xl mx-auto">
-            <p className="text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground mb-4">
-              {t("Where to go")}
-            </p>
-            <h2 className="font-display text-4xl sm:text-5xl font-bold tracking-tight">
-              {t("Featured Destinations")}
-            </h2>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
-            {featuredDestinations.slice(0, 4).map((d) => (
-              <Link
-                key={d.id}
-                to="/destinations/$slug"
-                params={{ slug: d.slug }}
-                className="group relative block aspect-[3/4] overflow-hidden rounded-sm bg-zinc-900 shadow-sm hover:shadow-lg transition-all"
-              >
-                {d.featured_image && (
-                  <img
-                    src={getOptimizedImageUrl(d.featured_image, 800)}
-                    alt={d.title}
-                    className="w-full h-full object-cover opacity-90 transition-transform duration-1000 group-hover:scale-110 group-hover:opacity-100"
-                  />
+                {isExternal(heroPrimaryTo) ? (
+                  <a
+                    href={heroPrimaryTo}
+                    target={heroPrimaryTo.startsWith("http") ? "_blank" : undefined}
+                    rel={heroPrimaryTo.startsWith("http") ? "noopener noreferrer" : undefined}
+                    className="inline-flex items-center justify-center gap-2 rounded-full bg-btn-bg px-6 py-3 text-sm font-semibold text-btn-text hover:bg-btn-hover transition-colors shadow-md text-center"
+                  >
+                    {t(heroSettings.homepage_hero_button_text || "Read the stories")}
+                    <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+                  </a>
+                ) : (
+                  <Link
+                    to={heroPrimaryTo as any}
+                    className="inline-flex items-center justify-center gap-2 rounded-full bg-btn-bg px-6 py-3 text-sm font-semibold text-btn-text hover:bg-btn-hover transition-colors shadow-md text-center"
+                  >
+                    {t(heroSettings.homepage_hero_button_text || "Read the stories")}
+                    <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+                  </Link>
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent pointer-events-none" />
-                <div className="absolute bottom-0 p-6 sm:p-8 text-white w-full">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-accent mb-2 truncate">
-                    {t(d.country)}
-                  </p>
-                  <h3 className="font-display text-2xl sm:text-3xl font-semibold leading-tight group-hover:text-white/80 transition-colors">
-                    {t(d.title)}
-                  </h3>
-                </div>
-              </Link>
-            ))}
-          </div>
-          <div className="mt-14 text-center">
-            <Link
-              to="/destinations"
-              className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.1em] border border-border bg-background px-6 py-3 rounded-full hover:bg-muted hover:border-foreground/20 transition-all"
-            >
-              {t("View all destinations")}
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* 4. Latest Stories (Editorial Grid) */}
-      <section className="py-24 sm:py-32 max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <div className="mb-14 sm:mb-20 flex flex-wrap items-end justify-between gap-6 border-b border-border pb-6">
-          <div>
-            <h2 className="font-display text-4xl sm:text-5xl font-bold tracking-tight">
-              {t("Latest Stories")}
-            </h2>
-            <p className="mt-3 text-muted-foreground">
-              {t("Recent dispatches from the trail.")}
-            </p>
-          </div>
-          <Link
-            to="/blog"
-            className="text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground hover:text-foreground transition-colors"
-          >
-            {t("View the archive")} <ArrowRight className="inline-block ml-1 h-4 w-4" />
-          </Link>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-16">
-          {latestStories.map((post) => (
-            <Link key={post.id} to="/blog/$slug" params={{ slug: post.slug }} className="group block">
-              <div className="aspect-[16/10] overflow-hidden rounded-sm mb-6 bg-muted shadow-sm">
-                {post.cover_image && (
-                  <img
-                    src={getOptimizedImageUrl(post.cover_image, 800)}
-                    alt={post.title}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-                  />
+                {isExternal(heroSecondaryTo) ? (
+                  <a
+                    href={heroSecondaryTo}
+                    target={heroSecondaryTo.startsWith("http") ? "_blank" : undefined}
+                    rel={heroSecondaryTo.startsWith("http") ? "noopener noreferrer" : undefined}
+                    className="inline-flex items-center justify-center gap-2 rounded-full border border-white/40 bg-black/20 backdrop-blur-md px-6 py-3 text-sm font-semibold text-white hover:bg-white/15 transition-colors text-center"
+                  >
+                    {t(heroSettings.homepage_hero_secondary_button_text || "Explore destinations")}
+                  </a>
+                ) : (
+                  <Link
+                    to={heroSecondaryTo as any}
+                    className="inline-flex items-center justify-center gap-2 rounded-full border border-white/40 bg-black/20 backdrop-blur-md px-6 py-3 text-sm font-semibold text-white hover:bg-white/15 transition-colors text-center"
+                  >
+                    {t(heroSettings.homepage_hero_secondary_button_text || "Explore destinations")}
+                  </Link>
                 )}
-              </div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-accent mb-3 truncate">
-                {t(post.category || "Story")}
-              </p>
-              <h3 className="font-display text-2xl font-bold leading-tight mb-3 group-hover:text-accent transition-colors line-clamp-2">
-                {getPostTitle(post)}
-              </h3>
-              <p className="text-muted-foreground line-clamp-3 text-sm leading-relaxed">
-                {post.excerpt}
-              </p>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* 5, 6, 7. Dedicated Category Sections */}
-      {motorcyclePosts.length > 0 && (
-        <CategorySection
-          title="Motorcycle Journeys"
-          posts={motorcyclePosts}
-          linkTo="/category/motorcycle-journeys"
-          t={t}
-          getPostTitle={getPostTitle}
-        />
-      )}
-      {trekkingPosts.length > 0 && (
-        <CategorySection
-          title="Trekking"
-          posts={trekkingPosts}
-          linkTo="/category/trekking"
-          t={t}
-          getPostTitle={getPostTitle}
-        />
-      )}
-      {guidePosts.length > 0 && (
-        <CategorySection
-          title="Travel Guides"
-          posts={guidePosts}
-          linkTo="/category/travel-guides"
-          t={t}
-          getPostTitle={getPostTitle}
-        />
-      )}
-
-      {/* 8. Field Notes / Photography (Asymmetric / Masonry vibe) */}
-      {gallery.length > 0 && (
-        <section className="py-24 sm:py-32 bg-zinc-950 text-zinc-100">
-          <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 w-full">
-            <div className="mb-14 sm:mb-20 text-center max-w-2xl mx-auto">
-              <p className="text-xs font-semibold uppercase tracking-[0.15em] text-zinc-400 mb-4">
-                {t("Visual Journal")}
-              </p>
-              <h2 className="font-display text-4xl sm:text-5xl font-bold tracking-tight">
-                {t("Field Notes")}
-              </h2>
+              </motion.div>
             </div>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
-              {gallery.slice(0, 6).map((item, idx) => (
+
+            {/* Right: Floating Recent Story Cards (Reference Screenshot style) */}
+            <div className="pointer-events-auto hidden lg:col-span-4 lg:flex lg:flex-col lg:gap-3 lg:justify-end">
+              {heroFloatingPosts.map((hp) => (
                 <Link
-                  key={item.id}
-                  to="/gallery"
-                  className={`group block overflow-hidden rounded-sm relative bg-zinc-900 ${
-                    idx === 0 || idx === 3 ? "lg:col-span-2 aspect-[16/9]" : "aspect-square sm:aspect-[4/3]"
-                  }`}
+                  key={hp.id}
+                  to="/blog/$slug"
+                  params={{ slug: hp.slug }}
+                  className="group flex items-center gap-3 rounded-2xl border border-white/20 bg-black/50 p-2.5 backdrop-blur-md transition-all duration-300 hover:border-accent/60 hover:bg-black/70 shadow-lg"
                 >
-                  <img
-                    src={getOptimizedImageUrl(item.image_url, 1200)}
-                    alt={item.caption || "Photography"}
-                    loading="lazy"
-                    className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 opacity-80 group-hover:opacity-100"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-6 sm:p-8">
-                    {item.caption && (
-                      <p className="text-sm sm:text-base font-medium text-white max-w-lg leading-relaxed">
-                        {t(item.caption)}
-                      </p>
+                  <div className="relative h-14 w-18 shrink-0 overflow-hidden rounded-xl bg-muted">
+                    {hp.cover_image ? (
+                      <img
+                        src={getOptimizedImageUrl(hp.cover_image, 200)}
+                        alt={getPostTitle(hp)}
+                        loading="lazy"
+                        width={72}
+                        height={56}
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center bg-muted" />
                     )}
+                  </div>
+                  <div className="flex-1 overflow-hidden">
+                    <div className="flex items-center gap-1.5 text-[10px] text-white/70">
+                      <Calendar className="h-2.5 w-2.5 text-accent" />
+                      <span>{formatDate(hp.published_at || hp.created_at)}</span>
+                    </div>
+                    <h4 className="mt-0.5 line-clamp-2 text-xs font-medium leading-snug text-white transition-colors group-hover:text-link-hover">
+                      {getPostTitle(hp)}
+                    </h4>
                   </div>
                 </Link>
               ))}
             </div>
+          </div>
+        </div>
+      </section>
 
-            <div className="mt-14 sm:mt-20 text-center">
-              <Link
-                to="/gallery"
-                className="group inline-flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.1em] text-white hover:text-white/70 transition-colors border-b border-white/30 pb-1.5 hover:border-white"
+      {/* ========================================================================= */}
+      {/* AD SPACE 1: Directly below Hero Banner (728x90 desktop / 320x100 mobile)  */}
+      {/* ========================================================================= */}
+      <div className="mx-auto max-w-7xl px-4 pt-4 sm:px-6 sm:pt-8 lg:px-8 w-full min-w-0">
+        <AdSlot slotId="homepage-hero-bottom" format="horizontal" label={t("Advertisement")} />
+      </div>
+
+      {/* Main Content Container */}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-16 sm:space-y-20 lg:space-y-24 mt-6 sm:mt-10 w-full min-w-0">
+        {/* ========================================================================= */}
+        {/* 2. TRENDING / LATEST STORIES SECTION                                      */}
+        {/* ========================================================================= */}
+        <section aria-labelledby="trending-stories-heading" className="w-full min-w-0">
+          <SectionHeading
+            title="Latest Stories"
+            badge="Trending"
+            subtitle="Fresh dispatches from the high passes, trails, and solitary highways."
+            linkText="View all stories"
+            linkTo="/blog"
+          />
+          <TrendingStories
+            primaryPost={trendingPrimary}
+            secondaryPosts={trendingSecondary}
+            categories={categoryMap}
+          />
+        </section>
+
+        {/* ========================================================================= */}
+        {/* 3. FEATURED SECTION                                                       */}
+        {/* ========================================================================= */}
+        <section aria-labelledby="featured-stories-heading" className="w-full min-w-0">
+          <SectionHeading
+            title="Featured Expeditions"
+            badge="Curated"
+            subtitle="Handpicked long-form stories and remote trail guides."
+            linkText="All expeditions"
+            linkTo="/blog"
+          />
+          <FeaturedGrid
+            mainFeatured={mainFeatured}
+            secondaryFeatured={secondaryFeatured}
+            stats={{
+              countries: jinStats.countries,
+              trips: jinStats.trips,
+              photos: jinStats.photos,
+              photosSuffix: jinStats.photosSuffix,
+              kilometres: jinStats.kilometres,
+              kilometresSuffix: jinStats.kilometresSuffix,
+            }}
+          />
+        </section>
+
+        {/* ========================================================================= */}
+        {/* 4. EXPLORE TOPICS / CATEGORIES (Editorial Mosaic Grid)                    */}
+        {/* ========================================================================= */}
+        {activeTopics.length > 0 && (
+          <section aria-labelledby="explore-topics-heading" className="w-full min-w-0">
+            <SectionHeading
+              title="Explore Topics"
+              badge="Journeys"
+              subtitle="Deep dives and curated journeys into the wild — each backed by published stories and route guides."
+              linkText="All topics"
+              linkTo="/blog"
+            />
+
+            {/* Mosaic Grid */}
+            <div className="grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2 lg:grid-cols-3 w-full min-w-0">
+              {/* Feature Topic (Topic 0) - Large / Tall Card */}
+              {activeTopics[0] && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5 }}
+                  className="md:col-span-2 lg:col-span-1 lg:row-span-2 w-full min-w-0"
+                >
+                  <Link
+                    to="/topics/$slug"
+                    params={{ slug: activeTopics[0].slug }}
+                    className="group relative flex h-full min-h-[320px] sm:min-h-[380px] lg:min-h-[460px] flex-col justify-end overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-lg w-full min-w-0"
+                  >
+                    {(() => {
+                      const rawImg = activeTopics[0].previewImage || activeTopics[0].heroImage;
+                      const img = getOptimizedImageUrl(rawImg, 800);
+                      return img ? (
+                        <img
+                          src={img}
+                          alt={activeTopics[0].title}
+                          loading="lazy"
+                          width={600}
+                          height={460}
+                          className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 h-full w-full bg-zinc-900" />
+                      );
+                    })()}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
+                    <div className="relative p-4 sm:p-6 text-white min-w-0">
+                      <div className="inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1 text-[11px] font-medium uppercase tracking-wider text-accent-foreground shadow-sm mb-3">
+                        {(() => {
+                          const Icon = getTopicIcon(activeTopics[0]);
+                          return <Icon className="h-3 w-3" />;
+                        })()}
+                        <span>
+                          {activeTopics[0].postCount}{" "}
+                          {activeTopics[0].postCount === 1 ? t("story") : t("stories")}
+                        </span>
+                      </div>
+                      <h3 className="font-display text-xl sm:text-2xl lg:text-3xl font-semibold leading-tight text-white transition-colors group-hover:text-link-hover break-words [overflow-wrap:anywhere]">
+                        {t(activeTopics[0].title)}
+                      </h3>
+                      <p className="mt-2 text-xs sm:text-sm text-white/80 line-clamp-3">
+                        {t(activeTopics[0].subtitle || activeTopics[0].description)}
+                      </p>
+                      <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-accent transition-colors group-hover:text-link-hover">
+                        {t("Explore Topic")}
+                        <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1 rtl:rotate-180" />
+                      </span>
+                    </div>
+                  </Link>
+                </motion.div>
+              )}
+
+              {/* Supporting Topics (Topics 1 to 4) */}
+              {activeTopics.slice(1, 5).map((topic, idx) => {
+                const Icon = getTopicIcon(topic);
+                return (
+                  <motion.div
+                    key={topic.slug}
+                    initial={{ opacity: 0, y: 15 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4, delay: idx * 0.08 }}
+                    className="w-full min-w-0"
+                  >
+                    <Link
+                      to="/topics/$slug"
+                      params={{ slug: topic.slug }}
+                      className="group relative flex h-full min-h-[190px] sm:min-h-[210px] flex-col justify-end overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-md w-full min-w-0"
+                    >
+                      {(() => {
+                        const rawImg = topic.previewImage || topic.heroImage;
+                        const img = getOptimizedImageUrl(rawImg, 500);
+                        return img ? (
+                          <img
+                            src={img}
+                            alt={topic.title}
+                            loading="lazy"
+                            width={400}
+                            height={210}
+                            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                          />
+                        ) : (
+                          <div className="absolute inset-0 h-full w-full bg-zinc-900" />
+                        );
+                      })()}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                      <div className="relative p-4 sm:p-5 text-white min-w-0">
+                        <div className="inline-flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-accent backdrop-blur-md border border-white/10 mb-2">
+                          <Icon className="h-3 w-3" />
+                          <span>
+                            {topic.postCount} {topic.postCount === 1 ? t("story") : t("stories")}
+                          </span>
+                        </div>
+                        <h3 className="font-display text-base sm:text-lg font-semibold leading-tight text-white transition-colors group-hover:text-link-hover line-clamp-2 break-words [overflow-wrap:anywhere]">
+                          {t(topic.title)}
+                        </h3>
+                        <p className="mt-1 text-xs text-white/75 line-clamp-1">
+                          {t(topic.subtitle || topic.description)}
+                        </p>
+                      </div>
+                    </Link>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        {/* ========================================================================= */}
+        {/* AD SPACE 2: Mid-page Between Major Sections (Explore Topics & Numbers)    */}
+        {/* ========================================================================= */}
+        <div className="pt-2 w-full min-w-0">
+          <AdSlot slotId="homepage-mid-content" format="horizontal" label={t("Advertisement")} />
+        </div>
+      </div>
+
+      {/* ========================================================================= */}
+      {/* 5. JOURNEY IN NUMBERS (Compact Integrated Stats Bar)                      */}
+      {/* ========================================================================= */}
+      <section
+        id="journey-in-numbers"
+        aria-labelledby="journey-numbers-heading"
+        className="scroll-mt-24 border-y border-border bg-muted/20 py-12 sm:py-16 w-full min-w-0"
+      >
+        <div ref={journeyRef} className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full min-w-0">
+          <div className="mb-6 sm:mb-8 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p
+                data-reveal="heading"
+                className="text-xs font-semibold uppercase tracking-[0.2em] text-accent"
               >
-                {t("View Full Gallery")}
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </Link>
+                {t("By the numbers")}
+              </p>
+              <h2
+                data-reveal="heading"
+                id="journey-numbers-heading"
+                className="mt-1 font-display text-2xl font-semibold tracking-tight text-heading sm:text-3xl"
+              >
+                {t("Journey in numbers")}
+              </h2>
+            </div>
+            <p data-reveal="heading" className="max-w-md text-xs text-muted-foreground sm:text-sm">
+              {t(
+                "A quiet tally of countries crossed, trips ridden and photographs made along the way.",
+              )}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2.5 sm:gap-3.5 sm:grid-cols-3 lg:grid-cols-5 w-full min-w-0">
+            {stats.map((s, idx) => (
+              <div
+                key={s.label}
+                data-reveal={s.featured ? "featured" : "card"}
+                className={`jin-card rounded-2xl border border-border bg-card p-3 sm:p-4.5 transition-all duration-300 hover:border-accent/40 w-full min-w-0 overflow-hidden ${
+                  idx === 4 ? "col-span-2 sm:col-span-1" : ""
+                } ${s.featured ? "jin-featured" : ""}`}
+              >
+                <div className="inline-flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-xl bg-accent/10 text-accent">
+                  <s.icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                </div>
+                <div className="mt-2.5 sm:mt-3 font-sans text-lg min-[360px]:text-xl sm:text-2xl lg:text-3xl font-bold text-heading tabular-nums whitespace-nowrap">
+                  <CountUp end={s.value} suffix={s.suffix} />
+                </div>
+<div className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-muted-foreground leading-snug min-w-0">
+                   {s.label}
+                 </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Main Content Container 2 */}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-16 sm:space-y-20 lg:space-y-24 w-full min-w-0">
+        {/* ========================================================================= */}
+        {/* 6. FEATURED DESTINATIONS (4-Column Editorial Grid)                        */}
+        {/* ========================================================================= */}
+        <section
+          id="interactive-map"
+          aria-labelledby="featured-destinations-heading"
+          className="scroll-mt-24 w-full min-w-0"
+        >
+          <SectionHeading
+            title="Featured Destinations"
+            badge="Where to Go"
+            subtitle="Iconic base camps, alpine valleys, and high-altitude highways."
+            linkText="All destinations"
+            linkTo="/destinations"
+            rightElement={
+              <div
+                role="tablist"
+                aria-label={t("View destinations as map or grid")}
+                className="inline-flex items-center rounded-full border border-border bg-background p-1 text-xs"
+              >
+                <button
+                  role="tab"
+                  aria-selected={destView === "grid"}
+                  onClick={() => setDestView("grid")}
+                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 transition-colors ${
+                    destView === "grid"
+                      ? "bg-foreground text-background font-medium"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <LayoutGrid className="h-3.5 w-3.5" />
+                  <span>{t("Grid")}</span>
+                </button>
+                <button
+                  role="tab"
+                  aria-selected={destView === "map"}
+                  onClick={() => setDestView("map")}
+                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 transition-colors ${
+                    destView === "map"
+                      ? "bg-accent text-accent-foreground font-medium shadow-xs"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <MapIcon className="h-3.5 w-3.5" />
+                  <span>{t("Map")}</span>
+                </button>
+              </div>
+            }
+          />
+
+          {destView === "map" ? (
+            <Suspense
+              fallback={
+                <div className="h-[340px] sm:h-[440px] lg:h-[480px] w-full animate-pulse rounded-2xl border border-border bg-muted/30" />
+              }
+            >
+              <DestinationsMap destinations={destinations} />
+            </Suspense>
+          ) : (
+            <div className="grid grid-cols-1 gap-4 sm:gap-5 sm:grid-cols-2 lg:grid-cols-4 w-full min-w-0">
+              {featuredDestinations.length === 0 ? (
+                <div className="col-span-full py-12 text-center rounded-2xl border border-border bg-card/40">
+                  <p className="text-sm font-medium text-heading">
+                    {t("No featured destinations at the moment.")}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {t("Explore all destinations or check back soon.")}
+                  </p>
+                </div>
+              ) : (
+                featuredDestinations.slice(0, 8).map((d, i) => (
+                  <motion.article
+                    key={d.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4, delay: i * 0.05 }}
+                    className="group relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-md w-full min-w-0"
+                  >
+                    <Link
+                      to="/destinations/$slug"
+                      params={{ slug: d.slug }}
+                      className="block w-full min-w-0"
+                    >
+                      <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+                        {d.featured_image ? (
+                          <img
+                            src={getOptimizedImageUrl(d.featured_image, 600)}
+                            alt={d.title}
+                            loading="lazy"
+                            width={400}
+                            height={300}
+                            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center bg-muted">
+                            <span className="text-xs text-muted-foreground">No image</span>
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+                        <div className="absolute inset-x-0 bottom-0 p-4 text-white min-w-0">
+                          <p className="text-[11px] font-semibold uppercase tracking-wider text-accent truncate">
+                            {t(d.country)}
+                            {d.region ? ` · ${t(d.region)}` : ""}
+                          </p>
+                          <h3 className="mt-0.5 text-base sm:text-lg font-semibold leading-tight text-white group-hover:text-link-hover transition-colors break-words">
+                            {t(d.title)}
+                          </h3>
+                        </div>
+                      </div>
+                      {d.description && (
+                        <div className="p-3.5 min-w-0">
+                          <p className="line-clamp-2 text-xs text-muted-foreground break-words">
+                            {t(d.description)}
+                          </p>
+                        </div>
+                      )}
+                    </Link>
+                  </motion.article>
+                ))
+              )}
+            </div>
+          )}
+        </section>
+
+        {/* ========================================================================= */}
+        {/* 7. FIELD NOTES & PHOTOGRAPHY (Editorial Asymmetric Gallery Grid)          */}
+        {/* ========================================================================= */}
+        {gallery.length > 0 && (
+          <section aria-labelledby="field-notes-heading" className="w-full min-w-0">
+            <SectionHeading
+              title="Field Notes & Photography"
+              badge="Visual Journal"
+              subtitle="Moments captured in silence above 4,000 metres across the Karakoram and Himalaya."
+              linkText="Full gallery"
+              linkTo="/gallery"
+            />
+
+            <div className="grid grid-cols-1 gap-3.5 sm:gap-4 sm:grid-cols-2 lg:grid-cols-4 w-full min-w-0">
+              {/* Spotlight image (first item - large span 2) */}
+              {gallery[0] && (
+                <motion.div
+                  initial={{ opacity: 0, y: 15 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5 }}
+                  className="sm:col-span-2 lg:col-span-2 lg:row-span-2 w-full min-w-0"
+                >
+                  <Link
+                    to="/gallery"
+                    className="group relative block aspect-[16/10] sm:aspect-auto sm:h-full min-h-[240px] sm:min-h-[260px] lg:min-h-[360px] overflow-hidden rounded-2xl border border-border bg-muted shadow-sm w-full min-w-0"
+                  >
+                    <img
+                      src={getOptimizedImageUrl(gallery[0].image_url, 900)}
+                      alt={gallery[0].caption || "Expedition photograph"}
+                      loading="lazy"
+                      width={600}
+                      height={400}
+                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent flex items-end p-4 sm:p-5">
+                      <div className="min-w-0">
+                        <span className="rounded-full bg-accent px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-accent-foreground">
+                          {t("Spotlight")}
+                        </span>
+                        {gallery[0].caption && (
+                          <p className="mt-2 text-sm sm:text-base font-semibold text-white line-clamp-2 break-words">
+                            {t(gallery[0].caption)}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </Link>
+                </motion.div>
+              )}
+
+              {/* Supporting gallery items */}
+              {gallery.slice(1, 5).map((item, idx) => (
+                <motion.div
+                  key={item.id || idx}
+                  initial={{ opacity: 0, y: 15 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: idx * 0.05 }}
+                  className="w-full min-w-0"
+                >
+                  <Link
+                    to="/gallery"
+                    className="group relative block aspect-[4/3] overflow-hidden rounded-2xl border border-border bg-muted shadow-sm w-full min-w-0"
+                  >
+                    <img
+                      src={getOptimizedImageUrl(item.image_url, 500)}
+                      alt={item.caption || "Expedition photograph"}
+                      loading="lazy"
+                      width={400}
+                      height={300}
+                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 flex items-end p-3.5">
+                      {item.caption && (
+                        <p className="text-xs font-medium text-white line-clamp-2 break-words">
+                          {t(item.caption)}
+                        </p>
+                      )}
+                    </div>
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* ========================================================================= */}
+        {/* AD SPACE 3: Above Newsletter / Join the Journey Section                   */}
+        {/* ========================================================================= */}
+        <div className="pt-2 w-full min-w-0">
+          <AdSlot
+            slotId="homepage-above-newsletter"
+            format="horizontal"
+            label={t("Advertisement")}
+          />
+        </div>
+
+        {/* ========================================================================= */}
+        {/* 8. NEWSLETTER DISPATCH SIGNUP                                             */}
+        {/* ========================================================================= */}
+        <section aria-labelledby="newsletter-heading" className="pb-6 sm:pb-8 w-full min-w-0">
+          <div className="rounded-2xl sm:rounded-3xl border border-border bg-gradient-to-br from-card to-muted/50 p-6 sm:p-12 text-center shadow-sm w-full min-w-0">
+            <div className="mx-auto max-w-2xl min-w-0">
+              <span className="rounded-full bg-accent/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.2em] text-accent">
+                {t("Join the Journey")}
+              </span>
+              <h2
+                id="newsletter-heading"
+                className="mt-3 font-display text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-heading break-words"
+              >
+                {t("Get the next dispatch")}
+              </h2>
+              <p className="mt-2.5 sm:mt-3 text-xs sm:text-sm text-muted-foreground sm:text-base leading-relaxed">
+                {t("One email when a new expedition story drops. No spam, no algorithm noise.")}
+              </p>
+              <div className="mx-auto mt-5 sm:mt-6 max-w-md w-full min-w-0">
+                <NewsletterForm />
+              </div>
             </div>
           </div>
         </section>
-      )}
-
-      {/* 9. Newsletter Dispatch */}
-      <section className="py-24 sm:py-32 max-w-3xl mx-auto px-4 sm:px-6 text-center w-full">
-        <p className="text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground mb-5">
-          {t("Join the Journey")}
-        </p>
-        <h2 className="font-display text-4xl sm:text-5xl font-bold mb-6 tracking-tight">
-          {t("Get the next dispatch")}
-        </h2>
-        <p className="text-base sm:text-lg text-muted-foreground mb-12 max-w-xl mx-auto leading-relaxed">
-          {t(
-            "One email when a new expedition story drops. No spam, no algorithm noise. Just stories from the road."
-          )}
-        </p>
-        <div className="mx-auto w-full max-w-md bg-card border border-border p-6 rounded-2xl shadow-sm">
-          <NewsletterForm />
-        </div>
-      </section>
+      </div>
     </div>
   );
 }
-
