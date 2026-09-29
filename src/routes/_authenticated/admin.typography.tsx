@@ -255,7 +255,7 @@ export default function AdminTypographyPage() {
   const activeScriptLetterSpacing = (draftConfig.scriptLetterSpacing || DEFAULT_TYPOGRAPHY_CONFIG.scriptLetterSpacing)[activeDevice];
 
   return (
-    <div className="space-y-8 pb-16">
+    <div className="space-y-8 pb-32">
       {/* Header & Global Action Bar */}
       <div className="flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -274,54 +274,7 @@ export default function AdminTypographyPage() {
           </p>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex flex-wrap items-center gap-2.5">
-          <button
-            type="button"
-            onClick={handleReset}
-            className="inline-flex items-center gap-2 rounded-xl border border-border bg-background px-4 py-2.5 text-xs font-medium text-foreground hover:bg-muted transition-colors"
-          >
-            <RotateCcw className="h-3.5 w-3.5 text-muted-foreground" />
-            Reset to Default
-          </button>
-
-          <button
-            type="button"
-            onClick={handlePreviewOnSite}
-            className="inline-flex items-center gap-2 rounded-xl border border-brand/30 bg-brand/10 px-4 py-2.5 text-xs font-semibold text-brand hover:bg-brand/20 transition-colors"
-          >
-            <Eye className="h-3.5 w-3.5" />
-            Preview Changes
-          </button>
-
-          <button
-            type="button"
-            onClick={() => saveMutation.mutate(draftConfig)}
-            disabled={saveMutation.isPending}
-            className={`inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-xs font-semibold text-white shadow-md transition-all ${
-              isDirty
-                ? "bg-brand hover:bg-brand/90 ring-2 ring-brand/20"
-                : "bg-foreground hover:opacity-90"
-            } disabled:opacity-50`}
-          >
-            {saveMutation.isPending ? (
-              <>
-                <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                Publishing...
-              </>
-            ) : (
-              <>
-                <Save className="h-3.5 w-3.5" />
-                Save & Publish
-                {isDirty && (
-                  <span className="ml-1 rounded-full bg-white/20 px-1.5 py-0.5 text-[10px]">
-                    Unpublished
-                  </span>
-                )}
-              </>
-            )}
-          </button>
-        </div>
+        {/* Action buttons moved to sticky bar */}
 
       </div>
 
@@ -1532,6 +1485,51 @@ export default function AdminTypographyPage() {
               <CheckCircle2 className="h-3.5 w-3.5" />
               <span>Optimized performance (loads only required and selected font families)</span>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Sticky Save Bar */}
+      <div className="sticky bottom-0 z-50 -mx-4 mt-8 border-t border-border bg-background/80 px-4 py-4 backdrop-blur-xl sm:-mx-8 sm:px-8">
+        <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+          <div>
+            <p className="text-sm font-medium text-foreground">
+              Unsaved changes
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Publish your typography settings to see them live.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+            <button
+              type="button"
+              onClick={handleReset}
+              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 rounded-xl border border-border bg-background px-4 py-2 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-all"
+            >
+              <RotateCcw className="h-3.5 w-3.5" />
+              Reset to Default
+            </button>
+            <button
+              type="button"
+              onClick={handlePreviewOnSite}
+              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 rounded-xl border border-[#4085FF]/30 bg-[#4085FF]/10 px-4 py-2 text-xs font-semibold text-[#4085FF] hover:bg-[#4085FF]/20 transition-all shadow-xs"
+            >
+              <Eye className="h-3.5 w-3.5" />
+              Preview Changes
+            </button>
+            <button
+              type="button"
+              onClick={() => saveMutation.mutate(draftConfig)}
+              disabled={saveMutation.isPending || !isDirty}
+              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#4085FF] px-6 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-[#3570D0] transition-all disabled:opacity-50 disabled:pointer-events-none"
+            >
+              <Save className="h-4 w-4" />
+              {saveMutation.isPending
+                ? "Publishing..."
+                : isDirty
+                  ? "Save & Publish"
+                  : "Published Live"}
+            </button>
           </div>
         </div>
       </div>
