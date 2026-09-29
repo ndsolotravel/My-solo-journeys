@@ -1,5 +1,4 @@
 {
-  "autoCodeSplitting": true,
   "routesDirectory": "./src/routes",
   "generatedRouteTree": "./src/routeTree.gen.ts"
 }
