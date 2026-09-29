@@ -36,7 +36,7 @@ export const Route = createFileRoute("/_authenticated/admin/public-message")({
       { name: "robots", content: "noindex,nofollow" },
     ],
   }),
-  component: AdminPublicMessagePage,
+  
 });
 
 /**
@@ -120,7 +120,7 @@ function computeStatus(
   };
 }
 
-function AdminPublicMessagePage() {
+export default function AdminPublicMessagePage() {
   const getFn = useServerFn(adminGetPublicMessage);
   const updateFn = useServerFn(adminUpdatePublicMessage);
   const qc = useQueryClient();

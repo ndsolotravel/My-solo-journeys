@@ -79,10 +79,10 @@ export const Route = createFileRoute("/topics/$slug")({
     if (!topic || topic.posts.length === 0) throw notFound();
     return { topic };
   },
-  component: TopicPage,
+  
 });
 
-function TopicPage() {
+export default function TopicPage() {
   const t = useTranslations();
   const { topic } = Route.useLoaderData();
 

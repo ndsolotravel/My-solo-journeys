@@ -145,7 +145,7 @@ export const Route = createFileRoute("/")({
       heroLcpImage: lcpSrc ? resolveMediaUrl(lcpSrc) : "",
     };
   },
-  component: HomePage,
+  
 });
 
 function getTopicIcon(topic: ActiveTopic) {
@@ -170,7 +170,7 @@ function formatDate(d: string | null) {
   });
 }
 
-function HomePage() {
+export default function HomePage() {
   const t = useTranslations();
   const { lang } = useLanguage();
   const { data: postsData } = useSuspenseQuery(postsQO);
@@ -375,12 +375,12 @@ function HomePage() {
     return t(p.title);
   };
 
-  return (
+return (
     <div className="space-y-14 sm:space-y-20 lg:space-y-24 w-full min-w-0 overflow-x-hidden">
       {/* ========================================================================= */}
       {/* 1. HERO BANNER (Cinematic + 2 Floating Story Preview Cards)               */}
       {/* ========================================================================= */}
-      <section className="relative min-h-[max(100svh,600px)] overflow-hidden flex flex-col justify-between w-full">
+      <section className="relative min-h-[max(100svh,680px)] overflow-hidden flex flex-col justify-between w-full">
         <HeroSlider slides={heroSlides} />
 
         {/* Breaking News Ticker: Top of Hero picture right under navigation */}
@@ -388,74 +388,75 @@ function HomePage() {
           <BreakingNewsSection items={breakingNews ?? []} />
         </div>
 
-        <div className="pointer-events-none relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col justify-end px-4 pb-12 pt-6 sm:px-6 sm:pb-20 sm:pt-8 lg:px-8">
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:items-end w-full min-w-0">
+        <div className="pointer-events-none relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col justify-end px-4 pb-16 pt-8 sm:px-6 sm:pb-24 sm:pt-12 lg:px-8 lg:pb-28">
+          <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:items-end w-full min-w-0">
             {/* Left: Main Hero Content */}
             <div className="lg:col-span-8 w-full min-w-0">
               <motion.span
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-                className="inline-flex w-fit items-center rounded-full border border-white/30 bg-white/10 px-3.5 py-1 sm:px-4 sm:py-1.5 text-[11px] sm:text-xs font-medium uppercase tracking-[0.2em] text-white backdrop-blur-md"
+                transition={{ duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
+                className="inline-flex w-fit items-center rounded-full border border-white/20 bg-white/5 px-4 py-1.5 sm:px-5 sm:py-2 text-[11px] sm:text-xs font-medium uppercase tracking-[0.25em] text-white/90 backdrop-blur-md"
               >
                 {t(heroSettings.homepage_hero_badge || "Solo · Slow · Cinematic")}
               </motion.span>
 
-<motion.h1
-                 initial={{ opacity: 0, y: 30 }}
-                 animate={{ opacity: 1, y: 0 }}
-                 transition={{ duration: 0.8, delay: 0.1 }}
-                 className="mt-4 sm:mt-5 max-w-4xl font-display text-4xl sm:text-5xl lg:text-6xl leading-[1.15] sm:leading-[1.12] text-white break-words [overflow-wrap:anywhere]"
-               >
-                 <span className="block">
-                   Solo journeys, motorcycle adventures, and trekking across the world
-                 </span>
-               </motion.h1>
-                 <motion.p
-                 initial={{ opacity: 0 }}
-                 animate={{ opacity: 1 }}
-                 transition={{ duration: 0.8, delay: 0.2 }}
-                 className="hero-subtitle"
-               >
-                 {t(heroSettings.homepage_hero_title_highlight || "Stories from the high places. Most people only fly over.")}
-               </motion.p>
+              <motion.h1
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1, delay: 0.15, ease: [0.25, 0.46, 0.45, 0.94] }}
+                className="mt-5 sm:mt-6 max-w-5xl font-display text-4xl sm:text-5xl lg:text-6xl xl:text-7xl leading-[1.1] sm:leading-[1.08] text-white break-words [overflow-wrap:anywhere] tracking-tight"
+              >
+                <span className="block">
+                  Solo journeys, motorcycle adventures, and trekking across the world
+                </span>
+              </motion.h1>
 
-               <motion.p
-                 initial={{ opacity: 0, y: 30 }}
-                 animate={{ opacity: 1, y: 0 }}
-                 transition={{ duration: 0.8, delay: 0.2 }}
-                 className="mt-3 sm:mt-4 max-w-2xl text-sm sm:text-base lg:text-lg text-white/85 leading-relaxed"
-               >
-                {t(
-                  heroSettings.homepage_hero_description ||
-                    "Welcome to NDSOLOTRAVEL, a personal travel journal covering solo travel, motorcycle adventures, and mountain treks across Pakistan, the Karakoram, and around the world.",
-                )}
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.9, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+                className="mt-4 sm:mt-5 max-w-2xl text-base sm:text-lg lg:text-xl text-white/80 leading-relaxed hero-subtitle"
+              >
+                {t(heroSettings.homepage_hero_title_highlight || "Stories from the high places. Most people only fly over.")}
               </motion.p>
+
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.9, delay: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+                className="mt-4 sm:mt-5 max-w-xl text-sm sm:text-base lg:text-lg text-white/65 leading-relaxed"
+              >
+               {t(
+                 heroSettings.homepage_hero_description ||
+                   "Welcome to NDSOLOTRAVEL, a personal travel journal covering solo travel, motorcycle adventures, and mountain treks across Pakistan, the Karakoram, and around the world.",
+               )}
+             </motion.p>
 
               {/* CTA Buttons */}
               <motion.div
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.35 }}
-                className="pointer-events-auto mt-6 sm:mt-8 flex flex-col sm:flex-row flex-wrap gap-3 w-full sm:w-auto"
+                transition={{ duration: 0.9, delay: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+                className="pointer-events-auto mt-8 sm:mt-10 flex flex-col sm:flex-row flex-wrap gap-4 w-full sm:w-auto"
               >
                 {isExternal(heroPrimaryTo) ? (
                   <a
                     href={heroPrimaryTo}
                     target={heroPrimaryTo.startsWith("http") ? "_blank" : undefined}
                     rel={heroPrimaryTo.startsWith("http") ? "noopener noreferrer" : undefined}
-                    className="inline-flex items-center justify-center gap-2 rounded-full bg-btn-bg px-6 py-3 text-sm font-semibold text-btn-text hover:bg-btn-hover transition-colors shadow-md text-center"
+                    className="inline-flex items-center justify-center gap-2.5 rounded-full bg-white px-7 py-3.5 sm:px-8 sm:py-4 text-sm sm:text-base font-semibold text-slate-950 hover:bg-white/90 transition-all duration-300 shadow-xl hover:shadow-[0_0_40px_rgba(255,255,255,0.3)] text-center group"
                   >
                     {t(heroSettings.homepage_hero_button_text || "Read the stories")}
-                    <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+                    <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 transition-transform duration-300 group-hover:translate-x-1 rtl:rotate-180" />
                   </a>
                 ) : (
                   <Link
                     to={heroPrimaryTo as any}
-                    className="inline-flex items-center justify-center gap-2 rounded-full bg-btn-bg px-6 py-3 text-sm font-semibold text-btn-text hover:bg-btn-hover transition-colors shadow-md text-center"
+                    className="inline-flex items-center justify-center gap-2.5 rounded-full bg-white px-7 py-3.5 sm:px-8 sm:py-4 text-sm sm:text-base font-semibold text-slate-950 hover:bg-white/90 transition-all duration-300 shadow-xl hover:shadow-[0_0_40px_rgba(255,255,255,0.3)] text-center group"
                   >
                     {t(heroSettings.homepage_hero_button_text || "Read the stories")}
-                    <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+                    <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 transition-transform duration-300 group-hover:translate-x-1 rtl:rotate-180" />
                   </Link>
                 )}
                 {isExternal(heroSecondaryTo) ? (
@@ -463,58 +464,94 @@ function HomePage() {
                     href={heroSecondaryTo}
                     target={heroSecondaryTo.startsWith("http") ? "_blank" : undefined}
                     rel={heroSecondaryTo.startsWith("http") ? "noopener noreferrer" : undefined}
-                    className="inline-flex items-center justify-center gap-2 rounded-full border border-white/40 bg-black/20 backdrop-blur-md px-6 py-3 text-sm font-semibold text-white hover:bg-white/15 transition-colors text-center"
+                    className="inline-flex items-center justify-center gap-2.5 rounded-full border border-white/30 bg-white/5 backdrop-blur-md px-7 py-3.5 sm:px-8 sm:py-4 text-sm sm:text-base font-semibold text-white hover:bg-white/10 hover:border-white/50 transition-all duration-300 text-center group"
                   >
                     {t(heroSettings.homepage_hero_secondary_button_text || "Explore destinations")}
+                    <Compass className="h-4 w-4 sm:h-5 sm:w-5 transition-transform duration-300 group-hover:translate-x-1 rtl:rotate-180" />
                   </a>
                 ) : (
                   <Link
                     to={heroSecondaryTo as any}
-                    className="inline-flex items-center justify-center gap-2 rounded-full border border-white/40 bg-black/20 backdrop-blur-md px-6 py-3 text-sm font-semibold text-white hover:bg-white/15 transition-colors text-center"
+                    className="inline-flex items-center justify-center gap-2.5 rounded-full border border-white/30 bg-white/5 backdrop-blur-md px-7 py-3.5 sm:px-8 sm:py-4 text-sm sm:text-base font-semibold text-white hover:bg-white/10 hover:border-white/50 transition-all duration-300 text-center group"
                   >
                     {t(heroSettings.homepage_hero_secondary_button_text || "Explore destinations")}
+                    <Compass className="h-4 w-4 sm:h-5 sm:w-5 transition-transform duration-300 group-hover:translate-x-1 rtl:rotate-180" />
                   </Link>
                 )}
               </motion.div>
             </div>
 
-            {/* Right: Floating Recent Story Cards (Reference Screenshot style) */}
-            <div className="pointer-events-auto hidden lg:col-span-4 lg:flex lg:flex-col lg:gap-3 lg:justify-end">
-              {heroFloatingPosts.map((hp) => (
-                <Link
+            {/* Right: Floating Recent Story Cards - Premium Editorial Style */}
+            <div className="pointer-events-auto hidden lg:col-span-4 lg:flex lg:flex-col lg:gap-4 lg:justify-end lg:pr-2">
+              {heroFloatingPosts.map((hp, idx) => (
+                <motion.article
                   key={hp.id}
-                  to="/blog/$slug"
-                  params={{ slug: hp.slug }}
-                  className="group flex items-center gap-3 rounded-2xl border border-white/20 bg-black/50 p-2.5 backdrop-blur-md transition-all duration-300 hover:border-accent/60 hover:bg-black/70 shadow-lg"
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.7, delay: 0.6 + idx * 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
                 >
-                  <div className="relative h-14 w-18 shrink-0 overflow-hidden rounded-xl bg-muted">
-                    {hp.cover_image ? (
-                      <img
-                        src={getOptimizedImageUrl(hp.cover_image, 200)}
-                        alt={getPostTitle(hp)}
-                        loading="lazy"
-                        width={72}
-                        height={56}
-                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-muted" />
-                    )}
-                  </div>
-                  <div className="flex-1 overflow-hidden">
-                    <div className="flex items-center gap-1.5 text-[10px] text-white/70">
-                      <Calendar className="h-2.5 w-2.5 text-accent" />
-                      <span>{formatDate(hp.published_at || hp.created_at)}</span>
+                  <Link
+                    to="/blog/$slug"
+                    params={{ slug: hp.slug }}
+                    className="group flex items-start gap-4 rounded-2xl border border-white/15 bg-white/5 p-3.5 backdrop-blur-xl transition-all duration-500 hover:border-white/30 hover:bg-white/10 hover:shadow-[0_20px_50px_-20px_rgba(0,0,0,0.5)]"
+                  >
+                    <div className="relative h-16 w-22 shrink-0 overflow-hidden rounded-xl bg-muted flex-shrink-0">
+                      {hp.cover_image ? (
+                        <img
+                          src={getOptimizedImageUrl(hp.cover_image, 250)}
+                          alt={getPostTitle(hp)}
+                          loading="lazy"
+                          width={88}
+                          height={64}
+                          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-muted" />
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/10 group-hover:from-white/10 group-hover:via-white/5 transition-opacity duration-500" />
                     </div>
-                    <h4 className="mt-0.5 line-clamp-2 text-xs font-medium leading-snug text-white transition-colors group-hover:text-link-hover">
-                      {getPostTitle(hp)}
-                    </h4>
-                  </div>
-                </Link>
+                    <div className="flex-1 min-w-0 pt-1">
+                      <div className="flex items-center gap-1.5 text-[10px] text-white/50">
+                        <Calendar className="h-2.5 w-2.5 text-accent/80" />
+                        <span>{formatDate(hp.published_at || hp.created_at)}</span>
+                      </div>
+                      <h4 className="mt-1 line-clamp-2 text-sm font-medium leading-snug text-white/90 transition-colors duration-300 group-hover:text-white group-hover:text-accent">
+                        {getPostTitle(hp)}
+                      </h4>
+                    </div>
+                    <div className="shrink-0 self-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 translate-x-1 group-hover:translate-x-0 text-accent">
+                      <ArrowRight className="h-4.5 w-4.5" />
+                    </div>
+                  </Link>
+                </motion.article>
               ))}
             </div>
           </div>
         </div>
+        
+        {/* Scroll indicator */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 1.2 }}
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 pointer-events-none"
+          aria-hidden="true"
+        >
+          <div className="flex flex-col items-center gap-2 text-white/60">
+            <span className="text-[10px] font-medium uppercase tracking-[0.3em]">Scroll</span>
+            <motion.svg
+              className="h-6 w-6"
+              animate={{ y: [0, 8, 0] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+            >
+              <path d="M12 5v14M19 12l-7 7-7-7" />
+            </motion.svg>
+          </div>
+        </motion.div>
       </section>
 
       {/* ========================================================================= */}

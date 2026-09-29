@@ -7,10 +7,10 @@ export const Route = createFileRoute("/_authenticated/account")({
   head: () => ({
     meta: [{ title: "Account — ndsolotravel" }, { name: "robots", content: "noindex" }],
   }),
-  component: AccountPage,
+  
 });
 
-function AccountPage() {
+export default function AccountPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");

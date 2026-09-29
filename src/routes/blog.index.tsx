@@ -116,12 +116,12 @@ export const Route = createFileRoute("/blog/")({
       context.queryClient.ensureQueryData(categoriesQO),
     ]);
   },
-  component: BlogIndex,
+  
 });
 
 const POPULAR_TAGS = ["Karakoram", "Nanga Parbat", "Solo Ride", "Camping", "Passes", "Gear"];
 
-function BlogIndex() {
+export default function BlogIndex() {
   const t = useTranslations();
   const search = Route.useSearch();
   const navigate = Route.useNavigate();

@@ -21,7 +21,7 @@ export const Route = createFileRoute("/_authenticated/admin/contact")({
   head: () => ({
     meta: [{ title: "Contact Page — Admin CMS" }, { name: "robots", content: "noindex,nofollow" }],
   }),
-  component: AdminContactPage,
+  
 });
 
 const SETTING_KEYS = [
@@ -74,7 +74,7 @@ const DEFAULTS: Record<string, string> = {
 // Field descriptor for the CMS editor
 type FieldKey = (typeof SETTING_KEYS)[number];
 
-function AdminContactPage() {
+export default function AdminContactPage() {
   const getFn = useServerFn(adminGetContactSettings);
   const saveFn = useServerFn(adminSaveContactSettings);
   const qc = useQueryClient();

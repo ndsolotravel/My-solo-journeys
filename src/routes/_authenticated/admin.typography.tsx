@@ -44,12 +44,12 @@ export const Route = createFileRoute("/_authenticated/admin/typography")({
       { name: "robots", content: "noindex,nofollow" },
     ],
   }),
-  component: AdminTypographyPage,
+  
 });
 
 type DeviceMode = "desktop" | "tablet" | "mobile";
 
-function AdminTypographyPage() {
+export default function AdminTypographyPage() {
   const getSettingsFn = useServerFn(adminGetTypographySettings);
   const saveSettingsFn = useServerFn(adminSaveTypographySettings);
   const queryClient = useQueryClient();
@@ -274,54 +274,6 @@ function AdminTypographyPage() {
           </p>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex flex-wrap items-center gap-2.5">
-          <button
-            type="button"
-            onClick={handleReset}
-            className="inline-flex items-center gap-2 rounded-xl border border-border bg-background px-4 py-2.5 text-xs font-medium text-foreground hover:bg-muted transition-colors"
-          >
-            <RotateCcw className="h-3.5 w-3.5 text-muted-foreground" />
-            Reset to Default
-          </button>
-
-          <button
-            type="button"
-            onClick={handlePreviewOnSite}
-            className="inline-flex items-center gap-2 rounded-xl border border-brand/30 bg-brand/10 px-4 py-2.5 text-xs font-semibold text-brand hover:bg-brand/20 transition-colors"
-          >
-            <Eye className="h-3.5 w-3.5" />
-            Preview Changes
-          </button>
-
-          <button
-            type="button"
-            onClick={() => saveMutation.mutate(draftConfig)}
-            disabled={saveMutation.isPending}
-            className={`inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-xs font-semibold text-white shadow-md transition-all ${
-              isDirty
-                ? "bg-brand hover:bg-brand/90 ring-2 ring-brand/20"
-                : "bg-foreground hover:opacity-90"
-            } disabled:opacity-50`}
-          >
-            {saveMutation.isPending ? (
-              <>
-                <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                Publishing...
-              </>
-            ) : (
-              <>
-                <Save className="h-3.5 w-3.5" />
-                Save & Publish
-                {isDirty && (
-                  <span className="ml-1 rounded-full bg-white/20 px-1.5 py-0.5 text-[10px]">
-                    Unpublished
-                  </span>
-                )}
-              </>
-            )}
-          </button>
-        </div>
       </div>
 
       {/* Main Grid: Controls (Left) vs Real-Time Preview (Right) */}
@@ -1532,6 +1484,64 @@ function AdminTypographyPage() {
               <span>Optimized performance (loads only required and selected font families)</span>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Sticky Save & Publish Bar */}
+      <div className="sticky bottom-0 z-50 -mx-4 sm:-mx-6 lg:-mx-8 mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 rounded-t-2xl border-x border-t border-border bg-background/95 p-4 sm:p-6 backdrop-blur-md shadow-[0_-12px_40px_-12px_rgba(0,0,0,0.15)] transition-all">
+        <div className="flex flex-col text-center sm:text-left">
+          <h3 className="text-sm font-bold text-foreground">Typography Settings</h3>
+          <p className="text-xs text-muted-foreground">
+            {isDirty ? "You have unsaved changes." : "All changes are published."}
+          </p>
+        </div>
+        
+        <div className="flex flex-wrap items-center justify-center sm:justify-end gap-2.5">
+          <button
+            type="button"
+            onClick={handleReset}
+            className="inline-flex items-center gap-2 rounded-xl border border-border bg-background px-4 py-2.5 text-xs font-medium text-foreground hover:bg-muted transition-colors"
+          >
+            <RotateCcw className="h-3.5 w-3.5 text-muted-foreground" />
+            Reset to Default
+          </button>
+
+          <button
+            type="button"
+            onClick={handlePreviewOnSite}
+            className="inline-flex items-center gap-2 rounded-xl border border-brand/30 bg-brand/10 px-4 py-2.5 text-xs font-semibold text-brand hover:bg-brand/20 transition-colors"
+          >
+            <Eye className="h-3.5 w-3.5" />
+            Preview Changes
+          </button>
+
+          <button
+            type="button"
+            onClick={() => saveMutation.mutate(draftConfig)}
+            disabled={saveMutation.isPending}
+            className={`inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-xs font-semibold text-white shadow-md transition-all ${
+              isDirty
+                ? "bg-brand hover:bg-brand/90 ring-2 ring-brand/20"
+                : "bg-foreground hover:opacity-90"
+            } disabled:opacity-50`}
+          >
+            {saveMutation.isPending ? (
+              <>
+                <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                Publishing...
+              </>
+            ) : (
+              <>
+                <Save className="h-3.5 w-3.5" />
+                Save & Publish
+                {isDirty && (
+                  <span className="ml-1 rounded-full bg-white/20 px-1.5 py-0.5 text-[10px]">
+                    Unpublished
+                  </span>
+                )}
+              </>
+            )}
+          </button>
         </div>
       </div>
     </div>

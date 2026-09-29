@@ -51,10 +51,10 @@ export const Route = createFileRoute("/disclaimer")({
       ],
     };
   },
-  component: DisclaimerPage,
+  
 });
 
-function DisclaimerPage() {
+export default function DisclaimerPage() {
   const t = useTranslations();
   const { lang } = useLanguage();
   const { legalPage } = Route.useLoaderData();

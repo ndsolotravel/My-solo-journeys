@@ -4,5 +4,8 @@ export const Route = createFileRoute("/dashboard")({
   beforeLoad: () => {
     throw redirect({ to: "/admin/analytics" });
   },
-  component: () => null,
 });
+
+export default function DashboardPage() {
+  return null;
+}

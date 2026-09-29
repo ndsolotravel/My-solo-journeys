@@ -72,12 +72,12 @@ export const Route = createFileRoute("/destinations/")({
       console.error("[destinations.index] loader error:", err);
     }
   },
-  component: DestinationsPage,
+  
 });
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
-function DestinationsPage() {
+export default function DestinationsPage() {
   const t = useTranslations();
   const { data: destinations } = useSuspenseQuery(destQO);
   const { data: hero } = useSuspenseQuery(heroQO);

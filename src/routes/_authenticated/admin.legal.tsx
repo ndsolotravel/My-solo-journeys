@@ -38,7 +38,7 @@ export const Route = createFileRoute("/_authenticated/admin/legal")({
   head: () => ({
     meta: [{ title: "Legal Pages — Admin CMS" }, { name: "robots", content: "noindex,nofollow" }],
   }),
-  component: AdminLegalPage,
+  
 });
 
 const LEGAL_TABS = [
@@ -46,7 +46,7 @@ const LEGAL_TABS = [
   { slug: "disclaimer", title: "Disclaimer", path: "/disclaimer" },
 ] as const;
 
-function AdminLegalPage() {
+export default function AdminLegalPage() {
   const queryClient = useQueryClient();
   const listLegalPagesFn = useServerFn(adminListLegalPages);
   const upsertLegalPageFn = useServerFn(adminUpsertLegalPage);

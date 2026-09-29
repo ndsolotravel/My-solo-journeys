@@ -40,7 +40,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/_authenticated/admin/categories")({
-  component: AdminCategoriesPage,
+  
 });
 
 type CategoryFormState = {
@@ -165,7 +165,7 @@ function CategoryImagePreviewBox({
   );
 }
 
-function AdminCategoriesPage() {
+export default function AdminCategoriesPage() {
   const listFn = useServerFn(adminListCategories);
   const saveFn = useServerFn(adminUpsertCategory);
   const delFn = useServerFn(adminDeleteCategory);

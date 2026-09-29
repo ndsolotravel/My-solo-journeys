@@ -14,7 +14,7 @@ type Props = {
   className?: string;
 };
 
-export function HeroSlider({ slides, intervalMs = 10000, className = "" }: Props) {
+export function HeroSlider({ slides, intervalMs = 12000, className = "" }: Props) {
   const [index, setIndex] = useState(0);
   const count = slides.length;
 
@@ -40,8 +40,8 @@ export function HeroSlider({ slides, intervalMs = 10000, className = "" }: Props
 
   const currentSlide = slides[index];
   const isLcpSlide = index === 0;
-  const optimizedSrc = getOptimizedImageUrl(currentSlide.src, 1600);
-  const srcSet = getImageSrcSet(currentSlide.src, [640, 1024, 1600, 2048]);
+  const optimizedSrc = getOptimizedImageUrl(currentSlide.src, 1920);
+  const srcSet = getImageSrcSet(currentSlide.src, [640, 1024, 1600, 1920, 2560]);
 
   return (
     <div className={`absolute inset-0 overflow-hidden ${className}`}>
@@ -56,23 +56,26 @@ export function HeroSlider({ slides, intervalMs = 10000, className = "" }: Props
             initial={isLcpSlide ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 1.1, ease: "easeInOut" }}
+            transition={{ duration: 1.4, ease: [0.25, 0.46, 0.45, 0.94] }}
             loading={isLcpSlide ? "eager" : "lazy"}
             fetchPriority={isLcpSlide ? "high" : "auto"}
             decoding={isLcpSlide ? "sync" : "async"}
             width={1920}
             height={1080}
-            className="absolute inset-0 h-full w-full object-cover animate-ken-burns"
+            className="absolute inset-0 h-full w-full object-cover animate-ken-burns-slow"
           />
         ) : (
           <div
             key={index}
-            className="absolute inset-0 bg-zinc-900"
+            className="absolute inset-0 bg-zinc-950"
             aria-hidden
           />
         )}
       </AnimatePresence>
-      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/80" />
+      
+      {/* Multi-layer gradient overlay for depth */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/10 to-black/70" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_rgba(0,0,0,0.4)_100%)]" />
 
       {/* Navigation Arrows: Desktop and Tablet only, hidden on mobile */}
       {count > 1 && (
@@ -81,31 +84,31 @@ export function HeroSlider({ slides, intervalMs = 10000, className = "" }: Props
             type="button"
             onClick={prevSlide}
             aria-label="Previous Hero image"
-            className="hidden md:inline-flex absolute left-4 sm:left-6 lg:left-8 top-1/2 -translate-y-1/2 z-30 h-11 w-11 lg:h-12 lg:w-12 items-center justify-center rounded-full border border-white/25 bg-black/30 text-white/85 backdrop-blur-md transition-all duration-200 hover:bg-black/65 hover:text-white hover:border-white/50 hover:scale-105 active:scale-95 shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 cursor-pointer pointer-events-auto group"
+            className="hidden md:inline-flex absolute left-6 lg:left-10 top-1/2 -translate-y-1/2 z-30 h-12 w-12 lg:h-14 lg:w-14 items-center justify-center rounded-full border border-white/20 bg-black/20 text-white/90 backdrop-blur-md transition-all duration-300 hover:bg-black/50 hover:text-white hover:border-white/40 hover:scale-105 active:scale-95 shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 cursor-pointer pointer-events-auto group"
           >
-            <ChevronLeft className="h-5 w-5 lg:h-6 lg:w-6 transition-transform duration-200 group-hover:-translate-x-0.5" />
+            <ChevronLeft className="h-5 w-5 lg:h-6 lg:w-6 transition-transform duration-300 group-hover:-translate-x-0.5" />
           </button>
           <button
             type="button"
             onClick={nextSlide}
             aria-label="Next Hero image"
-            className="hidden md:inline-flex absolute right-4 sm:right-6 lg:right-8 top-1/2 -translate-y-1/2 z-30 h-11 w-11 lg:h-12 lg:w-12 items-center justify-center rounded-full border border-white/25 bg-black/30 text-white/85 backdrop-blur-md transition-all duration-200 hover:bg-black/65 hover:text-white hover:border-white/50 hover:scale-105 active:scale-95 shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80 cursor-pointer pointer-events-auto group"
+            className="hidden md:inline-flex absolute right-6 lg:right-10 top-1/2 -translate-y-1/2 z-30 h-12 w-12 lg:h-14 lg:w-14 items-center justify-center rounded-full border border-white/20 bg-black/20 text-white/90 backdrop-blur-md transition-all duration-300 hover:bg-black/50 hover:text-white hover:border-white/40 hover:scale-105 active:scale-95 shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 cursor-pointer pointer-events-auto group"
           >
-            <ChevronRight className="h-5 w-5 lg:h-6 lg:w-6 transition-transform duration-200 group-hover:translate-x-0.5" />
+            <ChevronRight className="h-5 w-5 lg:h-6 lg:w-6 transition-transform duration-300 group-hover:translate-x-0.5" />
           </button>
         </>
       )}
 
       {count > 1 && (
-        <div className="absolute bottom-5 left-1/2 z-20 flex -translate-x-1/2 gap-2">
+        <div className="absolute bottom-8 left-1/2 z-20 flex -translate-x-1/2 gap-2.5">
           {slides.map((_, i) => (
             <button
               key={i}
               type="button"
               onClick={() => setIndex(i)}
               aria-label={`Go to slide ${i + 1}`}
-              className={`h-1.5 rounded-full transition-all ${
-                i === index ? "w-8 bg-white" : "w-3 bg-white/40 hover:bg-white/70"
+              className={`h-1.5 rounded-full transition-all duration-300 ${
+                i === index ? "w-10 bg-white shadow-lg" : "w-3 bg-white/30 hover:bg-white/60"
               }`}
             />
           ))}

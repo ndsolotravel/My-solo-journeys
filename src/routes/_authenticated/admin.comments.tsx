@@ -6,10 +6,10 @@ import { toast } from "sonner";
 import { adminListComments, adminDeleteComment } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/comments")({
-  component: AdminComments,
+  
 });
 
-function AdminComments() {
+export default function AdminComments() {
   const listFn = useServerFn(adminListComments);
   const delFn = useServerFn(adminDeleteComment);
   const qc = useQueryClient();

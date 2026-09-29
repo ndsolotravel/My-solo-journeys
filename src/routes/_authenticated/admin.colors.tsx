@@ -46,10 +46,10 @@ export const Route = createFileRoute("/_authenticated/admin/colors")({
       { name: "robots", content: "noindex,nofollow" },
     ],
   }),
-  component: AdminColorsPage,
+  
 });
 
-function AdminColorsPage() {
+export default function AdminColorsPage() {
   const getSettingsFn = useServerFn(adminGetColorSettings);
   const saveSettingsFn = useServerFn(adminSaveColorSettings);
   const queryClient = useQueryClient();
