@@ -149,7 +149,7 @@ function AdminTypographyPage() {
 
   // Helper updater for standard responsive values
   const updateResponsive = (
-    field: "bodySize" | "lineHeight" | "letterSpacing",
+    field: "headingSize" | "bodySize" | "lineHeight" | "letterSpacing",
     val: number,
   ) => {
     setDraftConfig((prev) => ({
@@ -224,6 +224,7 @@ function AdminTypographyPage() {
       "--font-button": `"${draftConfig.buttonFont}", sans-serif`,
       "--font-weight-heading": draftConfig.headingWeight,
       "--font-weight-body": draftConfig.bodyWeight,
+      "--font-size-heading": `${draftConfig.headingSize?.[activeDevice] ?? 56}px`,
       "--font-size-body": `${activeSize}px`,
       "--line-height-body": `${activeLineHeight}`,
       "--letter-spacing-body": `${activeLetterSpacing}em`,
@@ -1021,11 +1022,51 @@ function AdminTypographyPage() {
               </span>
             </div>
 
-            {/* 7. Body Font Size */}
+            {/* 7. Heading Font Size */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  7. Body Font Size ({activeDevice})
+                  7. Heading Font Size ({activeDevice})
+                </label>
+                <span className="font-mono text-xs font-bold text-foreground">
+                  {draftConfig.headingSize?.[activeDevice] ?? 56}px (
+                  {((draftConfig.headingSize?.[activeDevice] ?? 56) / 16).toFixed(3)}rem)
+                </span>
+              </div>
+              <div className="flex items-center gap-4">
+                <input
+                  type="range"
+                  min="20"
+                  max="120"
+                  step="1"
+                  value={draftConfig.headingSize?.[activeDevice] ?? 56}
+                  onChange={(e) =>
+                    updateResponsive("headingSize", parseFloat(e.target.value))
+                  }
+                  className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-muted accent-brand"
+                />
+                <input
+                  type="number"
+                  min="20"
+                  max="120"
+                  step="1"
+                  value={draftConfig.headingSize?.[activeDevice] ?? 56}
+                  onChange={(e) =>
+                    updateResponsive(
+                      "headingSize",
+                      parseFloat(e.target.value) || (draftConfig.headingSize?.[activeDevice] ?? 56),
+                    )
+                  }
+                  className="w-16 rounded-lg border border-border bg-background px-2 py-1 text-center font-mono text-xs text-foreground focus:border-brand focus:outline-none"
+                />
+              </div>
+            </div>
+
+            {/* 8. Body Font Size */}
+            <div className="space-y-2 pt-2 border-t border-border/40">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  8. Body Font Size ({activeDevice})
                 </label>
                 <span className="font-mono text-xs font-bold text-foreground">
                   {draftConfig.bodySize[activeDevice]}px (
