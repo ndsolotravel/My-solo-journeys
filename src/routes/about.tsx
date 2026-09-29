@@ -68,7 +68,7 @@ import {
   type AboutContentCard,
 } from "@/lib/about.functions";
 
-export const settingsQO = queryOptions({
+const settingsQO = queryOptions({
   queryKey: ["public-site-settings"],
   queryFn: () => getPublicSiteSettings(),
 });
