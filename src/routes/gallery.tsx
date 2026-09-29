@@ -61,10 +61,10 @@ export const Route = createFileRoute("/gallery")({
       context.queryClient.ensureQueryData(heroQO),
     ]);
   },
-  
+  component: GalleryPage,
 });
 
-export default function GalleryPage() {
+function GalleryPage() {
   const t = useTranslations();
   const search = Route.useSearch();
   const navigate = Route.useNavigate();

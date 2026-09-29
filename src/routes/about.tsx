@@ -117,7 +117,7 @@ export const Route = createFileRoute("/about")({
     };
   },
   loader: ({ context }) => context.queryClient.ensureQueryData(settingsQO),
-  
+  component: AboutPage,
 });
 
 // Explicit dictionary of supported Lucide adventure/travel icons for dynamic CMS cards
@@ -177,7 +177,7 @@ function DynamicIcon({
   return <IconComponent className={className} />;
 }
 
-export default function AboutPage() {
+function AboutPage() {
   const t = useTranslations();
   const { data: settings } = useSuspenseQuery(settingsQO);
 

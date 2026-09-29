@@ -35,10 +35,10 @@ export const Route = createFileRoute("/_authenticated/admin/settings")({
   head: () => ({
     meta: [{ title: "Settings — Admin CMS" }, { name: "robots", content: "noindex,nofollow" }],
   }),
-  
+  component: AdminSettingsPage,
 });
 
-export default function AdminSettingsPage() {
+function AdminSettingsPage() {
   const getSettingsFn = useServerFn(adminGetSettings);
   const updateSettingFn = useServerFn(adminUpdateSetting);
   const uploadFn = useServerFn(adminUploadImage);

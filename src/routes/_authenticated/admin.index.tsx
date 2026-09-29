@@ -15,10 +15,10 @@ import {
 import { adminAnalytics } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
-  
+  component: AdminDashboard,
 });
 
-export default function AdminDashboard() {
+function AdminDashboard() {
   const fn = useServerFn(adminAnalytics);
   const { data, isLoading } = useQuery<any>({
     queryKey: ["admin-analytics"],

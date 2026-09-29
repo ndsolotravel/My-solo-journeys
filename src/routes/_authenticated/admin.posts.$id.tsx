@@ -5,10 +5,10 @@ import { PostEditor } from "@/components/admin/PostEditor";
 import { adminGetPost } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/posts/$id")({
-  
+  component: EditPostPage,
 });
 
-export default function EditPostPage() {
+function EditPostPage() {
   const { id } = Route.useParams();
   const fn = useServerFn(adminGetPost);
   const { data, isLoading } = useQuery({

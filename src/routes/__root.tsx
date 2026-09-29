@@ -43,7 +43,7 @@ const LanguageAlternates = lazy(() =>
   import("@/components/seo/LanguageAlternates").then((m) => ({ default: m.LanguageAlternates })),
 );
 
-export function notFoundComponent() {
+function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
@@ -63,7 +63,7 @@ export function notFoundComponent() {
   );
 }
 
-export function errorComponent({ error, reset }: { error: Error; reset: () => void }) {
+function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
   return (
@@ -147,9 +147,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
   }),
   shellComponent: RootShell,
-  
-  
-  
+  component: RootComponent,
+  notFoundComponent: NotFoundComponent,
+  errorComponent: ErrorComponent,
 });
 
 function RootShell({ children }: { children: ReactNode }) {
@@ -174,7 +174,7 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
-export default function RootComponent() {
+function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
   const pathname = useRouterState({ select: (s) => s.location.pathname });

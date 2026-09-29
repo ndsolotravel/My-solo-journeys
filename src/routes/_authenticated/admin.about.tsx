@@ -74,7 +74,7 @@ export const Route = createFileRoute("/_authenticated/admin/about")({
       { name: "robots", content: "noindex,nofollow" },
     ],
   }),
-  
+  component: AdminAboutPage,
 });
 
 // ---------------------------------------------------------------------------
@@ -129,7 +129,7 @@ function ToggleSwitch({
   );
 }
 
-export default function AdminAboutPage() {
+function AdminAboutPage() {
   const getEditorFn = useServerFn(adminGetAboutEditor);
   const saveSettingsFn = useServerFn(adminSaveAboutSettings);
   const uploadFn = useServerFn(adminUploadImage);

@@ -153,9 +153,11 @@ export const Route = createFileRoute("/blog/$slug")({
         : [],
     };
   },
+  component: PostPage,
+  notFoundComponent: PostNotFound,
 });
 
-export function notFoundComponent() {
+function PostNotFound() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-24 text-center">
       <h1 className="font-display text-3xl font-semibold">Story not found</h1>
@@ -239,7 +241,7 @@ function translateMarkdownChildren(
   return node;
 }
 
-export default function PostPage() {
+function PostPage() {
   const loaderData = Route.useLoaderData();
   const { post, related } = loaderData;
   const { data: globalAuthor } = useQuery({

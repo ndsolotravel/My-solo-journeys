@@ -51,7 +51,7 @@ export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
     meta: [{ title: "Admin — ndsolotravel" }, { name: "robots", content: "noindex,nofollow" }],
   }),
-  
+  component: AdminLayout,
 });
 
 const NAV: { to: string; label: string; icon: typeof LayoutDashboard; exact?: boolean }[] = [
@@ -75,7 +75,7 @@ const NAV: { to: string; label: string; icon: typeof LayoutDashboard; exact?: bo
   { to: "/admin/settings", label: "Settings", icon: Settings },
 ];
 
-export default function AdminLayout() {
+function AdminLayout() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isActive = (to: string, exact?: boolean) =>
     exact ? pathname === to : pathname === to || pathname.startsWith(to + "/");

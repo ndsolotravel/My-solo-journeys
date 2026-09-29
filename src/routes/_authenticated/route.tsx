@@ -33,8 +33,5 @@ export const Route = createFileRoute("/_authenticated")({
     }
     return { user: data.user };
   },
+  component: () => <Outlet />,
 });
-
-export default function AuthenticatedLayout() {
-  return <Outlet />;
-}

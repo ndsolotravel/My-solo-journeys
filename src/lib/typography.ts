@@ -13,7 +13,6 @@ export interface TypographyConfig {
   buttonFont: string;
   headingWeight: string;
   bodyWeight: string;
-  headingSize: ResponsiveValues<number>;
   bodySize: ResponsiveValues<number>;
   lineHeight: ResponsiveValues<number>;
   letterSpacing: ResponsiveValues<number>;
@@ -326,11 +325,6 @@ export const DEFAULT_TYPOGRAPHY_CONFIG: TypographyConfig = {
   buttonFont: "Roboto",
   headingWeight: "700",
   bodyWeight: "400",
-  headingSize: {
-    desktop: 56,
-    tablet: 40,
-    mobile: 32,
-  },
   bodySize: {
     desktop: 17,
     tablet: 16,
@@ -375,11 +369,6 @@ export const typographySchema = z.object({
   buttonFont: z.string().min(1),
   headingWeight: z.string().min(1),
   bodyWeight: z.string().min(1),
-  headingSize: z.object({
-    desktop: z.number().min(20).max(120),
-    tablet: z.number().min(16).max(96),
-    mobile: z.number().min(14).max(72),
-  }),
   bodySize: z.object({
     desktop: z.number().min(12).max(28),
     tablet: z.number().min(12).max(26),
@@ -444,11 +433,6 @@ export function parseTypographyConfig(raw: unknown): TypographyConfig {
         buttonFont: obj.buttonFont || DEFAULT_TYPOGRAPHY_CONFIG.buttonFont,
         headingWeight: obj.headingWeight || DEFAULT_TYPOGRAPHY_CONFIG.headingWeight,
         bodyWeight: obj.bodyWeight || DEFAULT_TYPOGRAPHY_CONFIG.bodyWeight,
-        headingSize: {
-          desktop: Number(obj.headingSize?.desktop) || DEFAULT_TYPOGRAPHY_CONFIG.headingSize.desktop,
-          tablet: Number(obj.headingSize?.tablet) || DEFAULT_TYPOGRAPHY_CONFIG.headingSize.tablet,
-          mobile: Number(obj.headingSize?.mobile) || DEFAULT_TYPOGRAPHY_CONFIG.headingSize.mobile,
-        },
         bodySize: {
           desktop: Number(obj.bodySize?.desktop) || DEFAULT_TYPOGRAPHY_CONFIG.bodySize.desktop,
           tablet: Number(obj.bodySize?.tablet) || DEFAULT_TYPOGRAPHY_CONFIG.bodySize.tablet,
@@ -631,7 +615,6 @@ ${selector} {
   --font-button: "${config.buttonFont}", ${buttonFallback};
   --font-weight-heading: ${config.headingWeight};
   --font-weight-body: ${config.bodyWeight};
-  --font-size-heading: ${config.headingSize.desktop}px;
   --font-size-body: ${config.bodySize.desktop}px;
   --line-height-body: ${config.lineHeight.desktop};
   --letter-spacing-body: ${config.letterSpacing.desktop}em;
@@ -648,7 +631,6 @@ ${selector} {
 
 @media (max-width: 1024px) {
   ${selector} {
-    --font-size-heading: ${config.headingSize.tablet}px;
     --font-size-body: ${config.bodySize.tablet}px;
     --line-height-body: ${config.lineHeight.tablet};
     --letter-spacing-body: ${config.letterSpacing.tablet}em;
@@ -660,7 +642,6 @@ ${selector} {
 
 @media (max-width: 640px) {
   ${selector} {
-    --font-size-heading: ${config.headingSize.mobile}px;
     --font-size-body: ${config.bodySize.mobile}px;
     --line-height-body: ${config.lineHeight.mobile};
     --letter-spacing-body: ${config.letterSpacing.mobile}em;

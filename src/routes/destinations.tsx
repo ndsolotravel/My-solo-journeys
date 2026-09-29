@@ -1,9 +1,9 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/destinations")({
-  
+  component: DestinationsLayout,
 });
 
-export default function DestinationsLayout() {
+function DestinationsLayout() {
   return <Outlet />;
 }

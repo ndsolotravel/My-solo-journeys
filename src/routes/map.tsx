@@ -4,8 +4,5 @@ export const Route = createFileRoute("/map")({
   beforeLoad: () => {
     throw redirect({ to: "/destinations", hash: "interactive-map" });
   },
+  component: () => null,
 });
-
-export default function MapPage() {
-  return null;
-}

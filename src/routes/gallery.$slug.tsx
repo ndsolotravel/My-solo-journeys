@@ -113,11 +113,11 @@ export const Route = createFileRoute("/gallery/$slug")({
       ],
     };
   },
-  
-  
+  component: PhotoDetailPage,
+  notFoundComponent: PhotoNotFound,
 });
 
-export function notFoundComponent() {
+function PhotoNotFound() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-24 text-center">
       <h1 className="font-display text-3xl font-bold text-foreground">Photograph not found</h1>
@@ -141,7 +141,7 @@ function formatDate(value: string | null): string | null {
   return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
 }
 
-export default function PhotoDetailPage() {
+function PhotoDetailPage() {
   const t = useTranslations();
   const { lang } = useLanguage();
   const { photo, prev, next } = Route.useLoaderData();

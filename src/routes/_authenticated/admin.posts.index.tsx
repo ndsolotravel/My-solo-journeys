@@ -37,12 +37,12 @@ import {
 } from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/_authenticated/admin/posts/")({
-  
+  component: AdminPostsList,
 });
 
 type StatusFilter = "all" | "published" | "draft" | "scheduled";
 
-export default function AdminPostsList() {
+function AdminPostsList() {
   const listFn = useServerFn(adminListPosts);
   const toggleFn = useServerFn(adminTogglePublish);
   const delFn = useServerFn(adminDeletePost);

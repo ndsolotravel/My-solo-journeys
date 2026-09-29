@@ -95,10 +95,10 @@ export const Route = createFileRoute("/category/$slug")({
     }
     return res;
   },
-  
+  component: CategoryPage,
 });
 
-export default function CategoryPage() {
+function CategoryPage() {
   const t = useTranslations();
   const { category, posts } = Route.useLoaderData();
 

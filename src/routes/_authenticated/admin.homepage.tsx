@@ -50,7 +50,7 @@ export const Route = createFileRoute("/_authenticated/admin/homepage")({
       { name: "robots", content: "noindex,nofollow" },
     ],
   }),
-  
+  component: AdminHomepagePage,
 });
 
 const DEFAULT_HERO_SLIDES = [
@@ -667,7 +667,7 @@ function HeroLightbox({
   );
 }
 
-export default function AdminHomepagePage() {
+function AdminHomepagePage() {
   const getEditorFn = useServerFn(adminGetHomepageEditor);
   const saveSettingsFn = useServerFn(adminSaveHomepageSettings);
   const uploadFn = useServerFn(adminUploadImage);

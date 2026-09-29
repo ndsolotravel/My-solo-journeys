@@ -112,7 +112,7 @@ export const Route = createFileRoute("/contact")({
       context.queryClient.ensureQueryData(settingsQO),
     ]);
   },
-  
+  component: ContactPage,
 });
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -124,7 +124,7 @@ type FieldState = {
   error: string | null;
 };
 
-export default function ContactPage() {
+function ContactPage() {
   const t = useTranslations();
   const { lang } = useLanguage();
   const { data: hero } = useSuspenseQuery(heroQO);

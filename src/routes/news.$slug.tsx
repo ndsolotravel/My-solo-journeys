@@ -45,11 +45,8 @@ export const Route = createFileRoute("/news/$slug")({
       links: [{ rel: "canonical", href: `https://ndsolotravel.com/news/${item.slug}` }],
     };
   },
-
-});
-
-export function notFoundComponent() {
-  return (
+  component: NewsDetailPage,
+  notFoundComponent: () => (
     <div className="mx-auto max-w-3xl px-4 py-24 text-center">
       <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-muted text-muted-foreground mb-4">
         <Radio className="h-8 w-8" />
@@ -67,10 +64,10 @@ export function notFoundComponent() {
         </Link>
       </div>
     </div>
-  );
-}
+  ),
+});
 
-export default function NewsDetailPage() {
+function NewsDetailPage() {
   const { newsItem } = Route.useLoaderData();
   const [copied, setCopied] = useState(false);
 

@@ -34,7 +34,7 @@ import {
 } from "@/lib/contact.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/messages")({
-  
+  component: AdminMessages,
 });
 
 type StatusFilter = "all" | "new" | "read" | "replied" | "archived" | "email-failed" | "spam";
@@ -122,7 +122,7 @@ function SpamBadge({ status, score }: { status: string | null; score: number }) 
 
 const PAGE_SIZE = 25;
 
-export default function AdminMessages() {
+function AdminMessages() {
   const listFn = useServerFn(adminListMessages);
   const getFn = useServerFn(adminGetMessage);
   const updFn = useServerFn(adminUpdateMessageStatus);

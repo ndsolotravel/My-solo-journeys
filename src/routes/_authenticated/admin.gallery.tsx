@@ -46,7 +46,7 @@ import {
 import { HeroBannerManager } from "@/components/admin/HeroBannerManager";
 
 export const Route = createFileRoute("/_authenticated/admin/gallery")({
-  
+  component: AdminGalleryPage,
 });
 
 type DraftPhoto = {
@@ -105,7 +105,7 @@ function toDraft(p: ServerPhoto): DraftPhoto {
   };
 }
 
-export default function AdminGalleryPage() {
+function AdminGalleryPage() {
   const qc = useQueryClient();
   const listFn = useServerFn(adminListPhotoArchiveEditor);
   const saveFn = useServerFn(adminSavePhotoArchive);

@@ -35,7 +35,7 @@ import { adminFetchCountryCoordinates } from "@/lib/geocoding.functions";
 import { HeroBannerManager } from "@/components/admin/HeroBannerManager";
 
 export const Route = createFileRoute("/_authenticated/admin/destinations")({
-  
+  component: AdminDestinations,
 });
 
 type Dest = {
@@ -54,7 +54,7 @@ type Dest = {
   posts_count?: number;
 };
 
-export default function AdminDestinations() {
+function AdminDestinations() {
   const listFn = useServerFn(adminListDestinations);
   const saveFn = useServerFn(adminUpsertDestination);
   const updateCoordsFn = useServerFn(adminUpdateDestinationCoordinates);

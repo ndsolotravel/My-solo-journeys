@@ -55,9 +55,10 @@ export const Route = createFileRoute("/privacy-policy")({
       ],
     };
   },
+  component: PrivacyPolicyPage,
 });
 
-export default function PrivacyPolicyPage() {
+function PrivacyPolicyPage() {
   const t = useTranslations();
   const { lang } = useLanguage();
   const { legalPage } = Route.useLoaderData();

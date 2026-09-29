@@ -57,7 +57,7 @@ import {
 } from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/_authenticated/admin/news")({
-  
+  component: AdminNewsPage,
 });
 
 type NewsFilter = "all" | "breaking" | "published" | "draft" | "active" | "expired";
@@ -198,7 +198,7 @@ function NewsImagePreviewBox({ imageUrl, onRemove }: { imageUrl: string; onRemov
   );
 }
 
-export default function AdminNewsPage() {
+function AdminNewsPage() {
   const qc = useQueryClient();
   const listFn = useServerFn(adminListNews);
   const upsertFn = useServerFn(adminUpsertNews);

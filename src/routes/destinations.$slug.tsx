@@ -124,11 +124,11 @@ export const Route = createFileRoute("/destinations/$slug")({
         : [],
     };
   },
-  
-  
+  notFoundComponent: DestinationNotFound,
+  component: DestinationPage,
 });
 
-export function notFoundComponent() {
+function DestinationNotFound() {
   const t = useTranslations();
   return (
     <div className="mx-auto max-w-2xl px-4 py-24 text-center">
@@ -141,7 +141,7 @@ export function notFoundComponent() {
   );
 }
 
-export default function DestinationPage() {
+function DestinationPage() {
   const { destination: d, allDestinations } = Route.useLoaderData();
   const t = useTranslations();
   const { lang } = useLanguage();

@@ -35,10 +35,10 @@ export const Route = createFileRoute("/_authenticated/admin/analytics")({
       { name: "robots", content: "noindex,nofollow" },
     ],
   }),
-  
+  component: AdminAnalyticsPage,
 });
 
-export default function AdminAnalyticsPage() {
+function AdminAnalyticsPage() {
   const [period, setPeriod] = useState<PeriodOption>("30d");
   const fn = useServerFn(getAdminAnalyticsDetails);
 

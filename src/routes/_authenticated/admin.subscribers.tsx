@@ -32,7 +32,7 @@ export const Route = createFileRoute("/_authenticated/admin/subscribers")({
       { name: "robots", content: "noindex,nofollow" },
     ],
   }),
-  
+  component: AdminSubscribersPage,
 });
 
 type StatusFilter = "all" | "active" | "unsubscribed";
@@ -45,7 +45,7 @@ interface SubscriberItem {
   subscribed_at: string;
 }
 
-export default function AdminSubscribersPage() {
+function AdminSubscribersPage() {
   const listFn = useServerFn(adminListSubscribers);
   const updFn = useServerFn(adminUpdateSubscriberStatus);
   const delFn = useServerFn(adminDeleteSubscriber);

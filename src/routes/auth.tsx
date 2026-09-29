@@ -26,10 +26,10 @@ export const Route = createFileRoute("/auth")({
     ],
     links: [{ rel: "canonical", href: "/auth" }],
   }),
-  
+  component: AuthPage,
 });
 
-export default function AuthPage() {
+function AuthPage() {
   const navigate = useNavigate();
   const search = Route.useSearch();
   const redirectTarget = search.redirect || "";
