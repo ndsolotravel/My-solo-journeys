@@ -11,6 +11,7 @@ import {
   DEFAULT_COLOR_CONFIG,
   normalizeToHex6,
   parseColorConfig,
+  getRelativeLuminance,
   type ColorConfig,
   type ColorFieldDefinition,
 } from "@/lib/colors";
@@ -132,30 +133,48 @@ function AdminColorsPage() {
 
   // CSS variables applied to the live preview container
   const previewCanvasStyles = useMemo(() => {
+    const isDark = previewTheme === "dark";
+
+    const headLum = getRelativeLuminance(draftConfig.headingColor);
+    const bodyLum = getRelativeLuminance(draftConfig.bodyTextColor);
+    const mutedLum = getRelativeLuminance(draftConfig.mutedTextColor);
+    const navLum = getRelativeLuminance(draftConfig.navTextColor);
+    const cardLum = getRelativeLuminance(draftConfig.cardBgColor);
+
+    const heading = isDark ? (headLum < 0.35 ? "#f6f2e9" : draftConfig.headingColor) : draftConfig.headingColor;
+    const body = isDark ? (bodyLum < 0.25 ? "#d6cfc2" : draftConfig.bodyTextColor) : draftConfig.bodyTextColor;
+    const muted = isDark ? (mutedLum < 0.15 ? "#a79e8f" : draftConfig.mutedTextColor) : draftConfig.mutedTextColor;
+    const nav = isDark ? (navLum < 0.25 ? "#e7e2d8" : draftConfig.navTextColor) : draftConfig.navTextColor;
+    const cardBg = isDark ? (cardLum > 0.50 ? "#1c1a15" : draftConfig.cardBgColor) : draftConfig.cardBgColor;
+    const border = isDark ? "rgba(244, 240, 230, 0.14)" : draftConfig.borderColor;
+
     return {
       "--primary": draftConfig.primaryColor,
       "--secondary": draftConfig.secondaryColor,
       "--brand": draftConfig.accentColor,
       "--accent": draftConfig.accentColor,
       "--ring": draftConfig.accentColor,
-      "--color-heading": draftConfig.headingColor,
-      "--color-body-text": draftConfig.bodyTextColor,
-      "--color-muted-text": draftConfig.mutedTextColor,
-      "--color-link": draftConfig.linkColor,
-      "--color-link-hover": draftConfig.linkHoverColor,
+      "--color-heading": heading,
+      "--heading-color": heading,
+      "--color-body-text": body,
+      "--body-text-color": body,
+      "--color-muted-text": muted,
+      "--muted-text-color": muted,
+      "--color-link": isDark ? "#7fb6d6" : draftConfig.linkColor,
+      "--color-link-hover": isDark ? "#a6cfe6" : draftConfig.linkHoverColor,
       "--btn-bg": draftConfig.buttonBgColor,
       "--btn-text": draftConfig.buttonTextColor,
       "--btn-hover": draftConfig.buttonHoverColor,
-      "--card-bg": draftConfig.cardBgColor,
-      "--section-bg": draftConfig.sectionBgColor,
-      "--border-color": draftConfig.borderColor,
-      "--nav-text": draftConfig.navTextColor,
+      "--card-bg": cardBg,
+      "--section-bg": isDark ? "#0e0d0a" : draftConfig.sectionBgColor,
+      "--border-color": border,
+      "--nav-text": nav,
       "--nav-hover": draftConfig.navHoverColor,
       "--hero-overlay": draftConfig.heroOverlayColor,
-      "--footer-bg": draftConfig.footerBgColor,
-      "--footer-text": draftConfig.footerTextColor,
+      "--footer-bg": isDark ? "#0e0d0a" : draftConfig.footerBgColor,
+      "--footer-text": isDark ? "#b4ac9e" : draftConfig.footerTextColor,
     } as React.CSSProperties;
-  }, [draftConfig]);
+  }, [draftConfig, previewTheme]);
 
   if (isLoading) {
     return (
@@ -424,8 +443,8 @@ function AdminColorsPage() {
               {/* 1. SIMULATED NAVIGATION BAR */}
               <div
                 style={{
-                  backgroundColor: previewTheme === "dark" ? "rgba(11, 15, 23, 0.85)" : "rgba(255, 255, 255, 0.9)",
-                  borderColor: draftConfig.borderColor,
+                  backgroundColor: previewTheme === "dark" ? "rgba(28, 26, 21, 0.9)" : "rgba(255, 255, 255, 0.95)",
+                  borderColor: "var(--border-color)",
                 }}
                 className="p-4 sm:p-5 flex items-center justify-between backdrop-blur-md transition-colors"
               >
@@ -437,7 +456,7 @@ function AdminColorsPage() {
                     ND
                   </div>
                   <span
-                    style={{ color: draftConfig.headingColor }}
+                    style={{ color: "var(--color-heading)" }}
                     className="font-display font-bold text-sm tracking-wider"
                   >
                     NDSOLOTRAVEL
@@ -452,19 +471,19 @@ function AdminColorsPage() {
                     Stories
                   </span>
                   <span
-                    style={{ color: draftConfig.navTextColor }}
+                    style={{ color: "var(--nav-text)" }}
                     className="cursor-pointer hover:opacity-80 transition-colors"
                   >
                     Destinations
                   </span>
                   <span
-                    style={{ color: draftConfig.navTextColor }}
+                    style={{ color: "var(--nav-text)" }}
                     className="cursor-pointer hover:opacity-80 transition-colors"
                   >
                     Gallery
                   </span>
                   <span
-                    style={{ color: draftConfig.navTextColor }}
+                    style={{ color: "var(--nav-text)" }}
                     className="cursor-pointer hover:opacity-80 transition-colors"
                   >
                     About
@@ -514,7 +533,7 @@ function AdminColorsPage() {
                   </span>
 
                   <h1
-                    style={{ color: draftConfig.headingColor }}
+                    style={{ color: "var(--color-heading)" }}
                     className="text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight"
                   >
                     Stories from the high places.{" "}
@@ -524,7 +543,7 @@ function AdminColorsPage() {
                   </h1>
 
                   <p
-                    style={{ color: draftConfig.bodyTextColor }}
+                    style={{ color: "var(--color-body-text)" }}
                     className="text-xs sm:text-sm line-clamp-2 leading-relaxed"
                   >
                     A visual archive of high-altitude solo expeditions, alpine routes, and raw frontiers across the globe.
@@ -546,8 +565,8 @@ function AdminColorsPage() {
                     <button
                       type="button"
                       style={{
-                        borderColor: draftConfig.borderColor,
-                        color: draftConfig.headingColor,
+                        borderColor: "var(--border-color)",
+                        color: "var(--color-heading)",
                       }}
                       className="rounded-full border bg-black/30 backdrop-blur-md px-4 py-2 text-xs font-semibold hover:bg-white/10 transition"
                     >
@@ -561,18 +580,18 @@ function AdminColorsPage() {
               <div className="p-6 sm:p-8 space-y-6">
                 <div className="space-y-2">
                   <h2
-                    style={{ color: draftConfig.headingColor }}
+                    style={{ color: "var(--color-heading)" }}
                     className="text-xl sm:text-2xl font-bold tracking-tight"
                   >
                     Editorial Typography & Links
                   </h2>
                   <p
-                    style={{ color: draftConfig.bodyTextColor }}
+                    style={{ color: "var(--color-body-text)" }}
                     className="text-sm leading-relaxed"
                   >
                     This paragraph demonstrates your configured body text color. Links inside text seamlessly highlight in{" "}
                     <span
-                      style={{ color: draftConfig.linkColor }}
+                      style={{ color: "var(--color-link)" }}
                       className="font-medium underline underline-offset-4 cursor-pointer hover:opacity-80"
                     >
                       your custom link color
@@ -580,7 +599,7 @@ function AdminColorsPage() {
                     with interactive states.
                   </p>
                   <p
-                    style={{ color: draftConfig.mutedTextColor }}
+                    style={{ color: "var(--color-muted-text)" }}
                     className="text-xs flex items-center gap-2"
                   >
                     <Calendar className="h-3 w-3" /> Published on September 24, 2026
@@ -594,8 +613,8 @@ function AdminColorsPage() {
                   {/* Blog Card Simulation */}
                   <div
                     style={{
-                      backgroundColor: draftConfig.cardBgColor,
-                      borderColor: draftConfig.borderColor,
+                      backgroundColor: "var(--card-bg)",
+                      borderColor: "var(--border-color)",
                     }}
                     className="rounded-2xl border p-4 shadow-sm space-y-3 transition-colors"
                   >
@@ -617,14 +636,14 @@ function AdminColorsPage() {
                     </div>
 
                     <h3
-                      style={{ color: draftConfig.headingColor }}
+                      style={{ color: "var(--color-heading)" }}
                       className="font-bold text-sm leading-snug line-clamp-2"
                     >
                       Crossing the Baltoro Glacier on Two Wheels
                     </h3>
 
                     <p
-                      style={{ color: draftConfig.bodyTextColor }}
+                      style={{ color: "var(--color-body-text)" }}
                       className="text-xs line-clamp-2 leading-relaxed"
                     >
                       Surviving deep washouts and high altitude passes during monsoon transition.
@@ -632,13 +651,13 @@ function AdminColorsPage() {
 
                     <div className="flex items-center justify-between pt-2 border-t border-border/40">
                       <span
-                        style={{ color: draftConfig.mutedTextColor }}
+                        style={{ color: "var(--color-muted-text)" }}
                         className="text-[11px]"
                       >
                         Pakistan · Karakoram
                       </span>
                       <span
-                        style={{ color: draftConfig.linkColor }}
+                        style={{ color: "var(--color-link)" }}
                         className="text-xs font-semibold flex items-center gap-1 hover:underline cursor-pointer"
                       >
                         Read Post <ArrowRight className="h-3 w-3" />
@@ -649,8 +668,8 @@ function AdminColorsPage() {
                   {/* Destination Card Simulation */}
                   <div
                     style={{
-                      backgroundColor: draftConfig.cardBgColor,
-                      borderColor: draftConfig.borderColor,
+                      backgroundColor: "var(--card-bg)",
+                      borderColor: "var(--border-color)",
                     }}
                     className="rounded-2xl border p-4 shadow-sm space-y-3 transition-colors"
                   >
@@ -679,7 +698,7 @@ function AdminColorsPage() {
                         Central Asia
                       </span>
                       <h3
-                        style={{ color: draftConfig.headingColor }}
+                        style={{ color: "var(--color-heading)" }}
                         className="font-bold text-sm"
                       >
                         Pamir Highway & Wakhan Corridor
@@ -687,14 +706,14 @@ function AdminColorsPage() {
                     </div>
 
                     <p
-                      style={{ color: draftConfig.bodyTextColor }}
+                      style={{ color: "var(--color-body-text)" }}
                       className="text-xs line-clamp-2 leading-relaxed"
                     >
                       The roof of the world across Tajikistan and Kyrgyzstan borderlands.
                     </p>
 
                     <div className="pt-2 border-t border-border/40 flex items-center justify-between">
-                      <span style={{ color: draftConfig.mutedTextColor }} className="text-[11px]">
+                      <span style={{ color: "var(--color-muted-text)" }} className="text-[11px]">
                         Difficult · 4,655m
                       </span>
                       <button
@@ -714,8 +733,8 @@ function AdminColorsPage() {
                 {/* 5. CMS CONTROLLED SECTION SIMULATION */}
                 <div
                   style={{
-                    backgroundColor: draftConfig.sectionBgColor,
-                    borderColor: draftConfig.borderColor,
+                    backgroundColor: "var(--section-bg)",
+                    borderColor: "var(--border-color)",
                   }}
                   className="rounded-2xl border p-5 sm:p-6 text-white space-y-4"
                 >
@@ -734,8 +753,8 @@ function AdminColorsPage() {
                   <div className="grid grid-cols-3 gap-3 text-center">
                     <div
                       style={{
-                        backgroundColor: draftConfig.cardBgColor,
-                        borderColor: draftConfig.borderColor,
+                        backgroundColor: "var(--card-bg)",
+                        borderColor: "var(--border-color)",
                       }}
                       className="rounded-xl border p-3 shadow-xs"
                     >
@@ -745,15 +764,15 @@ function AdminColorsPage() {
                       >
                         42+
                       </div>
-                      <div style={{ color: draftConfig.mutedTextColor }} className="text-[11px]">
+                      <div style={{ color: "var(--color-muted-text)" }} className="text-[11px]">
                         Countries
                       </div>
                     </div>
 
                     <div
                       style={{
-                        backgroundColor: draftConfig.cardBgColor,
-                        borderColor: draftConfig.borderColor,
+                        backgroundColor: "var(--card-bg)",
+                        borderColor: "var(--border-color)",
                       }}
                       className="rounded-xl border p-3 shadow-xs"
                     >
@@ -763,15 +782,15 @@ function AdminColorsPage() {
                       >
                         180k
                       </div>
-                      <div style={{ color: draftConfig.mutedTextColor }} className="text-[11px]">
+                      <div style={{ color: "var(--color-muted-text)" }} className="text-[11px]">
                         Kilometers
                       </div>
                     </div>
 
                     <div
                       style={{
-                        backgroundColor: draftConfig.cardBgColor,
-                        borderColor: draftConfig.borderColor,
+                        backgroundColor: "var(--card-bg)",
+                        borderColor: "var(--border-color)",
                       }}
                       className="rounded-xl border p-3 shadow-xs"
                     >
@@ -781,7 +800,7 @@ function AdminColorsPage() {
                       >
                         12
                       </div>
-                      <div style={{ color: draftConfig.mutedTextColor }} className="text-[11px]">
+                      <div style={{ color: "var(--color-muted-text)" }} className="text-[11px]">
                         Years Solo
                       </div>
                     </div>
@@ -792,9 +811,9 @@ function AdminColorsPage() {
               {/* 6. SIMULATED FOOTER */}
               <div
                 style={{
-                  backgroundColor: draftConfig.footerBgColor,
-                  color: draftConfig.footerTextColor,
-                  borderColor: draftConfig.borderColor,
+                  backgroundColor: "var(--footer-bg)",
+                  color: "var(--footer-text)",
+                  borderColor: "var(--border-color)",
                 }}
                 className="p-6 text-xs border-t space-y-3 transition-colors"
               >

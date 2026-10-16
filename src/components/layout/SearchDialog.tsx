@@ -75,7 +75,7 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder={t("Search stories…")}
-            className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+            className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
           />
           {loading && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
           <button
@@ -112,7 +112,7 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
                       <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
                     )}
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium">{r.title}</p>
+                      <p className="truncate text-sm font-medium text-foreground">{r.title}</p>
                       <p className="truncate text-xs text-muted-foreground">
                         {r.kind === "post"
                           ? `Story · ${r.category ?? "Article"}`

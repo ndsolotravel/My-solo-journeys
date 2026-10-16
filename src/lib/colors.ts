@@ -302,10 +302,30 @@ export function parseColorConfig(raw: unknown): ColorConfig {
 }
 
 /**
- * Generates centralized CSS variables dynamically for injection into DOM.
+ * Calculates the WCAG relative luminance of a color string (0 = darkest, 1 = brightest).
  */
-export function generateColorCss(config: ColorConfig, selector: string = ":root, .dark"): string {
-  return `
+export function getRelativeLuminance(colorStr: string): number {
+  if (!colorStr) return 0;
+  const hex = normalizeToHex6(colorStr);
+  const r = parseInt(hex.slice(1, 3), 16) / 255;
+  const g = parseInt(hex.slice(3, 5), 16) / 255;
+  const b = parseInt(hex.slice(5, 7), 16) / 255;
+
+  const toLinear = (c: number) =>
+    c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  return 0.2126 * toLinear(r) + 0.7152 * toLinear(g) + 0.0722 * toLinear(b);
+}
+
+/**
+ * Generates centralized CSS variables dynamically for injection into DOM.
+ * Generates both :root (light mode) and .dark (dark mode) rules with
+ * theme-aware contrast safeguards to ensure text, headings, statistics,
+ * and navigation are always crisp and legible.
+ */
+export function generateColorCss(config: ColorConfig, selector?: string): string {
+  // If a custom selector is provided (e.g. for scoped preview containers)
+  if (selector && selector !== ":root" && selector !== ":root, .dark") {
+    return `
 ${selector} {
   --primary: ${config.primaryColor};
   --secondary: ${config.secondaryColor};
@@ -353,6 +373,118 @@ ${selector} {
   --color-footer-bg: ${config.footerBgColor};
   --footer-text: ${config.footerTextColor};
   --color-footer-text: ${config.footerTextColor};
+}
+`;
+  }
+
+  // Calculate theme-aware high contrast values for dark mode
+  const darkHeading =
+    getRelativeLuminance(config.headingColor) >= 0.45 ? config.headingColor : "#F6F2E9";
+  const darkBody =
+    getRelativeLuminance(config.bodyTextColor) >= 0.4 ? config.bodyTextColor : "#D6CFC2";
+  const darkMuted =
+    getRelativeLuminance(config.mutedTextColor) >= 0.35 ? config.mutedTextColor : "#A79E8F";
+  const darkNav =
+    getRelativeLuminance(config.navTextColor) >= 0.4 ? config.navTextColor : "#E7E2D8";
+  const darkLink =
+    getRelativeLuminance(config.linkColor) >= 0.35 ? config.linkColor : "#7FB6D6";
+  const darkLinkHover =
+    getRelativeLuminance(config.linkHoverColor) >= 0.4 ? config.linkHoverColor : "#A6CFE6";
+
+  return `
+:root {
+  --primary: ${config.primaryColor};
+  --secondary: ${config.secondaryColor};
+  --brand: ${config.accentColor};
+  --accent: ${config.accentColor};
+  --ring: ${config.accentColor};
+
+  --color-heading: ${config.headingColor};
+  --heading-color: ${config.headingColor};
+
+  --color-body-text: ${config.bodyTextColor};
+  --body-text-color: ${config.bodyTextColor};
+
+  --color-muted-text: ${config.mutedTextColor};
+  --muted-text-color: ${config.mutedTextColor};
+
+  --color-link: ${config.linkColor};
+  --link-color: ${config.linkColor};
+
+  --color-link-hover: ${config.linkHoverColor};
+  --link-hover-color: ${config.linkHoverColor};
+
+  --btn-bg: ${config.buttonBgColor};
+  --color-btn-bg: ${config.buttonBgColor};
+  --btn-text: ${config.buttonTextColor};
+  --color-btn-text: ${config.buttonTextColor};
+  --btn-hover: ${config.buttonHoverColor};
+  --color-btn-hover: ${config.buttonHoverColor};
+
+  --card-bg: ${config.cardBgColor};
+  --color-card-bg: ${config.cardBgColor};
+  --section-bg: ${config.sectionBgColor};
+  --color-section-bg: ${config.sectionBgColor};
+  --border-color: ${config.borderColor};
+  --border: ${config.borderColor};
+
+  --nav-text: ${config.navTextColor};
+  --color-nav-text: ${config.navTextColor};
+  --nav-hover: ${config.navHoverColor};
+  --color-nav-hover: ${config.navHoverColor};
+
+  --hero-overlay: ${config.heroOverlayColor};
+
+  --footer-bg: ${config.footerBgColor};
+  --color-footer-bg: ${config.footerBgColor};
+  --footer-text: ${config.footerTextColor};
+  --color-footer-text: ${config.footerTextColor};
+}
+
+.dark, html.dark {
+  --brand: ${config.accentColor};
+  --accent: ${config.accentColor};
+  --ring: ${config.accentColor};
+
+  --btn-bg: ${config.buttonBgColor};
+  --color-btn-bg: ${config.buttonBgColor};
+  --btn-text: ${config.buttonTextColor};
+  --color-btn-text: ${config.buttonTextColor};
+  --btn-hover: ${config.buttonHoverColor};
+  --color-btn-hover: ${config.buttonHoverColor};
+
+  --color-heading: ${darkHeading};
+  --heading-color: ${darkHeading};
+
+  --color-body-text: ${darkBody};
+  --body-text-color: ${darkBody};
+
+  --color-muted-text: ${darkMuted};
+  --muted-text-color: ${darkMuted};
+
+  --color-link: ${darkLink};
+  --link-color: ${darkLink};
+
+  --color-link-hover: ${darkLinkHover};
+  --link-hover-color: ${darkLinkHover};
+
+  --card-bg: #1C1A15;
+  --color-card-bg: #1C1A15;
+
+  --border-color: rgba(244, 240, 230, 0.14);
+  --border: rgba(244, 240, 230, 0.14);
+
+  --nav-text: ${darkNav};
+  --color-nav-text: ${darkNav};
+  --nav-hover: ${config.navHoverColor || "#7FB6D6"};
+  --color-nav-hover: ${config.navHoverColor || "#7FB6D6"};
+
+  --hero-overlay: ${config.heroOverlayColor};
+
+  --footer-bg: #0E0D0A;
+  --color-footer-bg: #0E0D0A;
+  --footer-text: #B4AC9E;
+  --color-footer-text: #B4AC9E;
 }
 `;
 }

@@ -126,7 +126,7 @@ export function Header() {
               alt="ndsolotravel"
               width={140}
               height={32}
-              className={`h-8 w-auto ${overHero ? "brightness-0 invert" : ""}`}
+              className={`h-8 w-auto ${overHero ? "brightness-0 invert" : "dark:brightness-0 dark:invert"}`}
             />
           </Link>
           <nav className="hidden md:flex items-center gap-8 text-[0.8125rem] font-medium uppercase tracking-[0.14em]">

@@ -174,12 +174,14 @@
   --color-journey-numbers: #38BDF8;
 }
 
-.dark {
-  /* #14130F — warm near-black */
+.dark, html.dark {
+  /* #14130F — warm near-black canvas */
   --background: #14130f;
   --foreground: #f4f0e6;
   --card: #1c1a15;
   --card-foreground: #f4f0e6;
+  --card-bg: #1c1a15;
+  --color-card-bg: #1c1a15;
   --popover: #1c1a15;
   --popover-foreground: #f4f0e6;
   --primary: #f4f0e6;
@@ -188,34 +190,58 @@
   --secondary-foreground: #f4f0e6;
   --muted: #232019;
   --muted-foreground: #b4ac9e;
-   --brand: #5e9dc4;
-   --brand-foreground: #0f0e0b;
-   --accent: #5e9dc4;
-   --accent-foreground: #0f0e0b;
-   --success: oklch(0.72 0.149 162);
-   --success-foreground: #14130f;
-   --destructive: oklch(0.65 0.21 22);
-   --destructive-foreground: #f4f0e6;
-   --border: rgba(244, 240, 230, 0.12);
-   --input: rgba(244, 240, 230, 0.16);
-   --ring: #5e9dc4;
-   --color-heading: #f6f2e9;
-   --heading-color: #f6f2e9;
-   --color-body-text: #d6cfc2;
-   --body-text-color: #d6cfc2;
-   --color-muted-text: #a79e8f;
-   --muted-text-color: #a79e8f;
-   --color-link: #7fb6d6;
-   --link-color: #7fb6d6;
-   --color-link-hover: #a6cfe6;
-   --link-hover-color: #a6cfe6;
-   }
+  --brand: #5e9dc4;
+  --brand-foreground: #0f0e0b;
+  --accent: #5e9dc4;
+  --accent-foreground: #0f0e0b;
+  --success: oklch(0.72 0.149 162);
+  --success-foreground: #14130f;
+  --destructive: oklch(0.65 0.21 22);
+  --destructive-foreground: #f4f0e6;
+  --border: rgba(244, 240, 230, 0.14);
+  --border-color: rgba(244, 240, 230, 0.14);
+  --input: rgba(244, 240, 230, 0.18);
+  --ring: #5e9dc4;
 
-/* Dark-mode navigation legibility: overrides the shared injected nav token,
-   which targets `.dark` at lower specificity than `html.dark`. */
-html.dark {
+  /* High contrast theme-aware typography tokens */
+  --color-heading: #f6f2e9;
+  --heading-color: #f6f2e9;
+  --color-body-text: #d6cfc2;
+  --body-text-color: #d6cfc2;
+  --color-muted-text: #a79e8f;
+  --muted-text-color: #a79e8f;
+
+  /* Navigation tokens */
   --nav-text: #e7e2d8;
+  --color-nav-text: #e7e2d8;
   --nav-hover: #7fb6d6;
+  --color-nav-hover: #7fb6d6;
+
+  /* Hyperlinks */
+  --color-link: #7fb6d6;
+  --link-color: #7fb6d6;
+  --color-link-hover: #a6cfe6;
+  --link-hover-color: #a6cfe6;
+
+  /* Buttons */
+  --btn-bg: #3b7fa8;
+  --color-btn-bg: #3b7fa8;
+  --btn-text: #ffffff;
+  --color-btn-text: #ffffff;
+  --btn-hover: #5097c2;
+  --color-btn-hover: #5097c2;
+
+  /* Atmospheric & Footer */
+  --section-bg: #0e0d0a;
+  --color-section-bg: #0e0d0a;
+  --footer-bg: #0e0d0a;
+  --color-footer-bg: #0e0d0a;
+  --footer-text: #b4ac9e;
+  --color-footer-text: #b4ac9e;
+  --hero-overlay: rgba(10, 9, 7, 0.75);
+
+  /* Dedicated Journey in Numbers dark mode fallback */
+  --color-journey-numbers: #38bdf8;
 }
 
 @layer base {
@@ -242,6 +268,20 @@ html.dark {
    max-width: 100%;
    min-width: 0;
    }
+
+  /* Universal form control theme-aware legibility */
+  input, textarea, select {
+    color: var(--color-foreground);
+  }
+  input::placeholder, textarea::placeholder {
+    color: var(--color-muted-foreground);
+    opacity: 0.8;
+  }
+  .dark input::placeholder, .dark textarea::placeholder {
+    color: #a79e8f;
+    opacity: 0.85;
+  }
+
   h1, h2, h3 {
     letter-spacing: var(--letter-spacing-heading, -0.02em);
     font-synthesis-weight: none;
@@ -313,12 +353,12 @@ html.dark {
   }
 
   /* Centralized heading color rule for semantic headings */
-  h1:not([class*="text-white"]):not([class*="text-black"]):not([class*="text-transparent"]):not([class*="text-brand"]):not([class*="text-accent"]):not([class*="text-muted"]):not([class*="text-emerald"]):not([class*="text-red"]):not([class*="text-amber"]):not([class*="text-sky"]):not([class*="text-blue"]):not([class*="text-zinc"]):not([class*="text-slate"]):not([class*="text-neutral"]):not([class*="text-primary-foreground"]):not([class*="text-secondary-foreground"]),
-  h2:not([class*="text-white"]):not([class*="text-black"]):not([class*="text-transparent"]):not([class*="text-brand"]):not([class*="text-accent"]):not([class*="text-muted"]):not([class*="text-emerald"]):not([class*="text-red"]):not([class*="text-amber"]):not([class*="text-sky"]):not([class*="text-blue"]):not([class*="text-zinc"]):not([class*="text-slate"]):not([class*="text-neutral"]):not([class*="text-primary-foreground"]):not([class*="text-secondary-foreground"]),
-  h3:not([class*="text-white"]):not([class*="text-black"]):not([class*="text-transparent"]):not([class*="text-brand"]):not([class*="text-accent"]):not([class*="text-muted"]):not([class*="text-emerald"]):not([class*="text-red"]):not([class*="text-amber"]):not([class*="text-sky"]):not([class*="text-blue"]):not([class*="text-zinc"]):not([class*="text-slate"]):not([class*="text-neutral"]):not([class*="text-primary-foreground"]):not([class*="text-secondary-foreground"]),
-  h4:not([class*="text-white"]):not([class*="text-black"]):not([class*="text-transparent"]):not([class*="text-brand"]):not([class*="text-accent"]):not([class*="text-muted"]):not([class*="text-emerald"]):not([class*="text-red"]):not([class*="text-amber"]):not([class*="text-sky"]):not([class*="text-blue"]):not([class*="text-zinc"]):not([class*="text-slate"]):not([class*="text-neutral"]):not([class*="text-primary-foreground"]):not([class*="text-secondary-foreground"]),
-  h5:not([class*="text-white"]):not([class*="text-black"]):not([class*="text-transparent"]):not([class*="text-brand"]):not([class*="text-accent"]):not([class*="text-muted"]):not([class*="text-emerald"]):not([class*="text-red"]):not([class*="text-amber"]):not([class*="text-sky"]):not([class*="text-blue"]):not([class*="text-zinc"]):not([class*="text-slate"]):not([class*="text-neutral"]):not([class*="text-primary-foreground"]):not([class*="text-secondary-foreground"]),
-  h6:not([class*="text-white"]):not([class*="text-black"]):not([class*="text-transparent"]):not([class*="text-brand"]):not([class*="text-accent"]):not([class*="text-muted"]):not([class*="text-emerald"]):not([class*="text-red"]):not([class*="text-amber"]):not([class*="text-sky"]):not([class*="text-blue"]):not([class*="text-zinc"]):not([class*="text-slate"]):not([class*="text-neutral"]):not([class*="text-primary-foreground"]):not([class*="text-secondary-foreground"]) {
+  h1:not([class*="text-white"]):not([class*="text-black"]):not([class*="text-transparent"]):not([class*="text-brand"]):not([class*="text-accent"]):not([class*="text-muted"]):not([class*="text-emerald"]):not([class*="text-red"]):not([class*="text-amber"]):not([class*="text-sky"]):not([class*="text-blue"]):not([class*="text-zinc"]):not([class*="text-slate"]):not([class*="text-neutral"]):not([class*="text-primary-foreground"]):not([class*="text-secondary-foreground"]):not([class*="text-foreground"]):not(.journey-numbers-heading),
+  h2:not([class*="text-white"]):not([class*="text-black"]):not([class*="text-transparent"]):not([class*="text-brand"]):not([class*="text-accent"]):not([class*="text-muted"]):not([class*="text-emerald"]):not([class*="text-red"]):not([class*="text-amber"]):not([class*="text-sky"]):not([class*="text-blue"]):not([class*="text-zinc"]):not([class*="text-slate"]):not([class*="text-neutral"]):not([class*="text-primary-foreground"]):not([class*="text-secondary-foreground"]):not([class*="text-foreground"]):not(.journey-numbers-heading),
+  h3:not([class*="text-white"]):not([class*="text-black"]):not([class*="text-transparent"]):not([class*="text-brand"]):not([class*="text-accent"]):not([class*="text-muted"]):not([class*="text-emerald"]):not([class*="text-red"]):not([class*="text-amber"]):not([class*="text-sky"]):not([class*="text-blue"]):not([class*="text-zinc"]):not([class*="text-slate"]):not([class*="text-neutral"]):not([class*="text-primary-foreground"]):not([class*="text-secondary-foreground"]):not([class*="text-foreground"]):not(.journey-numbers-heading),
+  h4:not([class*="text-white"]):not([class*="text-black"]):not([class*="text-transparent"]):not([class*="text-brand"]):not([class*="text-accent"]):not([class*="text-muted"]):not([class*="text-emerald"]):not([class*="text-red"]):not([class*="text-amber"]):not([class*="text-sky"]):not([class*="text-blue"]):not([class*="text-zinc"]):not([class*="text-slate"]):not([class*="text-neutral"]):not([class*="text-primary-foreground"]):not([class*="text-secondary-foreground"]):not([class*="text-foreground"]):not(.journey-numbers-heading),
+  h5:not([class*="text-white"]):not([class*="text-black"]):not([class*="text-transparent"]):not([class*="text-brand"]):not([class*="text-accent"]):not([class*="text-muted"]):not([class*="text-emerald"]):not([class*="text-red"]):not([class*="text-amber"]):not([class*="text-sky"]):not([class*="text-blue"]):not([class*="text-zinc"]):not([class*="text-slate"]):not([class*="text-neutral"]):not([class*="text-primary-foreground"]):not([class*="text-secondary-foreground"]):not([class*="text-foreground"]):not(.journey-numbers-heading),
+  h6:not([class*="text-white"]):not([class*="text-black"]):not([class*="text-transparent"]):not([class*="text-brand"]):not([class*="text-accent"]):not([class*="text-muted"]):not([class*="text-emerald"]):not([class*="text-red"]):not([class*="text-amber"]):not([class*="text-sky"]):not([class*="text-blue"]):not([class*="text-zinc"]):not([class*="text-slate"]):not([class*="text-neutral"]):not([class*="text-primary-foreground"]):not([class*="text-secondary-foreground"]):not([class*="text-foreground"]):not(.journey-numbers-heading) {
     color: var(--color-heading);
   }
 
@@ -926,8 +966,21 @@ html[dir="rtl"] .flex-row {
   font-weight: var(--font-weight-journey-numbers, 700);
   line-height: var(--line-height-journey-numbers, 1.25);
   letter-spacing: var(--letter-spacing-journey-numbers, 0.02em);
-  color: var(--color-journey-numbers, #38BDF8);
+  color: var(--color-journey-numbers, #0284C7);
   transition: color 0.2s ease, font-size 0.2s ease;
+}
+
+.dark .journey-numbers-heading {
+  color: var(--color-journey-numbers, #38BDF8);
+  text-shadow: 0 0 28px color-mix(in srgb, var(--color-journey-numbers, #38BDF8) 35%, transparent);
+}
+
+.dark .jin-card .text-heading {
+  color: var(--color-heading, #f6f2e9);
+}
+
+.dark .jin-card .text-muted-foreground {
+  color: var(--color-muted-text, #b4ac9e);
 }
 
 .hero-cta-animate {

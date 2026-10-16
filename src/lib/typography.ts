@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { getRelativeLuminance } from "./colors";
 
 export interface ResponsiveValues<T> {
   desktop: T;
@@ -684,6 +685,7 @@ export function generateGoogleFontsUrl(config: TypographyConfig): string | null 
 
 /**
  * Generates dynamic CSS variables and centralized bindings for the website.
+ * Emits theme-aware contrast rules for both light mode and dark mode.
  */
 export function generateTypographyCss(config: TypographyConfig, selector = ":root"): string {
   const headingFallback = getFontFallback(config.headingFont);
@@ -702,6 +704,15 @@ export function generateTypographyCss(config: TypographyConfig, selector = ":roo
   const jnLineHeight = config.journeyNumbersLineHeight || DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersLineHeight;
   const jnLetterSpacing = config.journeyNumbersLetterSpacing || DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersLetterSpacing;
   const jnColor = config.journeyNumbersColor || DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersColor;
+
+  // WCAG Theme-aware contrast safeguards for Journey in Numbers
+  const lum = getRelativeLuminance(jnColor);
+  // In light mode, if default #38BDF8 or luminance is too light (>0.40), use #0284C7 for sharp contrast
+  const lightJnColor = jnColor.toLowerCase() === "#38bdf8" || lum > 0.40 ? "#0284C7" : jnColor;
+  // In dark mode, if color is dark charcoal or navy (lum < 0.25), illuminate it to #38BDF8
+  const darkJnColor = lum < 0.25 ? "#38BDF8" : jnColor;
+
+  const darkSelector = selector === ":root" ? ".dark, html.dark" : `${selector}.dark, ${selector} .dark`;
 
   return `
 ${selector} {
@@ -730,7 +741,11 @@ ${selector} {
   --font-size-journey-numbers: ${jnSize.desktop}px;
   --line-height-journey-numbers: ${jnLineHeight.desktop};
   --letter-spacing-journey-numbers: ${jnLetterSpacing.desktop}em;
-  --color-journey-numbers: ${jnColor};
+  --color-journey-numbers: ${lightJnColor};
+}
+
+${darkSelector} {
+  --color-journey-numbers: ${darkJnColor};
 }
 
 @media (max-width: 1024px) {
@@ -762,3 +777,4 @@ ${selector} {
 }
 `;
 }
+

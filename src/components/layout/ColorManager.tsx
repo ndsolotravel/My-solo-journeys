@@ -67,7 +67,7 @@ export function ColorManager() {
   useEffect(() => {
     if (typeof document === "undefined") return;
 
-    const css = generateColorCss(activeConfig, ":root, .dark");
+    const css = generateColorCss(activeConfig);
     let styleEl = document.getElementById("nd-dynamic-colors-css") as HTMLStyleElement | null;
     if (!styleEl) {
       styleEl = document.createElement("style");
