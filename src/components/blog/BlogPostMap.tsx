@@ -68,8 +68,8 @@ export function BlogPostMap({ locationName, latitude, longitude, title }: BlogPo
         className: "custom-blog-pin",
         html: `
           <div style="position:relative;display:flex;align-items:center;justify-content:center;">
-            <div style="position:absolute;width:24px;height:24px;border-radius:9999px;background:color-mix(in srgb, var(--accent, #4085FF) 35%, transparent);animation:ping 2s cubic-bezier(0,0,0.2,1) infinite;"></div>
-            <div style="width:16px;height:16px;border-radius:9999px;background:var(--accent, #4085FF);border:2.5px solid #ffffff;box-shadow:0 2px 6px rgba(0,0,0,0.4);position:relative;z-index:2;"></div>
+            <div style="position:absolute;width:24px;height:24px;border-radius:9999px;background:color-mix(in srgb, var(--accent, #3b7fa8) 35%, transparent);animation:ping 2s cubic-bezier(0,0,0.2,1) infinite;"></div>
+            <div style="width:16px;height:16px;border-radius:9999px;background:var(--accent, #3b7fa8);border:2.5px solid #ffffff;box-shadow:0 2px 6px rgba(0,0,0,0.4);position:relative;z-index:2;"></div>
           </div>
         `,
         iconSize: [24, 24],
@@ -133,11 +133,11 @@ export function BlogPostMap({ locationName, latitude, longitude, title }: BlogPo
     <div className="my-8 overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
       <div className="flex items-center justify-between border-b border-border bg-muted/40 px-4 py-3">
         <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-foreground">
-          <MapPin className="h-4 w-4 text-[#4085FF]" />
+          <MapPin className="h-4 w-4 text-accent" />
           <span>{locationName || "Story Coordinates"}</span>
         </div>
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <Navigation className="h-3.5 w-3.5 text-[#4085FF]" />
+          <Navigation className="h-3.5 w-3.5 text-accent" />
           <span>
             {latitude.toFixed(4)}° N, {longitude.toFixed(4)}° E
           </span>

@@ -18,6 +18,9 @@ import {
   Info,
   Compass,
   PenTool,
+  BarChart3,
+  Palette,
+  Hash,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -130,7 +133,7 @@ function AdminTypographyPage() {
       scriptLineHeight: { ...DEFAULT_TYPOGRAPHY_CONFIG.scriptLineHeight },
       scriptLetterSpacing: { ...DEFAULT_TYPOGRAPHY_CONFIG.scriptLetterSpacing },
     }));
-    toast.info("Reset Script font to Yuyu Short default settings.");
+    toast.info("Reset Script font to default settings.");
   };
 
   // Preview Changes across live website
@@ -177,11 +180,10 @@ function AdminTypographyPage() {
 
   // Lookup active script font metadata and supported weights
   const currentScriptFontObj: ScriptFontOption = useMemo(() => {
+    const sf = draftConfig.scriptFont || DEFAULT_TYPOGRAPHY_CONFIG.scriptFont || "";
     return (
       CURATED_SCRIPT_FONTS.find(
-        (f) =>
-          f.name.toLowerCase() === (draftConfig.scriptFont || "").toLowerCase() ||
-          f.googleFamily.toLowerCase() === (draftConfig.scriptFont || "").toLowerCase(),
+        (f) => f.name.toLowerCase() === sf.toLowerCase() || f.googleFamily.toLowerCase() === sf.toLowerCase(),
       ) || CURATED_SCRIPT_FONTS[0]
     );
   }, [draftConfig.scriptFont]);
@@ -202,7 +204,67 @@ function AdminTypographyPage() {
     setDraftConfig((prev) => ({
       ...prev,
       scriptFont: fontName,
-      scriptWeight: newWeight,
+      scriptWeight: fontName === DEFAULT_TYPOGRAPHY_CONFIG.scriptFont ? (DEFAULT_TYPOGRAPHY_CONFIG.scriptWeight || "500") : newWeight,
+    }));
+  };
+
+  // State for Journey in Numbers CMS live preview sample text (Home vs About)
+  const [jnPreviewMode, setJnPreviewMode] = useState<"home" | "about">("home");
+
+  // Reset Journey in Numbers to defaults
+  const handleResetJourneyNumbers = () => {
+    setDraftConfig((prev) => ({
+      ...prev,
+      journeyNumbersFont: DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersFont,
+      journeyNumbersWeight: DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersWeight,
+      journeyNumbersSize: { ...DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersSize },
+      journeyNumbersLineHeight: { ...DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersLineHeight },
+      journeyNumbersLetterSpacing: { ...DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersLetterSpacing },
+      journeyNumbersColor: DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersColor,
+    }));
+    toast.info("Reset 'Journey in Numbers' heading typography to defaults.");
+  };
+
+  // Helper updater for Journey in Numbers responsive values
+  const updateJourneyNumbersResponsive = (
+    field: "journeyNumbersSize" | "journeyNumbersLineHeight" | "journeyNumbersLetterSpacing",
+    val: number,
+  ) => {
+    setDraftConfig((prev) => ({
+      ...prev,
+      [field]: {
+        ...(prev[field] || DEFAULT_TYPOGRAPHY_CONFIG[field]),
+        [activeDevice]: val,
+      },
+    }));
+  };
+
+  // Lookup active Journey in Numbers font option
+  const currentJnFontObj: GoogleFontOption = useMemo(() => {
+    const jnf = draftConfig.journeyNumbersFont || DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersFont || "";
+    return (
+      CURATED_GOOGLE_FONTS.find((f) => f.name.toLowerCase() === jnf.toLowerCase()) ||
+      CURATED_GOOGLE_FONTS[1] // Cinzel default
+    );
+  }, [draftConfig.journeyNumbersFont]);
+
+  // Handle Journey in Numbers font change with auto weight compatibility
+  const handleJourneyNumbersFontChange = (fontName: string) => {
+    const fontObj = CURATED_GOOGLE_FONTS.find(
+      (f) => f.name.toLowerCase() === fontName.toLowerCase(),
+    );
+    const availableWeights = fontObj?.weights || [400, 600, 700];
+    let newWeight = draftConfig.journeyNumbersWeight || "700";
+    const currentWeightNum = parseInt(newWeight, 10);
+    if (!availableWeights.includes(currentWeightNum)) {
+      newWeight = availableWeights.includes(700)
+        ? "700"
+        : String(availableWeights[availableWeights.length - 1]);
+    }
+    setDraftConfig((prev) => ({
+      ...prev,
+      journeyNumbersFont: fontName,
+      journeyNumbersWeight: newWeight,
     }));
   };
 
@@ -212,10 +274,16 @@ function AdminTypographyPage() {
     const activeLineHeight = draftConfig.lineHeight[activeDevice];
     const activeLetterSpacing = draftConfig.letterSpacing[activeDevice];
 
-    const scriptInfo = resolveGoogleFamily(draftConfig.scriptFont || "Yuyu Short");
+    const scriptInfo = resolveGoogleFamily(draftConfig.scriptFont || DEFAULT_TYPOGRAPHY_CONFIG.scriptFont);
     const activeScriptSize = (draftConfig.scriptSize || DEFAULT_TYPOGRAPHY_CONFIG.scriptSize)[activeDevice];
     const activeScriptLineHeight = (draftConfig.scriptLineHeight || DEFAULT_TYPOGRAPHY_CONFIG.scriptLineHeight)[activeDevice];
     const activeScriptLetterSpacing = (draftConfig.scriptLetterSpacing || DEFAULT_TYPOGRAPHY_CONFIG.scriptLetterSpacing)[activeDevice];
+
+    const jnInfo = resolveGoogleFamily(draftConfig.journeyNumbersFont || DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersFont);
+    const activeJnSize = (draftConfig.journeyNumbersSize || DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersSize)[activeDevice];
+    const activeJnLineHeight = (draftConfig.journeyNumbersLineHeight || DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersLineHeight)[activeDevice];
+    const activeJnLetterSpacing = (draftConfig.journeyNumbersLetterSpacing || DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersLetterSpacing)[activeDevice];
+    const activeJnColor = draftConfig.journeyNumbersColor || DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersColor;
 
     return {
       "--font-display": `"${draftConfig.headingFont}", serif`,
@@ -235,6 +303,14 @@ function AdminTypographyPage() {
       "--font-size-hero-script": `${activeScriptSize}px`,
       "--line-height-hero-script": `${activeScriptLineHeight}`,
       "--letter-spacing-hero-script": `${activeScriptLetterSpacing}em`,
+
+      // Dedicated Journey in Numbers Heading Variables (Home & About Pages)
+      "--font-journey-numbers": `"${jnInfo.family}", ${jnInfo.fallback}`,
+      "--font-weight-journey-numbers": draftConfig.journeyNumbersWeight || "700",
+      "--font-size-journey-numbers": `${activeJnSize}px`,
+      "--line-height-journey-numbers": `${activeJnLineHeight}`,
+      "--letter-spacing-journey-numbers": `${activeJnLetterSpacing}em`,
+      "--color-journey-numbers": activeJnColor,
     } as React.CSSProperties;
   }, [draftConfig, activeDevice]);
 
@@ -252,6 +328,10 @@ function AdminTypographyPage() {
   const activeScriptSize = (draftConfig.scriptSize || DEFAULT_TYPOGRAPHY_CONFIG.scriptSize)[activeDevice];
   const activeScriptLineHeight = (draftConfig.scriptLineHeight || DEFAULT_TYPOGRAPHY_CONFIG.scriptLineHeight)[activeDevice];
   const activeScriptLetterSpacing = (draftConfig.scriptLetterSpacing || DEFAULT_TYPOGRAPHY_CONFIG.scriptLetterSpacing)[activeDevice];
+
+  const activeJnSize = (draftConfig.journeyNumbersSize || DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersSize)[activeDevice];
+  const activeJnLineHeight = (draftConfig.journeyNumbersLineHeight || DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersLineHeight)[activeDevice];
+  const activeJnLetterSpacing = (draftConfig.journeyNumbersLetterSpacing || DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersLetterSpacing)[activeDevice];
 
   return (
     <div className="space-y-8 pb-16">
@@ -361,18 +441,18 @@ function AdminTypographyPage() {
                   Script Font Family
                 </label>
                 <span className="text-xs font-bold text-[#4085FF]">
-                  {draftConfig.scriptFont || "Yuyu Short"}
+                  {draftConfig.scriptFont || DEFAULT_TYPOGRAPHY_CONFIG.scriptFont}
                 </span>
               </div>
 
               <select
-                value={draftConfig.scriptFont || "Yuyu Short"}
+                value={draftConfig.scriptFont || DEFAULT_TYPOGRAPHY_CONFIG.scriptFont}
                 onChange={(e) => handleScriptFontChange(e.target.value)}
                 className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm font-medium text-foreground focus:border-[#4085FF] focus:outline-none focus:ring-1 focus:ring-[#4085FF]"
               >
                 {CURATED_SCRIPT_FONTS.map((font) => (
                   <option key={`script-opt-${font.name}`} value={font.name}>
-                    {font.name} {font.name === "Yuyu Short" ? "(Default Hero Headline)" : ""} — {font.description}
+                    {font.name} {font.name === DEFAULT_TYPOGRAPHY_CONFIG.scriptFont ? "(Default Hero Accent)" : ""} — {font.description}
                   </option>
                 ))}
               </select>
@@ -407,7 +487,7 @@ function AdminTypographyPage() {
               >
                 <p
                   style={{
-                    fontFamily: `"${resolveGoogleFamily(draftConfig.scriptFont || "Yuyu Short").family}", ${currentScriptFontObj.fallback}`,
+                    fontFamily: `"${resolveGoogleFamily(draftConfig.scriptFont || DEFAULT_TYPOGRAPHY_CONFIG.scriptFont).family}", ${currentScriptFontObj.fallback}`,
                     fontSize: `${activeScriptSize}px`,
                     fontWeight: draftConfig.scriptWeight || "400",
                     lineHeight: activeScriptLineHeight,
@@ -650,7 +730,7 @@ function AdminTypographyPage() {
                 className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition"
               >
                 <RotateCcw className="h-3 w-3" />
-                Reset Script to Yuyu Short
+                Reset Script to Default
               </button>
 
               <div className="flex items-center gap-2">
@@ -667,6 +747,484 @@ function AdminTypographyPage() {
                   onClick={() => saveMutation.mutate(draftConfig)}
                   disabled={saveMutation.isPending}
                   className="inline-flex items-center gap-1.5 rounded-lg bg-[#4085FF] px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-[#3570D0] transition disabled:opacity-50"
+                >
+                  <Save className="h-3 w-3" />
+                  Save & Publish
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* ========================================================= */}
+          {/* DEDICATED JOURNEY IN NUMBERS CATEGORY (Independent) */}
+          {/* ========================================================= */}
+          <div className="rounded-2xl border-2 border-[#38BDF8]/40 bg-card p-5 sm:p-6 shadow-sm space-y-5 relative overflow-hidden">
+            <div className="absolute top-0 right-0 h-32 w-32 bg-[#38BDF8]/5 rounded-bl-full pointer-events-none" />
+
+            <div className="flex flex-col gap-2 border-b border-border/60 pb-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#38BDF8]/15 text-[#38BDF8]">
+                    <BarChart3 className="h-4 w-4" />
+                  </div>
+                  <h2 className="text-base font-bold text-foreground">
+                    Journey in Numbers
+                  </h2>
+                </div>
+                <span className="inline-flex items-center rounded-full bg-[#38BDF8]/10 px-2.5 py-0.5 text-[11px] font-semibold text-[#38BDF8] border border-[#38BDF8]/20">
+                  Dedicated Category
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Independently control the heading font family, weight, size, letter-spacing, and color for the{" "}
+                <strong className="text-foreground">“Journey in Numbers”</strong> section across both Home and About pages.
+                Changes update both pages automatically and never affect standard page headings.
+              </p>
+            </div>
+
+            {/* 1. Font Family Dropdown */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Heading Font Family
+                </label>
+                <span className="text-xs font-bold text-[#38BDF8]">
+                  {draftConfig.journeyNumbersFont || DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersFont}
+                </span>
+              </div>
+
+              <select
+                value={draftConfig.journeyNumbersFont || DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersFont}
+                onChange={(e) => handleJourneyNumbersFontChange(e.target.value)}
+                className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm font-medium text-foreground focus:border-[#38BDF8] focus:outline-none focus:ring-1 focus:ring-[#38BDF8]"
+              >
+                <optgroup label="Editorial & Classical Serifs">
+                  {CURATED_GOOGLE_FONTS.filter((f) => f.category === "Serif (Editorial)").map((f) => (
+                    <option key={`jn-font-${f.name}`} value={f.name}>
+                      {f.name} {f.name === "Cinzel" ? "(Default Distinct Serif)" : ""} — {f.vibe}
+                    </option>
+                  ))}
+                </optgroup>
+                <optgroup label="Modern & Geometric Sans">
+                  {CURATED_GOOGLE_FONTS.filter((f) => f.category === "Sans-Serif (Modern)").map((f) => (
+                    <option key={`jn-font-${f.name}`} value={f.name}>
+                      {f.name} — {f.vibe}
+                    </option>
+                  ))}
+                </optgroup>
+                <optgroup label="Adventure & Display">
+                  {CURATED_GOOGLE_FONTS.filter((f) => f.category === "Adventure & Display").map((f) => (
+                    <option key={`jn-font-${f.name}`} value={f.name}>
+                      {f.name} — {f.vibe}
+                    </option>
+                  ))}
+                </optgroup>
+              </select>
+
+              <div className="rounded-xl bg-[#38BDF8]/5 border border-[#38BDF8]/20 p-3 text-xs flex flex-col gap-1">
+                <div className="flex items-center justify-between text-muted-foreground">
+                  <span className="font-semibold text-foreground">{currentJnFontObj.name}</span>
+                  <span className="text-[11px] opacity-75">
+                    Category: <code>{currentJnFontObj.category}</code>
+                  </span>
+                </div>
+                <p className="text-muted-foreground text-[11px] leading-relaxed">
+                  {currentJnFontObj.vibe} · Fallback: <code>{currentJnFontObj.fallback}</code>
+                </p>
+              </div>
+            </div>
+
+            {/* 2. Real-Time Live Heading Preview with text toggle */}
+            <div className="space-y-2 pt-2 border-t border-border/40">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                  <Eye className="h-3 w-3 text-[#38BDF8]" />
+                  Live Section Heading Preview
+                </label>
+                <div className="flex items-center rounded-lg bg-muted p-0.5 text-[11px]">
+                  <button
+                    type="button"
+                    onClick={() => setJnPreviewMode("home")}
+                    className={`px-2 py-0.5 rounded-md transition font-medium ${
+                      jnPreviewMode === "home"
+                        ? "bg-background text-foreground shadow-xs font-semibold"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    Home Title
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setJnPreviewMode("about")}
+                    className={`px-2 py-0.5 rounded-md transition font-medium ${
+                      jnPreviewMode === "about"
+                        ? "bg-background text-foreground shadow-xs font-semibold"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    About Title
+                  </button>
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-border bg-black/85 p-5 text-center relative overflow-hidden transition-all shadow-inner">
+                <p
+                  style={{
+                    fontFamily: `"${resolveGoogleFamily(draftConfig.journeyNumbersFont || DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersFont).family}", ${currentJnFontObj.fallback}`,
+                    fontSize: `${activeJnSize}px`,
+                    fontWeight: draftConfig.journeyNumbersWeight || "700",
+                    lineHeight: activeJnLineHeight,
+                    letterSpacing: `${activeJnLetterSpacing}em`,
+                    color: draftConfig.journeyNumbersColor || DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersColor,
+                  }}
+                  className="transition-all duration-200 select-none break-words"
+                >
+                  {jnPreviewMode === "home" ? "Journey in numbers" : "27 Countries and 3 Continents"}
+                </p>
+              </div>
+            </div>
+
+            {/* 3. Heading Color Customizer & Palette Presets */}
+            <div className="space-y-2.5 pt-2 border-t border-border/40">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                  <Palette className="h-3.5 w-3.5 text-[#38BDF8]" />
+                  Heading Color & Presets
+                </label>
+                <div className="flex items-center gap-2">
+                  <span
+                    className="h-3.5 w-3.5 rounded-full border border-white/20 shadow-xs"
+                    style={{ backgroundColor: draftConfig.journeyNumbersColor || DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersColor }}
+                  />
+                  <span className="font-mono text-xs font-semibold text-foreground uppercase">
+                    {draftConfig.journeyNumbersColor || DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersColor}
+                  </span>
+                </div>
+              </div>
+
+              {/* Swatch chips */}
+              <div className="flex flex-wrap gap-1.5">
+                {[
+                  { label: "Glacier Azure", color: "#38BDF8" },
+                  { label: "Alpine Sky", color: "#5E9DC4" },
+                  { label: "Ocean Blue", color: "#0284C7" },
+                  { label: "Amber Trail", color: "#F59E0B" },
+                  { label: "Terracotta", color: "#E07A5F" },
+                  { label: "Emerald Valley", color: "#10B981" },
+                  { label: "Imperial Gold", color: "#D4AF37" },
+                  { label: "Crimson Peak", color: "#F43F5E" },
+                  { label: "Warm Sand", color: "#D6CFC2" },
+                  { label: "Crisp Ivory", color: "#F6F2E9" },
+                  { label: "Pure White", color: "#FFFFFF" },
+                  { label: "Midnight Slate", color: "#0F172A" },
+                ].map((swatch) => {
+                  const isCurrent =
+                    (draftConfig.journeyNumbersColor || "").toLowerCase() ===
+                    swatch.color.toLowerCase();
+                  return (
+                    <button
+                      key={`jn-color-${swatch.color}`}
+                      type="button"
+                      title={swatch.label}
+                      onClick={() =>
+                        setDraftConfig({
+                          ...draftConfig,
+                          journeyNumbersColor: swatch.color,
+                        })
+                      }
+                      className={`group relative flex items-center gap-1 rounded-lg border px-2 py-1 text-[11px] transition cursor-pointer ${
+                        isCurrent
+                          ? "border-[#38BDF8] bg-[#38BDF8]/15 font-bold text-foreground ring-1 ring-[#38BDF8]"
+                          : "border-border bg-background/80 hover:bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      <span
+                        className="h-2.5 w-2.5 rounded-full border border-black/20 shrink-0"
+                        style={{ backgroundColor: swatch.color }}
+                      />
+                      <span>{swatch.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Custom Color Input */}
+              <div className="flex items-center gap-2 pt-1">
+                <input
+                  type="color"
+                  value={
+                    draftConfig.journeyNumbersColor?.startsWith("#")
+                      ? draftConfig.journeyNumbersColor
+                      : "#38BDF8"
+                  }
+                  onChange={(e) =>
+                    setDraftConfig({
+                      ...draftConfig,
+                      journeyNumbersColor: e.target.value,
+                    })
+                  }
+                  className="h-8 w-10 cursor-pointer rounded-lg border border-border bg-background p-0.5"
+                  title="Pick custom color"
+                />
+                <input
+                  type="text"
+                  placeholder="#38BDF8"
+                  value={draftConfig.journeyNumbersColor || ""}
+                  onChange={(e) =>
+                    setDraftConfig({
+                      ...draftConfig,
+                      journeyNumbersColor: e.target.value,
+                    })
+                  }
+                  className="w-32 rounded-lg border border-border bg-background px-3 py-1.5 font-mono text-xs text-foreground focus:border-[#38BDF8] focus:outline-none"
+                />
+                <span className="text-[11px] text-muted-foreground">
+                  Custom hex code or CSS color
+                </span>
+              </div>
+            </div>
+
+            {/* 4. Font Weight Controls */}
+            <div className="space-y-2.5 pt-2 border-t border-border/40">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Heading Font Weight
+                </label>
+                <span className="rounded-md bg-muted px-2 py-0.5 text-xs font-semibold">
+                  {draftConfig.journeyNumbersWeight || "700"}
+                </span>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {currentJnFontObj.weights.map((weightNum) => {
+                  const weightStr = String(weightNum);
+                  const isSelected = (draftConfig.journeyNumbersWeight || "700") === weightStr;
+                  const labelMap: Record<number, string> = {
+                    100: "Thin",
+                    200: "Extra Light",
+                    300: "Light",
+                    400: "Regular",
+                    500: "Medium",
+                    600: "Semi-Bold",
+                    700: "Bold",
+                    800: "Extra Bold",
+                    900: "Black",
+                  };
+                  return (
+                    <button
+                      key={`jn-w-${weightStr}`}
+                      type="button"
+                      onClick={() =>
+                        setDraftConfig({ ...draftConfig, journeyNumbersWeight: weightStr })
+                      }
+                      className={`flex flex-col items-center justify-center rounded-xl border px-3.5 py-2 text-xs transition-all ${
+                        isSelected
+                          ? "border-[#38BDF8] bg-[#38BDF8]/15 font-bold text-[#38BDF8] shadow-sm"
+                          : "border-border bg-background text-muted-foreground hover:bg-muted"
+                      }`}
+                    >
+                      <span className="font-mono">{weightStr}</span>
+                      <span className="text-[10px] text-muted-foreground font-normal">
+                        {labelMap[weightNum] || "Normal"}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* 5. Responsive Headline Sizing & Spacing */}
+            <div className="space-y-4 pt-3 border-t border-border/40">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                  <Layers className="h-3.5 w-3.5 text-[#38BDF8]" />
+                  Responsive Heading Sizing
+                </label>
+
+                {/* Device Selector */}
+                <div className="flex items-center rounded-xl bg-muted p-1 gap-1">
+                  <button
+                    type="button"
+                    onClick={() => setActiveDevice("desktop")}
+                    className={`flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-medium transition-all ${
+                      activeDevice === "desktop"
+                        ? "bg-background text-foreground shadow-xs font-semibold"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <Monitor className="h-3 w-3" />
+                    Desktop
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveDevice("tablet")}
+                    className={`flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-medium transition-all ${
+                      activeDevice === "tablet"
+                        ? "bg-background text-foreground shadow-xs font-semibold"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <Tablet className="h-3 w-3" />
+                    Tablet
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveDevice("mobile")}
+                    className={`flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-medium transition-all ${
+                      activeDevice === "mobile"
+                        ? "bg-background text-foreground shadow-xs font-semibold"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <Smartphone className="h-3 w-3" />
+                    Mobile
+                  </button>
+                </div>
+              </div>
+
+              {/* Font Size */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">
+                    Heading Font Size ({activeDevice})
+                  </span>
+                  <span className="font-mono text-xs font-bold text-foreground">
+                    {activeJnSize}px ({(activeJnSize / 16).toFixed(3)}rem)
+                  </span>
+                </div>
+                <div className="flex items-center gap-4">
+                  <input
+                    type="range"
+                    min="14"
+                    max="56"
+                    step="1"
+                    value={activeJnSize}
+                    onChange={(e) =>
+                      updateJourneyNumbersResponsive("journeyNumbersSize", parseFloat(e.target.value))
+                    }
+                    className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-muted accent-[#38BDF8]"
+                  />
+                  <input
+                    type="number"
+                    min="14"
+                    max="56"
+                    step="1"
+                    value={activeJnSize}
+                    onChange={(e) =>
+                      updateJourneyNumbersResponsive(
+                        "journeyNumbersSize",
+                        parseFloat(e.target.value) || activeJnSize,
+                      )
+                    }
+                    className="w-16 rounded-lg border border-border bg-background px-2 py-1 text-center font-mono text-xs text-foreground focus:border-[#38BDF8] focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Line Height */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">
+                    Heading Line Height ({activeDevice})
+                  </span>
+                  <span className="font-mono text-xs font-bold text-foreground">
+                    {activeJnLineHeight}
+                  </span>
+                </div>
+                <div className="flex items-center gap-4">
+                  <input
+                    type="range"
+                    min="0.9"
+                    max="2.0"
+                    step="0.05"
+                    value={activeJnLineHeight}
+                    onChange={(e) =>
+                      updateJourneyNumbersResponsive("journeyNumbersLineHeight", parseFloat(e.target.value))
+                    }
+                    className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-muted accent-[#38BDF8]"
+                  />
+                  <input
+                    type="number"
+                    min="0.9"
+                    max="2.0"
+                    step="0.05"
+                    value={activeJnLineHeight}
+                    onChange={(e) =>
+                      updateJourneyNumbersResponsive(
+                        "journeyNumbersLineHeight",
+                        parseFloat(e.target.value) || activeJnLineHeight,
+                      )
+                    }
+                    className="w-16 rounded-lg border border-border bg-background px-2 py-1 text-center font-mono text-xs text-foreground focus:border-[#38BDF8] focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Letter Spacing */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">
+                    Heading Letter Spacing ({activeDevice})
+                  </span>
+                  <span className="font-mono text-xs font-bold text-foreground">
+                    {activeJnLetterSpacing}em
+                  </span>
+                </div>
+                <div className="flex items-center gap-4">
+                  <input
+                    type="range"
+                    min="-0.05"
+                    max="0.2"
+                    step="0.005"
+                    value={activeJnLetterSpacing}
+                    onChange={(e) =>
+                      updateJourneyNumbersResponsive("journeyNumbersLetterSpacing", parseFloat(e.target.value))
+                    }
+                    className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-muted accent-[#38BDF8]"
+                  />
+                  <input
+                    type="number"
+                    min="-0.05"
+                    max="0.2"
+                    step="0.005"
+                    value={activeJnLetterSpacing}
+                    onChange={(e) =>
+                      updateJourneyNumbersResponsive(
+                        "journeyNumbersLetterSpacing",
+                        parseFloat(e.target.value) || activeJnLetterSpacing,
+                      )
+                    }
+                    className="w-16 rounded-lg border border-border bg-background px-2 py-1 text-center font-mono text-xs text-foreground focus:border-[#38BDF8] focus:outline-none"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Category Action Footer */}
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-border/40">
+              <button
+                type="button"
+                onClick={handleResetJourneyNumbers}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition"
+              >
+                <RotateCcw className="h-3 w-3" />
+                Reset Journey in Numbers to Default
+              </button>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handlePreviewOnSite}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-[#38BDF8]/30 bg-[#38BDF8]/10 px-3 py-1.5 text-xs font-medium text-[#38BDF8] hover:bg-[#38BDF8]/20 transition"
+                >
+                  <Eye className="h-3 w-3" />
+                  Preview Changes
+                </button>
+                <button
+                  type="button"
+                  onClick={() => saveMutation.mutate(draftConfig)}
+                  disabled={saveMutation.isPending}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#38BDF8] px-3.5 py-1.5 text-xs font-semibold text-slate-950 hover:bg-[#0ea5e9] transition disabled:opacity-50"
                 >
                   <Save className="h-3 w-3" />
                   Save & Publish
@@ -1402,14 +1960,35 @@ function AdminTypographyPage() {
                 </button>
               </div>
 
-              {/* Numbers / Statistics Preview */}
-              <div className="pt-4 border-t border-white/10">
-                <div className="mb-2 text-[10px] font-semibold uppercase tracking-wider opacity-60">
-                  expedition metrics (composite number stack)
+              {/* Journey in Numbers Section Preview */}
+              <div className="pt-5 border-t border-white/10 space-y-3.5">
+                <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
+                  <div>
+                    <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-accent">
+                      By the numbers
+                    </span>
+                    <h2
+                      style={{
+                        fontFamily: 'var(--font-journey-numbers)',
+                        fontSize: 'var(--font-size-journey-numbers)',
+                        fontWeight: 'var(--font-weight-journey-numbers)',
+                        lineHeight: 'var(--line-height-journey-numbers)',
+                        letterSpacing: 'var(--letter-spacing-journey-numbers)',
+                        color: 'var(--color-journey-numbers)',
+                      }}
+                      className="journey-numbers-heading mt-0.5 tracking-tight transition-all duration-200"
+                    >
+                      Journey in numbers
+                    </h2>
+                  </div>
+                  <p className="text-[11px] sm:text-xs opacity-75 max-w-xs leading-relaxed">
+                    A quiet tally of countries crossed, trips ridden and photographs made along the way.
+                  </p>
                 </div>
+
                 <div className="grid grid-cols-2 min-[420px]:grid-cols-4 gap-3">
                   <div
-                    className={`rounded-xl p-3 border ${
+                    className={`rounded-xl p-3 border transition-colors ${
                       previewTheme === "dark"
                         ? "border-white/10 bg-white/5"
                         : "border-neutral-200 bg-neutral-50"
@@ -1421,7 +2000,7 @@ function AdminTypographyPage() {
                     </div>
                   </div>
                   <div
-                    className={`rounded-xl p-3 border ${
+                    className={`rounded-xl p-3 border transition-colors ${
                       previewTheme === "dark"
                         ? "border-white/10 bg-white/5"
                         : "border-neutral-200 bg-neutral-50"
@@ -1433,7 +2012,7 @@ function AdminTypographyPage() {
                     </div>
                   </div>
                   <div
-                    className={`rounded-xl p-3 border ${
+                    className={`rounded-xl p-3 border transition-colors ${
                       previewTheme === "dark"
                         ? "border-white/10 bg-white/5"
                         : "border-neutral-200 bg-neutral-50"
@@ -1445,7 +2024,7 @@ function AdminTypographyPage() {
                     </div>
                   </div>
                   <div
-                    className={`rounded-xl p-3 border ${
+                    className={`rounded-xl p-3 border transition-colors ${
                       previewTheme === "dark"
                         ? "border-white/10 bg-white/5"
                         : "border-neutral-200 bg-neutral-50"
@@ -1464,8 +2043,12 @@ function AdminTypographyPage() {
           {/* Quick Font Summary Card */}
           <div className="rounded-2xl border border-border bg-card p-4 text-xs text-muted-foreground flex flex-col gap-2.5">
             <div className="flex flex-wrap items-center gap-3">
+              <span className="text-[#38BDF8] font-semibold">
+                <strong>Journey in Numbers:</strong> {draftConfig.journeyNumbersFont || DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersFont} ({draftConfig.journeyNumbersWeight || "700"} / {activeJnSize}px / {draftConfig.journeyNumbersColor || DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersColor})
+              </span>
+              <span>•</span>
               <span className="text-[#4085FF] font-semibold">
-                <strong>Hero Script:</strong> {draftConfig.scriptFont || "Yuyu Short"} ({draftConfig.scriptWeight || "400"} / {activeScriptSize}px)
+                <strong>Hero Script:</strong> {draftConfig.scriptFont || DEFAULT_TYPOGRAPHY_CONFIG.scriptFont} ({draftConfig.scriptWeight || "400"} / {activeScriptSize}px)
               </span>
               <span>•</span>
               <span>

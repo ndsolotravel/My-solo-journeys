@@ -86,113 +86,137 @@
   --color-section-bg: var(--section-bg);
   --color-footer-bg: var(--footer-bg);
   --color-footer-text: var(--footer-text);
-  --font-display: "Roboto Numbers", "Playfair Display", Georgia, Cambria, "Times New Roman", Times, serif;
-  --font-sans: "Roboto", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-display: "Roboto Numbers", "Cormorant Garamond", Garamond, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-sans: "Manrope", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-numeric: "Roboto", "Roboto Numbers", ui-sans-serif, system-ui, sans-serif;
   --shadow-elegant: 0 30px 80px -40px color-mix(in oklab, var(--primary) 40%, transparent);
+  --shadow-atlas: 0 24px 60px -32px color-mix(in oklab, var(--foreground) 55%, transparent);
+
+  /* Cinematic easing + motion language */
+  --ease-editorial: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-soft: cubic-bezier(0.33, 0.1, 0.2, 1);
 }
 
 :root {
   --radius: 0.75rem;
-  /* #FFFFFF */
-  --background: oklch(1 0 0);
-  /* #111827 */
-  --foreground: oklch(0.218 0.034 264);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.218 0.034 264);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.218 0.034 264);
-  /* #0F172A primary */
-  --primary: oklch(0.226 0.041 264);
-  --primary-foreground: oklch(0.98 0.003 247);
-  /* #1E293B secondary */
-  --secondary: oklch(0.295 0.038 264);
-  --secondary-foreground: oklch(0.98 0.003 247);
-  --muted: oklch(0.968 0.006 247);
-  --muted-foreground: oklch(0.5 0.024 257);
-   /* #4085FF Signature Brand Accent */
-   --brand: #4085ff;
-   --brand-foreground: #ffffff;
-   --accent: #4085ff;
-   --accent-foreground: #ffffff;
-   /* #10B981 success */
-   --success: oklch(0.7 0.149 162);
-   --success-foreground: oklch(0.99 0.005 162);
-   --destructive: oklch(0.62 0.235 27);
-   --destructive-foreground: oklch(0.98 0.003 247);
-   --border: oklch(0.92 0.011 256);
-   --input: oklch(0.92 0.011 256);
-   --ring: #4085ff;
+  /* #FFFFFF — clean editorial canvas */
+  --background: #ffffff;
+  /* #211F1A — warm charcoal ink */
+  --foreground: #211f1a;
+  --card: #ffffff;
+  --card-foreground: #211f1a;
+  --popover: #ffffff;
+  --popover-foreground: #211f1a;
+  /* #1B1915 — deep charcoal */
+  --primary: #1b1915;
+  --primary-foreground: #f7f4ec;
+  /* #2E2A23 — warm charcoal secondary */
+  --secondary: #2e2a23;
+  --secondary-foreground: #f4efe4;
+  /* Sand-tinted muted surface */
+  --muted: #f5f1e8;
+  /* Warm grey */
+  --muted-foreground: #7c7365;
+  /* #3B7FA8 — sky-blue signature accent */
+  --brand: #3b7fa8;
+  --brand-foreground: #ffffff;
+  --accent: #3b7fa8;
+  --accent-foreground: #ffffff;
+  /* #10B981 success */
+  --success: oklch(0.7 0.149 162);
+  --success-foreground: oklch(0.99 0.005 162);
+  --destructive: oklch(0.62 0.235 27);
+  --destructive-foreground: oklch(0.98 0.003 247);
+  /* Warm sand divider */
+  --border: #e7e1d5;
+  --input: #e7e1d5;
+  --ring: #3b7fa8;
 
   /* Centralized Color Management Default Tokens */
-  --nav-text: #E2E8F0;
-  --nav-hover: #4085FF;
-  --btn-bg: #4085FF;
+  --nav-text: #2b2822;
+  --nav-hover: #3b7fa8;
+  --btn-bg: #3b7fa8;
   --btn-text: #FFFFFF;
-  --btn-hover: #2563EB;
+  --btn-hover: #326e92;
   --card-bg: #FFFFFF;
-  --section-bg: #0B0F17;
-  --border-color: #E2E8F0;
-  --footer-bg: #0B0F17;
-  --footer-text: #94A3B8;
-  --hero-overlay: rgba(0, 0, 0, 0.65);
-  --color-link: #4085FF;
-  --link-color: #4085FF;
-  --color-link-hover: #2563EB;
-  --link-hover-color: #2563EB;
-  --color-heading: #0F172A;
-  --heading-color: #0F172A;
-  --color-body-text: #334155;
-  --body-text-color: #334155;
-  --color-muted-text: #64748B;
-  --muted-text-color: #64748B;
+  --section-bg: #17150f;
+  --border-color: #E7E1D5;
+  --footer-bg: #17150f;
+  --footer-text: #B9B1A2;
+  --hero-overlay: rgba(12, 11, 9, 0.62);
+  --color-link: #3b7fa8;
+  --link-color: #3b7fa8;
+  --color-link-hover: #2a6183;
+  --link-hover-color: #2a6183;
+  --color-heading: #1B1915;
+  --heading-color: #1B1915;
+  --color-body-text: #3E3A32;
+  --body-text-color: #3E3A32;
+  --color-muted-text: #7C7365;
+  --muted-text-color: #7C7365;
 
   /* Centralized Typography Configuration Variables */
   --font-nav: var(--font-sans);
   --font-button: var(--font-sans);
-  --font-weight-heading: 700;
+  --font-weight-heading: 600;
   --font-weight-body: 400;
   --font-size-body: 1.0625rem;
   --line-height-body: 1.7;
   --letter-spacing-body: normal;
   --letter-spacing-heading: -0.02em;
+
+  /* Dedicated Journey in Numbers Typography & Color Fallbacks */
+  --font-journey-numbers: "Cinzel", "Cormorant Garamond", Georgia, serif;
+  --font-weight-journey-numbers: 700;
+  --font-size-journey-numbers: 1.875rem;
+  --line-height-journey-numbers: 1.25;
+  --letter-spacing-journey-numbers: 0.02em;
+  --color-journey-numbers: #38BDF8;
 }
 
 .dark {
-  /* #020617 */
-  --background: oklch(0.13 0.029 264);
-  --foreground: oklch(0.98 0.003 247);
-  --card: oklch(0.18 0.034 264);
-  --card-foreground: oklch(0.98 0.003 247);
-  --popover: oklch(0.18 0.034 264);
-  --popover-foreground: oklch(0.98 0.003 247);
-  --primary: oklch(0.93 0.013 256);
-  --primary-foreground: oklch(0.18 0.034 264);
-  --secondary: oklch(0.26 0.038 264);
-  --secondary-foreground: oklch(0.98 0.003 247);
-  --muted: oklch(0.24 0.034 264);
-  --muted-foreground: oklch(0.7 0.024 257);
-   --brand: #4085ff;
-   --brand-foreground: #ffffff;
-   --accent: #4085ff;
-   --accent-foreground: #ffffff;
+  /* #14130F — warm near-black */
+  --background: #14130f;
+  --foreground: #f4f0e6;
+  --card: #1c1a15;
+  --card-foreground: #f4f0e6;
+  --popover: #1c1a15;
+  --popover-foreground: #f4f0e6;
+  --primary: #f4f0e6;
+  --primary-foreground: #1c1a15;
+  --secondary: #262319;
+  --secondary-foreground: #f4f0e6;
+  --muted: #232019;
+  --muted-foreground: #b4ac9e;
+   --brand: #5e9dc4;
+   --brand-foreground: #0f0e0b;
+   --accent: #5e9dc4;
+   --accent-foreground: #0f0e0b;
    --success: oklch(0.72 0.149 162);
-   --success-foreground: oklch(0.13 0.029 264);
+   --success-foreground: #14130f;
    --destructive: oklch(0.65 0.21 22);
-   --destructive-foreground: oklch(0.98 0.003 247);
-   --border: oklch(1 0 0 / 10%);
-   --input: oklch(1 0 0 / 15%);
-   --ring: #4085ff;
-   --color-heading: #F8FAFC;
-   --heading-color: #F8FAFC;
-   --color-body-text: #CBD5E1;
-   --body-text-color: #CBD5E1;
-   --color-muted-text: #94A3B8;
-   --muted-text-color: #94A3B8;
-   --color-link: #4085FF;
-   --link-color: #4085FF;
-   --color-link-hover: #60A5FA;
-   --link-hover-color: #60A5FA;
+   --destructive-foreground: #f4f0e6;
+   --border: rgba(244, 240, 230, 0.12);
+   --input: rgba(244, 240, 230, 0.16);
+   --ring: #5e9dc4;
+   --color-heading: #f6f2e9;
+   --heading-color: #f6f2e9;
+   --color-body-text: #d6cfc2;
+   --body-text-color: #d6cfc2;
+   --color-muted-text: #a79e8f;
+   --muted-text-color: #a79e8f;
+   --color-link: #7fb6d6;
+   --link-color: #7fb6d6;
+   --color-link-hover: #a6cfe6;
+   --link-hover-color: #a6cfe6;
    }
+
+/* Dark-mode navigation legibility: overrides the shared injected nav token,
+   which targets `.dark` at lower specificity than `html.dark`. */
+html.dark {
+  --nav-text: #e7e2d8;
+  --nav-hover: #7fb6d6;
+}
 
 @layer base {
   * {
@@ -308,16 +332,16 @@
   }
 }
 
-/* Playfair Display typography — weights 400 through 900, elegant editorial serif.
+/* Cormorant Garamond typography — elegant editorial serif.
    Visual display font for hero, section headings, blog & destination titles. */
 .font-display {
   font-family: var(--font-display);
-  font-weight: var(--font-weight-heading, 700);
+  font-weight: var(--font-weight-heading, 600);
   letter-spacing: var(--letter-spacing-heading, -0.02em);
   font-synthesis-weight: none;
 }
 
-/* Roboto typography — clean, modern, highly legible sans-serif.
+/* Manrope typography — clean, modern, highly legible sans-serif.
    Body text, UI elements, navigation, buttons, forms, CMS panels, captions. */
 .font-sans {
   font-family: var(--font-sans);
@@ -366,7 +390,7 @@ button, .btn, [role="button"] {
   .text-display {
     font-family: var(--font-display);
     font-size: clamp(2.5rem, 6vw, 4.5rem);
-    font-weight: 700;
+    font-weight: 600;
     line-height: 1.12;
     letter-spacing: -0.025em;
     color: var(--color-heading);
@@ -516,7 +540,7 @@ button, .btn, [role="button"] {
 .font-numeric,
 .stat-number,
 [data-numeric] {
-  font-family: var(--font-sans) !important;
+  font-family: var(--font-numeric, "Roboto", ui-sans-serif, system-ui, sans-serif) !important;
   font-variant-numeric: tabular-nums lining-nums;
   letter-spacing: -0.01em;
 }
@@ -531,7 +555,7 @@ button, .btn, [role="button"] {
   & h1 {
     font-family: var(--font-display);
     font-size: clamp(1.75rem, 5vw, 2.25rem);
-    font-weight: 700;
+    font-weight: 600;
     line-height: 1.2;
     letter-spacing: -0.015em;
     margin-top: 2.5rem;
@@ -541,7 +565,7 @@ button, .btn, [role="button"] {
   & h2 {
     font-family: var(--font-display);
     font-size: clamp(1.5rem, 4vw, 1.875rem);
-    font-weight: 700;
+    font-weight: 600;
     line-height: 1.25;
     letter-spacing: -0.015em;
     margin-top: 2.5rem;
@@ -551,7 +575,7 @@ button, .btn, [role="button"] {
   & h3 {
     font-family: var(--font-display);
     font-size: clamp(1.25rem, 3vw, 1.5rem);
-    font-weight: 700;
+    font-weight: 600;
     line-height: 1.3;
     letter-spacing: -0.015em;
     margin-top: 2rem;
@@ -707,7 +731,7 @@ select {
 /* RTL support (Urdu) */
 html[dir="rtl"] {
   font-family:
-    "Playfair Display", "Noto Naskh Arabic", "Jameel Noori Nastaleeq", "Noto Nastaliq Urdu", var(--font-sans);
+    "Noto Naskh Arabic", "Jameel Noori Nastaleeq", "Noto Nastaliq Urdu", var(--font-sans);
   text-align: right;
 }
 
@@ -717,7 +741,7 @@ html[dir="rtl"] h3,
 html[dir="rtl"] h4,
 html[dir="rtl"] h5,
 html[dir="rtl"] h6 {
-  font-family: "Playfair Display", "Noto Naskh Arabic", serif;
+  font-family: "Cormorant Garamond", "Noto Naskh Arabic", "Noto Nastaliq Urdu", serif;
   text-align: right;
 }
 html[dir="rtl"] .container {
@@ -872,9 +896,10 @@ html[dir="rtl"] .flex-row {
 }
 
 .hero-subtitle {
-  font-family: var(--font-hero-script, "Yuyu Short", cursive, sans-serif);
+  font-family: var(--font-hero-script, "Cormorant Garamond", Garamond, Georgia, serif);
   font-size: var(--font-size-hero-script, clamp(1.125rem, 2.5vw, 1.625rem));
   font-weight: var(--font-weight-script, 400);
+  font-style: italic;
   line-height: var(--line-height-hero-script, 1.3);
   letter-spacing: var(--letter-spacing-hero-script, 0.01em);
   color: var(--accent);
@@ -892,6 +917,17 @@ html[dir="rtl"] .flex-row {
   .hero-subtitle {
     line-height: var(--line-height-hero-script, 1.3);
   }
+}
+
+/* Dedicated Journey in Numbers heading typography & color */
+.journey-numbers-heading {
+  font-family: var(--font-journey-numbers, "Cinzel", "Cormorant Garamond", Georgia, serif);
+  font-size: var(--font-size-journey-numbers, clamp(1.5rem, 3.5vw, 2.25rem));
+  font-weight: var(--font-weight-journey-numbers, 700);
+  line-height: var(--line-height-journey-numbers, 1.25);
+  letter-spacing: var(--letter-spacing-journey-numbers, 0.02em);
+  color: var(--color-journey-numbers, #38BDF8);
+  transition: color 0.2s ease, font-size 0.2s ease;
 }
 
 .hero-cta-animate {
@@ -1016,8 +1052,8 @@ html[dir="rtl"] .flex-row {
   font-weight: 500;
   padding: 0.25rem 0.75rem;
   border-radius: 9999px;
-  background-color: color-mix(in srgb, var(--brand, #4085ff) 15%, transparent);
-  color: var(--brand, #4085ff);
+  background-color: color-mix(in srgb, var(--brand, #3b7fa8) 15%, transparent);
+  color: var(--brand, #3b7fa8);
 }
 
 /* Section divider */
@@ -1147,7 +1183,7 @@ html[dir="rtl"] .flex-row {
 
 /* Featured ribbon */
 .featured-ribbon {
-   background: linear-gradient(135deg, var(--brand) 0%, #3570d0 100%);
+   background: linear-gradient(135deg, var(--brand) 0%, #2a6183 100%);
   color: white;
   font-size: 0.7rem;
   font-weight: 600;

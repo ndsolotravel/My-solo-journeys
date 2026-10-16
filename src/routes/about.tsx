@@ -895,7 +895,18 @@ function AboutPage() {
                   <Globe className="w-3.5 h-3.5 text-accent" />
                   <span>{t(numbersEyebrow)}</span>
                 </div>
-                 <h2 className="font-display text-2xl sm:text-4xl font-bold text-heading tracking-tight">
+                 <h2
+                   id="about-journey-numbers-heading"
+                   className="journey-numbers-heading tracking-tight"
+                   style={{
+                     fontFamily: "var(--font-journey-numbers)",
+                     fontSize: "var(--font-size-journey-numbers)",
+                     fontWeight: "var(--font-weight-journey-numbers)",
+                     lineHeight: "var(--line-height-journey-numbers)",
+                     letterSpacing: "var(--letter-spacing-journey-numbers)",
+                     color: "var(--color-journey-numbers)",
+                   }}
+                 >
                    {t(numbersTitle)}
                  </h2>
               </div>

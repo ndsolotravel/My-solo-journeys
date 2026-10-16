@@ -37,6 +37,7 @@ import {
   Camera,
   Route as RouteIcon,
   Calendar,
+  Type,
 } from "lucide-react";
 import { toast } from "sonner";
 import { adminGetHomepageEditor, adminSaveHomepageSettings } from "@/lib/homepage.functions";
@@ -1466,7 +1467,7 @@ function AdminHomepagePage() {
                   className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm font-medium outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
                 />
                 <p className="text-xs text-muted-foreground">
-                  The second phrase of the title, highlighted in accent color (#4085FF).
+                  The second phrase of the title, highlighted in accent color (#3B7FA8).
                 </p>
               </div>
               <div className="space-y-1.5 sm:col-span-2">
@@ -1574,6 +1575,23 @@ function AdminHomepagePage() {
               <span className="inline-flex items-center gap-1 rounded-full bg-accent/10 px-2.5 py-0.5 text-xs font-medium text-accent">
                 <Globe className="h-3 w-3" /> Public
               </span>
+            </div>
+
+            {/* Direct CMS link for typography & color */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-[#38BDF8]/30 bg-[#38BDF8]/5 p-3.5 text-xs">
+              <div className="flex items-center gap-2 text-foreground">
+                <Type className="h-4 w-4 text-[#38BDF8] shrink-0" />
+                <span>
+                  <strong>Heading Typography & Color:</strong> Customize the font family, font weight, responsive sizing, and color in the dedicated Typography CMS category.
+                </span>
+              </div>
+              <Link
+                to="/admin/typography"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-[#38BDF8]/15 px-3 py-1.5 font-semibold text-[#38BDF8] hover:bg-[#38BDF8]/25 transition shrink-0"
+              >
+                <span>Typography Settings</span>
+                <ArrowRight className="h-3 w-3" />
+              </Link>
             </div>
 
             <div className="space-y-2">

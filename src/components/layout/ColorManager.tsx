@@ -113,7 +113,7 @@ export function ColorManager() {
       {previewConfig && (
         <aside
           aria-label="Color Preview Notification"
-          className="fixed bottom-6 left-1/2 z-[9998] -translate-x-1/2 flex items-center gap-3 rounded-full border border-[#4085FF]/40 bg-neutral-900/95 px-4 py-2.5 text-xs text-white shadow-2xl backdrop-blur-md animate-in fade-in slide-in-from-bottom-4 duration-300"
+          className="fixed bottom-6 left-1/2 z-[9998] -translate-x-1/2 flex items-center gap-3 rounded-full border border-accent/40 bg-neutral-900/95 px-4 py-2.5 text-xs text-white shadow-2xl backdrop-blur-md animate-in fade-in slide-in-from-bottom-4 duration-300"
         >
           <div className="flex items-center gap-2 font-medium">
             <span
@@ -139,7 +139,7 @@ export function ColorManager() {
               type="button"
               onClick={handlePublishPreview}
               disabled={publishMutation.isPending}
-              className="inline-flex items-center gap-1 rounded-full bg-[#4085FF] px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm hover:bg-[#3570D0] transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-1 rounded-full bg-accent px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm hover:bg-accent/90 transition-colors disabled:opacity-50"
             >
               <Check className="h-3 w-3" />
               {publishMutation.isPending ? "Publishing..." : "Save & Publish"}

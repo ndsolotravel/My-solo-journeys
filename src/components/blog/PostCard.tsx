@@ -81,20 +81,20 @@ export function PostCard({ post, index = 0 }: { post: Post; index?: number }) {
 
           {/* Badges Overlay */}
           <div className="absolute left-3 top-3 rtl:left-auto rtl:right-3 flex flex-wrap items-center gap-1.5 pointer-events-auto">
-            <span className="rounded-full bg-background/90 px-3 py-1 text-xs font-medium text-foreground backdrop-blur-xs shadow-xs">
+            <span className="rounded-full bg-background/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-foreground backdrop-blur-xs shadow-xs">
               {t(localizedPost.category)}
             </span>
             {destination ? (
               <Link
                 to="/destinations/$slug"
                 params={{ slug: destination.slug }}
-                className="inline-flex items-center gap-1 rounded-full bg-accent/90 px-2.5 py-1 text-xs font-medium text-white shadow-xs hover:bg-accent transition-colors backdrop-blur-xs"
+                className="inline-flex items-center gap-1 rounded-full bg-accent/90 px-2.5 py-1 text-[11px] font-medium text-white shadow-xs hover:bg-accent transition-colors backdrop-blur-xs"
               >
                 <MapPin className="h-3 w-3" />
                 <span>{localizedPost.location_name || t(destination.title)}</span>
               </Link>
             ) : localizedPost.location_name ? (
-              <span className="inline-flex items-center gap-1 rounded-full bg-accent/90 px-2.5 py-1 text-xs font-medium text-white shadow-xs backdrop-blur-xs">
+              <span className="inline-flex items-center gap-1 rounded-full bg-accent/90 px-2.5 py-1 text-[11px] font-medium text-white shadow-xs backdrop-blur-xs">
                 <MapPin className="h-3 w-3" />
                 <span>{localizedPost.location_name}</span>
               </span>
@@ -102,7 +102,7 @@ export function PostCard({ post, index = 0 }: { post: Post; index?: number }) {
           </div>
         </div>
 
-        <div className="mt-3 flex flex-wrap items-center gap-2 text-caption">
+        <div className="mt-3.5 flex flex-wrap items-center gap-2 text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground">
           <span>{formatDate(localizedPost.published_at ?? localizedPost.created_at)}</span>
           <span aria-hidden>·</span>
           <span className="inline-flex items-center gap-1">
@@ -132,13 +132,13 @@ export function PostCard({ post, index = 0 }: { post: Post; index?: number }) {
         </div>
 
         <Link to="/blog/$slug" params={{ slug: post.slug }} className="block">
-          <h3 className="mt-1.5 text-h3 text-heading group-hover:text-link-hover transition-colors">
+          <h3 className="mt-2 text-h3 text-heading group-hover:text-link-hover transition-colors">
             {localizedPost.title}
           </h3>
           {localizedPost.excerpt && (
-            <p className="mt-1.5 line-clamp-2 text-body">{localizedPost.excerpt}</p>
+            <p className="mt-2 line-clamp-2 text-body">{localizedPost.excerpt}</p>
           )}
-          <span className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-link transition-colors group-hover:text-link-hover">
+          <span className="mt-3 inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-link transition-colors group-hover:text-link-hover">
             {t("Read story")}
             <ArrowUpRight className="h-3 w-3 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 rtl:scale-x-[-1]" />
           </span>

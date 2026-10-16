@@ -96,7 +96,7 @@ function AdminColorsPage() {
 
   const handleResetToDefault = () => {
     setDraftConfig({ ...DEFAULT_COLOR_CONFIG });
-    toast.info("Reset to default color palette (#4085FF accent). Click 'Save & Publish' to push live.");
+    toast.info("Reset to default color palette (#3B7FA8 accent). Click 'Save & Publish' to push live.");
   };
 
   const handlePreviewOnSite = () => {
@@ -183,7 +183,7 @@ function AdminColorsPage() {
           </div>
           <p className="mt-1.5 text-sm text-muted-foreground max-w-2xl">
             Control the website’s global color palette, branding tokens, buttons, surfaces, and typography accents from the CMS without editing code. Accent default set to{" "}
-            <span className="font-mono font-semibold text-[#4085FF]">#4085FF</span>.
+            <span className="font-mono font-semibold text-accent">#3B7FA8</span>.
           </p>
         </div>
 
@@ -300,8 +300,8 @@ function AdminColorsPage() {
                         id={`color-input-${field.key}`}
                         value={currentValue}
                         onChange={(e) => updateColor(field.key, e.target.value)}
-                        placeholder="#4085FF"
-                        className="w-full rounded-xl border border-border bg-background px-3 py-2 font-mono text-xs font-medium text-foreground outline-none focus:border-[#4085FF] focus:ring-1 focus:ring-[#4085FF] transition"
+                        placeholder="#3B7FA8"
+                        className="w-full rounded-xl border border-border bg-background px-3 py-2 font-mono text-xs font-medium text-foreground outline-none focus:border-accent focus:ring-1 focus:ring-accent transition"
                       />
                     </div>
 

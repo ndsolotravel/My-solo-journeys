@@ -37,6 +37,8 @@ import {
   Wrench,
   Navigation,
   Camera,
+  Type,
+  ArrowRight,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -1825,6 +1827,23 @@ function AdminAboutPage() {
                 onChange={(val) => updateField("about_numbers_enabled", val ? "true" : "false")}
                 label={draft.about_numbers_enabled !== "false" ? "Enabled" : "Disabled"}
               />
+            </div>
+
+            {/* Direct CMS link for typography & color */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-[#38BDF8]/30 bg-[#38BDF8]/5 p-3.5 text-xs">
+              <div className="flex items-center gap-2 text-foreground">
+                <Type className="h-4 w-4 text-[#38BDF8] shrink-0" />
+                <span>
+                  <strong>Heading Typography & Color:</strong> Customize the font family, font weight, responsive sizing, and color in the dedicated Typography CMS category.
+                </span>
+              </div>
+              <Link
+                to="/admin/typography"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-[#38BDF8]/15 px-3 py-1.5 font-semibold text-[#38BDF8] hover:bg-[#38BDF8]/25 transition shrink-0"
+              >
+                <span>Typography Settings</span>
+                <ArrowRight className="h-3 w-3" />
+              </Link>
             </div>
 
             <div className="grid sm:grid-cols-2 gap-4">

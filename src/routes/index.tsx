@@ -405,7 +405,7 @@ function HomePage() {
                  initial={{ opacity: 0, y: 30 }}
                  animate={{ opacity: 1, y: 0 }}
                  transition={{ duration: 0.8, delay: 0.1 }}
-                 className="mt-4 sm:mt-5 max-w-4xl font-display text-4xl sm:text-5xl lg:text-6xl leading-[1.15] sm:leading-[1.12] text-white break-words [overflow-wrap:anywhere]"
+                 className="mt-4 sm:mt-5 max-w-4xl font-display text-[2.15rem] sm:text-5xl lg:text-6xl xl:text-[4.5rem] leading-[1.12] sm:leading-[1.08] text-white break-words [overflow-wrap:anywhere] [text-wrap:balance] [text-shadow:0_2px_30px_rgba(0,0,0,0.35)]"
                >
                  <span className="block">
                    Solo journeys, motorcycle adventures, and trekking across the world
@@ -725,7 +725,15 @@ function HomePage() {
               <h2
                 data-reveal="heading"
                 id="journey-numbers-heading"
-                className="mt-1 font-display text-2xl font-semibold tracking-tight text-heading sm:text-3xl"
+                className="journey-numbers-heading mt-1 tracking-tight"
+                style={{
+                  fontFamily: "var(--font-journey-numbers)",
+                  fontSize: "var(--font-size-journey-numbers)",
+                  fontWeight: "var(--font-weight-journey-numbers)",
+                  lineHeight: "var(--line-height-journey-numbers)",
+                  letterSpacing: "var(--letter-spacing-journey-numbers)",
+                  color: "var(--color-journey-numbers)",
+                }}
               >
                 {t("Journey in numbers")}
               </h2>

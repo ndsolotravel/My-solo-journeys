@@ -24,6 +24,14 @@ export interface TypographyConfig {
   scriptSize: ResponsiveValues<number>;
   scriptLineHeight: ResponsiveValues<number>;
   scriptLetterSpacing: ResponsiveValues<number>;
+
+  // Dedicated Journey in Numbers Settings (for Home & About pages)
+  journeyNumbersFont: string;
+  journeyNumbersWeight: string;
+  journeyNumbersSize: ResponsiveValues<number>;
+  journeyNumbersLineHeight: ResponsiveValues<number>;
+  journeyNumbersLetterSpacing: ResponsiveValues<number>;
+  journeyNumbersColor: string;
 }
 
 export interface GoogleFontOption {
@@ -319,11 +327,11 @@ export const CURATED_GOOGLE_FONTS: GoogleFontOption[] = [
 ];
 
 export const DEFAULT_TYPOGRAPHY_CONFIG: TypographyConfig = {
-  headingFont: "Playfair Display",
-  bodyFont: "Roboto",
-  navigationFont: "Roboto",
-  buttonFont: "Roboto",
-  headingWeight: "700",
+  headingFont: "Cormorant Garamond",
+  bodyFont: "Manrope",
+  navigationFont: "Manrope",
+  buttonFont: "Manrope",
+  headingWeight: "600",
   bodyWeight: "400",
   bodySize: {
     desktop: 17,
@@ -340,11 +348,11 @@ export const DEFAULT_TYPOGRAPHY_CONFIG: TypographyConfig = {
     tablet: 0,
     mobile: 0,
   },
-  headingLetterSpacing: -0.02,
+  headingLetterSpacing: -0.01,
 
-  // Independent Script Font defaults (Yuyu Short Hero headline)
-  scriptFont: "Yuyu Short",
-  scriptWeight: "400",
+  // Independent Hero Accent Font defaults (Cormorant Garamond italic accent line)
+  scriptFont: "Cormorant Garamond",
+  scriptWeight: "500",
   scriptSize: {
     desktop: 26,
     tablet: 22,
@@ -360,6 +368,26 @@ export const DEFAULT_TYPOGRAPHY_CONFIG: TypographyConfig = {
     tablet: 0.005,
     mobile: 0,
   },
+
+  // Dedicated Journey in Numbers heading defaults (Cinzel, distinct font & vibrant color)
+  journeyNumbersFont: "Cinzel",
+  journeyNumbersWeight: "700",
+  journeyNumbersSize: {
+    desktop: 30,
+    tablet: 26,
+    mobile: 22,
+  },
+  journeyNumbersLineHeight: {
+    desktop: 1.25,
+    tablet: 1.25,
+    mobile: 1.25,
+  },
+  journeyNumbersLetterSpacing: {
+    desktop: 0.02,
+    tablet: 0.015,
+    mobile: 0.01,
+  },
+  journeyNumbersColor: "#38BDF8",
 };
 
 export const typographySchema = z.object({
@@ -387,7 +415,7 @@ export const typographySchema = z.object({
   headingLetterSpacing: z.number().min(-0.1).max(0.2).default(-0.02),
 
   // Independent Script Font validation
-  scriptFont: z.string().min(1).default("Yuyu Short"),
+  scriptFont: z.string().min(1).default("Cormorant Garamond"),
   scriptWeight: z.string().min(1).default("400"),
   scriptSize: z
     .object({
@@ -410,6 +438,32 @@ export const typographySchema = z.object({
       mobile: z.number().min(-0.1).max(0.2),
     })
     .default({ desktop: 0.01, tablet: 0.005, mobile: 0 }),
+
+  // Dedicated Journey in Numbers validation
+  journeyNumbersFont: z.string().min(1).default("Cinzel"),
+  journeyNumbersWeight: z.string().min(1).default("700"),
+  journeyNumbersSize: z
+    .object({
+      desktop: z.number().min(14).max(64),
+      tablet: z.number().min(14).max(56),
+      mobile: z.number().min(12).max(48),
+    })
+    .default({ desktop: 30, tablet: 26, mobile: 22 }),
+  journeyNumbersLineHeight: z
+    .object({
+      desktop: z.number().min(0.9).max(2.4),
+      tablet: z.number().min(0.9).max(2.4),
+      mobile: z.number().min(0.9).max(2.4),
+    })
+    .default({ desktop: 1.25, tablet: 1.25, mobile: 1.25 }),
+  journeyNumbersLetterSpacing: z
+    .object({
+      desktop: z.number().min(-0.1).max(0.25),
+      tablet: z.number().min(-0.1).max(0.25),
+      mobile: z.number().min(-0.1).max(0.25),
+    })
+    .default({ desktop: 0.02, tablet: 0.015, mobile: 0.01 }),
+  journeyNumbersColor: z.string().min(1).default("#38BDF8"),
 });
 
 export function parseTypographyConfig(raw: unknown): TypographyConfig {
@@ -483,6 +537,38 @@ export function parseTypographyConfig(raw: unknown): TypographyConfig {
               ? Number(obj.scriptLetterSpacing?.mobile)
               : DEFAULT_TYPOGRAPHY_CONFIG.scriptLetterSpacing.mobile,
         },
+
+        // Dedicated Journey in Numbers merge
+        journeyNumbersFont: obj.journeyNumbersFont || DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersFont,
+        journeyNumbersWeight: obj.journeyNumbersWeight || DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersWeight,
+        journeyNumbersSize: {
+          desktop: Number(obj.journeyNumbersSize?.desktop) || DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersSize.desktop,
+          tablet: Number(obj.journeyNumbersSize?.tablet) || DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersSize.tablet,
+          mobile: Number(obj.journeyNumbersSize?.mobile) || DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersSize.mobile,
+        },
+        journeyNumbersLineHeight: {
+          desktop: Number(obj.journeyNumbersLineHeight?.desktop) || DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersLineHeight.desktop,
+          tablet: Number(obj.journeyNumbersLineHeight?.tablet) || DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersLineHeight.tablet,
+          mobile: Number(obj.journeyNumbersLineHeight?.mobile) || DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersLineHeight.mobile,
+        },
+        journeyNumbersLetterSpacing: {
+          desktop:
+            Number(obj.journeyNumbersLetterSpacing?.desktop) !== undefined &&
+            !isNaN(Number(obj.journeyNumbersLetterSpacing?.desktop))
+              ? Number(obj.journeyNumbersLetterSpacing?.desktop)
+              : DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersLetterSpacing.desktop,
+          tablet:
+            Number(obj.journeyNumbersLetterSpacing?.tablet) !== undefined &&
+            !isNaN(Number(obj.journeyNumbersLetterSpacing?.tablet))
+              ? Number(obj.journeyNumbersLetterSpacing?.tablet)
+              : DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersLetterSpacing.tablet,
+          mobile:
+            Number(obj.journeyNumbersLetterSpacing?.mobile) !== undefined &&
+            !isNaN(Number(obj.journeyNumbersLetterSpacing?.mobile))
+              ? Number(obj.journeyNumbersLetterSpacing?.mobile)
+              : DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersLetterSpacing.mobile,
+        },
+        journeyNumbersColor: obj.journeyNumbersColor || DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersColor,
       };
     }
     return DEFAULT_TYPOGRAPHY_CONFIG;
@@ -572,7 +658,11 @@ export function generateGoogleFontsUrl(config: TypographyConfig): string | null 
 
   // Script Font (specifically for Hero headline & accents)
   const sw = parseInt(config.scriptWeight, 10);
-  addFont(config.scriptFont || "Yuyu Short", [!isNaN(sw) ? sw : 400]);
+  addFont(config.scriptFont || "Cormorant Garamond", [!isNaN(sw) ? sw : 500]);
+
+  // Journey in Numbers Font (independent heading for Home and About pages)
+  const jnw = parseInt(config.journeyNumbersWeight, 10);
+  addFont(config.journeyNumbersFont || "Cinzel", [!isNaN(jnw) ? jnw : 700, 600, 700]);
 
   const familyParams: string[] = [];
 
@@ -601,11 +691,17 @@ export function generateTypographyCss(config: TypographyConfig, selector = ":roo
   const navFallback = getFontFallback(config.navigationFont);
   const buttonFallback = getFontFallback(config.buttonFont);
 
-  const scriptInfo = resolveGoogleFamily(config.scriptFont || "Yuyu Short");
+  const scriptInfo = resolveGoogleFamily(config.scriptFont || "Cormorant Garamond");
+  const jnInfo = resolveGoogleFamily(config.journeyNumbersFont || "Cinzel");
 
   const sSize = config.scriptSize || DEFAULT_TYPOGRAPHY_CONFIG.scriptSize;
   const sLineHeight = config.scriptLineHeight || DEFAULT_TYPOGRAPHY_CONFIG.scriptLineHeight;
   const sLetterSpacing = config.scriptLetterSpacing || DEFAULT_TYPOGRAPHY_CONFIG.scriptLetterSpacing;
+
+  const jnSize = config.journeyNumbersSize || DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersSize;
+  const jnLineHeight = config.journeyNumbersLineHeight || DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersLineHeight;
+  const jnLetterSpacing = config.journeyNumbersLetterSpacing || DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersLetterSpacing;
+  const jnColor = config.journeyNumbersColor || DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersColor;
 
   return `
 ${selector} {
@@ -627,6 +723,14 @@ ${selector} {
   --font-size-hero-script: ${sSize.desktop}px;
   --line-height-hero-script: ${sLineHeight.desktop};
   --letter-spacing-hero-script: ${sLetterSpacing.desktop}em;
+
+  /* Dedicated Journey in Numbers Heading Variables (Home & About Pages) */
+  --font-journey-numbers: "${jnInfo.family}", ${jnInfo.fallback};
+  --font-weight-journey-numbers: ${config.journeyNumbersWeight || "700"};
+  --font-size-journey-numbers: ${jnSize.desktop}px;
+  --line-height-journey-numbers: ${jnLineHeight.desktop};
+  --letter-spacing-journey-numbers: ${jnLetterSpacing.desktop}em;
+  --color-journey-numbers: ${jnColor};
 }
 
 @media (max-width: 1024px) {
@@ -637,6 +741,9 @@ ${selector} {
     --font-size-hero-script: ${sSize.tablet}px;
     --line-height-hero-script: ${sLineHeight.tablet};
     --letter-spacing-hero-script: ${sLetterSpacing.tablet}em;
+    --font-size-journey-numbers: ${jnSize.tablet}px;
+    --line-height-journey-numbers: ${jnLineHeight.tablet};
+    --letter-spacing-journey-numbers: ${jnLetterSpacing.tablet}em;
   }
 }
 
@@ -648,6 +755,9 @@ ${selector} {
     --font-size-hero-script: ${sSize.mobile}px;
     --line-height-hero-script: ${sLineHeight.mobile};
     --letter-spacing-hero-script: ${sLetterSpacing.mobile}em;
+    --font-size-journey-numbers: ${jnSize.mobile}px;
+    --line-height-journey-numbers: ${jnLineHeight.mobile};
+    --letter-spacing-journey-numbers: ${jnLetterSpacing.mobile}em;
   }
 }
 `;

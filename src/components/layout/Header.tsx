@@ -112,14 +112,14 @@ export function Header() {
 
   const headerClass = overHero
     ? "bg-transparent text-white"
-    : "bg-background/85 backdrop-blur-md border-b border-border";
+    : "bg-background/85 backdrop-blur-xl border-b border-border/70 shadow-[0_1px_30px_-20px_rgba(0,0,0,0.45)]";
 
   return (
     <>
       <header
         className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${headerClass}`}
       >
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2.5 sm:px-6 sm:py-3 lg:px-8">
           <Link to="/" className="flex items-center gap-2 shrink-0">
             <img
               src={logoPath}
@@ -129,7 +129,7 @@ export function Header() {
               className={`h-8 w-auto ${overHero ? "brightness-0 invert" : ""}`}
             />
           </Link>
-          <nav className="hidden md:flex items-center gap-7 text-base">
+          <nav className="hidden md:flex items-center gap-8 text-[0.8125rem] font-medium uppercase tracking-[0.14em]">
             {LINKS.map((l) => {
               const isHashLink = "hash" in l && !!l.hash;
               const active =
@@ -143,25 +143,23 @@ export function Header() {
                   to={l.to}
                   hash={isHashLink ? (l as { hash: string }).hash : undefined}
                   activeOptions={{ exact: l.to === "/" }}
-                  className={`relative transition-colors duration-200 ease-in-out ${
+                  className={`relative py-1 transition-colors duration-200 ease-in-out ${
                     overHero
                       ? active
-                        ? "text-white font-medium"
+                        ? "text-white"
                         : "text-white/75 hover:text-white"
                       : active
-                        ? "text-nav-hover font-medium"
+                        ? "text-nav-hover"
                         : "text-nav-text hover:text-nav-hover"
                   }`}
                 >
                   {t(l.label)}
-                  {active && (
-                    <span
-                      aria-hidden
-                      className={`absolute left-0 right-0 -bottom-1 mx-auto h-px w-6 ${
-                        overHero ? "bg-white" : "bg-nav-hover"
-                      }`}
-                    />
-                  )}
+                  <span
+                    aria-hidden
+                    className={`absolute left-0 right-0 -bottom-0.5 mx-auto h-px origin-center bg-current transition-transform duration-300 ease-out ${
+                      active ? "w-6 scale-x-100" : "w-6 scale-x-0"
+                    }`}
+                  />
                 </Link>
               );
             })}
@@ -276,9 +274,9 @@ export function Header() {
                 to={l.to}
                 hash={isHashLink ? (l as { hash: string }).hash : undefined}
                 onClick={() => setOpen(false)}
-                className={`rounded-lg px-4 py-3 text-base font-medium transition-colors duration-200 ease-in-out ${
+                className={`rounded-lg px-4 py-3 text-sm font-medium uppercase tracking-[0.12em] transition-colors duration-200 ease-in-out ${
                   active
-                    ? "bg-muted text-nav-hover font-medium"
+                    ? "bg-muted text-nav-hover"
                     : "text-nav-text hover:bg-muted hover:text-nav-hover"
                 }`}
               >

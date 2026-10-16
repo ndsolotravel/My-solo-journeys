@@ -37,21 +37,21 @@ export const COLOR_FIELDS: ColorFieldDefinition[] = [
     label: "Primary Color",
     description: "Dominant primary brand shade used for key highlights and solid structures",
     category: "Brand & Accent",
-    default: "#0F172A",
+    default: "#1B1915",
   },
   {
     key: "secondaryColor",
     label: "Secondary Color",
     description: "Secondary background tone for headers, badges, and contrasting blocks",
     category: "Brand & Accent",
-    default: "#1E293B",
+    default: "#2E2A23",
   },
   {
     key: "accentColor",
     label: "Accent Color",
-    description: "Primary energetic brand accent (#4085FF) for highlights, indicators, and focus rings",
+    description: "Primary brand accent (#3B7FA8, sky blue) for highlights, indicators, and focus rings",
     category: "Brand & Accent",
-    default: "#4085FF",
+    default: "#3B7FA8",
   },
 
   // Typography
@@ -60,21 +60,21 @@ export const COLOR_FIELDS: ColorFieldDefinition[] = [
     label: "Heading Text Color",
     description: "High-contrast color applied to page titles, hero headings, and section headers",
     category: "Typography",
-    default: "#0F172A",
+    default: "#1B1915",
   },
   {
     key: "bodyTextColor",
     label: "Body Text Color",
     description: "Primary readable color for paragraphs, descriptions, and story text",
     category: "Typography",
-    default: "#334155",
+    default: "#3E3A32",
   },
   {
     key: "mutedTextColor",
     label: "Muted Text Color",
     description: "Subtle secondary text color for dates, captions, metadata, and breadcrumbs",
     category: "Typography",
-    default: "#64748B",
+    default: "#7C7365",
   },
 
   // Links & Navigation
@@ -83,28 +83,28 @@ export const COLOR_FIELDS: ColorFieldDefinition[] = [
     label: "Link Color",
     description: "Standard hyperlinked text color across editorial articles and content",
     category: "Links & Navigation",
-    default: "#4085FF",
+    default: "#3B7FA8",
   },
   {
     key: "linkHoverColor",
     label: "Link Hover Color",
     description: "Interactive hover color for links and inline clickable text",
     category: "Links & Navigation",
-    default: "#2563EB",
+    default: "#2A6183",
   },
   {
     key: "navTextColor",
     label: "Navigation Text Color",
     description: "Menu link color in the main top header and mobile navigation",
     category: "Links & Navigation",
-    default: "#E2E8F0",
+    default: "#2B2822",
   },
   {
     key: "navHoverColor",
     label: "Navigation Hover Color",
     description: "Highlighted hover state for top header and drawer navigation links",
     category: "Links & Navigation",
-    default: "#4085FF",
+    default: "#3B7FA8",
   },
 
   // Buttons
@@ -113,7 +113,7 @@ export const COLOR_FIELDS: ColorFieldDefinition[] = [
     label: "Button Background Color",
     description: "Solid background fill for primary call-to-action buttons",
     category: "Buttons",
-    default: "#4085FF",
+    default: "#3B7FA8",
   },
   {
     key: "buttonTextColor",
@@ -127,7 +127,7 @@ export const COLOR_FIELDS: ColorFieldDefinition[] = [
     label: "Button Hover Color",
     description: "Active hover and pressed background color for call-to-action buttons",
     category: "Buttons",
-    default: "#2563EB",
+    default: "#326E92",
   },
 
   // Surfaces & Layout
@@ -143,58 +143,58 @@ export const COLOR_FIELDS: ColorFieldDefinition[] = [
     label: "Section Background Color",
     description: "Atmospheric dark canvas tone for cinematic sections and content blocks",
     category: "Surfaces & Layout",
-    default: "#0B0F17",
+    default: "#17150F",
   },
   {
     key: "borderColor",
     label: "Border Color",
     description: "Structural divider and outline border color for cards, inputs, and lines",
     category: "Surfaces & Layout",
-    default: "#E2E8F0",
+    default: "#E7E1D5",
   },
   {
     key: "heroOverlayColor",
     label: "Hero Overlay Color",
     description: "Darkening tint layered over cinematic hero photography for text legibility",
     category: "Surfaces & Layout",
-    default: "rgba(0, 0, 0, 0.65)",
+    default: "rgba(12, 11, 9, 0.62)",
   },
   {
     key: "footerBgColor",
     label: "Footer Background Color",
     description: "Base background color of the global website footer",
     category: "Surfaces & Layout",
-    default: "#0B0F17",
+    default: "#17150F",
   },
   {
     key: "footerTextColor",
     label: "Footer Text Color",
     description: "Readable text, copyright, and social link color inside the website footer",
     category: "Surfaces & Layout",
-    default: "#94A3B8",
+    default: "#B9B1A2",
   },
 ];
 
 export const DEFAULT_COLOR_CONFIG: ColorConfig = {
-  primaryColor: "#0F172A",
-  secondaryColor: "#1E293B",
-  accentColor: "#4085FF", // Brand accent default replaced to #4085FF
-  headingColor: "#0F172A",
-  bodyTextColor: "#334155",
-  mutedTextColor: "#64748B",
-  linkColor: "#4085FF",
-  linkHoverColor: "#2563EB",
-  buttonBgColor: "#4085FF",
+  primaryColor: "#1B1915",
+  secondaryColor: "#2E2A23",
+  accentColor: "#3B7FA8",
+  headingColor: "#1B1915",
+  bodyTextColor: "#3E3A32",
+  mutedTextColor: "#7C7365",
+  linkColor: "#3B7FA8",
+  linkHoverColor: "#2A6183",
+  buttonBgColor: "#3B7FA8",
   buttonTextColor: "#FFFFFF",
-  buttonHoverColor: "#2563EB",
+  buttonHoverColor: "#326E92",
   cardBgColor: "#FFFFFF",
-  sectionBgColor: "#0B0F17",
-  borderColor: "#E2E8F0",
-  navTextColor: "#E2E8F0",
-  navHoverColor: "#4085FF",
-  heroOverlayColor: "rgba(0, 0, 0, 0.65)",
-  footerBgColor: "#0B0F17",
-  footerTextColor: "#94A3B8",
+  sectionBgColor: "#17150F",
+  borderColor: "#E7E1D5",
+  navTextColor: "#2B2822",
+  navHoverColor: "#3B7FA8",
+  heroOverlayColor: "rgba(12, 11, 9, 0.62)",
+  footerBgColor: "#17150F",
+  footerTextColor: "#B9B1A2",
 };
 
 export const colorSchema = z.object({
@@ -254,7 +254,7 @@ export function normalizeToHex6(colorStr: string): string {
     return `#${trimmed}`.toLowerCase();
   }
 
-  return "#4085ff";
+  return "#3B7FA8";
 }
 
 /**
