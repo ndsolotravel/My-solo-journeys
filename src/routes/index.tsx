@@ -405,7 +405,7 @@ function HomePage() {
                  initial={{ opacity: 0, y: 30 }}
                  animate={{ opacity: 1, y: 0 }}
                  transition={{ duration: 0.8, delay: 0.1 }}
-                 className="mt-4 sm:mt-5 max-w-4xl font-display text-[2.15rem] sm:text-5xl lg:text-6xl xl:text-[4.5rem] leading-[1.12] sm:leading-[1.08] text-white break-words [overflow-wrap:anywhere] [text-wrap:balance] [text-shadow:0_2px_30px_rgba(0,0,0,0.35)]"
+                 className="mt-4 sm:mt-5 max-w-4xl font-display text-[2.15rem] sm:text-5xl lg:text-6xl xl:text-[4.5rem] leading-[1.12] sm:leading-[1.08] text-white wrap-anywhere text-balance [text-shadow:0_2px_30px_rgba(0,0,0,0.35)]"
                >
                  <span className="block">
                    Solo journeys, motorcycle adventures, and trekking across the world
@@ -596,7 +596,7 @@ function HomePage() {
                   <Link
                     to="/topics/$slug"
                     params={{ slug: activeTopics[0].slug }}
-                    className="group relative flex h-full min-h-[320px] sm:min-h-[380px] lg:min-h-[460px] flex-col justify-end overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-lg w-full min-w-0"
+                    className="group relative flex h-full min-h-80 sm:min-h-95 lg:min-h-115 flex-col justify-end overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-lg w-full min-w-0"
                   >
                     {(() => {
                       const rawImg = activeTopics[0].previewImage || activeTopics[0].heroImage;
@@ -614,7 +614,7 @@ function HomePage() {
                         <div className="absolute inset-0 h-full w-full bg-zinc-900" />
                       );
                     })()}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
+                    <div className="absolute inset-0 bg-linear-to-t from-black/95 via-black/40 to-transparent" />
                     <div className="relative p-4 sm:p-6 text-white min-w-0">
                       <div className="inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1 text-[11px] font-medium uppercase tracking-wider text-accent-foreground shadow-sm mb-3">
                         {(() => {
@@ -626,7 +626,7 @@ function HomePage() {
                           {activeTopics[0].postCount === 1 ? t("story") : t("stories")}
                         </span>
                       </div>
-                      <h3 className="font-display text-xl sm:text-2xl lg:text-3xl font-semibold leading-tight text-white transition-colors group-hover:text-link-hover break-words [overflow-wrap:anywhere]">
+                      <h3 className="font-display text-xl sm:text-2xl lg:text-3xl font-semibold leading-tight text-white transition-colors group-hover:text-link-hover wrap-anywhere">
                         {t(activeTopics[0].title)}
                       </h3>
                       <p className="mt-2 text-xs sm:text-sm text-white/80 line-clamp-3">
@@ -656,7 +656,7 @@ function HomePage() {
                     <Link
                       to="/topics/$slug"
                       params={{ slug: topic.slug }}
-                      className="group relative flex h-full min-h-[190px] sm:min-h-[210px] flex-col justify-end overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-md w-full min-w-0"
+                      className="group relative flex h-full min-h-47.5 sm:min-h-52.5 flex-col justify-end overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-md w-full min-w-0"
                     >
                       {(() => {
                         const rawImg = topic.previewImage || topic.heroImage;
@@ -674,7 +674,7 @@ function HomePage() {
                           <div className="absolute inset-0 h-full w-full bg-zinc-900" />
                         );
                       })()}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                      <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/40 to-transparent" />
                       <div className="relative p-4 sm:p-5 text-white min-w-0">
                         <div className="inline-flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-accent backdrop-blur-md border border-white/10 mb-2">
                           <Icon className="h-3 w-3" />
@@ -682,7 +682,7 @@ function HomePage() {
                             {topic.postCount} {topic.postCount === 1 ? t("story") : t("stories")}
                           </span>
                         </div>
-                        <h3 className="font-display text-base sm:text-lg font-semibold leading-tight text-white transition-colors group-hover:text-link-hover line-clamp-2 break-words [overflow-wrap:anywhere]">
+                        <h3 className="font-display text-base sm:text-lg font-semibold leading-tight text-white transition-colors group-hover:text-link-hover line-clamp-2 wrap-anywhere">
                           {t(topic.title)}
                         </h3>
                         <p className="mt-1 text-xs text-white/75 line-clamp-1">
@@ -824,7 +824,7 @@ function HomePage() {
           {destView === "map" ? (
             <Suspense
               fallback={
-                <div className="h-[340px] sm:h-[440px] lg:h-[480px] w-full animate-pulse rounded-2xl border border-border bg-muted/30" />
+                <div className="h-85 sm:h-110 lg:h-120 w-full animate-pulse rounded-2xl border border-border bg-muted/30" />
               }
             >
               <DestinationsMap destinations={destinations} />
@@ -855,7 +855,7 @@ function HomePage() {
                       params={{ slug: d.slug }}
                       className="block w-full min-w-0"
                     >
-                      <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+                      <div className="relative aspect-4/3 overflow-hidden bg-muted">
                         {d.featured_image ? (
                           <img
                             src={getOptimizedImageUrl(d.featured_image, 600)}
@@ -870,20 +870,20 @@ function HomePage() {
                             <span className="text-xs text-muted-foreground">No image</span>
                           </div>
                         )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+                        <div className="absolute inset-0 bg-linear-to-t from-black/85 via-black/20 to-transparent" />
                         <div className="absolute inset-x-0 bottom-0 p-4 text-white min-w-0">
                           <p className="text-[11px] font-semibold uppercase tracking-wider text-accent truncate">
                             {t(d.country)}
                             {d.region ? ` · ${t(d.region)}` : ""}
                           </p>
-                          <h3 className="mt-0.5 text-base sm:text-lg font-semibold leading-tight text-white group-hover:text-link-hover transition-colors break-words">
+                          <h3 className="mt-0.5 text-base sm:text-lg font-semibold leading-tight text-white group-hover:text-link-hover transition-colors wrap-break-word">
                             {t(d.title)}
                           </h3>
                         </div>
                       </div>
                       {d.description && (
                         <div className="p-3.5 min-w-0">
-                          <p className="line-clamp-2 text-xs text-muted-foreground break-words">
+                          <p className="line-clamp-2 text-xs text-muted-foreground wrap-break-word">
                             {t(d.description)}
                           </p>
                         </div>
@@ -921,7 +921,7 @@ function HomePage() {
                 >
                   <Link
                     to="/gallery"
-                    className="group relative block aspect-[16/10] sm:aspect-auto sm:h-full min-h-[240px] sm:min-h-[260px] lg:min-h-[360px] overflow-hidden rounded-2xl border border-border bg-muted shadow-sm w-full min-w-0"
+                    className="group relative block aspect-16/10 sm:aspect-auto sm:h-full min-h-60 sm:min-h-65 lg:min-h-90 overflow-hidden rounded-2xl border border-border bg-muted shadow-sm w-full min-w-0"
                   >
                     <img
                       src={getOptimizedImageUrl(gallery[0].image_url, 900)}
@@ -931,13 +931,13 @@ function HomePage() {
                       height={400}
                       className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent flex items-end p-4 sm:p-5">
+                    <div className="absolute inset-0 bg-linear-to-t from-black/85 via-black/20 to-transparent flex items-end p-4 sm:p-5">
                       <div className="min-w-0">
                         <span className="rounded-full bg-accent px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-accent-foreground">
                           {t("Spotlight")}
                         </span>
                         {gallery[0].caption && (
-                          <p className="mt-2 text-sm sm:text-base font-semibold text-white line-clamp-2 break-words">
+                          <p className="mt-2 text-sm sm:text-base font-semibold text-white line-clamp-2 wrap-break-word">
                             {t(gallery[0].caption)}
                           </p>
                         )}
@@ -959,7 +959,7 @@ function HomePage() {
                 >
                   <Link
                     to="/gallery"
-                    className="group relative block aspect-[4/3] overflow-hidden rounded-2xl border border-border bg-muted shadow-sm w-full min-w-0"
+                    className="group relative block aspect-4/3 overflow-hidden rounded-2xl border border-border bg-muted shadow-sm w-full min-w-0"
                   >
                     <img
                       src={getOptimizedImageUrl(item.image_url, 500)}
@@ -969,9 +969,9 @@ function HomePage() {
                       height={300}
                       className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 flex items-end p-3.5">
+                    <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 flex items-end p-3.5">
                       {item.caption && (
-                        <p className="text-xs font-medium text-white line-clamp-2 break-words">
+                        <p className="text-xs font-medium text-white line-clamp-2 wrap-break-word">
                           {t(item.caption)}
                         </p>
                       )}
@@ -998,18 +998,18 @@ function HomePage() {
         {/* 8. NEWSLETTER DISPATCH SIGNUP                                             */}
         {/* ========================================================================= */}
         <section aria-labelledby="newsletter-heading" className="pb-6 sm:pb-8 w-full min-w-0">
-          <div className="rounded-2xl sm:rounded-3xl border border-border bg-gradient-to-br from-card to-muted/50 p-6 sm:p-12 text-center shadow-sm w-full min-w-0">
+          <div className="rounded-2xl sm:rounded-3xl border border-border bg-linear-to-br from-card to-muted/50 p-6 sm:p-12 text-center shadow-sm w-full min-w-0">
             <div className="mx-auto max-w-2xl min-w-0">
               <span className="rounded-full bg-accent/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.2em] text-accent">
                 {t("Join the Journey")}
               </span>
               <h2
                 id="newsletter-heading"
-                className="mt-3 font-display text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-heading break-words"
+                className="mt-3 font-display text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-heading wrap-break-word"
               >
                 {t("Get the next dispatch")}
               </h2>
-              <p className="mt-2.5 sm:mt-3 text-xs sm:text-sm text-muted-foreground sm:text-base leading-relaxed">
+              <p className="mt-2.5 sm:mt-3 text-xs sm:text-base text-muted-foreground leading-relaxed">
                 {t("One email when a new expedition story drops. No spam, no algorithm noise.")}
               </p>
               <div className="mx-auto mt-5 sm:mt-6 max-w-md w-full min-w-0">

@@ -235,13 +235,13 @@ export function Header() {
 
       {open && (
         <div
-          className="md:hidden fixed inset-0 z-[60] bg-black/50"
+          className="md:hidden fixed inset-0 z-60 bg-black/50"
           onClick={() => setOpen(false)}
           aria-hidden
         />
       )}
       <aside
-        className={`md:hidden fixed top-0 right-0 z-[70] h-dvh w-[82%] max-w-sm bg-background border-l border-border shadow-2xl transition-transform duration-300 rtl:right-auto rtl:left-0 rtl:border-left-0 rtl:border-right ${
+        className={`md:hidden fixed top-0 right-0 z-70 h-dvh w-[82%] max-w-sm bg-background border-l border-border shadow-2xl transition-transform duration-300 rtl:right-auto rtl:left-0 rtl:border-left-0 rtl:border-right ${
           open
             ? "translate-x-0"
             : "translate-x-full rtl:-translate-x-full"

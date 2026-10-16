@@ -207,7 +207,7 @@ function DestinationsPage() {
             >
               <Suspense
                 fallback={
-                  <div className="h-[380px] w-full animate-pulse rounded-2xl border border-border bg-muted/30 sm:h-[440px] lg:h-[480px]" />
+                  <div className="h-95 w-full animate-pulse rounded-2xl border border-border bg-muted/30 sm:h-110 lg:h-120" />
                 }
               >
                 <DestinationsMap destinations={destinations} />

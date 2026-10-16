@@ -391,7 +391,7 @@ function ContactPage() {
   return (
     <div className="min-h-screen bg-background text-foreground w-full min-w-0 overflow-x-hidden">
       {/* 1. Hero Section with Cinematic Mountain View & Centered Title */}
-      <section className="banner-hover relative h-[38vh] min-h-[260px] sm:min-h-[300px] w-full overflow-hidden flex flex-col justify-center items-center">
+      <section className="banner-hover relative h-[38vh] min-h-65 sm:min-h-75 w-full overflow-hidden flex flex-col justify-center items-center">
         {hero?.image ? (
           <img
             src={hero.image}
@@ -401,7 +401,7 @@ function ContactPage() {
         ) : (
           <div className="absolute inset-0 h-full w-full bg-zinc-900" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/45 to-black/80" />
+        <div className="absolute inset-0 bg-linear-to-b from-black/70 via-black/45 to-black/80" />
         <div className="relative z-10 flex flex-col items-center justify-center text-center px-4 max-w-4xl mx-auto">
            <span className="rounded-full bg-brand px-3.5 py-1 text-xs font-medium uppercase tracking-[0.2em] text-brand-foreground shadow-sm mb-3">
             {t("Direct Dispatch")}
@@ -641,7 +641,7 @@ function ContactPage() {
                     {/* Turnstile widget */}
                     {canUseTurnstile && (
                       <div>
-                        <div id="contact-turnstile" className="min-h-[65px]" />
+                        <div id="contact-turnstile" className="min-h-16.25" />
                         {turnstileToken === "" && submitPhase === "error" && (
                           <p
                             className="mt-1.5 flex items-center gap-1 text-xs text-red-500"
@@ -656,7 +656,7 @@ function ContactPage() {
 
                     {/* Honeypot — hidden from humans, bots fill it */}
                     <div
-                      className="absolute -left-[9999px] h-0 w-0 overflow-hidden"
+                      className="absolute left-[-9999px] h-0 w-0 overflow-hidden"
                       aria-hidden="true"
                     >
                       <label htmlFor="contact-website">Website</label>

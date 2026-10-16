@@ -627,13 +627,13 @@ function AdminAboutPage() {
                 <span>Hero Preview</span>
               </h3>
 
-              <div className="relative aspect-[16/9] w-full overflow-hidden rounded-xl border border-border bg-zinc-950">
+              <div className="relative aspect-video w-full overflow-hidden rounded-xl border border-border bg-zinc-950">
                 <img
                   src={resolveMediaUrl(draft.about_hero_image || ABOUT_DEFAULTS.about_hero_image)}
                   alt="Hero preview"
                   className="h-full w-full object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/60 flex flex-col justify-end p-4 text-white">
+                <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/40 to-black/60 flex flex-col justify-end p-4 text-white">
                   <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent">
                     {draft.about_hero_label || ABOUT_DEFAULTS.about_hero_label}
                   </span>
@@ -667,7 +667,7 @@ function AdminAboutPage() {
                 />
               </div>
 
-              <div className="relative aspect-[4/5] w-full max-w-[260px] mx-auto overflow-hidden rounded-2xl border border-border bg-muted shadow-md">
+              <div className="relative aspect-4/5 w-full max-w-65 mx-auto overflow-hidden rounded-2xl border border-border bg-muted shadow-md">
                 <img
                   src={
                     draft.about_profile_image
@@ -1374,7 +1374,7 @@ function AdminAboutPage() {
                 <Eye className="h-3.5 w-3.5 text-accent" />
                 <span>Dark Cinematic Preview</span>
               </h3>
-              <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl border border-border bg-zinc-950">
+              <div className="relative aspect-4/3 w-full overflow-hidden rounded-xl border border-border bg-zinc-950">
                 <img
                   src={resolveMediaUrl(
                     draft.about_motorcycle_image || ABOUT_DEFAULTS.about_motorcycle_image,
@@ -1382,7 +1382,7 @@ function AdminAboutPage() {
                   alt="Preview"
                   className="h-full w-full object-cover object-[25%_center]"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent p-4 flex flex-col justify-end text-white">
+                <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/30 to-transparent p-4 flex flex-col justify-end text-white">
                   <span className="text-[10px] font-bold uppercase tracking-widest text-accent">
                     {draft.about_motorcycle_badge || ABOUT_DEFAULTS.about_motorcycle_badge}
                   </span>
@@ -1594,7 +1594,7 @@ function AdminAboutPage() {
                 <Eye className="h-3.5 w-3.5 text-accent" />
                 <span>Alpine Image Preview</span>
               </h3>
-              <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl border border-border bg-zinc-950">
+              <div className="relative aspect-4/3 w-full overflow-hidden rounded-xl border border-border bg-zinc-950">
                 <img
                   src={resolveMediaUrl(
                     draft.about_trekking_image || ABOUT_DEFAULTS.about_trekking_image,
@@ -1602,7 +1602,7 @@ function AdminAboutPage() {
                   alt="Preview"
                   className="h-full w-full object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent p-4 flex flex-col justify-end text-white">
+                <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent p-4 flex flex-col justify-end text-white">
                   <span className="text-[10px] font-bold uppercase tracking-widest text-accent">
                     {draft.about_trekking_location_label ||
                       ABOUT_DEFAULTS.about_trekking_location_label}

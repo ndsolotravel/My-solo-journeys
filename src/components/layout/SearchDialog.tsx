@@ -58,7 +58,7 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
 
   return (
     <div
-      className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-start justify-center px-4 pt-20 sm:pt-32"
+      className="fixed inset-0 z-100 bg-black/60 backdrop-blur-sm flex items-start justify-center px-4 pt-20 sm:pt-32"
       onClick={onClose}
       role="dialog"
       aria-modal="true"

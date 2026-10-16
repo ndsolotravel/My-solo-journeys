@@ -89,7 +89,7 @@ function TopicPage() {
   return (
     <article className="min-h-screen">
       {/* Hero */}
-      <div className="banner-hover relative h-[55vh] min-h-[380px] w-full overflow-hidden">
+      <div className="banner-hover relative h-[55vh] min-h-95 w-full overflow-hidden">
         {(() => {
           const img = topic.posts[0]?.cover_image || topic.heroImage || "";
           return img ? (
@@ -98,7 +98,7 @@ function TopicPage() {
             <div className="absolute inset-0 h-full w-full bg-zinc-900" />
           );
         })()}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/80" />
+        <div className="absolute inset-0 bg-linear-to-b from-black/40 via-black/30 to-black/80" />
         <div className="absolute inset-x-0 bottom-0 mx-auto max-w-4xl px-4 pb-12 text-white sm:px-6">
           <PageBreadcrumbs items={[{ label: "Stories", href: "/blog" }, { label: topic.title }]} />
           <p className="mt-3 text-xs uppercase tracking-[0.2em] text-accent">{t("Topic Guide")}</p>

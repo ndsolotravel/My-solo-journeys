@@ -352,9 +352,9 @@ function PhotoDetailPage() {
                     src={p.image_url}
                     alt={p.alt_text || p.title}
                     loading="lazy"
-                    className="aspect-[16/10] w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    className="aspect-16/10 w-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/75 via-transparent to-transparent p-4">
+                  <div className="absolute inset-0 flex items-end bg-linear-to-t from-black/75 via-transparent to-transparent p-4">
                     <p className="line-clamp-1 text-sm font-semibold text-white">{t(p.title)}</p>
                   </div>
                 </Link>

@@ -162,7 +162,7 @@ function HeroImageTile({
       </div>
 
       {/* 16:9 Aspect Ratio Frame — identical to the Homepage cinematic hero */}
-      <div className="relative aspect-[16/9] w-full overflow-hidden rounded-xl border border-border bg-zinc-950 shadow-inner">
+      <div className="relative aspect-video w-full overflow-hidden rounded-xl border border-border bg-zinc-950 shadow-inner">
         {src ? (
           status === "error" ? (
             /* Clean graceful fallback state on error (no broken image icon) */
@@ -214,7 +214,7 @@ function HeroImageTile({
               />
 
               {/* Homepage Hero Gradient Overlay (mirroring actual homepage hero) */}
-              <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/25 to-black/80 pointer-events-none" />
+              <div className="absolute inset-0 bg-linear-to-b from-black/40 via-black/25 to-black/80 pointer-events-none" />
 
               {/* Sub-overlay with title & aspect label */}
               <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 p-3 text-white pointer-events-none">
@@ -340,7 +340,7 @@ function LiveHeroSimulator({
 
   return (
     <div className="space-y-4">
-      <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl border border-border bg-zinc-950 shadow-md">
+      <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-border bg-zinc-950 shadow-md">
         {/* Background Image with Ken Burns / cover effect */}
         {activeImage ? (
           <img
@@ -354,7 +354,7 @@ function LiveHeroSimulator({
         )}
 
         {/* Authentic Homepage Hero Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/35 to-black/85 pointer-events-none" />
+        <div className="absolute inset-0 bg-linear-to-b from-black/50 via-black/35 to-black/85 pointer-events-none" />
 
         {/* Live Hero Header Badge & Simulation Watermark */}
         <div className="absolute top-4 inset-x-4 flex items-center justify-between pointer-events-auto z-10">
@@ -536,7 +536,7 @@ function HeroLightbox({
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 p-4 sm:p-6 backdrop-blur-md animate-fade-in"
+      className="fixed inset-0 z-100 flex items-center justify-center bg-black/85 p-4 sm:p-6 backdrop-blur-md animate-fade-in"
       onClick={onClose}
     >
       <div
@@ -1330,7 +1330,7 @@ function AdminHomepagePage() {
                         </div>
 
                         {/* 16:9 Thumbnail preview in form */}
-                        <div className="relative aspect-[16/9] w-full max-w-sm overflow-hidden rounded-xl border border-border bg-zinc-950">
+                        <div className="relative aspect-video w-full max-w-sm overflow-hidden rounded-xl border border-border bg-zinc-950">
                           {preview ? (
                             <div className="relative h-full w-full group">
                               <img
@@ -1957,13 +1957,13 @@ function AdminHomepagePage() {
               </button>
             </div>
 
-            <div className="relative aspect-[16/9] w-full overflow-hidden rounded-xl border border-border bg-zinc-950">
+            <div className="relative aspect-video w-full overflow-hidden rounded-xl border border-border bg-zinc-950">
               <img
                 src={heroSlots[0]?.src || heroSlots[0]?.defaultSrc}
                 alt="Active hero slide preview"
                 className="h-full w-full object-cover object-center"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/40 flex flex-col justify-end p-3 text-white">
+              <div className="absolute inset-0 bg-linear-to-t from-black/85 via-black/30 to-black/40 flex flex-col justify-end p-3 text-white">
                 <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent">
                   {draft.homepage_hero_badge || "Solo · Slow · Cinematic"}
                 </span>

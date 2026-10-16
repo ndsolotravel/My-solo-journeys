@@ -350,7 +350,7 @@ function PostPage() {
       <ReadingProgress />
 
       {/* Cover */}
-      <div className="banner-hover relative h-[60vh] min-h-[420px] w-full overflow-hidden">
+      <div className="banner-hover relative h-[60vh] min-h-105 w-full overflow-hidden">
         {post.cover_image && (
           <img
             src={getOptimizedImageUrl(post.cover_image, 1600)}
@@ -366,7 +366,7 @@ function PostPage() {
             className="h-full w-full object-cover"
           />
         )}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/30 to-black/80" />
+        <div className="absolute inset-0 bg-linear-to-b from-black/30 via-black/30 to-black/80" />
         <div className="absolute inset-x-0 bottom-0 mx-auto max-w-3xl px-4 pb-12 text-white sm:px-6">
           <div className="flex flex-wrap items-center gap-3">
             <PageBreadcrumbs
@@ -589,7 +589,7 @@ function PostPage() {
                     className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                   />
                   {item.alt_text && (
-                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100 line-clamp-2">
+                    <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/80 via-black/40 to-transparent p-3 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100 line-clamp-2">
                       {item.alt_text}
                     </div>
                   )}
@@ -606,7 +606,7 @@ function PostPage() {
             onClick={() => setActiveImageState([null, 0])}
           >
             {/* Top Bar: Counter & Close */}
-            <div className="absolute left-4 top-4 sm:left-6 sm:top-6 z-[52]">
+            <div className="absolute left-4 top-4 sm:left-6 sm:top-6 z-52">
               <span className="rounded-full bg-black/75 px-4 py-1.5 text-xs sm:text-sm font-semibold text-white border border-white/20 backdrop-blur-md shadow-lg">
                 {activeImageIndex + 1} / {gallery.length}
               </span>
@@ -619,14 +619,14 @@ function PostPage() {
                 e.stopPropagation();
                 setActiveImageState([null, 0]);
               }}
-              className="absolute right-4 top-4 sm:right-6 sm:top-6 z-[52] flex h-11 w-11 items-center justify-center rounded-full bg-black/75 text-white border border-white/20 backdrop-blur-md hover:bg-black/95 hover:text-white transition-all hover:scale-110 active:scale-95 cursor-pointer shadow-lg"
+              className="absolute right-4 top-4 sm:right-6 sm:top-6 z-52 flex h-11 w-11 items-center justify-center rounded-full bg-black/75 text-white border border-white/20 backdrop-blur-md hover:bg-black/95 hover:text-white transition-all hover:scale-110 active:scale-95 cursor-pointer shadow-lg"
             >
               <X className="h-6 w-6" />
             </button>
 
             {/* Active Image Container with Overlay Arrow Buttons and 3D Page Turn Animation */}
             <div
-              className="relative flex max-h-[85vh] max-w-[95vw] sm:max-w-[90vw] items-center justify-center overflow-hidden rounded-2xl shadow-2xl bg-black/40 [perspective:1200px]"
+              className="relative flex max-h-[85vh] max-w-[95vw] sm:max-w-[90vw] items-center justify-center overflow-hidden rounded-2xl shadow-2xl bg-black/40 perspective-distant"
               onClick={(e) => e.stopPropagation()}
             >
               <AnimatePresence initial={false} custom={direction} mode="wait">
@@ -678,7 +678,7 @@ function PostPage() {
             {/* Bottom Caption */}
             {activeItem.alt_text && (
               <div
-                className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-[52] max-w-lg w-[90vw] text-center pointer-events-none"
+                className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-52 max-w-lg w-[90vw] text-center pointer-events-none"
                 onClick={(e) => e.stopPropagation()}
               >
                 <p className="inline-block rounded-2xl bg-black/80 px-5 py-2.5 text-xs sm:text-sm font-medium text-white border border-white/20 backdrop-blur-md shadow-xl">

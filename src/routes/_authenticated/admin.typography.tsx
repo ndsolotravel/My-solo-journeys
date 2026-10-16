@@ -316,7 +316,7 @@ function AdminTypographyPage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center">
+      <div className="flex min-h-100 items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand border-t-transparent" />
           <p className="text-sm text-muted-foreground">Loading typography configuration...</p>
@@ -494,7 +494,7 @@ function AdminTypographyPage() {
                     letterSpacing: `${activeScriptLetterSpacing}em`,
                     color: "var(--accent, #4085FF)",
                   }}
-                  className="transition-all duration-200 select-none break-words"
+                  className="transition-all duration-200 select-none wrap-break-word"
                 >
                   Stories from the high places. Most people only fly over.
                 </p>
@@ -877,7 +877,7 @@ function AdminTypographyPage() {
                     letterSpacing: `${activeJnLetterSpacing}em`,
                     color: draftConfig.journeyNumbersColor || DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersColor,
                   }}
-                  className="transition-all duration-200 select-none break-words"
+                  className="transition-all duration-200 select-none wrap-break-word"
                 >
                   {jnPreviewMode === "home" ? "Journey in numbers" : "27 Countries and 3 Continents"}
                 </p>
@@ -1811,8 +1811,8 @@ function AdminTypographyPage() {
               activeDevice === "desktop"
                 ? "max-w-full"
                 : activeDevice === "tablet"
-                  ? "max-w-[720px]"
-                  : "max-w-[380px]"
+                  ? "max-w-180"
+                  : "max-w-95"
             }`}
           >
             <div
@@ -1889,7 +1889,7 @@ function AdminTypographyPage() {
                     letterSpacing: 'var(--letter-spacing-hero-script)',
                     color: 'var(--accent, #4085FF)',
                   }}
-                  className="mt-2 mb-4 font-medium break-words"
+                  className="mt-2 mb-4 font-medium wrap-break-word"
                 >
                   Stories from the high places. Most people only fly over.
                 </p>

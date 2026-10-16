@@ -190,7 +190,7 @@ function DestinationPage() {
   return (
     <article className="min-h-screen">
       {/* Cover Header */}
-      <div className="banner-hover relative h-[65vh] min-h-[440px] w-full overflow-hidden">
+      <div className="banner-hover relative h-[65vh] min-h-110 w-full overflow-hidden">
         {d.featured_image ? (
           <img
             src={getOptimizedImageUrl(d.featured_image, 1600)}
@@ -207,7 +207,7 @@ function DestinationPage() {
         ) : (
           <div className="absolute inset-0 h-full w-full bg-zinc-900" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/85" />
+        <div className="absolute inset-0 bg-linear-to-b from-black/40 via-black/30 to-black/85" />
         <div className="absolute inset-x-0 bottom-0 mx-auto max-w-7xl px-4 pb-12 text-white sm:px-6 lg:px-8">
           <PageBreadcrumbs
             items={[
@@ -373,7 +373,7 @@ function DestinationPage() {
                 key={item.id}
                 to="/destinations/$slug"
                 params={{ slug: item.slug }}
-                className="group relative block aspect-[4/3] overflow-hidden rounded-2xl border border-border"
+                className="group relative block aspect-4/3 overflow-hidden rounded-2xl border border-border"
               >
                 {item.featured_image
                   ? (() => {
@@ -390,7 +390,7 @@ function DestinationPage() {
                       );
                     })()
                   : null}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+                <div className="absolute inset-0 bg-linear-to-t from-black/85 via-black/30 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 p-5 text-white">
                   <p className="text-xs uppercase tracking-wider text-white/70">
                     {t(item.country)}

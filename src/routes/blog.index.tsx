@@ -173,7 +173,7 @@ function BlogIndex() {
   return (
     <>
       {/* Hero Banner */}
-      <section className="banner-hover relative h-[45vh] min-h-[320px] w-full overflow-hidden">
+      <section className="banner-hover relative h-[45vh] min-h-80 w-full overflow-hidden">
         {featuredPost?.cover_image ? (
           <img
             src={getOptimizedImageUrl(featuredPost.cover_image, 1600)}
@@ -190,7 +190,7 @@ function BlogIndex() {
         ) : (
           <div className="h-full w-full bg-zinc-900" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/40 to-black/85" />
+        <div className="absolute inset-0 bg-linear-to-b from-black/40 via-black/40 to-black/85" />
         <div className="absolute inset-0 flex items-end">
           <div className="mx-auto w-full max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-xs uppercase tracking-[0.2em] text-accent backdrop-blur-md">
@@ -219,7 +219,7 @@ function BlogIndex() {
               params={{ slug: featuredPost.slug }}
               className="group grid overflow-hidden rounded-3xl border border-border bg-card shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-xl md:grid-cols-2"
             >
-              <div className="relative aspect-[16/10] md:aspect-auto overflow-hidden bg-muted">
+              <div className="relative aspect-16/10 md:aspect-auto overflow-hidden bg-muted">
                 {featuredPost.cover_image && (
                   <img
                     src={getOptimizedImageUrl(featuredPost.cover_image, 800)}

@@ -113,7 +113,7 @@ export function ColorManager() {
       {previewConfig && (
         <aside
           aria-label="Color Preview Notification"
-          className="fixed bottom-6 left-1/2 z-[9998] -translate-x-1/2 flex items-center gap-3 rounded-full border border-accent/40 bg-neutral-900/95 px-4 py-2.5 text-xs text-white shadow-2xl backdrop-blur-md animate-in fade-in slide-in-from-bottom-4 duration-300"
+          className="fixed bottom-6 left-1/2 z-9998 -translate-x-1/2 flex items-center gap-3 rounded-full border border-accent/40 bg-neutral-900/95 px-4 py-2.5 text-xs text-white shadow-2xl backdrop-blur-md animate-in fade-in slide-in-from-bottom-4 duration-300"
         >
           <div className="flex items-center gap-2 font-medium">
             <span

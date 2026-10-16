@@ -178,7 +178,7 @@ function AdminColorsPage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center">
+      <div className="flex min-h-100 items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#4085FF] border-t-transparent" />
           <p className="text-sm text-muted-foreground">Loading color palette settings...</p>
@@ -430,8 +430,8 @@ function AdminColorsPage() {
               activeDevice === "desktop"
                 ? "max-w-full"
                 : activeDevice === "tablet"
-                  ? "max-w-[720px]"
-                  : "max-w-[380px]"
+                  ? "max-w-180"
+                  : "max-w-95"
             }`}
           >
             <div
@@ -503,7 +503,7 @@ function AdminColorsPage() {
               </div>
 
               {/* 2. SIMULATED HOMEPAGE HERO WITH OVERLAY */}
-              <div className="relative overflow-hidden p-6 sm:p-10 text-white min-h-[260px] flex flex-col justify-end">
+              <div className="relative overflow-hidden p-6 sm:p-10 text-white min-h-65 flex flex-col justify-end">
                 {/* Hero Background image simulation */}
                 <div
                   className="absolute inset-0 bg-cover bg-center -z-20 scale-105"

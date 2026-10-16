@@ -406,7 +406,7 @@ function AboutPage() {
               <div className="absolute inset-0 bg-zinc-900" />
             )}
             {/* Gradients for depth and legibility */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/60" />
+            <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/50 to-black/60" />
             <div className="absolute inset-0 [background:radial-gradient(ellipse_at_center,transparent_0%,rgba(0,0,0,0.3)_50%,rgba(0,0,0,0.7)_100%)]" />
           </div>
 
@@ -491,10 +491,10 @@ function AboutPage() {
               <div className="lg:col-span-5 space-y-6">
                 <div className="relative group">
                   {/* Visual Ambient Glow */}
-                  <div className="absolute -inset-1.5 bg-gradient-to-tr from-brand/30 via-accent/20 to-transparent rounded-[2.5rem] blur-xl opacity-75 group-hover:opacity-100 transition duration-700" />
+                  <div className="absolute -inset-1.5 bg-linear-to-tr from-brand/30 via-accent/20 to-transparent rounded-[2.5rem] blur-xl opacity-75 group-hover:opacity-100 transition duration-700" />
 
                   {/* Portrait Card */}
-                  <div className="relative overflow-hidden rounded-[2rem] border border-border/80 bg-card shadow-2xl">
+                  <div className="relative overflow-hidden rounded-4xl border border-border/80 bg-card shadow-2xl">
                     <img
                       src={portraitSrc}
                       alt={profileImageAlt}
@@ -504,7 +504,7 @@ function AboutPage() {
                         e.currentTarget.onerror = null;
                         e.currentTarget.src = aboutPortrait;
                       }}
-                      className="w-full aspect-[4/5] object-cover object-center transition-transform duration-700 group-hover:scale-[1.03]"
+                      className="w-full aspect-4/5 object-cover object-center transition-transform duration-700 group-hover:scale-[1.03]"
                     />
 
                     {/* Overlay Badge */}
@@ -518,7 +518,7 @@ function AboutPage() {
                     </div>
 
                     {/* Gradient bottom overlay on image */}
-                    <div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black/90 via-black/50 to-transparent text-white">
+                    <div className="absolute inset-x-0 bottom-0 p-6 bg-linear-to-t from-black/90 via-black/50 to-transparent text-white">
                       <p className="text-xs uppercase tracking-widest font-semibold text-accent mb-1">
                         {t("NDSOLOTRAVEL")}
                       </p>
@@ -685,7 +685,7 @@ function AboutPage() {
           <section className="rounded-3xl border border-border/80 bg-zinc-950 text-white overflow-hidden shadow-2xl isolate">
             <div className="grid lg:grid-cols-12 items-stretch">
               {/* Left: Atmospheric Image Frame */}
-              <div className="lg:col-span-6 relative h-[360px] sm:h-[440px] lg:h-auto lg:min-h-[540px] w-full overflow-hidden rounded-t-3xl lg:rounded-l-3xl lg:rounded-tr-none lg:rounded-br-none isolate">
+              <div className="lg:col-span-6 relative h-90 sm:h-110 lg:h-auto lg:min-h-135 w-full overflow-hidden rounded-t-3xl lg:rounded-l-3xl lg:rounded-tr-none lg:rounded-br-none isolate">
                 {motorcycleImage ? (
                   <img
                     src={motorcycleImage}
@@ -810,12 +810,12 @@ function AboutPage() {
                   <img
                     src={trekkingImage}
                     alt={trekkingImageAlt}
-                    className="w-full aspect-[4/3] object-cover object-center transition-transform duration-700 hover:scale-[1.03]"
+                    className="w-full aspect-4/3 object-cover object-center transition-transform duration-700 hover:scale-[1.03]"
                   />
                 ) : (
-                  <div className="w-full aspect-[4/3] bg-zinc-900" />
+                  <div className="w-full aspect-4/3 bg-zinc-900" />
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-linear-to-t from-black/70 via-transparent to-transparent" />
                 <div className="absolute bottom-6 left-6 right-6 text-white">
                   {trekkingLocationLabel && (
                     <p className="text-xs uppercase font-semibold tracking-wider text-accent">
@@ -839,7 +839,7 @@ function AboutPage() {
         {philosophyEnabled && (
           <section className="space-y-12">
             {/* Quote Callout Box */}
-            <div className="relative rounded-[2.5rem] bg-gradient-to-br from-card via-muted/30 to-card border border-border/80 p-8 sm:p-12 lg:p-16 text-center shadow-lg overflow-hidden">
+            <div className="relative rounded-[2.5rem] bg-linear-to-br from-card via-muted/30 to-card border border-border/80 p-8 sm:p-12 lg:p-16 text-center shadow-lg overflow-hidden">
               <div className="absolute top-0 left-0 w-48 h-48 bg-brand/10 rounded-full blur-3xl pointer-events-none" />
               <div className="absolute bottom-0 right-0 w-48 h-48 bg-accent/10 rounded-full blur-3xl pointer-events-none" />
 
@@ -926,11 +926,11 @@ function AboutPage() {
                      <p className="font-sans tabular-nums text-[1.35rem] min-[360px]:text-[1.65rem] min-[400px]:text-3xl sm:text-5xl font-bold text-brand tracking-tight whitespace-nowrap leading-none">
                       {stat.value}
                     </p>
-                    <h4 className="text-xs sm:text-sm font-bold text-heading leading-snug break-words">
+                    <h4 className="text-xs sm:text-sm font-bold text-heading leading-snug wrap-break-word">
                       {t(stat.label)}
                     </h4>
                     {stat.description && (
-                      <p className="text-[11px] sm:text-xs text-muted-foreground leading-relaxed break-words">
+                      <p className="text-[11px] sm:text-xs text-muted-foreground leading-relaxed wrap-break-word">
                         {t(stat.description)}
                       </p>
                     )}
@@ -1018,7 +1018,7 @@ function AboutPage() {
             9. CALL TO ACTION / CONNECT
            ------------------------------------------------------------- */}
         {ctaEnabled && (
-          <section className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-zinc-900 via-black to-zinc-950 text-white p-8 sm:p-14 lg:p-16 border border-white/10 shadow-2xl">
+          <section className="relative overflow-hidden rounded-[2.5rem] bg-linear-to-br from-zinc-900 via-black to-zinc-950 text-white p-8 sm:p-14 lg:p-16 border border-white/10 shadow-2xl">
             <div className="absolute top-0 right-0 w-64 h-64 bg-brand/20 rounded-full blur-3xl pointer-events-none" />
 
             <div className="relative z-10 max-w-3xl space-y-6">
