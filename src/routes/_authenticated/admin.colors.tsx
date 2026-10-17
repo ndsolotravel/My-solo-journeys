@@ -87,6 +87,14 @@ function AdminColorsPage() {
       queryClient.invalidateQueries({ queryKey: ["color-settings"] });
       queryClient.invalidateQueries({ queryKey: ["admin-color-settings"] });
       sessionStorage.removeItem(COLOR_PREVIEW_STORAGE_KEY);
+      localStorage.removeItem(COLOR_PREVIEW_STORAGE_KEY);
+      if (typeof BroadcastChannel !== "undefined") {
+        try {
+          const bc = new BroadcastChannel("nd-preview-channel");
+          bc.postMessage({ type: "preview_clear", target: "color" });
+          bc.close();
+        } catch {}
+      }
       window.dispatchEvent(new Event("nd-color-preview-changed"));
       toast.success("Global color palette published live across the website!");
     },
@@ -94,6 +102,23 @@ function AdminColorsPage() {
       toast.error(`Failed to publish colors: ${err.message}`);
     },
   });
+
+  // Sync draft updates across tabs if preview mode is active
+  const syncDraftPreview = (newConfig: ColorConfig) => {
+    if (typeof window === "undefined") return;
+    try {
+      if (sessionStorage.getItem(COLOR_PREVIEW_STORAGE_KEY) || localStorage.getItem(COLOR_PREVIEW_STORAGE_KEY)) {
+        sessionStorage.setItem(COLOR_PREVIEW_STORAGE_KEY, JSON.stringify(newConfig));
+        localStorage.setItem(COLOR_PREVIEW_STORAGE_KEY, JSON.stringify(newConfig));
+        if (typeof BroadcastChannel !== "undefined") {
+          const bc = new BroadcastChannel("nd-preview-channel");
+          bc.postMessage({ type: "preview_update", target: "color", config: newConfig });
+          bc.close();
+        }
+        window.dispatchEvent(new Event("nd-color-preview-changed"));
+      }
+    } catch {}
+  };
 
   const handleResetToDefault = () => {
     setDraftConfig({ ...DEFAULT_COLOR_CONFIG });
@@ -103,6 +128,14 @@ function AdminColorsPage() {
   const handlePreviewOnSite = () => {
     try {
       sessionStorage.setItem(COLOR_PREVIEW_STORAGE_KEY, JSON.stringify(draftConfig));
+      localStorage.setItem(COLOR_PREVIEW_STORAGE_KEY, JSON.stringify(draftConfig));
+      if (typeof BroadcastChannel !== "undefined") {
+        try {
+          const bc = new BroadcastChannel("nd-preview-channel");
+          bc.postMessage({ type: "preview_update", target: "color", config: draftConfig });
+          bc.close();
+        } catch {}
+      }
       window.dispatchEvent(new Event("nd-color-preview-changed"));
       toast.success("Preview mode activated! Opening homepage preview in a new tab.", {
         action: {
@@ -117,10 +150,14 @@ function AdminColorsPage() {
   };
 
   const updateColor = (key: keyof ColorConfig, value: string) => {
-    setDraftConfig((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
+    setDraftConfig((prev) => {
+      const updated = {
+        ...prev,
+        [key]: value,
+      };
+      syncDraftPreview(updated);
+      return updated;
+    });
   };
 
   // Categories list for filtering
@@ -133,48 +170,35 @@ function AdminColorsPage() {
 
   // CSS variables applied to the live preview container
   const previewCanvasStyles = useMemo(() => {
-    const isDark = previewTheme === "dark";
-
-    const headLum = getRelativeLuminance(draftConfig.headingColor);
-    const bodyLum = getRelativeLuminance(draftConfig.bodyTextColor);
-    const mutedLum = getRelativeLuminance(draftConfig.mutedTextColor);
-    const navLum = getRelativeLuminance(draftConfig.navTextColor);
-    const cardLum = getRelativeLuminance(draftConfig.cardBgColor);
-
-    const heading = isDark ? (headLum < 0.35 ? "#f6f2e9" : draftConfig.headingColor) : draftConfig.headingColor;
-    const body = isDark ? (bodyLum < 0.25 ? "#d6cfc2" : draftConfig.bodyTextColor) : draftConfig.bodyTextColor;
-    const muted = isDark ? (mutedLum < 0.15 ? "#a79e8f" : draftConfig.mutedTextColor) : draftConfig.mutedTextColor;
-    const nav = isDark ? (navLum < 0.25 ? "#e7e2d8" : draftConfig.navTextColor) : draftConfig.navTextColor;
-    const cardBg = isDark ? (cardLum > 0.50 ? "#1c1a15" : draftConfig.cardBgColor) : draftConfig.cardBgColor;
-    const border = isDark ? "rgba(244, 240, 230, 0.14)" : draftConfig.borderColor;
-
     return {
       "--primary": draftConfig.primaryColor,
       "--secondary": draftConfig.secondaryColor,
       "--brand": draftConfig.accentColor,
       "--accent": draftConfig.accentColor,
       "--ring": draftConfig.accentColor,
-      "--color-heading": heading,
-      "--heading-color": heading,
-      "--color-body-text": body,
-      "--body-text-color": body,
-      "--color-muted-text": muted,
-      "--muted-text-color": muted,
-      "--color-link": isDark ? "#7fb6d6" : draftConfig.linkColor,
-      "--color-link-hover": isDark ? "#a6cfe6" : draftConfig.linkHoverColor,
+      "--color-heading": draftConfig.headingColor,
+      "--heading-color": draftConfig.headingColor,
+      "--color-body-text": draftConfig.bodyTextColor,
+      "--body-text-color": draftConfig.bodyTextColor,
+      "--color-muted-text": draftConfig.mutedTextColor,
+      "--muted-text-color": draftConfig.mutedTextColor,
+      "--color-link": draftConfig.linkColor,
+      "--link-color": draftConfig.linkColor,
+      "--color-link-hover": draftConfig.linkHoverColor,
+      "--link-hover-color": draftConfig.linkHoverColor,
       "--btn-bg": draftConfig.buttonBgColor,
       "--btn-text": draftConfig.buttonTextColor,
       "--btn-hover": draftConfig.buttonHoverColor,
-      "--card-bg": cardBg,
-      "--section-bg": isDark ? "#0e0d0a" : draftConfig.sectionBgColor,
-      "--border-color": border,
-      "--nav-text": nav,
+      "--card-bg": draftConfig.cardBgColor,
+      "--section-bg": draftConfig.sectionBgColor,
+      "--border-color": draftConfig.borderColor,
+      "--nav-text": draftConfig.navTextColor,
       "--nav-hover": draftConfig.navHoverColor,
       "--hero-overlay": draftConfig.heroOverlayColor,
-      "--footer-bg": isDark ? "#0e0d0a" : draftConfig.footerBgColor,
-      "--footer-text": isDark ? "#b4ac9e" : draftConfig.footerTextColor,
+      "--footer-bg": draftConfig.footerBgColor,
+      "--footer-text": draftConfig.footerTextColor,
     } as React.CSSProperties;
-  }, [draftConfig, previewTheme]);
+  }, [draftConfig]);
 
   if (isLoading) {
     return (

@@ -14,6 +14,8 @@ export interface TypographyConfig {
   buttonFont: string;
   headingWeight: string;
   bodyWeight: string;
+  headingSize: ResponsiveValues<number>;
+  headingLineHeight: ResponsiveValues<number>;
   bodySize: ResponsiveValues<number>;
   lineHeight: ResponsiveValues<number>;
   letterSpacing: ResponsiveValues<number>;
@@ -334,6 +336,16 @@ export const DEFAULT_TYPOGRAPHY_CONFIG: TypographyConfig = {
   buttonFont: "Manrope",
   headingWeight: "600",
   bodyWeight: "400",
+  headingSize: {
+    desktop: 52,
+    tablet: 40,
+    mobile: 32,
+  },
+  headingLineHeight: {
+    desktop: 1.15,
+    tablet: 1.18,
+    mobile: 1.2,
+  },
   bodySize: {
     desktop: 17,
     tablet: 16,
@@ -398,6 +410,20 @@ export const typographySchema = z.object({
   buttonFont: z.string().min(1),
   headingWeight: z.string().min(1),
   bodyWeight: z.string().min(1),
+  headingSize: z
+    .object({
+      desktop: z.number().min(20).max(96),
+      tablet: z.number().min(18).max(72),
+      mobile: z.number().min(16).max(56),
+    })
+    .default({ desktop: 52, tablet: 40, mobile: 32 }),
+  headingLineHeight: z
+    .object({
+      desktop: z.number().min(0.8).max(2.2),
+      tablet: z.number().min(0.8).max(2.2),
+      mobile: z.number().min(0.8).max(2.2),
+    })
+    .default({ desktop: 1.15, tablet: 1.18, mobile: 1.2 }),
   bodySize: z.object({
     desktop: z.number().min(12).max(28),
     tablet: z.number().min(12).max(26),
@@ -488,6 +514,16 @@ export function parseTypographyConfig(raw: unknown): TypographyConfig {
         buttonFont: obj.buttonFont || DEFAULT_TYPOGRAPHY_CONFIG.buttonFont,
         headingWeight: obj.headingWeight || DEFAULT_TYPOGRAPHY_CONFIG.headingWeight,
         bodyWeight: obj.bodyWeight || DEFAULT_TYPOGRAPHY_CONFIG.bodyWeight,
+        headingSize: {
+          desktop: Number(obj.headingSize?.desktop) || DEFAULT_TYPOGRAPHY_CONFIG.headingSize.desktop,
+          tablet: Number(obj.headingSize?.tablet) || DEFAULT_TYPOGRAPHY_CONFIG.headingSize.tablet,
+          mobile: Number(obj.headingSize?.mobile) || DEFAULT_TYPOGRAPHY_CONFIG.headingSize.mobile,
+        },
+        headingLineHeight: {
+          desktop: Number(obj.headingLineHeight?.desktop) || DEFAULT_TYPOGRAPHY_CONFIG.headingLineHeight.desktop,
+          tablet: Number(obj.headingLineHeight?.tablet) || DEFAULT_TYPOGRAPHY_CONFIG.headingLineHeight.tablet,
+          mobile: Number(obj.headingLineHeight?.mobile) || DEFAULT_TYPOGRAPHY_CONFIG.headingLineHeight.mobile,
+        },
         bodySize: {
           desktop: Number(obj.bodySize?.desktop) || DEFAULT_TYPOGRAPHY_CONFIG.bodySize.desktop,
           tablet: Number(obj.bodySize?.tablet) || DEFAULT_TYPOGRAPHY_CONFIG.bodySize.tablet,
@@ -696,6 +732,9 @@ export function generateTypographyCss(config: TypographyConfig, selector = ":roo
   const scriptInfo = resolveGoogleFamily(config.scriptFont || "Cormorant Garamond");
   const jnInfo = resolveGoogleFamily(config.journeyNumbersFont || "Cinzel");
 
+  const hSize = config.headingSize || DEFAULT_TYPOGRAPHY_CONFIG.headingSize;
+  const hLineHeight = config.headingLineHeight || DEFAULT_TYPOGRAPHY_CONFIG.headingLineHeight;
+
   const sSize = config.scriptSize || DEFAULT_TYPOGRAPHY_CONFIG.scriptSize;
   const sLineHeight = config.scriptLineHeight || DEFAULT_TYPOGRAPHY_CONFIG.scriptLineHeight;
   const sLetterSpacing = config.scriptLetterSpacing || DEFAULT_TYPOGRAPHY_CONFIG.scriptLetterSpacing;
@@ -722,6 +761,8 @@ ${selector} {
   --font-button: "${config.buttonFont}", ${buttonFallback};
   --font-weight-heading: ${config.headingWeight};
   --font-weight-body: ${config.bodyWeight};
+  --font-size-heading: ${hSize.desktop}px;
+  --line-height-heading: ${hLineHeight.desktop};
   --font-size-body: ${config.bodySize.desktop}px;
   --line-height-body: ${config.lineHeight.desktop};
   --letter-spacing-body: ${config.letterSpacing.desktop}em;
@@ -750,6 +791,8 @@ ${darkSelector} {
 
 @media (max-width: 1024px) {
   ${selector} {
+    --font-size-heading: ${hSize.tablet}px;
+    --line-height-heading: ${hLineHeight.tablet};
     --font-size-body: ${config.bodySize.tablet}px;
     --line-height-body: ${config.lineHeight.tablet};
     --letter-spacing-body: ${config.letterSpacing.tablet}em;
@@ -764,6 +807,8 @@ ${darkSelector} {
 
 @media (max-width: 640px) {
   ${selector} {
+    --font-size-heading: ${hSize.mobile}px;
+    --line-height-heading: ${hLineHeight.mobile};
     --font-size-body: ${config.bodySize.mobile}px;
     --line-height-body: ${config.lineHeight.mobile};
     --letter-spacing-body: ${config.letterSpacing.mobile}em;

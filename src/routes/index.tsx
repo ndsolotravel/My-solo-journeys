@@ -401,16 +401,21 @@ function HomePage() {
                 {t(heroSettings.homepage_hero_badge || "Solo · Slow · Cinematic")}
               </motion.span>
 
-<motion.h1
-                 initial={{ opacity: 0, y: 30 }}
-                 animate={{ opacity: 1, y: 0 }}
-                 transition={{ duration: 0.8, delay: 0.1 }}
-                 className="mt-4 sm:mt-5 max-w-4xl font-display text-[2.15rem] sm:text-5xl lg:text-6xl xl:text-[4.5rem] leading-[1.12] sm:leading-[1.08] text-white wrap-anywhere text-balance [text-shadow:0_2px_30px_rgba(0,0,0,0.35)]"
-               >
-                 <span className="block">
-                   Solo journeys, motorcycle adventures, and trekking across the world
-                 </span>
-               </motion.h1>
+                <motion.h1
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 0.1 }}
+                  style={{
+                    fontSize: "var(--font-size-heading)",
+                    lineHeight: "var(--line-height-heading, 1.12)",
+                    letterSpacing: "var(--letter-spacing-heading, -0.02em)",
+                  }}
+                  className="main-heading mt-4 sm:mt-5 max-w-4xl font-display text-white wrap-anywhere text-balance [text-shadow:0_2px_30px_rgba(0,0,0,0.35)]"
+                >
+                  <span className="block">
+                    {t(heroSettings.homepage_hero_title || "Solo journeys, motorcycle adventures, and trekking across the world")}
+                  </span>
+                </motion.h1>
                  <motion.p
                  initial={{ opacity: 0 }}
                  animate={{ opacity: 1 }}

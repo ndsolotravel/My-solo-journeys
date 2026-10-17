@@ -429,7 +429,12 @@ function AboutPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1 }}
-                className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white leading-[1.1]"
+                style={{
+                  fontSize: "var(--font-size-heading)",
+                  lineHeight: "var(--line-height-heading, 1.1)",
+                  letterSpacing: "var(--letter-spacing-heading, -0.02em)",
+                }}
+                className="main-heading font-display font-bold tracking-tight text-white"
               >
                 {t(heroHeadline)}
               </motion.h1>

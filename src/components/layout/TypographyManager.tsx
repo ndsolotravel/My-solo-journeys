@@ -30,11 +30,11 @@ export function TypographyManager() {
 
   const [previewConfig, setPreviewConfig] = useState<TypographyConfig | null>(null);
 
-  // Check for local preview in sessionStorage
+  // Check for local preview in sessionStorage or localStorage, and listen for BroadcastChannel events
   useEffect(() => {
     const readPreview = () => {
       try {
-        const raw = sessionStorage.getItem(PREVIEW_STORAGE_KEY);
+        const raw = sessionStorage.getItem(PREVIEW_STORAGE_KEY) || localStorage.getItem(PREVIEW_STORAGE_KEY);
         if (raw) {
           setPreviewConfig(parseTypographyConfig(raw));
         } else {
@@ -48,9 +48,29 @@ export function TypographyManager() {
     readPreview();
     window.addEventListener("storage", readPreview);
     window.addEventListener("nd-typography-preview-changed", readPreview);
+
+    let bc: BroadcastChannel | null = null;
+    if (typeof BroadcastChannel !== "undefined") {
+      try {
+        bc = new BroadcastChannel("nd-preview-channel");
+        bc.onmessage = (event) => {
+          if (event.data?.target === "typography") {
+            if (event.data?.type === "preview_update" && event.data?.config) {
+              setPreviewConfig(parseTypographyConfig(event.data.config));
+            } else if (event.data?.type === "preview_clear") {
+              setPreviewConfig(null);
+            }
+          }
+        };
+      } catch {}
+    }
+
     return () => {
       window.removeEventListener("storage", readPreview);
       window.removeEventListener("nd-typography-preview-changed", readPreview);
+      if (bc) {
+        bc.close();
+      }
     };
   }, []);
 
@@ -96,6 +116,14 @@ export function TypographyManager() {
     },
     onSuccess: (saved) => {
       sessionStorage.removeItem(PREVIEW_STORAGE_KEY);
+      localStorage.removeItem(PREVIEW_STORAGE_KEY);
+      if (typeof BroadcastChannel !== "undefined") {
+        try {
+          const bc = new BroadcastChannel("nd-preview-channel");
+          bc.postMessage({ type: "preview_clear", target: "typography" });
+          bc.close();
+        } catch {}
+      }
       setPreviewConfig(null);
       window.dispatchEvent(new Event("nd-typography-preview-changed"));
       queryClient.setQueryData(["typography-settings"], saved);
@@ -109,6 +137,14 @@ export function TypographyManager() {
 
   const handleExitPreview = () => {
     sessionStorage.removeItem(PREVIEW_STORAGE_KEY);
+    localStorage.removeItem(PREVIEW_STORAGE_KEY);
+    if (typeof BroadcastChannel !== "undefined") {
+      try {
+        const bc = new BroadcastChannel("nd-preview-channel");
+        bc.postMessage({ type: "preview_clear", target: "typography" });
+        bc.close();
+      } catch {}
+    }
     setPreviewConfig(null);
     window.dispatchEvent(new Event("nd-typography-preview-changed"));
     toast.info("Exited typography preview mode");

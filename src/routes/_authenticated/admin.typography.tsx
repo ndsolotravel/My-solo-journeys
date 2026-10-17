@@ -107,8 +107,16 @@ function AdminTypographyPage() {
       queryClient.setQueryData(["typography-settings"], saved);
       queryClient.invalidateQueries({ queryKey: ["typography-settings"] });
       queryClient.invalidateQueries({ queryKey: ["admin-typography-settings"] });
-      // Remove any temporary session preview
+      // Remove any temporary session and local preview
       sessionStorage.removeItem(PREVIEW_STORAGE_KEY);
+      localStorage.removeItem(PREVIEW_STORAGE_KEY);
+      if (typeof BroadcastChannel !== "undefined") {
+        try {
+          const bc = new BroadcastChannel("nd-preview-channel");
+          bc.postMessage({ type: "preview_clear", target: "typography" });
+          bc.close();
+        } catch {}
+      }
       window.dispatchEvent(new Event("nd-typography-preview-changed"));
       toast.success("Typography settings saved and published live!");
     },
@@ -116,6 +124,23 @@ function AdminTypographyPage() {
       toast.error(`Failed to publish typography: ${err.message}`);
     },
   });
+
+  // Sync draft updates across tabs if preview mode is active
+  const syncDraftPreview = (newConfig: TypographyConfig) => {
+    if (typeof window === "undefined") return;
+    try {
+      if (sessionStorage.getItem(PREVIEW_STORAGE_KEY) || localStorage.getItem(PREVIEW_STORAGE_KEY)) {
+        sessionStorage.setItem(PREVIEW_STORAGE_KEY, JSON.stringify(newConfig));
+        localStorage.setItem(PREVIEW_STORAGE_KEY, JSON.stringify(newConfig));
+        if (typeof BroadcastChannel !== "undefined") {
+          const bc = new BroadcastChannel("nd-preview-channel");
+          bc.postMessage({ type: "preview_update", target: "typography", config: newConfig });
+          bc.close();
+        }
+        window.dispatchEvent(new Event("nd-typography-preview-changed"));
+      }
+    } catch {}
+  };
 
   // Reset to default
   const handleReset = () => {
@@ -125,14 +150,18 @@ function AdminTypographyPage() {
 
   // Reset only script font to default Yuyu Short
   const handleResetScript = () => {
-    setDraftConfig((prev) => ({
-      ...prev,
-      scriptFont: DEFAULT_TYPOGRAPHY_CONFIG.scriptFont,
-      scriptWeight: DEFAULT_TYPOGRAPHY_CONFIG.scriptWeight,
-      scriptSize: { ...DEFAULT_TYPOGRAPHY_CONFIG.scriptSize },
-      scriptLineHeight: { ...DEFAULT_TYPOGRAPHY_CONFIG.scriptLineHeight },
-      scriptLetterSpacing: { ...DEFAULT_TYPOGRAPHY_CONFIG.scriptLetterSpacing },
-    }));
+    setDraftConfig((prev) => {
+      const updated = {
+        ...prev,
+        scriptFont: DEFAULT_TYPOGRAPHY_CONFIG.scriptFont,
+        scriptWeight: DEFAULT_TYPOGRAPHY_CONFIG.scriptWeight,
+        scriptSize: { ...DEFAULT_TYPOGRAPHY_CONFIG.scriptSize },
+        scriptLineHeight: { ...DEFAULT_TYPOGRAPHY_CONFIG.scriptLineHeight },
+        scriptLetterSpacing: { ...DEFAULT_TYPOGRAPHY_CONFIG.scriptLetterSpacing },
+      };
+      syncDraftPreview(updated);
+      return updated;
+    });
     toast.info("Reset Script font to default settings.");
   };
 
@@ -140,6 +169,14 @@ function AdminTypographyPage() {
   const handlePreviewOnSite = () => {
     try {
       sessionStorage.setItem(PREVIEW_STORAGE_KEY, JSON.stringify(draftConfig));
+      localStorage.setItem(PREVIEW_STORAGE_KEY, JSON.stringify(draftConfig));
+      if (typeof BroadcastChannel !== "undefined") {
+        try {
+          const bc = new BroadcastChannel("nd-preview-channel");
+          bc.postMessage({ type: "preview_update", target: "typography", config: draftConfig });
+          bc.close();
+        } catch {}
+      }
       window.dispatchEvent(new Event("nd-typography-preview-changed"));
       toast.success("Preview mode activated! Opening home page in new tab...", {
         duration: 4000,
@@ -150,18 +187,22 @@ function AdminTypographyPage() {
     }
   };
 
-  // Helper updater for standard responsive values
+  // Helper updater for standard responsive values (headingSize, headingLineHeight, bodySize, lineHeight, letterSpacing)
   const updateResponsive = (
-    field: "bodySize" | "lineHeight" | "letterSpacing",
+    field: "headingSize" | "headingLineHeight" | "bodySize" | "lineHeight" | "letterSpacing",
     val: number,
   ) => {
-    setDraftConfig((prev) => ({
-      ...prev,
-      [field]: {
-        ...prev[field],
-        [activeDevice]: val,
-      },
-    }));
+    setDraftConfig((prev) => {
+      const updated = {
+        ...prev,
+        [field]: {
+          ...(prev[field] || DEFAULT_TYPOGRAPHY_CONFIG[field]),
+          [activeDevice]: val,
+        },
+      };
+      syncDraftPreview(updated);
+      return updated;
+    });
   };
 
   // Helper updater for script font responsive values
@@ -169,13 +210,17 @@ function AdminTypographyPage() {
     field: "scriptSize" | "scriptLineHeight" | "scriptLetterSpacing",
     val: number,
   ) => {
-    setDraftConfig((prev) => ({
-      ...prev,
-      [field]: {
-        ...(prev[field] || DEFAULT_TYPOGRAPHY_CONFIG[field]),
-        [activeDevice]: val,
-      },
-    }));
+    setDraftConfig((prev) => {
+      const updated = {
+        ...prev,
+        [field]: {
+          ...(prev[field] || DEFAULT_TYPOGRAPHY_CONFIG[field]),
+          [activeDevice]: val,
+        },
+      };
+      syncDraftPreview(updated);
+      return updated;
+    });
   };
 
   // Lookup active script font metadata and supported weights
@@ -270,6 +315,11 @@ function AdminTypographyPage() {
 
   // Scoped CSS styles for the preview canvas
   const previewCanvasStyles = useMemo(() => {
+    const hSize = draftConfig.headingSize || DEFAULT_TYPOGRAPHY_CONFIG.headingSize;
+    const hLineHeight = draftConfig.headingLineHeight || DEFAULT_TYPOGRAPHY_CONFIG.headingLineHeight;
+    const activeHeadingSize = hSize[activeDevice];
+    const activeHeadingLineHeight = hLineHeight[activeDevice];
+
     const activeSize = draftConfig.bodySize[activeDevice];
     const activeLineHeight = draftConfig.lineHeight[activeDevice];
     const activeLetterSpacing = draftConfig.letterSpacing[activeDevice];
@@ -283,7 +333,12 @@ function AdminTypographyPage() {
     const activeJnSize = (draftConfig.journeyNumbersSize || DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersSize)[activeDevice];
     const activeJnLineHeight = (draftConfig.journeyNumbersLineHeight || DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersLineHeight)[activeDevice];
     const activeJnLetterSpacing = (draftConfig.journeyNumbersLetterSpacing || DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersLetterSpacing)[activeDevice];
-    const activeJnColor = draftConfig.journeyNumbersColor || DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersColor;
+    const jnColor = draftConfig.journeyNumbersColor || DEFAULT_TYPOGRAPHY_CONFIG.journeyNumbersColor;
+
+    const lum = getRelativeLuminance(jnColor);
+    const lightJnColor = jnColor.toLowerCase() === "#38bdf8" || lum > 0.40 ? "#0284C7" : jnColor;
+    const darkJnColor = lum < 0.25 ? "#38BDF8" : jnColor;
+    const activeJnColor = previewTheme === "dark" ? darkJnColor : lightJnColor;
 
     return {
       "--font-display": `"${draftConfig.headingFont}", serif`,
@@ -292,10 +347,14 @@ function AdminTypographyPage() {
       "--font-button": `"${draftConfig.buttonFont}", sans-serif`,
       "--font-weight-heading": draftConfig.headingWeight,
       "--font-weight-body": draftConfig.bodyWeight,
+      "--font-size-heading": `${activeHeadingSize}px`,
+      "--line-height-heading": `${activeHeadingLineHeight}`,
       "--font-size-body": `${activeSize}px`,
       "--line-height-body": `${activeLineHeight}`,
       "--letter-spacing-body": `${activeLetterSpacing}em`,
       "--letter-spacing-heading": `${draftConfig.headingLetterSpacing}em`,
+      "--color-heading": previewTheme === "dark" ? "#f6f2e9" : "#1B1915",
+      "--color-body-text": previewTheme === "dark" ? "#d6cfc2" : "#3E3A32",
 
       // Independent Script Font Variables (Home Hero Headline & Accents)
       "--font-hero-script": `"${scriptInfo.family}", ${scriptInfo.fallback}`,
@@ -312,7 +371,7 @@ function AdminTypographyPage() {
       "--letter-spacing-journey-numbers": `${activeJnLetterSpacing}em`,
       "--color-journey-numbers": activeJnColor,
     } as React.CSSProperties;
-  }, [draftConfig, activeDevice]);
+  }, [draftConfig, activeDevice, previewTheme]);
 
   if (isLoading) {
     return (
@@ -324,6 +383,9 @@ function AdminTypographyPage() {
       </div>
     );
   }
+
+  const activeHeadingSize = (draftConfig.headingSize || DEFAULT_TYPOGRAPHY_CONFIG.headingSize)[activeDevice];
+  const activeHeadingLineHeight = (draftConfig.headingLineHeight || DEFAULT_TYPOGRAPHY_CONFIG.headingLineHeight)[activeDevice];
 
   const activeScriptSize = (draftConfig.scriptSize || DEFAULT_TYPOGRAPHY_CONFIG.scriptSize)[activeDevice];
   const activeScriptLineHeight = (draftConfig.scriptLineHeight || DEFAULT_TYPOGRAPHY_CONFIG.scriptLineHeight)[activeDevice];
@@ -1579,11 +1641,97 @@ function AdminTypographyPage() {
               </span>
             </div>
 
-            {/* 7. Body Font Size */}
+            {/* 7. Main Heading Font Size */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                  <Type className="h-3.5 w-3.5 text-brand" />
+                  7. Main Heading Font Size ({activeDevice})
+                </label>
+                <span className="font-mono text-xs font-bold text-foreground">
+                  {activeHeadingSize}px ({(activeHeadingSize / 16).toFixed(3)}rem)
+                </span>
+              </div>
+              <div className="flex items-center gap-4">
+                <input
+                  type="range"
+                  min={activeDevice === "desktop" ? 24 : activeDevice === "tablet" ? 20 : 16}
+                  max={activeDevice === "desktop" ? 96 : activeDevice === "tablet" ? 72 : 56}
+                  step="1"
+                  value={activeHeadingSize}
+                  onChange={(e) =>
+                    updateResponsive("headingSize", parseFloat(e.target.value))
+                  }
+                  className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-muted accent-brand"
+                  aria-label={`Main Heading Font Size (${activeDevice})`}
+                />
+                <input
+                  type="number"
+                  min={activeDevice === "desktop" ? 24 : activeDevice === "tablet" ? 20 : 16}
+                  max={activeDevice === "desktop" ? 96 : activeDevice === "tablet" ? 72 : 56}
+                  step="1"
+                  value={activeHeadingSize}
+                  onChange={(e) =>
+                    updateResponsive(
+                      "headingSize",
+                      parseFloat(e.target.value) || activeHeadingSize,
+                    )
+                  }
+                  className="w-16 rounded-lg border border-border bg-background px-2 py-1 text-center font-mono text-xs text-foreground focus:border-brand focus:outline-none"
+                  aria-label={`Main Heading Font Size numeric (${activeDevice})`}
+                />
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                Sets the main website headline scale across {activeDevice} screens with instant real-time preview (min {activeDevice === "desktop" ? "24px" : activeDevice === "tablet" ? "20px" : "16px"}, max {activeDevice === "desktop" ? "96px" : activeDevice === "tablet" ? "72px" : "56px"}).
+              </p>
+            </div>
+
+            {/* 8. Main Heading Line Height */}
+            <div className="space-y-2 pt-2 border-t border-border/40">
+              <div className="flex items-center justify-between">
                 <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  7. Body Font Size ({activeDevice})
+                  8. Main Heading Line Height ({activeDevice})
+                </label>
+                <span className="font-mono text-xs font-bold text-foreground">
+                  {activeHeadingLineHeight}
+                </span>
+              </div>
+              <div className="flex items-center gap-4">
+                <input
+                  type="range"
+                  min="0.9"
+                  max="2.0"
+                  step="0.05"
+                  value={activeHeadingLineHeight}
+                  onChange={(e) =>
+                    updateResponsive("headingLineHeight", parseFloat(e.target.value))
+                  }
+                  className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-muted accent-brand"
+                  aria-label={`Main Heading Line Height (${activeDevice})`}
+                />
+                <input
+                  type="number"
+                  min="0.9"
+                  max="2.0"
+                  step="0.05"
+                  value={activeHeadingLineHeight}
+                  onChange={(e) =>
+                    updateResponsive(
+                      "headingLineHeight",
+                      parseFloat(e.target.value) || activeHeadingLineHeight,
+                    )
+                  }
+                  className="w-16 rounded-lg border border-border bg-background px-2 py-1 text-center font-mono text-xs text-foreground focus:border-brand focus:outline-none"
+                  aria-label={`Main Heading Line Height numeric (${activeDevice})`}
+                />
+              </div>
+            </div>
+
+            {/* 9. Body Font Size */}
+            <div className="space-y-2 pt-2 border-t border-border/40">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  9. Body Font Size ({activeDevice})
                 </label>
                 <span className="font-mono text-xs font-bold text-foreground">
                   {draftConfig.bodySize[activeDevice]}px (
@@ -1619,11 +1767,11 @@ function AdminTypographyPage() {
               </div>
             </div>
 
-            {/* 8. Line Height */}
+            {/* 10. Line Height */}
             <div className="space-y-2 pt-2 border-t border-border/40">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  8. Line Height ({activeDevice})
+                  10. Body Line Height ({activeDevice})
                 </label>
                 <span className="font-mono text-xs font-bold text-foreground">
                   {draftConfig.lineHeight[activeDevice]}
@@ -1658,11 +1806,11 @@ function AdminTypographyPage() {
               </div>
             </div>
 
-            {/* 9. Letter Spacing */}
+            {/* 11. Letter Spacing */}
             <div className="space-y-2 pt-2 border-t border-border/40">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  9. Body Letter Spacing ({activeDevice})
+                  11. Body Letter Spacing ({activeDevice})
                 </label>
                 <span className="font-mono text-xs font-bold text-foreground">
                   {draftConfig.letterSpacing[activeDevice]}em
@@ -1697,11 +1845,11 @@ function AdminTypographyPage() {
               </div>
             </div>
 
-            {/* Heading Letter Spacing */}
+            {/* 12. Heading Letter Spacing */}
             <div className="space-y-2 pt-2 border-t border-border/40">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Heading Letter Spacing (Global)
+                  12. Heading Letter Spacing (Global)
                 </label>
                 <span className="font-mono text-xs font-bold text-foreground">
                   {draftConfig.headingLetterSpacing}em
@@ -1824,7 +1972,7 @@ function AdminTypographyPage() {
               }`}
             >
               {/* Header / Nav Preview */}
-              <div className="flex items-center justify-between border-b border-white/10 pb-5 mb-6">
+              <div className={`flex items-center justify-between pb-5 mb-6 border-b ${previewTheme === "dark" ? "border-white/10" : "border-neutral-200"}`}>
                 <div className="flex items-center gap-2">
                   <Compass className="h-5 w-5 text-brand" />
                   <span
@@ -1832,6 +1980,7 @@ function AdminTypographyPage() {
                       fontFamily: 'var(--font-display)',
                       fontWeight: 'var(--font-weight-heading)',
                       letterSpacing: 'var(--letter-spacing-heading)',
+                      color: 'var(--color-heading, inherit)',
                     }}
                     className="text-base tracking-tight font-bold"
                   >
@@ -1871,10 +2020,13 @@ function AdminTypographyPage() {
                 <h1
                   style={{
                     fontFamily: 'var(--font-display)',
+                    fontSize: 'var(--font-size-heading)',
                     fontWeight: 'var(--font-weight-heading)',
+                    lineHeight: 'var(--line-height-heading)',
                     letterSpacing: 'var(--letter-spacing-heading)',
+                    color: 'var(--color-heading, inherit)',
                   }}
-                  className="text-2xl sm:text-3xl lg:text-4xl leading-[1.18] font-bold text-inherit"
+                  className="tracking-tight transition-all duration-200 wrap-break-word font-bold"
                 >
                   Solo journeys, motorcycle adventures, and trekking across the world
                 </h1>
@@ -1896,7 +2048,7 @@ function AdminTypographyPage() {
               </div>
 
               {/* Blog Heading Preview */}
-              <div className="space-y-2 mb-5 pt-4 border-t border-white/10">
+              <div className={`space-y-2 mb-5 pt-4 border-t ${previewTheme === "dark" ? "border-white/10" : "border-neutral-200"}`}>
                 <span className="text-xs uppercase tracking-widest text-brand font-semibold">
                   Field Notes · Day 14
                 </span>
@@ -1905,8 +2057,9 @@ function AdminTypographyPage() {
                     fontFamily: 'var(--font-display)',
                     fontWeight: 'var(--font-weight-heading)',
                     letterSpacing: 'var(--letter-spacing-heading)',
+                    color: 'var(--color-heading, inherit)',
                   }}
-                  className="text-xl sm:text-2xl leading-snug font-semibold text-inherit"
+                  className="text-xl sm:text-2xl leading-snug font-semibold"
                 >
                   The Solitude of High Passes and Whispering Glaciers
                 </h2>
@@ -1921,8 +2074,9 @@ function AdminTypographyPage() {
                     fontSize: 'var(--font-size-body)',
                     lineHeight: 'var(--line-height-body)',
                     letterSpacing: 'var(--letter-spacing-body)',
+                    color: 'var(--color-body-text, inherit)',
                   }}
-                  className="text-inherit opacity-90"
+                  className="opacity-90"
                 >
                   There is an austere tranquility to the northern valleys when the dusk light
                   begins to settle against jagged ridgelines. Travelling on two wheels with no
@@ -1933,7 +2087,7 @@ function AdminTypographyPage() {
               </div>
 
               {/* Button text preview */}
-              <div className="flex flex-wrap items-center gap-3 mb-6 pt-4 border-t border-white/10">
+              <div className={`flex flex-wrap items-center gap-3 mb-6 pt-4 border-t ${previewTheme === "dark" ? "border-white/10" : "border-neutral-200"}`}>
                 <button
                   type="button"
                   style={{
@@ -1961,7 +2115,7 @@ function AdminTypographyPage() {
               </div>
 
               {/* Journey in Numbers Section Preview */}
-              <div className="pt-5 border-t border-white/10 space-y-3.5">
+              <div className={`pt-5 border-t space-y-3.5 ${previewTheme === "dark" ? "border-white/10" : "border-neutral-200"}`}>
                 <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
                   <div>
                     <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-accent">
@@ -2052,7 +2206,7 @@ function AdminTypographyPage() {
               </span>
               <span>•</span>
               <span>
-                <strong>Headings:</strong> {draftConfig.headingFont} ({draftConfig.headingWeight})
+                <strong>Headings:</strong> {draftConfig.headingFont} ({draftConfig.headingWeight} / {activeHeadingSize}px)
               </span>
               <span>•</span>
               <span>

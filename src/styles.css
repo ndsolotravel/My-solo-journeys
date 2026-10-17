@@ -160,6 +160,8 @@
   --font-button: var(--font-sans);
   --font-weight-heading: 600;
   --font-weight-body: 400;
+  --font-size-heading: clamp(2rem, 5vw, 3.5rem);
+  --line-height-heading: 1.15;
   --font-size-body: 1.0625rem;
   --line-height-body: 1.7;
   --letter-spacing-body: normal;
@@ -295,9 +297,9 @@
 
   h1 {
     font-family: var(--font-display);
-    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-size: var(--font-size-heading, clamp(2rem, 5vw, 3.5rem));
     font-weight: var(--font-weight-heading, 700);
-    line-height: 1.18;
+    line-height: var(--line-height-heading, 1.18);
     margin-bottom: 1.5rem;
     color: var(--color-heading);
   }
@@ -437,11 +439,11 @@ button, .btn, [role="button"] {
   }
 
   /* Editorial heading styles */
-  .text-h1 {
+  .text-h1, .main-heading, h1.main-heading {
     font-family: var(--font-display);
-    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-size: var(--font-size-heading, clamp(2rem, 5vw, 3.5rem));
     font-weight: var(--font-weight-heading, 700);
-    line-height: 1.18;
+    line-height: var(--line-height-heading, 1.18);
     letter-spacing: var(--letter-spacing-heading, -0.02em);
     color: var(--color-heading);
   }

@@ -30,18 +30,18 @@ export function ColorManager() {
   const [previewConfig, setPreviewConfig] = useState<ColorConfig | null>(() => {
     if (typeof window === "undefined") return null;
     try {
-      const raw = sessionStorage.getItem(COLOR_PREVIEW_STORAGE_KEY);
+      const raw = sessionStorage.getItem(COLOR_PREVIEW_STORAGE_KEY) || localStorage.getItem(COLOR_PREVIEW_STORAGE_KEY);
       return raw ? parseColorConfig(raw) : null;
     } catch {
       return null;
     }
   });
 
-  // Check for local preview in sessionStorage and listen for changes
+  // Check for local preview in sessionStorage or localStorage, and listen for BroadcastChannel events
   useEffect(() => {
     const readPreview = () => {
       try {
-        const raw = sessionStorage.getItem(COLOR_PREVIEW_STORAGE_KEY);
+        const raw = sessionStorage.getItem(COLOR_PREVIEW_STORAGE_KEY) || localStorage.getItem(COLOR_PREVIEW_STORAGE_KEY);
         if (raw) {
           setPreviewConfig(parseColorConfig(raw));
         } else {
@@ -55,9 +55,29 @@ export function ColorManager() {
     readPreview();
     window.addEventListener("storage", readPreview);
     window.addEventListener("nd-color-preview-changed", readPreview);
+
+    let bc: BroadcastChannel | null = null;
+    if (typeof BroadcastChannel !== "undefined") {
+      try {
+        bc = new BroadcastChannel("nd-preview-channel");
+        bc.onmessage = (event) => {
+          if (event.data?.target === "color") {
+            if (event.data?.type === "preview_update" && event.data?.config) {
+              setPreviewConfig(parseColorConfig(event.data.config));
+            } else if (event.data?.type === "preview_clear") {
+              setPreviewConfig(null);
+            }
+          }
+        };
+      } catch {}
+    }
+
     return () => {
       window.removeEventListener("storage", readPreview);
       window.removeEventListener("nd-color-preview-changed", readPreview);
+      if (bc) {
+        bc.close();
+      }
     };
   }, []);
 
@@ -83,6 +103,14 @@ export function ColorManager() {
     },
     onSuccess: (saved) => {
       sessionStorage.removeItem(COLOR_PREVIEW_STORAGE_KEY);
+      localStorage.removeItem(COLOR_PREVIEW_STORAGE_KEY);
+      if (typeof BroadcastChannel !== "undefined") {
+        try {
+          const bc = new BroadcastChannel("nd-preview-channel");
+          bc.postMessage({ type: "preview_clear", target: "color" });
+          bc.close();
+        } catch {}
+      }
       setPreviewConfig(null);
       window.dispatchEvent(new Event("nd-color-preview-changed"));
       queryClient.setQueryData(["color-settings"], saved);
@@ -96,6 +124,14 @@ export function ColorManager() {
 
   const handleExitPreview = () => {
     sessionStorage.removeItem(COLOR_PREVIEW_STORAGE_KEY);
+    localStorage.removeItem(COLOR_PREVIEW_STORAGE_KEY);
+    if (typeof BroadcastChannel !== "undefined") {
+      try {
+        const bc = new BroadcastChannel("nd-preview-channel");
+        bc.postMessage({ type: "preview_clear", target: "color" });
+        bc.close();
+      } catch {}
+    }
     setPreviewConfig(null);
     window.dispatchEvent(new Event("nd-color-preview-changed"));
     toast.info("Exited color preview mode");
