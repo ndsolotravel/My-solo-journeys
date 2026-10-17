@@ -38,6 +38,7 @@ import {
   type GoogleFontOption,
   type ScriptFontOption,
 } from "@/lib/typography";
+import { getRelativeLuminance } from "@/lib/colors";
 import { PREVIEW_STORAGE_KEY } from "@/components/layout/TypographyManager";
 
 export const Route = createFileRoute("/_authenticated/admin/typography")({
