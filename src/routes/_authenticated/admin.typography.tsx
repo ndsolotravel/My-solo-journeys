@@ -398,8 +398,8 @@ function AdminTypographyPage() {
 
   return (
     <div className="space-y-8 pb-16">
-      {/* Header & Global Action Bar */}
-      <div className="flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-center sm:justify-between">
+      {/* Header & Global Action Bar — matching Homepage Visual Hierarchy & Sticky Pattern */}
+      <div className="sticky top-16 z-20 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border bg-background/95 backdrop-blur-md pb-4 pt-3 shadow-2xs">
         <div>
           <div className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand/10 text-brand">
@@ -421,7 +421,7 @@ function AdminTypographyPage() {
           <button
             type="button"
             onClick={handleReset}
-            className="inline-flex items-center gap-2 rounded-xl border border-border bg-background px-4 py-2.5 text-xs font-medium text-foreground hover:bg-muted transition-colors"
+            className="inline-flex items-center gap-2 rounded-xl border border-border bg-background px-4 py-2.5 text-xs font-medium text-foreground hover:bg-muted transition-colors cursor-pointer"
           >
             <RotateCcw className="h-3.5 w-3.5 text-muted-foreground" />
             Reset to Default
@@ -430,7 +430,7 @@ function AdminTypographyPage() {
           <button
             type="button"
             onClick={handlePreviewOnSite}
-            className="inline-flex items-center gap-2 rounded-xl border border-brand/30 bg-brand/10 px-4 py-2.5 text-xs font-semibold text-brand hover:bg-brand/20 transition-colors"
+            className="inline-flex items-center gap-2 rounded-xl border border-brand/30 bg-brand/10 px-4 py-2.5 text-xs font-semibold text-brand hover:bg-brand/20 transition-colors cursor-pointer"
           >
             <Eye className="h-3.5 w-3.5" />
             Preview Changes
@@ -440,7 +440,7 @@ function AdminTypographyPage() {
             type="button"
             onClick={() => saveMutation.mutate(draftConfig)}
             disabled={saveMutation.isPending}
-            className={`inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-xs font-semibold text-white shadow-md transition-all ${
+            className={`inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-xs font-semibold text-white shadow-md transition-all cursor-pointer ${
               isDirty
                 ? "bg-brand hover:bg-brand/90 ring-2 ring-brand/20"
                 : "bg-foreground hover:opacity-90"
@@ -465,6 +465,26 @@ function AdminTypographyPage() {
           </button>
         </div>
       </div>
+
+      {/* Unsaved Changes Banner */}
+      {isDirty && (
+        <div className="flex items-center justify-between rounded-xl bg-brand/10 border border-brand/20 px-4 py-2.5 text-xs text-brand animate-fade-in">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4 shrink-0 text-accent" />
+            <span className="font-medium">
+              You have unsaved changes. Click &quot;Save &amp; Publish&quot; to apply them to the live website.
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => saveMutation.mutate(draftConfig)}
+            disabled={saveMutation.isPending}
+            className="font-bold underline hover:opacity-80 cursor-pointer"
+          >
+            Publish now
+          </button>
+        </div>
+      )}
 
       {/* Main Grid: Controls (Left) vs Real-Time Preview (Right) */}
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 items-start">

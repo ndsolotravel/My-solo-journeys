@@ -213,8 +213,8 @@ function AdminColorsPage() {
 
   return (
     <div className="space-y-8 pb-16">
-      {/* CMS Header Banner */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border pb-6">
+      {/* CMS Header Banner — matching Homepage Visual Hierarchy & Sticky Pattern */}
+      <div className="sticky top-16 z-20 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border bg-background/95 backdrop-blur-md pb-4 pt-3 shadow-2xs">
         <div>
           <div className="flex items-center gap-2">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#4085FF]/10 text-[#4085FF]">
@@ -235,7 +235,7 @@ function AdminColorsPage() {
           <button
             type="button"
             onClick={handleResetToDefault}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-background px-3.5 py-2 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-all"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-background px-3.5 py-2 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-all cursor-pointer"
             title="Reset all colors to default configuration"
           >
             <RotateCcw className="h-3.5 w-3.5" />
@@ -245,7 +245,7 @@ function AdminColorsPage() {
           <button
             type="button"
             onClick={handlePreviewOnSite}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-[#4085FF]/30 bg-[#4085FF]/10 px-4 py-2 text-xs font-semibold text-[#4085FF] hover:bg-[#4085FF]/20 transition-all shadow-xs"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-[#4085FF]/30 bg-[#4085FF]/10 px-4 py-2 text-xs font-semibold text-[#4085FF] hover:bg-[#4085FF]/20 transition-all shadow-xs cursor-pointer"
             title="Preview changes across the live site"
           >
             <Eye className="h-3.5 w-3.5" />
@@ -256,13 +256,33 @@ function AdminColorsPage() {
             type="button"
             onClick={() => saveMutation.mutate(draftConfig)}
             disabled={saveMutation.isPending || !isDirty}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-[#4085FF] px-4 py-2 text-xs font-semibold text-white shadow-md hover:bg-[#3570D0] transition-all disabled:opacity-50 disabled:pointer-events-none"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-[#4085FF] px-4 py-2 text-xs font-semibold text-white shadow-md hover:bg-[#3570D0] transition-all disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
           >
             <Save className="h-3.5 w-3.5" />
             {saveMutation.isPending ? "Publishing..." : isDirty ? "Save & Publish" : "Published Live"}
           </button>
         </div>
       </div>
+
+      {/* Unsaved Changes Alert Banner */}
+      {isDirty && (
+        <div className="flex items-center justify-between rounded-xl bg-[#4085FF]/10 border border-[#4085FF]/20 px-4 py-2.5 text-xs text-[#4085FF] animate-fade-in">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4 shrink-0 text-accent" />
+            <span className="font-medium">
+              You have unsaved changes. Click &quot;Save &amp; Publish&quot; to push your color palette live.
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => saveMutation.mutate(draftConfig)}
+            disabled={saveMutation.isPending}
+            className="font-bold underline hover:opacity-80 cursor-pointer"
+          >
+            Publish now
+          </button>
+        </div>
+      )}
 
       {/* Main 2-Column Split: Controls on Left, Live Preview on Right */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
